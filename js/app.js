@@ -65,7 +65,7 @@ const parsingHelpers = {
 };
 
 const tabs = initialiseTabs({
-  defaultTab: 'plan',
+  defaultTab: 'inputs',
   onChange: (tabName) => {
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
@@ -84,7 +84,7 @@ function initialise() {
   setupWorker();
   applyDefaults();
   attachEvents();
-  tabs.setActiveTab('plan');
+  tabs.setActiveTab('inputs');
 }
 
 function setupWorker() {
@@ -128,7 +128,7 @@ function attachEvents() {
     onReset: () => {
       applyDefaults();
       hideError();
-      tabs.setActiveTab('plan');
+      tabs.setActiveTab('inputs');
     }
   });
 
