@@ -338,6 +338,35 @@ input[type="checkbox"]{
   flex:0 0 auto;
 }
 
+.results-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+
+.toggle-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--panel-soft);
+  color:var(--text);
+  font-size:0.92rem;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.toggle-chip input[type="checkbox"]{
+  margin:0;
+  align-self:center;
+}
+
 .model-note{
   background:var(--panel-soft);
   border:1px solid var(--line);
@@ -449,5 +478,15 @@ canvas{
 
   .tab-button{
     flex:1 1 0;
+  }
+
+  .results-toolbar{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .toggle-chip{
+    width:100%;
+    justify-content:flex-start;
   }
 }
