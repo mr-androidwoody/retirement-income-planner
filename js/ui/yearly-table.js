@@ -11,8 +11,8 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, names = 
   thead.innerHTML = `
     <tr>
       <th>Year</th>
-      <th>${escapeHtml(person1Name)} age</th>
-      <th>${escapeHtml(person2Name)} age</th>
+      <th>${escapeHtml(person1Name)}</th>
+      <th>${escapeHtml(person2Name)}</th>
       <th>Start portfolio</th>
       <th>Household spending</th>
       <th>State pension</th>
