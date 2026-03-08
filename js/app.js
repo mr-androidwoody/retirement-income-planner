@@ -38,6 +38,8 @@ const els = {
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
   chartModeNominal: document.getElementById('chartModeNominal'),
   chartModeReal: document.getElementById('chartModeReal'),
+  guytonKlingerOn: document.getElementById('guytonKlingerOn'),
+  guytonKlingerOff: document.getElementById('guytonKlingerOff'),
   showRealValues: document.getElementById('showRealValues'),
   showFullTable: document.getElementById('showFullTable'),
 
@@ -59,6 +61,7 @@ const els = {
 };
 
 let latestResult = null;
+let latestBaseInputs = null;
 let worker = null;
 let withdrawalInputMode = 'amount';
 
@@ -123,6 +126,7 @@ function setupWorker() {
 function applyDefaults() {
   planForm.applyDefaults(DEFAULT_INPUTS);
   advancedForm.applyDefaults(DEFAULT_INPUTS);
+  latestBaseInputs = null;
   withdrawalInputMode = 'amount';
   syncInitialWithdrawalRateFromAmount();
 }
@@ -132,6 +136,8 @@ function setResultsViewDefaults() {
   if (els.chartModeReal) els.chartModeReal.checked = false;
   if (els.showRealValues) els.showRealValues.checked = false;
   if (els.showFullTable) els.showFullTable.checked = true;
+  if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
+  if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
 
 function attachEvents() {
@@ -156,6 +162,7 @@ function attachEvents() {
 
   attachWithdrawalRateSync();
   attachChartModeEvents();
+  attachGuytonKlingerEvents();
 
   window.addEventListener(
     'resize',
@@ -227,6 +234,21 @@ function attachChartModeEvents() {
   }
 }
 
+function attachGuytonKlingerEvents() {
+  const rerun = () => {
+    if (!latestBaseInputs) return;
+    rerunResultsWithCurrentOptions();
+  };
+
+  if (els.guytonKlingerOn) {
+    els.guytonKlingerOn.addEventListener('change', rerun);
+  }
+
+  if (els.guytonKlingerOff) {
+    els.guytonKlingerOff.addEventListener('change', rerun);
+  }
+}
+
 function syncInitialWithdrawalRateFromAmount() {
   if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
 
@@ -272,6 +294,13 @@ function gatherInputs() {
   return inputs;
 }
 
+function getResultsOverrideInputs(baseInputs) {
+  return {
+    ...baseInputs,
+    enableGuardrails: Boolean(els.guytonKlingerOn?.checked)
+  };
+}
+
 function runSimulation() {
   const inputs = gatherInputs();
   const mergedInputs = { ...DEFAULT_INPUTS, ...inputs };
@@ -283,19 +312,49 @@ function runSimulation() {
   }
 
   hideError();
+  latestBaseInputs = mergedInputs;
   planForm.setBusy(true);
 
+  const effectiveInputs = getResultsOverrideInputs(mergedInputs);
+
   if (worker) {
-    worker.postMessage({ type: 'run', inputs });
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
     return;
   }
 
   try {
-    latestResult = runRetirementSimulation(inputs);
+    latestResult = runRetirementSimulation(effectiveInputs);
     planForm.setBusy(false);
     showResults();
   } catch (error) {
     planForm.setBusy(false);
+    showError(error instanceof Error ? error.message : 'Simulation failed.');
+  }
+}
+
+function rerunResultsWithCurrentOptions() {
+  if (!latestBaseInputs) return;
+
+  const effectiveInputs = getResultsOverrideInputs(latestBaseInputs);
+  const errors = validateInputs(effectiveInputs);
+
+  if (errors.length > 0) {
+    showError(errors.join(' '));
+    return;
+  }
+
+  hideError();
+
+  if (worker) {
+    planForm.setBusy(true);
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
+    return;
+  }
+
+  try {
+    latestResult = runRetirementSimulation(effectiveInputs);
+    renderAll();
+  } catch (error) {
     showError(error instanceof Error ? error.message : 'Simulation failed.');
   }
 }
