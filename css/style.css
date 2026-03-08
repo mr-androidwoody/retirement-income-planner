@@ -13,14 +13,11 @@
   --radius-sm:10px;
 }
 
-*,
-*::before,
-*::after{
+*,*::before,*::after{
   box-sizing:border-box;
 }
 
-html,
-body{
+html,body{
   margin:0;
   padding:0;
   background:var(--bg);
@@ -81,18 +78,18 @@ body{
 }
 
 .summary-card--green{
-  background:rgba(16, 185, 129, 0.62);
-  border-color:rgba(52, 211, 153, 0.85);
+  background:rgba(16, 185, 129, 0.32);
+  border-color:rgba(52, 211, 153, 0.55);
 }
 
 .summary-card--amber{
-  background:rgba(245, 158, 11, 0.60);
-  border-color:rgba(251, 191, 36, 0.82);
+  background:rgba(245, 158, 11, 0.30);
+  border-color:rgba(251, 191, 36, 0.52);
 }
 
 .summary-card--red{
-  background:rgba(239, 68, 68, 0.60);
-  border-color:rgba(248, 113, 113, 0.82);
+  background:rgba(239, 68, 68, 0.30);
+  border-color:rgba(248, 113, 113, 0.52);
 }
 
 .summary-label{
@@ -311,10 +308,6 @@ body{
   grid-column:1 / -1;
 }
 
-.field-span-2{
-  grid-column:span 2;
-}
-
 .field-label{
   min-height:40px;
   display:flex;
@@ -475,61 +468,7 @@ input[type="checkbox"]{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:18px;
-  align-items:stretch;
-}
-
-.results-chart-grid .chart-card{
-  display:flex;
-  flex-direction:column;
-  min-width:0;
-  height:100%;
-}
-
-.chart-card,
-.table-card{
-  padding:18px;
-}
-
-.card-header{
-  margin-bottom:12px;
-}
-
-.chart-card-header{
-  margin-bottom:14px;
-  flex:0 0 auto;
-}
-
-.card-title-block{
-  min-width:0;
-}
-
-.card-title-block h2{
-  margin:0;
-  font-size:1.18rem;
-  line-height:1.25;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.card-title-block p{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.45;
-}
-
-.chart-canvas-wrap{
-  position:relative;
-  flex:1 1 auto;
-  min-height:340px;
-  display:flex;
-}
-
-.chart-canvas-wrap canvas{
-  width:100%;
-  height:340px;
-  min-height:340px;
+  align-items:start;
 }
 
 .model-note{
@@ -541,6 +480,15 @@ input[type="checkbox"]{
   color:var(--muted);
   font-size:0.92rem;
   line-height:1.6;
+}
+
+.chart-card,
+.table-card{
+  padding:18px;
+}
+
+.card-header{
+  margin-bottom:12px;
 }
 
 canvas{
@@ -614,8 +562,7 @@ canvas{
     grid-template-columns:1fr;
   }
 
-  .field-span-full,
-  .field-span-2{
+  .field-span-full{
     grid-column:auto;
   }
 
@@ -623,18 +570,6 @@ canvas{
   .card-header,
   .results-meta-header{
     flex-direction:column;
-  }
-
-  .card-title-block h2{
-    white-space:normal;
-    overflow:visible;
-    text-overflow:clip;
-  }
-
-  .chart-canvas-wrap,
-  .chart-canvas-wrap canvas{
-    min-height:320px;
-    height:320px;
   }
 }
 
