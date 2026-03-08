@@ -20,7 +20,7 @@
 
     <section class="summary-band" aria-label="Key results">
       <div class="summary-grid">
-        <article class="summary-card">
+        <article class="summary-card" id="summarySuccessRateCard">
           <div class="summary-label">Monte Carlo success rate</div>
           <div class="summary-value" id="summarySuccessRate">—</div>
           <div class="summary-desc">Share of simulated paths that avoid depletion across the full plan.</div>
@@ -71,10 +71,10 @@
               <section class="input-group-card">
                 <div class="section-heading">
                   <h3>Core assumptions</h3>
-                  <p>Retirement horizon, portfolio size, spending target, and allocation mix.</p>
+                  <p>Retirement horizon, portfolio size, starting spend, and allocation mix.</p>
                 </div>
 
-                <div class="field-grid field-grid-3">
+                <div class="field-grid field-grid-4">
                   <label class="field">
                     <span class="field-label">Retirement years</span>
                     <input id="years" type="number" min="1" max="80" step="1" />
@@ -86,10 +86,21 @@
                   </label>
 
                   <label class="field">
-                    <span class="field-label">Initial household spending</span>
-                    <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
+                    <span class="field-label">Initial withdrawal rate (%)</span>
+                    <input id="initialWithdrawalRate" type="number" min="0" step="0.1" />
                   </label>
 
+                  <label class="field">
+                    <span class="field-label">Initial household spending (£)</span>
+                    <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+                </div>
+
+                <div class="section-subnote">
+                  Edit either the starting withdrawal rate or the starting spend. The other field updates automatically.
+                </div>
+
+                <div class="field-grid field-grid-3">
                   <label class="field">
                     <span class="field-label">Equity allocation %</span>
                     <input id="equityAllocation" type="number" min="0" max="100" step="0.1" />
@@ -133,7 +144,7 @@
               <section class="input-group-card">
                 <div class="section-heading">
                   <h3>State pension</h3>
-                  <p>Current ages, pension ages, and today's annual pension amounts for both people.</p>
+                  <p>Current ages, pension ages, and today’s annual pension amounts for both people.</p>
                 </div>
 
                 <div class="field-grid field-grid-3">
@@ -317,7 +328,7 @@
             </div>
 
             <div class="model-note">
-              Total household spending starts from the initial withdrawal amount and normally rises with inflation. If the inflation-skip rule is enabled, inflation increases are skipped after negative return years. State pension starts at the chosen pension age for each person and reduces the amount drawn from the portfolio. Withdrawals are taken from cashlike assets first, then bonds, then equities.
+              The simulator can keep a high portfolio survival rate even when starting spend is aggressive, because the guardrails are allowed to cut spending over time. Use the yearly results and spending chart to see how far withdrawals are being reduced.
             </div>
 
             <div id="errorBox" class="error-box" role="alert" aria-live="polite"></div>
@@ -336,10 +347,20 @@
             </div>
 
             <div class="results-toolbar">
-              <label class="toggle-chip" for="showRealValues">
-                <input id="showRealValues" type="checkbox" />
-                <span>Show real values</span>
-              </label>
+              <div class="chart-mode-group" role="group" aria-label="Chart mode">
+                <div class="chart-mode-label">Chart mode</div>
+                <div class="mode-switch">
+                  <label class="mode-option">
+                    <input id="chartModeNominal" type="radio" name="chartMode" checked />
+                    <span>Nominal</span>
+                  </label>
+                  <label class="mode-option">
+                    <input id="chartModeReal" type="radio" name="chartMode" />
+                    <span>Real</span>
+                  </label>
+                </div>
+                <input id="showRealValues" type="checkbox" hidden />
+              </div>
 
               <label class="toggle-chip" for="showFullTable">
                 <input id="showFullTable" type="checkbox" checked />
@@ -349,7 +370,7 @@
 
             <div class="results-explainer">
               <p><strong>Nominal</strong> shows future pounds including inflation. <strong>Real</strong> adjusts for inflation so values are shown in today’s money.</p>
-              <p>For withdrawal planning, <strong>real view is usually the better guide</strong> because the guardrails are inflation-adjusted and are designed to reflect spending power over time.</p>
+              <p>For drawdown planning, <strong>real view is usually the better guide</strong> because the guardrails are inflation-adjusted and are meant to reflect spending power over time.</p>
             </div>
           </section>
 
