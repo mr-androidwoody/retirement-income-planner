@@ -32,19 +32,19 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
     lines: [
       {
         label: 'Total household spending',
-        values: rows.map((row) => useReal ? row.spendingReal : row.spendingNominal),
+        values: rows.map((row) => (useReal ? row.spendingReal : row.spendingNominal)),
         color: '#6d28d9',
         width: 3
       },
       {
         label: 'State pension income',
-        values: rows.map((row) => useReal ? row.statePensionReal : row.statePensionNominal),
+        values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
         color: '#15803d',
         width: 2.5
       },
       {
         label: 'Portfolio withdrawals',
-        values: rows.map((row) => useReal ? row.withdrawalReal : row.withdrawalNominal),
+        values: rows.map((row) => (useReal ? row.withdrawalReal : row.withdrawalNominal)),
         color: '#dc2626',
         width: 2.5
       }
@@ -65,24 +65,40 @@ function drawLineChart(canvas, config) {
 
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  const width = Math.max(320, Math.floor(rect.width || canvas.clientWidth || 320));
-  const height = Number(canvas.getAttribute('height')) || canvas.height || 320;
+  const width = Math.max(420, Math.floor(rect.width || canvas.clientWidth || 420));
+  const baseHeight = Number(canvas.getAttribute('height')) || canvas.height || 320;
+
+  ctx.font = '12px Inter, system-ui, sans-serif';
+  const legendLayout = measureLegend(ctx, config.lines, width);
+
+  const padding = {
+    top: 20,
+    right: 20,
+    bottom: 54 + legendLayout.height,
+    left: 110
+  };
+
+  const height = Math.max(baseHeight, 240 + padding.top + padding.bottom);
 
   canvas.width = width * dpr;
   canvas.height = height * dpr;
+  canvas.style.height = `${height}px`;
+
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, width, height);
 
-  const padding = { top: 20, right: 20, bottom: 56, left: 110 };
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
 
+  if (plotWidth <= 0 || plotHeight <= 0) return;
+
   const allValues = [];
   if (config.band) allValues.push(...config.band.lower, ...config.band.upper);
-  config.lines.forEach((line) => allValues.push(...line.values));
+  config.lines.forEach((line) => allValues.push(...line.values.filter((value) => Number.isFinite(value))));
 
+  const maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
   const minY = 0;
-  const maxY = niceMax(Math.max(...allValues, 1));
+  const maxY = niceMax(maxDataValue);
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
@@ -115,7 +131,7 @@ function drawLineChart(canvas, config) {
   });
 
   drawXAxis(ctx, config.labels, width, height, padding);
-  drawLegend(ctx, config.lines, width, height);
+  drawLegend(ctx, config.lines, width, height, legendLayout);
 }
 
 function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
@@ -183,15 +199,17 @@ function drawBand(ctx, lower, upper, geometry) {
 }
 
 function drawSeries(ctx, values, geometry) {
-  if (!values.length) return;
+  const cleanValues = values.map((value) => (Number.isFinite(value) ? value : 0));
+  if (!cleanValues.length) return;
 
   ctx.beginPath();
-  values.forEach((value, index) => {
-    const x = geometry.left + getX(index, values.length, geometry.width);
+  cleanValues.forEach((value, index) => {
+    const x = geometry.left + getX(index, cleanValues.length, geometry.width);
     const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
     if (index === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
+
   ctx.strokeStyle = geometry.color;
   ctx.lineWidth = geometry.lineWidth;
   ctx.stroke();
@@ -199,8 +217,14 @@ function drawSeries(ctx, values, geometry) {
 
 function drawXAxis(ctx, labels, width, height, padding) {
   const plotWidth = width - padding.left - padding.right;
-  const baseline = height - padding.bottom + 18;
-  const tickIndexes = [0, Math.floor((labels.length - 1) * 0.25), Math.floor((labels.length - 1) * 0.5), Math.floor((labels.length - 1) * 0.75), labels.length - 1];
+  const baseline = height - padding.bottom + 14;
+  const tickIndexes = [
+    0,
+    Math.floor((labels.length - 1) * 0.25),
+    Math.floor((labels.length - 1) * 0.5),
+    Math.floor((labels.length - 1) * 0.75),
+    labels.length - 1
+  ];
   const uniqueIndexes = [...new Set(tickIndexes.filter((value) => value >= 0))];
 
   ctx.fillStyle = '#657086';
@@ -214,24 +238,83 @@ function drawXAxis(ctx, labels, width, height, padding) {
   });
 }
 
-function drawLegend(ctx, lines, width, height) {
+function measureLegend(ctx, lines, width) {
   const boxSize = 12;
   const itemGap = 22;
-  const startX = 18;
-  const y = height - 22;
+  const rowGap = 10;
+  const horizontalPadding = 18;
+  const maxRowWidth = Math.max(180, width - horizontalPadding * 2);
+
+  const items = lines.map((line) => {
+    const textWidth = ctx.measureText(line.label).width;
+    const widthNeeded = boxSize + 8 + textWidth;
+    return {
+      ...line,
+      widthNeeded
+    };
+  });
+
+  const rows = [];
+  let currentRow = [];
+  let currentWidth = 0;
+
+  items.forEach((item) => {
+    const nextWidth = currentRow.length === 0
+      ? item.widthNeeded
+      : currentWidth + itemGap + item.widthNeeded;
+
+    if (nextWidth > maxRowWidth && currentRow.length > 0) {
+      rows.push(currentRow);
+      currentRow = [item];
+      currentWidth = item.widthNeeded;
+    } else {
+      currentRow.push(item);
+      currentWidth = nextWidth;
+    }
+  });
+
+  if (currentRow.length > 0) rows.push(currentRow);
+
+  const rowHeight = Math.max(boxSize, 12);
+  const height = rows.length * rowHeight + Math.max(0, rows.length - 1) * rowGap + 12;
+
+  return {
+    rows,
+    boxSize,
+    itemGap,
+    rowGap,
+    rowHeight,
+    height
+  };
+}
+
+function drawLegend(ctx, lines, width, height, layout) {
+  if (!layout?.rows?.length) return;
 
   ctx.font = '12px Inter, system-ui, sans-serif';
   ctx.textBaseline = 'middle';
 
-  let cursorX = startX;
+  const bottomPadding = 12;
+  let cursorY = height - layout.height + 6;
 
-  lines.forEach((line) => {
-    ctx.fillStyle = line.color;
-    ctx.fillRect(cursorX, y - boxSize / 2, boxSize, boxSize);
+  layout.rows.forEach((row) => {
+    const rowWidth = row.reduce((sum, item, index) => {
+      return sum + item.widthNeeded + (index > 0 ? layout.itemGap : 0);
+    }, 0);
 
-    ctx.fillStyle = '#334155';
-    ctx.fillText(line.label, cursorX + boxSize + 8, y);
-    cursorX += boxSize + 8 + ctx.measureText(line.label).width + itemGap;
+    let cursorX = Math.max(18, (width - rowWidth) / 2);
+
+    row.forEach((line) => {
+      ctx.fillStyle = line.color;
+      ctx.fillRect(cursorX, cursorY - layout.boxSize / 2, layout.boxSize, layout.boxSize);
+
+      ctx.fillStyle = '#334155';
+      ctx.fillText(line.label, cursorX + layout.boxSize + 8, cursorY);
+
+      cursorX += line.widthNeeded + layout.itemGap;
+    });
+
+    cursorY += layout.rowHeight + layout.rowGap;
   });
 }
 
@@ -251,10 +334,12 @@ function niceMax(value) {
   const exponent = Math.floor(Math.log10(value));
   const base = 10 ** exponent;
   const scaled = value / base;
+
   let rounded;
   if (scaled <= 1) rounded = 1;
   else if (scaled <= 2) rounded = 2;
   else if (scaled <= 5) rounded = 5;
   else rounded = 10;
+
   return rounded * base;
 }
