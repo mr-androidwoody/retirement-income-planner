@@ -367,6 +367,13 @@ input[type="checkbox"]{
   align-self:center;
 }
 
+.results-chart-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:18px;
+  align-items:start;
+}
+
 .model-note{
   background:var(--panel-soft);
   border:1px solid var(--line);
@@ -441,7 +448,8 @@ canvas{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 
-  .input-shell{
+  .input-shell,
+  .results-chart-grid{
     grid-template-columns:1fr;
   }
 }
