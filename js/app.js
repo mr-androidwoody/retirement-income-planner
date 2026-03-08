@@ -55,7 +55,8 @@ const els = {
   resultMeta: document.getElementById('resultMeta')
 };
 
-const tabs = initialiseTabs({ defaultTab: 'plan' });
+let latestResult = null;
+let worker = null;
 
 const parsingHelpers = {
   formatInteger,
@@ -63,11 +64,19 @@ const parsingHelpers = {
   parseLooseInteger
 };
 
+const tabs = initialiseTabs({
+  defaultTab: 'plan',
+  onChange: (tabName) => {
+    if (tabName === 'results' && latestResult) {
+      requestAnimationFrame(() => {
+        renderAll();
+      });
+    }
+  }
+});
+
 const planForm = createPlanForm(els, parsingHelpers);
 const advancedForm = createAdvancedForm(els, parsingHelpers);
-
-let worker = null;
-let latestResult = null;
 
 initialise();
 
@@ -92,8 +101,7 @@ function setupWorker() {
 
       latestResult = event.data.result;
       hideError();
-      renderAll();
-      tabs.setActiveTab('results');
+      showResults();
     };
 
     worker.onerror = () => {
@@ -125,7 +133,9 @@ function attachEvents() {
   });
 
   advancedForm.bindDisplayEvents({
-    onViewChange: renderAll
+    onViewChange: () => {
+      if (latestResult) renderAll();
+    }
   });
 
   window.addEventListener(
@@ -165,12 +175,18 @@ function runSimulation() {
   try {
     latestResult = runRetirementSimulation(inputs);
     planForm.setBusy(false);
-    renderAll();
-    tabs.setActiveTab('results');
+    showResults();
   } catch (error) {
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
   }
+}
+
+function showResults() {
+  tabs.setActiveTab('results');
+  requestAnimationFrame(() => {
+    renderAll();
+  });
 }
 
 function renderAll() {
