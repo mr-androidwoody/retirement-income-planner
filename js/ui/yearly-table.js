@@ -1,15 +1,18 @@
-export function renderYearlyTable(table, rows, useReal, formatCurrency) {
+export function renderYearlyTable(table, rows, useReal, formatCurrency, names = {}) {
   if (!table || !Array.isArray(rows)) return;
 
   const thead = table.querySelector('thead');
   const tbody = table.querySelector('tbody');
   if (!thead || !tbody) return;
 
+  const person1Name = sanitiseHeaderLabel(names.person1Name, 'Person 1');
+  const person2Name = sanitiseHeaderLabel(names.person2Name, 'Person 2');
+
   thead.innerHTML = `
     <tr>
       <th>Year</th>
-      <th>Age 1</th>
-      <th>Age 2</th>
+      <th>${escapeHtml(person1Name)} age</th>
+      <th>${escapeHtml(person2Name)} age</th>
       <th>Start portfolio</th>
       <th>Household spending</th>
       <th>State pension</th>
@@ -30,4 +33,18 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency) {
       <td>${formatCurrency(useReal ? row.endPortfolioReal : row.endPortfolioNominal)}</td>
     </tr>
   `).join('');
+}
+
+function sanitiseHeaderLabel(value, fallback) {
+  const text = String(value ?? '').trim();
+  return text || fallback;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
