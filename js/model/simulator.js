@@ -35,6 +35,7 @@ export const DEFAULT_INPUTS = {
   person1Name: 'Person 1',
   person1Age: 57,
   person1PensionAge: 67,
+  statePensionToday: 12547,
   person1PensionToday: 12547,
   person2Name: 'Person 2',
   person2Age: 58,
@@ -140,11 +141,12 @@ function normaliseInputs(rawInputs = {}) {
     person1Name: String(merged.person1Name ?? DEFAULT_INPUTS.person1Name).trim() || DEFAULT_INPUTS.person1Name,
     person1Age: toInt(merged.person1Age),
     person1PensionAge: toInt(merged.person1PensionAge),
-    person1PensionToday: toNumber(merged.person1PensionToday),
+    statePensionToday: resolveSharedStatePensionToday(merged),
+    person1PensionToday: resolvePersonPensionToday(merged, 'person1PensionToday'),
     person2Name: String(merged.person2Name ?? DEFAULT_INPUTS.person2Name).trim() || DEFAULT_INPUTS.person2Name,
     person2Age: toInt(merged.person2Age),
     person2PensionAge: toInt(merged.person2PensionAge),
-    person2PensionToday: toNumber(merged.person2PensionToday),
+    person2PensionToday: resolvePersonPensionToday(merged, 'person2PensionToday'),
 
     upperGuardrail: toRatio(merged.upperGuardrail),
     lowerGuardrail: toRatio(merged.lowerGuardrail),
@@ -497,6 +499,34 @@ function createRng(seed) {
     return state / 4294967296;
   };
 }
+function resolveSharedStatePensionToday(inputs) {
+  if (hasMeaningfulValue(inputs?.statePensionToday)) {
+    return toNumber(inputs.statePensionToday);
+  }
+
+  if (hasMeaningfulValue(inputs?.person1PensionToday)) {
+    return toNumber(inputs.person1PensionToday);
+  }
+
+  if (hasMeaningfulValue(inputs?.person2PensionToday)) {
+    return toNumber(inputs.person2PensionToday);
+  }
+
+  return toNumber(DEFAULT_INPUTS.statePensionToday);
+}
+
+function resolvePersonPensionToday(inputs, key) {
+  if (hasMeaningfulValue(inputs?.[key])) {
+    return toNumber(inputs[key]);
+  }
+
+  return resolveSharedStatePensionToday(inputs);
+}
+
+function hasMeaningfulValue(value) {
+  return value !== null && value !== undefined && value !== '';
+}
+
 
 function toNumber(value) {
   const numeric = Number(value);
