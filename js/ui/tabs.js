@@ -1,29 +1,24 @@
-export function initialiseTabs({ navSelector = '[data-tab-button]', panelSelector = '[data-tab-panel]', defaultTab = 'plan', onChange = null } = {}) {
-  const buttons = Array.from(document.querySelectorAll(navSelector));
-  const panels = Array.from(document.querySelectorAll(panelSelector));
+export function initialiseTabs({ defaultTab = 'inputs', onChange = null } = {}) {
+  const buttons = Array.from(document.querySelectorAll('[data-tab-button]'));
+  const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
-  if (buttons.length === 0 || panels.length === 0) {
-    return {
-      setActiveTab() {}
-    };
-  }
-
-  const panelMap = new Map(panels.map((panel) => [panel.dataset.tabPanel, panel]));
-  const buttonMap = new Map(buttons.map((button) => [button.dataset.tabButton, button]));
-
-  function setActiveTab(tabName, focusButton = false) {
-    buttonMap.forEach((button, name) => {
-      const isActive = name === tabName;
+  function setActiveTab(tabName) {
+    buttons.forEach((button) => {
+      const isActive = button.dataset.tabButton === tabName;
       button.classList.toggle('is-active', isActive);
       button.setAttribute('aria-selected', String(isActive));
-      button.tabIndex = isActive ? 0 : -1;
-      if (isActive && focusButton) button.focus();
+      button.setAttribute('tabindex', isActive ? '0' : '-1');
     });
 
-    panelMap.forEach((panel, name) => {
-      const isActive = name === tabName;
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.tabPanel === tabName;
       panel.classList.toggle('is-active', isActive);
-      panel.hidden = !isActive;
+
+      if (isActive) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', '');
+      }
     });
 
     if (typeof onChange === 'function') {
@@ -31,30 +26,26 @@ export function initialiseTabs({ navSelector = '[data-tab-button]', panelSelecto
     }
   }
 
-  function handleKeydown(event) {
-    const currentIndex = buttons.findIndex((button) => button === event.currentTarget);
-    if (currentIndex === -1) return;
-
-    let nextIndex = null;
-
-    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % buttons.length;
-    if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + buttons.length) % buttons.length;
-    if (event.key === 'Home') nextIndex = 0;
-    if (event.key === 'End') nextIndex = buttons.length - 1;
-
-    if (nextIndex === null) return;
-
-    event.preventDefault();
-    const nextButton = buttons[nextIndex];
-    setActiveTab(nextButton.dataset.tabButton, true);
-  }
-
   buttons.forEach((button) => {
-    button.addEventListener('click', () => setActiveTab(button.dataset.tabButton));
-    button.addEventListener('keydown', handleKeydown);
+    button.addEventListener('click', () => {
+      setActiveTab(button.dataset.tabButton);
+    });
   });
 
-  setActiveTab(buttonMap.has(defaultTab) ? defaultTab : buttons[0].dataset.tabButton);
+  const availableTabs = new Set(buttons.map((button) => button.dataset.tabButton));
+  const initialTab = availableTabs.has(defaultTab)
+    ? defaultTab
+    : buttons[0]?.dataset.tabButton;
 
-  return { setActiveTab };
+  if (initialTab) {
+    setActiveTab(initialTab);
+  }
+
+  return {
+    setActiveTab,
+    getActiveTab() {
+      const activeButton = buttons.find((button) => button.classList.contains('is-active'));
+      return activeButton ? activeButton.dataset.tabButton : null;
+    }
+  };
 }
