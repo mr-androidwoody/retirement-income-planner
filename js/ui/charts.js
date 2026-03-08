@@ -31,9 +31,16 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
     labels: rows.map((row) => row.year),
     lines: [
       {
-        label: 'Total household spending',
-        values: rows.map((row) => (useReal ? row.spendingReal : row.spendingNominal)),
-        color: '#6d28d9',
+        label: 'Planned household spending',
+        values: rows.map((row) => (useReal ? row.targetSpendingReal : row.targetSpendingNominal)),
+        color: '#7c3aed',
+        width: 2,
+        dash: [8, 6]
+      },
+      {
+        label: 'Actual spending after guardrails',
+        values: rows.map((row) => (useReal ? row.actualSpendingReal : row.actualSpendingNominal)),
+        color: '#4f46e5',
         width: 3
       },
       {
@@ -126,7 +133,8 @@ function drawLineChart(canvas, config) {
       minY,
       maxY,
       color: line.color,
-      lineWidth: line.width || 2
+      lineWidth: line.width || 2,
+      dash: line.dash || []
     });
   });
 
@@ -202,7 +210,10 @@ function drawSeries(ctx, values, geometry) {
   const cleanValues = values.map((value) => (Number.isFinite(value) ? value : 0));
   if (!cleanValues.length) return;
 
+  ctx.save();
   ctx.beginPath();
+  ctx.setLineDash(geometry.dash);
+
   cleanValues.forEach((value, index) => {
     const x = geometry.left + getX(index, cleanValues.length, geometry.width);
     const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
@@ -213,6 +224,7 @@ function drawSeries(ctx, values, geometry) {
   ctx.strokeStyle = geometry.color;
   ctx.lineWidth = geometry.lineWidth;
   ctx.stroke();
+  ctx.restore();
 }
 
 function drawXAxis(ctx, labels, width, height, padding) {
@@ -239,8 +251,8 @@ function drawXAxis(ctx, labels, width, height, padding) {
 }
 
 function measureLegend(ctx, lines, width) {
-  const boxSize = 12;
-  const boxTextGap = 8;
+  const markerWidth = 18;
+  const markerTextGap = 8;
   const itemGap = 26;
   const rowGap = 10;
   const horizontalPadding = 18;
@@ -248,7 +260,7 @@ function measureLegend(ctx, lines, width) {
 
   const items = lines.map((line) => {
     const textWidth = ctx.measureText(line.label).width;
-    const widthNeeded = boxSize + boxTextGap + textWidth;
+    const widthNeeded = markerWidth + markerTextGap + textWidth;
     return {
       ...line,
       textWidth,
@@ -261,9 +273,10 @@ function measureLegend(ctx, lines, width) {
   let currentWidth = 0;
 
   items.forEach((item) => {
-    const nextWidth = currentRow.length === 0
-      ? item.widthNeeded
-      : currentWidth + itemGap + item.widthNeeded;
+    const nextWidth =
+      currentRow.length === 0
+        ? item.widthNeeded
+        : currentWidth + itemGap + item.widthNeeded;
 
     if (nextWidth > maxRowWidth && currentRow.length > 0) {
       rows.push(currentRow);
@@ -279,13 +292,13 @@ function measureLegend(ctx, lines, width) {
     rows.push(currentRow);
   }
 
-  const rowHeight = Math.max(boxSize, 12);
+  const rowHeight = 14;
   const height = rows.length * rowHeight + Math.max(0, rows.length - 1) * rowGap + 16;
 
   return {
     rows,
-    boxSize,
-    boxTextGap,
+    markerWidth,
+    markerTextGap,
     itemGap,
     rowGap,
     rowHeight,
@@ -310,13 +323,20 @@ function drawLegend(ctx, width, height, layout) {
     let cursorX = Math.max(18, (width - rowWidth) / 2);
 
     row.forEach((item) => {
-      const squareY = cursorY - layout.boxSize / 2;
+      const lineY = cursorY;
 
-      ctx.fillStyle = item.color;
-      ctx.fillRect(cursorX, squareY, layout.boxSize, layout.boxSize);
+      ctx.save();
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = item.width || 2.5;
+      ctx.setLineDash(item.dash || []);
+      ctx.beginPath();
+      ctx.moveTo(cursorX, lineY);
+      ctx.lineTo(cursorX + layout.markerWidth, lineY);
+      ctx.stroke();
+      ctx.restore();
 
       ctx.fillStyle = '#475569';
-      ctx.fillText(item.label, cursorX + layout.boxSize + layout.boxTextGap, cursorY);
+      ctx.fillText(item.label, cursorX + layout.markerWidth + layout.markerTextGap, lineY);
 
       cursorX += item.widthNeeded + layout.itemGap;
     });
