@@ -49,9 +49,29 @@ export function sampleCorrelatedAnnualReturns({
   volatilities,
   correlations,
   inflationMean,
-  inflationVolatility = 0.01,
+  inflationVolatility = 0,
   minInflation = -0.02
 }) {
+  const equityVol = Math.max(0, volatilities.equities ?? 0);
+  const bondVol = Math.max(0, volatilities.bonds ?? 0);
+  const cashlikeVol = Math.max(0, volatilities.cashlike ?? 0);
+  const inflationVol = Math.max(0, inflationVolatility ?? 0);
+
+  const allDeterministic =
+    equityVol === 0 &&
+    bondVol === 0 &&
+    cashlikeVol === 0 &&
+    inflationVol === 0;
+
+  if (allDeterministic) {
+    return {
+      equities: clampReturn(means.equities, -0.95, 2.0),
+      bonds: clampReturn(means.bonds, -0.95, 1.0),
+      cashlike: clampReturn(means.cashlike, -0.50, 0.50),
+      inflation: Math.max(minInflation, inflationMean)
+    };
+  }
+
   const correlationMatrix = createCorrelationMatrix(correlations);
   const lower = cholesky3(correlationMatrix);
 
@@ -64,30 +84,34 @@ export function sampleCorrelatedAnnualReturns({
   const correlatedZ = multiplyLowerTriangular3(lower, z);
 
   const equities = clampReturn(
-    means.equities + correlatedZ[0] * Math.max(0, volatilities.equities),
+    means.equities + correlatedZ[0] * equityVol,
     -0.95,
     2.0
   );
 
   const bonds = clampReturn(
-    means.bonds + correlatedZ[1] * Math.max(0, volatilities.bonds),
+    means.bonds + correlatedZ[1] * bondVol,
     -0.95,
     1.0
   );
 
   const cashlike = clampReturn(
-    means.cashlike + correlatedZ[2] * Math.max(0, volatilities.cashlike),
+    means.cashlike + correlatedZ[2] * cashlikeVol,
     -0.50,
     0.50
   );
 
-  const inflationShock =
-    0.35 * correlatedZ[1] -
-    0.20 * correlatedZ[0] +
-    0.15 * correlatedZ[2] +
-    sampleStandardNormal(rng) * Math.max(0, inflationVolatility);
+  let inflation = inflationMean;
 
-  const inflation = Math.max(minInflation, inflationMean + inflationShock);
+  if (inflationVol > 0) {
+    const inflationShock =
+      0.35 * correlatedZ[1] -
+      0.20 * correlatedZ[0] +
+      0.15 * correlatedZ[2] +
+      sampleStandardNormal(rng) * inflationVol;
+
+    inflation = Math.max(minInflation, inflationMean + inflationShock);
+  }
 
   return {
     equities,
