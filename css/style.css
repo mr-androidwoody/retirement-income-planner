@@ -296,26 +296,6 @@ body{
   grid-template-columns:repeat(4, minmax(0, 1fr));
   margin-bottom:14px;
 }
-.people-grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:14px;
-}
-
-.person-card{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-  min-width:0;
-}
-
-.person-card h4{
-  margin:0 0 12px;
-  font-size:0.96rem;
-  line-height:1.3;
-}
-
 
 .field{
   display:flex;
@@ -377,6 +357,69 @@ input[type="checkbox"]{
   font-weight:800;
   cursor:help;
   flex:0 0 auto;
+}
+
+
+.people-pensions-card{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.people-pension-shared{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f3f6fb;
+}
+
+.people-pension-note{
+  margin:10px 0 0;
+}
+
+.people-columns{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:16px;
+}
+
+.person-column{
+  min-width:0;
+}
+
+.person-column-heading{
+  margin:0 0 12px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line);
+  font-size:0.95rem;
+  font-weight:800;
+  line-height:1.2;
+}
+
+.person-row-grid{
+  display:grid;
+  grid-template-columns:minmax(0, 1.5fr) 108px 150px;
+  gap:12px;
+  align-items:end;
+}
+
+.field-inline{
+  gap:8px;
+}
+
+.field-label-inline{
+  min-height:0;
+  align-items:center;
+}
+
+.field-inline-wide{
+  max-width:none;
+}
+
+.person-age-field input,
+.person-pension-age-field input{
+  max-width:100%;
+  text-align:left;
 }
 
 .results-toolbar{
@@ -614,12 +657,17 @@ canvas{
   }
 
   .input-shell,
-  .results-chart-grid{
+  .results-chart-grid,
+  .people-columns{
     grid-template-columns:1fr;
   }
 
   .field-grid-4{
     grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .person-row-grid{
+    grid-template-columns:minmax(0, 1.5fr) 108px 150px;
   }
 }
 
@@ -627,7 +675,7 @@ canvas{
   .field-grid-4,
   .field-grid-3,
   .field-grid,
-  .people-grid{
+  .person-row-grid{
     grid-template-columns:1fr;
   }
 
