@@ -333,7 +333,6 @@
                 <h2>Results</h2>
                 <p>Charts and yearly outputs from the current deterministic base case and Monte Carlo engine.</p>
               </div>
-              <div class="result-meta" id="resultMeta">—</div>
             </div>
 
             <div class="results-toolbar">
@@ -343,9 +342,14 @@
               </label>
 
               <label class="toggle-chip" for="showFullTable">
-                <input id="showFullTable" type="checkbox" />
+                <input id="showFullTable" type="checkbox" checked />
                 <span>Show full yearly table</span>
               </label>
+            </div>
+
+            <div class="results-explainer">
+              <p><strong>Nominal</strong> shows future pounds including inflation. <strong>Real</strong> adjusts for inflation so values are shown in today’s money.</p>
+              <p>For withdrawal planning, <strong>real view is usually the better guide</strong> because the guardrails are inflation-adjusted and are designed to reflect spending power over time.</p>
             </div>
           </section>
 
