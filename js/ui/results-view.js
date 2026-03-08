@@ -29,6 +29,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
+
   renderYearlyTable(
     elements.resultsTable,
     result.baseCase?.rows || [],
