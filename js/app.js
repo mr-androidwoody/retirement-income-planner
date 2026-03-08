@@ -7,6 +7,7 @@ import { createAdvancedForm } from './ui/advanced-form.js';
 const els = {
   years: document.getElementById('years'),
   initialPortfolio: document.getElementById('initialPortfolio'),
+  initialWithdrawalRate: document.getElementById('initialWithdrawalRate'),
   initialSpending: document.getElementById('initialSpending'),
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
@@ -35,6 +36,8 @@ const els = {
   monteCarloRuns: document.getElementById('monteCarloRuns'),
   seed: document.getElementById('seed'),
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
+  chartModeNominal: document.getElementById('chartModeNominal'),
+  chartModeReal: document.getElementById('chartModeReal'),
   showRealValues: document.getElementById('showRealValues'),
   showFullTable: document.getElementById('showFullTable'),
 
@@ -42,6 +45,7 @@ const els = {
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
 
+  summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
   summarySuccessRate: document.getElementById('summarySuccessRate'),
   summaryMedianEnd: document.getElementById('summaryMedianEnd'),
   summaryWorstStress: document.getElementById('summaryWorstStress'),
@@ -56,6 +60,7 @@ const els = {
 
 let latestResult = null;
 let worker = null;
+let withdrawalInputMode = 'amount';
 
 const parsingHelpers = {
   formatInteger,
@@ -84,6 +89,7 @@ function initialise() {
   applyDefaults();
   attachEvents();
   setResultsViewDefaults();
+  syncInitialWithdrawalRateFromAmount();
   tabs.setActiveTab('inputs');
 }
 
@@ -117,9 +123,13 @@ function setupWorker() {
 function applyDefaults() {
   planForm.applyDefaults(DEFAULT_INPUTS);
   advancedForm.applyDefaults(DEFAULT_INPUTS);
+  withdrawalInputMode = 'amount';
+  syncInitialWithdrawalRateFromAmount();
 }
 
 function setResultsViewDefaults() {
+  if (els.chartModeNominal) els.chartModeNominal.checked = true;
+  if (els.chartModeReal) els.chartModeReal.checked = false;
   if (els.showRealValues) els.showRealValues.checked = false;
   if (els.showFullTable) els.showFullTable.checked = true;
 }
@@ -144,6 +154,9 @@ function attachEvents() {
     }
   });
 
+  attachWithdrawalRateSync();
+  attachChartModeEvents();
+
   window.addEventListener(
     'resize',
     debounce(() => {
@@ -152,11 +165,111 @@ function attachEvents() {
   );
 }
 
+function attachWithdrawalRateSync() {
+  if (els.initialWithdrawalRate) {
+    els.initialWithdrawalRate.addEventListener('input', () => {
+      withdrawalInputMode = 'rate';
+      syncInitialSpendingFromRate();
+    });
+
+    els.initialWithdrawalRate.addEventListener('change', () => {
+      withdrawalInputMode = 'rate';
+      syncInitialSpendingFromRate();
+    });
+  }
+
+  if (els.initialSpending) {
+    els.initialSpending.addEventListener('input', () => {
+      withdrawalInputMode = 'amount';
+      syncInitialWithdrawalRateFromAmount();
+    });
+
+    els.initialSpending.addEventListener('change', () => {
+      withdrawalInputMode = 'amount';
+      syncInitialWithdrawalRateFromAmount();
+    });
+  }
+
+  if (els.initialPortfolio) {
+    els.initialPortfolio.addEventListener('input', () => {
+      if (withdrawalInputMode === 'rate') {
+        syncInitialSpendingFromRate();
+      } else {
+        syncInitialWithdrawalRateFromAmount();
+      }
+    });
+
+    els.initialPortfolio.addEventListener('change', () => {
+      if (withdrawalInputMode === 'rate') {
+        syncInitialSpendingFromRate();
+      } else {
+        syncInitialWithdrawalRateFromAmount();
+      }
+    });
+  }
+}
+
+function attachChartModeEvents() {
+  const updateMode = () => {
+    if (!els.showRealValues) return;
+    els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
+    if (latestResult) {
+      renderAll();
+    }
+  };
+
+  if (els.chartModeNominal) {
+    els.chartModeNominal.addEventListener('change', updateMode);
+  }
+
+  if (els.chartModeReal) {
+    els.chartModeReal.addEventListener('change', updateMode);
+  }
+}
+
+function syncInitialWithdrawalRateFromAmount() {
+  if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
+
+  const portfolio = parseLooseNumber(els.initialPortfolio.value);
+  const spending = parseLooseNumber(els.initialSpending.value);
+
+  if (!Number.isFinite(portfolio) || portfolio <= 0 || !Number.isFinite(spending) || spending < 0) {
+    els.initialWithdrawalRate.value = '';
+    return;
+  }
+
+  const rate = (spending / portfolio) * 100;
+  els.initialWithdrawalRate.value = formatRate(rate);
+}
+
+function syncInitialSpendingFromRate() {
+  if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
+
+  const portfolio = parseLooseNumber(els.initialPortfolio.value);
+  const rate = parseLooseNumber(els.initialWithdrawalRate.value);
+
+  if (!Number.isFinite(portfolio) || portfolio < 0 || !Number.isFinite(rate) || rate < 0) {
+    return;
+  }
+
+  const spending = portfolio * (rate / 100);
+  els.initialSpending.value = formatInteger(Math.round(spending));
+}
+
 function gatherInputs() {
-  return {
+  const inputs = {
     ...planForm.readValues(),
     ...advancedForm.readValues()
   };
+
+  if (els.initialSpending) {
+    const spending = parseLooseNumber(els.initialSpending.value);
+    if (Number.isFinite(spending)) {
+      inputs.initialSpending = spending;
+    }
+  }
+
+  return inputs;
 }
 
 function runSimulation() {
@@ -200,14 +313,36 @@ function renderAll() {
   renderResultsView({
     result: latestResult,
     elements: els,
-    useReal: els.showRealValues.checked,
-    showFullTable: els.showFullTable.checked,
+    useReal: Boolean(els.showRealValues?.checked),
+    showFullTable: Boolean(els.showFullTable?.checked),
     formatters: {
       formatCurrency,
       formatPercent,
       formatYears
     }
   });
+
+  applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+}
+
+function applySuccessRateTone(successRate) {
+  if (!els.summarySuccessRateCard) return;
+
+  els.summarySuccessRateCard.classList.remove(
+    'summary-card--green',
+    'summary-card--amber',
+    'summary-card--red'
+  );
+
+  if (!Number.isFinite(successRate)) return;
+
+  if (successRate >= 0.9) {
+    els.summarySuccessRateCard.classList.add('summary-card--green');
+  } else if (successRate >= 0.75) {
+    els.summarySuccessRateCard.classList.add('summary-card--amber');
+  } else {
+    els.summarySuccessRateCard.classList.add('summary-card--red');
+  }
 }
 
 function showError(message) {
@@ -238,6 +373,11 @@ function formatInteger(value) {
   return new Intl.NumberFormat('en-GB', {
     maximumFractionDigits: 0
   }).format(value);
+}
+
+function formatRate(value) {
+  if (!Number.isFinite(value)) return '';
+  return Number(value.toFixed(2)).toString();
 }
 
 function formatCurrency(value) {
