@@ -141,68 +141,71 @@
                 </div>
               </section>
 
-              <section class="input-group-card">
+              <section class="input-group-card people-pensions-card">
                 <div class="section-heading">
                   <h3>People and state pensions</h3>
                   <p>One shared state pension amount, with separate names, current ages, and pension ages for each person.</p>
                 </div>
 
-                <div class="field-grid">
-                  <label class="field field-span-full">
-                    <span class="field-label with-help">
-                      <span>State pension today (per person, in today’s money)</span>
+                <div class="people-pension-shared">
+                  <label class="field field-inline field-inline-wide">
+                    <span class="field-label with-help field-label-inline">
+                      <span>State pension today (per person)</span>
                       <button
                         class="help"
                         type="button"
                         tabindex="-1"
                         aria-label="State pension today help"
-                        title="This annual amount is applied separately to each person when they reach state pension age. The simulator then increases it with inflation."
+                        title="Entered in today's money. The simulator increases this with inflation until each person reaches state pension age, and continues increasing it afterwards."
                       >?</button>
                     </span>
                     <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
                   </label>
+                  <div class="section-subnote people-pension-note">
+                    Enter today’s annual amount for one person. The simulator increases it with inflation until each person reaches state pension age.
+                  </div>
                 </div>
 
-                <div class="people-grid">
-                  <section class="person-card" aria-label="Person 1 details">
-                    <h4>Person 1</h4>
-                    <div class="field-grid">
-                      <label class="field">
-                        <span class="field-label">Name</span>
+                <div class="people-columns">
+                  <div class="person-column" aria-label="Person 1 details">
+                    <div class="person-column-heading">Person 1</div>
+                    <div class="person-row-grid">
+                      <label class="field field-inline person-name-field">
+                        <span class="field-label field-label-inline">Name</span>
                         <input id="person1Name" type="text" />
                       </label>
 
-                      <label class="field">
-                        <span class="field-label">Current age</span>
+                      <label class="field field-inline person-age-field">
+                        <span class="field-label field-label-inline">Current age</span>
                         <input id="person1Age" type="number" min="18" max="100" step="1" />
                       </label>
 
-                      <label class="field">
-                        <span class="field-label">State pension age</span>
+                      <label class="field field-inline person-pension-age-field">
+                        <span class="field-label field-label-inline">State pension age</span>
                         <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
                       </label>
                     </div>
-                  </section>
+                  </div>
 
-                  <section class="person-card" aria-label="Person 2 details">
-                    <h4>Person 2</h4>
-                    <div class="field-grid">
-                      <label class="field">
-                        <span class="field-label">Name</span>
+                  <div class="person-column" aria-label="Person 2 details">
+                    <div class="person-column-heading">Person 2</div>
+                    <div class="person-row-grid">
+                      <label class="field field-inline person-name-field">
+                        <span class="field-label field-label-inline">Name</span>
                         <input id="person2Name" type="text" />
                       </label>
 
-                      <label class="field">
-                        <span class="field-label">Current age</span>
+                      <label class="field field-inline person-age-field">
+                        <span class="field-label field-label-inline">Current age</span>
                         <input id="person2Age" type="number" min="18" max="100" step="1" />
                       </label>
 
-                      <label class="field">
-                        <span class="field-label">State pension age</span>
+                      <label class="field field-inline person-pension-age-field">
+                        <span class="field-label field-label-inline">State pension age</span>
                         <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
                       </label>
                     </div>
-                  </section>
+                  </div>
                 </div>
               </section>
 
