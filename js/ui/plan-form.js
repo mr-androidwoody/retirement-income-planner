@@ -14,9 +14,13 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     setFieldValue('bondAllocation', defaults.bondAllocation);
     setFieldValue('cashlikeAllocation', defaults.cashlikeAllocation);
     elements.rebalanceToTarget.checked = defaults.rebalanceToTarget;
+
+    setFieldValue('person1Name', defaults.person1Name ?? 'Person 1');
     setFieldValue('person1Age', defaults.person1Age);
     setFieldValue('person1PensionAge', defaults.person1PensionAge);
     setFieldValue('person1PensionToday', defaults.person1PensionToday, true);
+
+    setFieldValue('person2Name', defaults.person2Name ?? 'Person 2');
     setFieldValue('person2Age', defaults.person2Age);
     setFieldValue('person2PensionAge', defaults.person2PensionAge);
     setFieldValue('person2PensionToday', defaults.person2PensionToday, true);
@@ -47,9 +51,13 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
       bondAllocation: parseLooseNumber(elements.bondAllocation.value),
       cashlikeAllocation: parseLooseNumber(elements.cashlikeAllocation.value),
       rebalanceToTarget: elements.rebalanceToTarget.checked,
+
+      person1Name: String(elements.person1Name?.value ?? '').trim(),
       person1Age: parseLooseInteger(elements.person1Age.value),
       person1PensionAge: parseLooseInteger(elements.person1PensionAge.value),
       person1PensionToday: parseLooseNumber(elements.person1PensionToday.value),
+
+      person2Name: String(elements.person2Name?.value ?? '').trim(),
       person2Age: parseLooseInteger(elements.person2Age.value),
       person2PensionAge: parseLooseInteger(elements.person2PensionAge.value),
       person2PensionToday: parseLooseNumber(elements.person2PensionToday.value)
@@ -74,7 +82,7 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
 
   function setFieldValue(id, value, formatAsInteger = false) {
     if (!elements[id]) return;
-    elements[id].value = formatAsInteger ? formatInteger(value) : String(value);
+    elements[id].value = formatAsInteger ? formatInteger(value) : String(value ?? '');
   }
 
   function unformatNumberString(value) {
