@@ -32,9 +32,11 @@ export const DEFAULT_INPUTS = {
   cashlikeVolatility: 1,
   inflation: 2.5,
 
+  person1Name: 'Person 1',
   person1Age: 57,
   person1PensionAge: 67,
   person1PensionToday: 12547,
+  person2Name: 'Person 2',
   person2Age: 58,
   person2PensionAge: 67,
   person2PensionToday: 12547,
@@ -135,9 +137,11 @@ function normaliseInputs(rawInputs = {}) {
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
     inflation: toRate(merged.inflation),
 
+    person1Name: String(merged.person1Name ?? DEFAULT_INPUTS.person1Name).trim() || DEFAULT_INPUTS.person1Name,
     person1Age: toInt(merged.person1Age),
     person1PensionAge: toInt(merged.person1PensionAge),
     person1PensionToday: toNumber(merged.person1PensionToday),
+    person2Name: String(merged.person2Name ?? DEFAULT_INPUTS.person2Name).trim() || DEFAULT_INPUTS.person2Name,
     person2Age: toInt(merged.person2Age),
     person2PensionAge: toInt(merged.person2PensionAge),
     person2PensionToday: toNumber(merged.person2PensionToday),
