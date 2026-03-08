@@ -22,9 +22,11 @@ const els = {
   cashlikeVolatility: document.getElementById('cashlikeVolatility'),
   inflation: document.getElementById('inflation'),
 
+  person1Name: document.getElementById('person1Name'),
   person1Age: document.getElementById('person1Age'),
   person1PensionAge: document.getElementById('person1PensionAge'),
   person1PensionToday: document.getElementById('person1PensionToday'),
+  person2Name: document.getElementById('person2Name'),
   person2Age: document.getElementById('person2Age'),
   person2PensionAge: document.getElementById('person2PensionAge'),
   person2PensionToday: document.getElementById('person2PensionToday'),
