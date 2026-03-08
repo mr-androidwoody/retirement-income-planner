@@ -46,6 +46,7 @@ export const DEFAULT_INPUTS = {
   monteCarloRuns: 1000,
   seed: null,
   skipInflationAfterNegative: true,
+  enableGuardrails: true,
   showRealValues: true,
   showFullTable: true
 };
@@ -153,6 +154,7 @@ function normaliseInputs(rawInputs = {}) {
         ? null
         : toInt(merged.seed),
     skipInflationAfterNegative: Boolean(merged.skipInflationAfterNegative),
+    enableGuardrails: Boolean(merged.enableGuardrails),
     showRealValues: Boolean(merged.showRealValues),
     showFullTable: Boolean(merged.showFullTable)
   };
@@ -370,7 +372,7 @@ function simulatePath(inputs, annualReturns) {
       previousMarketReturn !== null &&
       previousMarketReturn < 0;
 
-    let nextTargetSpendingNominal = targetSpendingNominal * (1 + inflationRate);
+    const nextTargetSpendingNominal = targetSpendingNominal * (1 + inflationRate);
     let nextActualSpendingNominal = spendingNominal;
 
     if (!shouldSkipInflation) {
@@ -385,7 +387,11 @@ function simulatePath(inputs, annualReturns) {
     const upperLimit = initialWithdrawalRate * (1 + inputs.upperGuardrail);
     const lowerLimit = initialWithdrawalRate * Math.max(0, 1 - inputs.lowerGuardrail);
 
-    if (Number.isFinite(nextWithdrawalRate) && initialWithdrawalRate > 0) {
+    if (
+      inputs.enableGuardrails &&
+      Number.isFinite(nextWithdrawalRate) &&
+      initialWithdrawalRate > 0
+    ) {
       if (nextWithdrawalRate > upperLimit) {
         nextActualSpendingNominal *= 1 - inputs.adjustmentSize;
       } else if (nextWithdrawalRate < lowerLimit) {
