@@ -179,8 +179,7 @@ body{
 }
 
 .panel-header p,
-.card-header p,
-.result-meta{
+.card-header p{
   margin:0;
   color:var(--muted);
   font-size:0.92rem;
@@ -189,11 +188,6 @@ body{
 
 .panel-header-tight{
   margin-bottom:16px;
-}
-
-.result-meta{
-  font-weight:700;
-  white-space:nowrap;
 }
 
 .action-row{
@@ -367,6 +361,25 @@ input[type="checkbox"]{
   align-self:center;
 }
 
+.results-explainer{
+  margin-top:14px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--panel-soft);
+}
+
+.results-explainer p{
+  margin:0;
+  color:var(--muted);
+  font-size:0.92rem;
+  line-height:1.55;
+}
+
+.results-explainer p + p{
+  margin-top:8px;
+}
+
 .results-chart-grid{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -468,10 +481,6 @@ canvas{
   .card-header,
   .results-meta-header{
     flex-direction:column;
-  }
-
-  .result-meta{
-    white-space:normal;
   }
 }
 
