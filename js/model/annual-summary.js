@@ -1,25 +1,34 @@
 
-export function summariseAnnual(ledger) {
+export function summariseAnnual(monthlyLedger) {
+  const years = new Map();
 
-  const years = {};
-
-  ledger.forEach(row => {
-
-    if (!years[row.year]) {
-      years[row.year] = {
+  monthlyLedger.forEach((row) => {
+    if (!years.has(row.year)) {
+      years.set(row.year, {
         year: row.year,
-        portfolioStart: row.portfolioStart,
-        withdrawals: 0,
-        returns: 0,
-        portfolioEnd: row.portfolioEnd
-      };
+        startPortfolioNominal: row.startPortfolioNominal,
+        spendingNominal: 0,
+        statePensionNominal: 0,
+        withdrawalNominal: 0,
+        endPortfolioNominal: row.endPortfolioNominal,
+        inflationIndex: row.inflationIndex
+      });
     }
 
-    years[row.year].withdrawals += row.withdrawal;
-    years[row.year].returns += row.return;
-    years[row.year].portfolioEnd = row.portfolioEnd;
-
+    const bucket = years.get(row.year);
+    bucket.spendingNominal += row.spendingNominal;
+    bucket.statePensionNominal += row.statePensionNominal;
+    bucket.withdrawalNominal += row.withdrawalNominal;
+    bucket.endPortfolioNominal = row.endPortfolioNominal;
+    bucket.inflationIndex = row.inflationIndex;
   });
 
-  return Object.values(years);
+  return Array.from(years.values()).map((row) => ({
+    ...row,
+    startPortfolioReal: row.startPortfolioNominal / row.inflationIndex,
+    spendingReal: row.spendingNominal / row.inflationIndex,
+    statePensionReal: row.statePensionNominal / row.inflationIndex,
+    withdrawalReal: row.withdrawalNominal / row.inflationIndex,
+    endPortfolioReal: row.endPortfolioNominal / row.inflationIndex
+  }));
 }

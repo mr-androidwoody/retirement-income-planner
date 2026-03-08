@@ -1,14 +1,421 @@
 
-import { runMonthlyEngine } from './monthly-engine.js';
-import { summariseAnnual } from './annual-summary.js';
+import { buildStressScenarios } from './scenarios.js';
+import {
+  initialiseBuckets,
+  totalPortfolio,
+  applyAssetReturns,
+  withdrawFromBuckets,
+  rebalanceBuckets,
+  weightedAverageReturn
+} from './cashflow.js';
 
-export function runRetirementSimulation(inputs) {
+export const DEFAULT_INPUTS = {
+  years: 30,
+  initialPortfolio: 1000000,
+  initialSpending: 40000,
+  equityAllocation: 60,
+  bondAllocation: 20,
+  cashlikeAllocation: 20,
+  rebalanceToTarget: true,
 
-  const ledger = runMonthlyEngine(inputs);
+  equityReturn: 7,
+  equityVolatility: 16,
+  bondReturn: 3,
+  bondVolatility: 7,
+  cashlikeReturn: 4,
+  cashlikeVolatility: 1,
+  inflation: 2.5,
 
-  const yearly = summariseAnnual(ledger);
+  person1Age: 57,
+  person1PensionAge: 67,
+  person1PensionToday: 12547,
+  person2Age: 58,
+  person2PensionAge: 67,
+  person2PensionToday: 12547,
+
+  upperGuardrail: 20,
+  lowerGuardrail: 20,
+  adjustmentSize: 10,
+
+  monteCarloRuns: 1000,
+  seed: null,
+  skipInflationAfterNegative: true,
+  showRealValues: true,
+  showFullTable: true
+};
+
+export function validateInputs(rawInputs = {}) {
+  const inputs = normaliseInputs(rawInputs);
+  const errors = [];
+
+  if (!Number.isFinite(inputs.years) || inputs.years < 1 || inputs.years > 80) {
+    errors.push('Retirement years must be between 1 and 80.');
+  }
+
+  if (!Number.isFinite(inputs.initialPortfolio) || inputs.initialPortfolio <= 0) {
+    errors.push('Initial portfolio must be greater than zero.');
+  }
+
+  if (!Number.isFinite(inputs.initialSpending) || inputs.initialSpending < 0) {
+    errors.push('Initial household spending must be zero or greater.');
+  }
+
+  const allocationTotal = inputs.equityAllocation + inputs.bondAllocation + inputs.cashlikeAllocation;
+  if (Math.abs(allocationTotal - 1) > 0.001) {
+    errors.push('Equity, bond and cashlike allocations must total 100%.');
+  }
+
+  if (inputs.person1PensionAge < inputs.person1Age || inputs.person2PensionAge < inputs.person2Age) {
+    errors.push('State pension age cannot be below current age.');
+  }
+
+  if (!Number.isFinite(inputs.monteCarloRuns) || inputs.monteCarloRuns < 10 || inputs.monteCarloRuns > 50000) {
+    errors.push('Monte Carlo runs must be between 10 and 50,000.');
+  }
+
+  return errors;
+}
+
+export function runRetirementSimulation(rawInputs = {}) {
+  const inputs = normaliseInputs(rawInputs);
+
+  const baseCase = simulateDeterministicPath(inputs);
+  const monteCarlo = runMonteCarlo(inputs);
+  const summary = buildSummary(inputs, baseCase, monteCarlo);
+  const stressSummary = runStressScenarios(inputs);
 
   return {
-    yearly
+    inputs,
+    baseCase,
+    monteCarlo,
+    summary: {
+      ...summary,
+      ...stressSummary
+    }
   };
+}
+
+function normaliseInputs(rawInputs = {}) {
+  const merged = { ...DEFAULT_INPUTS, ...rawInputs };
+
+  return {
+    ...merged,
+    years: toInt(merged.years),
+    initialPortfolio: toNumber(merged.initialPortfolio),
+    initialSpending: toNumber(merged.initialSpending),
+
+    equityAllocation: toRatio(merged.equityAllocation),
+    bondAllocation: toRatio(merged.bondAllocation),
+    cashlikeAllocation: toRatio(merged.cashlikeAllocation),
+    rebalanceToTarget: Boolean(merged.rebalanceToTarget),
+
+    equityReturn: toRate(merged.equityReturn),
+    equityVolatility: toRate(merged.equityVolatility),
+    bondReturn: toRate(merged.bondReturn),
+    bondVolatility: toRate(merged.bondVolatility),
+    cashlikeReturn: toRate(merged.cashlikeReturn),
+    cashlikeVolatility: toRate(merged.cashlikeVolatility),
+    inflation: toRate(merged.inflation),
+
+    person1Age: toInt(merged.person1Age),
+    person1PensionAge: toInt(merged.person1PensionAge),
+    person1PensionToday: toNumber(merged.person1PensionToday),
+    person2Age: toInt(merged.person2Age),
+    person2PensionAge: toInt(merged.person2PensionAge),
+    person2PensionToday: toNumber(merged.person2PensionToday),
+
+    upperGuardrail: toRatio(merged.upperGuardrail),
+    lowerGuardrail: toRatio(merged.lowerGuardrail),
+    adjustmentSize: toRatio(merged.adjustmentSize),
+
+    monteCarloRuns: toInt(merged.monteCarloRuns),
+    seed: merged.seed === null || merged.seed === undefined || merged.seed === '' ? null : toInt(merged.seed),
+    skipInflationAfterNegative: Boolean(merged.skipInflationAfterNegative),
+    showRealValues: Boolean(merged.showRealValues),
+    showFullTable: Boolean(merged.showFullTable)
+  };
+}
+
+function simulateDeterministicPath(inputs) {
+  const annualReturns = {
+    equities: Array.from({ length: inputs.years }, () => inputs.equityReturn),
+    bonds: Array.from({ length: inputs.years }, () => inputs.bondReturn),
+    cashlike: Array.from({ length: inputs.years }, () => inputs.cashlikeReturn),
+    inflation: Array.from({ length: inputs.years }, () => inputs.inflation)
+  };
+
+  return simulatePath(inputs, annualReturns);
+}
+
+function runMonteCarlo(inputs) {
+  const rng = createRng(inputs.seed ?? 123456789);
+  const nominalPaths = [];
+  const realPaths = [];
+  let successCount = 0;
+
+  for (let run = 0; run < inputs.monteCarloRuns; run += 1) {
+    const annualReturns = {
+      equities: [],
+      bonds: [],
+      cashlike: [],
+      inflation: []
+    };
+
+    for (let year = 0; year < inputs.years; year += 1) {
+      annualReturns.equities.push(sampleNormal(rng, inputs.equityReturn, inputs.equityVolatility));
+      annualReturns.bonds.push(sampleNormal(rng, inputs.bondReturn, inputs.bondVolatility));
+      annualReturns.cashlike.push(sampleNormal(rng, inputs.cashlikeReturn, inputs.cashlikeVolatility));
+      annualReturns.inflation.push(Math.max(-0.02, sampleNormal(rng, inputs.inflation, 0.01)));
+    }
+
+    const path = simulatePath(inputs, annualReturns);
+    nominalPaths.push(path.pathNominal);
+    realPaths.push(path.pathReal);
+
+    if (!path.depleted) successCount += 1;
+  }
+
+  return {
+    successRate: inputs.monteCarloRuns > 0 ? successCount / inputs.monteCarloRuns : 0,
+    nominalPercentiles: buildPercentileSeries(nominalPaths),
+    realPercentiles: buildPercentileSeries(realPaths)
+  };
+}
+
+function runStressScenarios(inputs) {
+  const scenarios = buildStressScenarios(inputs.years, {
+    equityReturn: inputs.equityReturn,
+    bondReturn: inputs.bondReturn,
+    cashlikeReturn: inputs.cashlikeReturn,
+    inflation: inputs.inflation
+  });
+
+  let worst = null;
+
+  scenarios.forEach((scenario) => {
+    const result = simulatePath(inputs, {
+      equities: scenario.equityReturns,
+      bonds: scenario.bondReturns,
+      cashlike: scenario.cashlikeReturns,
+      inflation: scenario.inflationRates
+    });
+
+    const terminalNominal = result.pathNominal[result.pathNominal.length - 1];
+    const terminalReal = result.pathReal[result.pathReal.length - 1];
+
+    if (!worst || terminalReal < worst.worstStressTerminalReal) {
+      worst = {
+        worstStressName: scenario.name,
+        worstStressTerminalNominal: terminalNominal,
+        worstStressTerminalReal: terminalReal
+      };
+    }
+  });
+
+  return worst ?? {
+    worstStressName: null,
+    worstStressTerminalNominal: null,
+    worstStressTerminalReal: null
+  };
+}
+
+function simulatePath(inputs, annualReturns) {
+  const allocations = {
+    equities: inputs.equityAllocation,
+    bonds: inputs.bondAllocation,
+    cashlike: inputs.cashlikeAllocation
+  };
+
+  let buckets = initialiseBuckets(inputs.initialPortfolio, allocations);
+  let spendingNominal = inputs.initialSpending;
+  let inflationIndex = 1;
+  let depleted = false;
+  const rows = [];
+  const pathNominal = [inputs.initialPortfolio];
+  const pathReal = [inputs.initialPortfolio];
+
+  const initialWithdrawalRate = inputs.initialPortfolio > 0 ? inputs.initialSpending / inputs.initialPortfolio : 0;
+  let previousMarketReturn = null;
+
+  for (let yearIndex = 0; yearIndex < inputs.years; yearIndex += 1) {
+    const year = yearIndex + 1;
+    const startPortfolioNominal = totalPortfolio(buckets);
+    const startPortfolioReal = startPortfolioNominal / inflationIndex;
+
+    const pensionNominal = getStatePensionNominal(inputs, yearIndex, inflationIndex);
+    const withdrawalNominal = Math.max(0, spendingNominal - pensionNominal);
+    const actualWithdrawalNominal = withdrawFromBuckets(buckets, withdrawalNominal);
+
+    const eqReturn = annualReturns.equities[yearIndex] ?? inputs.equityReturn;
+    const bondReturn = annualReturns.bonds[yearIndex] ?? inputs.bondReturn;
+    const cashReturn = annualReturns.cashlike[yearIndex] ?? inputs.cashlikeReturn;
+    const inflationRate = annualReturns.inflation[yearIndex] ?? inputs.inflation;
+
+    applyAssetReturns(buckets, {
+      equities: eqReturn,
+      bonds: bondReturn,
+      cashlike: cashReturn
+    });
+
+    const realisedReturn = weightedAverageReturn({
+      allocations,
+      returns: { equities: eqReturn, bonds: bondReturn, cashlike: cashReturn }
+    });
+
+    if (inputs.rebalanceToTarget) {
+      buckets = rebalanceBuckets(buckets, allocations);
+    }
+
+    inflationIndex *= (1 + inflationRate);
+
+    const endPortfolioNominal = totalPortfolio(buckets);
+    const endPortfolioReal = endPortfolioNominal / inflationIndex;
+    const spendingReal = spendingNominal / inflationIndex;
+    const pensionReal = pensionNominal / inflationIndex;
+    const withdrawalReal = actualWithdrawalNominal / inflationIndex;
+
+    rows.push({
+      year,
+      age1: inputs.person1Age + yearIndex,
+      age2: inputs.person2Age + yearIndex,
+      startPortfolioNominal,
+      startPortfolioReal,
+      spendingNominal,
+      spendingReal,
+      statePensionNominal: pensionNominal,
+      statePensionReal: pensionReal,
+      withdrawalNominal: actualWithdrawalNominal,
+      withdrawalReal,
+      endPortfolioNominal,
+      endPortfolioReal
+    });
+
+    pathNominal.push(endPortfolioNominal);
+    pathReal.push(endPortfolioReal);
+
+    if (endPortfolioNominal <= 0.01) {
+      depleted = true;
+    }
+
+    let nextSpendingNominal = spendingNominal;
+    const shouldSkipInflation = inputs.skipInflationAfterNegative && previousMarketReturn !== null && previousMarketReturn < 0;
+    if (!shouldSkipInflation) {
+      nextSpendingNominal *= (1 + inflationRate);
+    }
+
+    const nextWithdrawalRate = endPortfolioNominal > 0 ? nextSpendingNominal / endPortfolioNominal : Number.POSITIVE_INFINITY;
+    const upperLimit = initialWithdrawalRate * (1 + inputs.upperGuardrail);
+    const lowerLimit = initialWithdrawalRate * Math.max(0, 1 - inputs.lowerGuardrail);
+
+    if (Number.isFinite(nextWithdrawalRate) && initialWithdrawalRate > 0) {
+      if (nextWithdrawalRate > upperLimit) {
+        nextSpendingNominal *= (1 - inputs.adjustmentSize);
+      } else if (nextWithdrawalRate < lowerLimit) {
+        nextSpendingNominal *= (1 + inputs.adjustmentSize);
+      }
+    }
+
+    spendingNominal = Math.max(0, nextSpendingNominal);
+    previousMarketReturn = realisedReturn;
+  }
+
+  return {
+    rows,
+    pathNominal,
+    pathReal,
+    depleted
+  };
+}
+
+function buildSummary(inputs, baseCase, monteCarlo) {
+  const openingCash = inputs.initialPortfolio * inputs.cashlikeAllocation;
+  const firstYearPension = getStatePensionNominal(inputs, 0, 1);
+  const openingNetWithdrawal = Math.max(0, inputs.initialSpending - firstYearPension);
+  const cashRunwayYears = openingNetWithdrawal > 0 ? openingCash / openingNetWithdrawal : Number.POSITIVE_INFINITY;
+
+  return {
+    cashRunwayYears,
+    medianTerminalNominal: monteCarlo.nominalPercentiles.p50.at(-1),
+    medianTerminalReal: monteCarlo.realPercentiles.p50.at(-1),
+    baseTerminalNominal: baseCase.pathNominal.at(-1),
+    baseTerminalReal: baseCase.pathReal.at(-1)
+  };
+}
+
+function getStatePensionNominal(inputs, yearIndex, inflationIndex) {
+  const person1Eligible = inputs.person1Age + yearIndex >= inputs.person1PensionAge;
+  const person2Eligible = inputs.person2Age + yearIndex >= inputs.person2PensionAge;
+
+  let total = 0;
+  if (person1Eligible) total += inputs.person1PensionToday * inflationIndex;
+  if (person2Eligible) total += inputs.person2PensionToday * inflationIndex;
+  return total;
+}
+
+function buildPercentileSeries(paths) {
+  if (!paths.length) {
+    return { p10: [], p50: [], p90: [] };
+  }
+
+  const length = paths[0].length;
+  const p10 = [];
+  const p50 = [];
+  const p90 = [];
+
+  for (let index = 0; index < length; index += 1) {
+    const values = paths.map((path) => path[index]).sort((a, b) => a - b);
+    p10.push(percentile(values, 0.10));
+    p50.push(percentile(values, 0.50));
+    p90.push(percentile(values, 0.90));
+  }
+
+  return { p10, p50, p90 };
+}
+
+function percentile(sortedValues, p) {
+  if (sortedValues.length === 0) return 0;
+  const index = (sortedValues.length - 1) * p;
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+  if (lower === upper) return sortedValues[lower];
+  const weight = index - lower;
+  return sortedValues[lower] * (1 - weight) + sortedValues[upper] * weight;
+}
+
+function createRng(seed) {
+  let state = (seed >>> 0) || 1;
+  return function next() {
+    state = (1664525 * state + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+function sampleNormal(rng, mean, stdev) {
+  if (!Number.isFinite(stdev) || stdev <= 0) return mean;
+  let u1 = 0;
+  let u2 = 0;
+  while (u1 <= Number.EPSILON) u1 = rng();
+  while (u2 <= Number.EPSILON) u2 = rng();
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  return mean + z * stdev;
+}
+
+function toNumber(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+function toInt(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? Math.trunc(numeric) : 0;
+}
+
+function toRate(value) {
+  const numeric = toNumber(value);
+  return Math.abs(numeric) > 1 ? numeric / 100 : numeric;
+}
+
+function toRatio(value) {
+  const numeric = toNumber(value);
+  return Math.abs(numeric) > 1 ? numeric / 100 : numeric;
 }

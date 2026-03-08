@@ -1,43 +1,57 @@
 
+import { initialiseBuckets, applyAssetReturns, withdrawFromBuckets, rebalanceBuckets, totalPortfolio } from './cashflow.js';
+
 export function runMonthlyEngine(inputs) {
-
-  const months = inputs.retirementYears * 12;
-
+  const allocations = {
+    equities: inputs.equityAllocation,
+    bonds: inputs.bondAllocation,
+    cashlike: inputs.cashlikeAllocation
+  };
+  let buckets = initialiseBuckets(inputs.initialPortfolio, allocations);
+  let spending = inputs.initialSpending;
+  let inflationIndex = 1;
   const ledger = [];
 
-  let portfolio = inputs.initialPortfolio;
-  let spending = inputs.initialSpending;
+  for (let month = 1; month <= inputs.years * 12; month += 1) {
+    const monthIndex = month - 1;
+    const yearIndex = Math.floor(monthIndex / 12);
+    const monthInYear = monthIndex % 12;
+    const monthlyReturns = {
+      equities: Math.pow(1 + inputs.equityReturn, 1 / 12) - 1,
+      bonds: Math.pow(1 + inputs.bondReturn, 1 / 12) - 1,
+      cashlike: Math.pow(1 + inputs.cashlikeReturn, 1 / 12) - 1
+    };
+    const monthlyInflation = Math.pow(1 + inputs.inflation, 1 / 12) - 1;
 
-  const monthlyReturn = Math.pow(1 + inputs.return, 1 / 12) - 1;
-  const monthlyInflation = Math.pow(1 + inputs.inflation, 1 / 12) - 1;
+    const start = totalPortfolio(buckets);
+    const p1Eligible = inputs.person1Age + yearIndex >= inputs.person1PensionAge;
+    const p2Eligible = inputs.person2Age + yearIndex >= inputs.person2PensionAge;
+    const pensionAnnual = (p1Eligible ? inputs.person1PensionToday * inflationIndex : 0) + (p2Eligible ? inputs.person2PensionToday * inflationIndex : 0);
+    const pensionMonthly = pensionAnnual / 12;
+    const spendingMonthly = spending / 12;
+    const withdrawal = Math.max(0, spendingMonthly - pensionMonthly);
+    const actualWithdrawal = withdrawFromBuckets(buckets, withdrawal);
 
-  for (let m = 0; m < months; m++) {
+    applyAssetReturns(buckets, monthlyReturns);
 
-    const year = Math.floor(m / 12);
-
-    const portfolioStart = portfolio;
-
-    const marketReturn = portfolio * monthlyReturn;
-
-    portfolio += marketReturn;
-
-    const withdrawal = spending / 12;
-
-    portfolio -= withdrawal;
-
-    if (portfolio < 0) portfolio = 0;
+    if (monthInYear === 11 && inputs.rebalanceToTarget) {
+      buckets = rebalanceBuckets(buckets, allocations);
+    }
 
     ledger.push({
-      month: m + 1,
-      year: year + 1,
-      portfolioStart,
-      return: marketReturn,
-      withdrawal,
-      portfolioEnd: portfolio
+      month,
+      year: yearIndex + 1,
+      startPortfolioNominal: start,
+      spendingNominal: spendingMonthly,
+      statePensionNominal: pensionMonthly,
+      withdrawalNominal: actualWithdrawal,
+      endPortfolioNominal: totalPortfolio(buckets),
+      inflationIndex
     });
 
-    if ((m + 1) % 12 === 0) {
-      spending *= (1 + inputs.inflation);
+    inflationIndex *= 1 + monthlyInflation;
+    if (monthInYear === 11) {
+      spending *= 1 + inputs.inflation;
     }
   }
 
