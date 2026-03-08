@@ -74,8 +74,8 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 54 + legendLayout.height,
-    left: 110
+    bottom: 62 + legendLayout.height,
+    left: 96
   };
 
   const height = Math.max(baseHeight, 240 + padding.top + padding.bottom);
@@ -131,7 +131,7 @@ function drawLineChart(canvas, config) {
   });
 
   drawXAxis(ctx, config.labels, width, height, padding);
-  drawLegend(ctx, config.lines, width, height, legendLayout);
+  drawLegend(ctx, width, height, legendLayout);
 }
 
 function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
@@ -240,16 +240,18 @@ function drawXAxis(ctx, labels, width, height, padding) {
 
 function measureLegend(ctx, lines, width) {
   const boxSize = 12;
-  const itemGap = 22;
+  const boxTextGap = 8;
+  const itemGap = 26;
   const rowGap = 10;
   const horizontalPadding = 18;
-  const maxRowWidth = Math.max(180, width - horizontalPadding * 2);
+  const maxRowWidth = Math.max(200, width - horizontalPadding * 2);
 
   const items = lines.map((line) => {
     const textWidth = ctx.measureText(line.label).width;
-    const widthNeeded = boxSize + 8 + textWidth;
+    const widthNeeded = boxSize + boxTextGap + textWidth;
     return {
       ...line,
+      textWidth,
       widthNeeded
     };
   });
@@ -273,14 +275,17 @@ function measureLegend(ctx, lines, width) {
     }
   });
 
-  if (currentRow.length > 0) rows.push(currentRow);
+  if (currentRow.length > 0) {
+    rows.push(currentRow);
+  }
 
   const rowHeight = Math.max(boxSize, 12);
-  const height = rows.length * rowHeight + Math.max(0, rows.length - 1) * rowGap + 12;
+  const height = rows.length * rowHeight + Math.max(0, rows.length - 1) * rowGap + 16;
 
   return {
     rows,
     boxSize,
+    boxTextGap,
     itemGap,
     rowGap,
     rowHeight,
@@ -288,14 +293,14 @@ function measureLegend(ctx, lines, width) {
   };
 }
 
-function drawLegend(ctx, lines, width, height, layout) {
+function drawLegend(ctx, width, height, layout) {
   if (!layout?.rows?.length) return;
 
   ctx.font = '12px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
 
-  const bottomPadding = 12;
-  let cursorY = height - layout.height + 6;
+  let cursorY = height - layout.height + 8;
 
   layout.rows.forEach((row) => {
     const rowWidth = row.reduce((sum, item, index) => {
@@ -304,14 +309,16 @@ function drawLegend(ctx, lines, width, height, layout) {
 
     let cursorX = Math.max(18, (width - rowWidth) / 2);
 
-    row.forEach((line) => {
-      ctx.fillStyle = line.color;
-      ctx.fillRect(cursorX, cursorY - layout.boxSize / 2, layout.boxSize, layout.boxSize);
+    row.forEach((item) => {
+      const squareY = cursorY - layout.boxSize / 2;
 
-      ctx.fillStyle = '#334155';
-      ctx.fillText(line.label, cursorX + layout.boxSize + 8, cursorY);
+      ctx.fillStyle = item.color;
+      ctx.fillRect(cursorX, squareY, layout.boxSize, layout.boxSize);
 
-      cursorX += line.widthNeeded + layout.itemGap;
+      ctx.fillStyle = '#475569';
+      ctx.fillText(item.label, cursorX + layout.boxSize + layout.boxTextGap, cursorY);
+
+      cursorX += item.widthNeeded + layout.itemGap;
     });
 
     cursorY += layout.rowHeight + layout.rowGap;
@@ -331,6 +338,7 @@ function getY(value, minY, maxY, height) {
 
 function niceMax(value) {
   if (!Number.isFinite(value) || value <= 0) return 1;
+
   const exponent = Math.floor(Math.log10(value));
   const base = 10 ** exponent;
   const scaled = value / base;
