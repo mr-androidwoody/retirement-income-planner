@@ -8,14 +8,22 @@ import { renderResultsView } from './ui/results-view.js';
 let currentInputs = null;
 
 export function runSimulation(inputs) {
+
   currentInputs = inputs;
+
   const results = runRetirementSimulation(inputs);
+
   renderResultsView(results);
+
   setActiveTab('results');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
   initialiseTabs({ defaultTab: 'plan' });
+
   initialisePlanForm(runSimulation);
+
   initialiseAdvancedForm();
+
 });
