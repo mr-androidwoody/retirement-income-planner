@@ -468,7 +468,7 @@ input[type="checkbox"]{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:18px;
-  align-items:start;
+  align-items:stretch;
 }
 
 .model-note{
@@ -487,8 +487,56 @@ input[type="checkbox"]{
   padding:18px;
 }
 
+.chart-card{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100%;
+}
+
 .card-header{
   margin-bottom:12px;
+}
+
+.chart-card-header{
+  margin-bottom:14px;
+  flex:0 0 auto;
+}
+
+.card-title-block{
+  min-width:0;
+}
+
+.card-title-block h2{
+  margin:0;
+  font-size:1.2rem;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.card-title-block p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:0.92rem;
+  line-height:1.45;
+}
+
+.chart-canvas-wrap{
+  position:relative;
+  flex:1 1 auto;
+  min-height:340px;
+  display:flex;
+}
+
+.chart-canvas-wrap canvas{
+  display:block;
+  width:100%;
+  height:340px;
+  min-height:340px;
+  background:#fff;
+  border-radius:16px;
 }
 
 canvas{
@@ -570,6 +618,18 @@ canvas{
   .card-header,
   .results-meta-header{
     flex-direction:column;
+  }
+
+  .card-title-block h2{
+    white-space:normal;
+    overflow:visible;
+    text-overflow:clip;
+  }
+
+  .chart-canvas-wrap,
+  .chart-canvas-wrap canvas{
+    min-height:320px;
+    height:320px;
   }
 }
 
