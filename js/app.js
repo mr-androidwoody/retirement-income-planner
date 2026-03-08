@@ -51,8 +51,7 @@ const els = {
   portfolioChart: document.getElementById('portfolioChart'),
   spendingChart: document.getElementById('spendingChart'),
   tableCard: document.getElementById('tableCard'),
-  resultsTable: document.getElementById('resultsTable'),
-  resultMeta: document.getElementById('resultMeta')
+  resultsTable: document.getElementById('resultsTable')
 };
 
 let latestResult = null;
@@ -84,6 +83,7 @@ function initialise() {
   setupWorker();
   applyDefaults();
   attachEvents();
+  setResultsViewDefaults();
   tabs.setActiveTab('inputs');
 }
 
@@ -119,6 +119,11 @@ function applyDefaults() {
   advancedForm.applyDefaults(DEFAULT_INPUTS);
 }
 
+function setResultsViewDefaults() {
+  if (els.showRealValues) els.showRealValues.checked = false;
+  if (els.showFullTable) els.showFullTable.checked = true;
+}
+
 function attachEvents() {
   planForm.attachFormatting();
   advancedForm.attachFormatting();
@@ -127,6 +132,7 @@ function attachEvents() {
     onRun: runSimulation,
     onReset: () => {
       applyDefaults();
+      setResultsViewDefaults();
       hideError();
       tabs.setActiveTab('inputs');
     }
@@ -165,7 +171,6 @@ function runSimulation() {
 
   hideError();
   planForm.setBusy(true);
-  updateResultMeta(mergedInputs);
 
   if (worker) {
     worker.postMessage({ type: 'run', inputs });
@@ -203,21 +208,6 @@ function renderAll() {
       formatYears
     }
   });
-
-  updateResultMeta(latestResult.inputs || gatherInputs());
-}
-
-function updateResultMeta(inputs) {
-  if (!els.resultMeta) return;
-
-  const runs = formatInteger(inputs.monteCarloRuns);
-  const seed =
-    inputs.seed === null || inputs.seed === undefined || Number.isNaN(inputs.seed)
-      ? 'random'
-      : formatInteger(inputs.seed);
-  const basis = els.showRealValues.checked ? 'real' : 'nominal';
-
-  els.resultMeta.textContent = `${runs} runs • seed ${seed} • ${basis} view`;
 }
 
 function showError(message) {
