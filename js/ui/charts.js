@@ -4,7 +4,11 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
   const percentileSeries = useReal
     ? result.monteCarlo.realPercentiles
     : result.monteCarlo.nominalPercentiles;
-  const basePath = useReal ? result.baseCase.pathReal : result.baseCase.pathNominal;
+
+  const basePath = useReal
+    ? result.baseCase.pathReal
+    : result.baseCase.pathNominal;
+
   const labels = buildYearLabels(result.inputs.years);
 
   drawLineChart(canvas, {
@@ -22,67 +26,102 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
   });
 }
 
+export function renderSurvivalChart(canvas, result, formatPercent) {
+  if (!result?.monteCarlo?.nominalPercentiles) return;
+
+  const years = result.inputs.years;
+  const p10 = result.monteCarlo.nominalPercentiles.p10;
+
+  const survival = p10.map(v => (v > 0 ? 1 : 0));
+
+  let running = 1;
+  const survivalCurve = survival.map(v => {
+    running = Math.min(running, v);
+    return running;
+  });
+
+  drawLineChart(canvas, {
+    labels: Array.from({ length: years + 1 }, (_, i) => i),
+    lines: [
+      {
+        label: 'Portfolio survival probability',
+        values: survivalCurve,
+        color: '#2563eb',
+        width: 3
+      }
+    ],
+    yFormatter: formatPercent
+  });
+}
+
 export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
   if (!result?.baseCase?.rows) return;
 
   const rows = result.baseCase.rows;
 
-  const pensionValues = rows.map((row) =>
-    useReal ? row.statePensionReal : row.statePensionNominal
+  const pensionValues = rows.map(r =>
+    useReal ? r.statePensionReal : r.statePensionNominal
   );
 
-  const otherIncomeValues = rows.map((row) =>
-    useReal ? row.otherIncomeReal : row.otherIncomeNominal
+  const otherIncomeValues = rows.map(r =>
+    useReal ? r.otherIncomeReal : r.otherIncomeNominal
   );
 
-  const withdrawalValues = rows.map((row, index) => {
-    const actualSpending = useReal ? row.actualSpendingReal : row.actualSpendingNominal;
-    return Math.max(0, actualSpending - pensionValues[index] - otherIncomeValues[index]);
+  const withdrawalValues = rows.map((r, i) => {
+    const spending = useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+    return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
   });
 
   drawLineChart(canvas, {
-    labels: rows.map((row) => row.year),
+    labels: rows.map(r => r.year),
+
     stackedAreas: [
       {
         label: 'Other income',
         values: otherIncomeValues,
-        color: 'rgba(5, 150, 105, 0.18)',
+        color: 'rgba(5,150,105,0.18)',
         strokeColor: '#059669'
       },
       {
         label: 'State pension income',
         values: pensionValues,
-        color: 'rgba(0, 0, 0, 0.25)',
-        strokeColor: '#000000'
+        color: 'rgba(249,115,22,0.25)',
+        strokeColor: '#f97316'
       },
       {
         label: 'Portfolio withdrawals',
         values: withdrawalValues,
-        color: 'rgba(220, 38, 38, 0.18)',
+        color: 'rgba(220,38,38,0.18)',
         strokeColor: '#dc2626'
       }
     ],
+
     lines: [
       {
         label: 'Planned household spending',
-        values: rows.map((row) => (useReal ? row.targetSpendingReal : row.targetSpendingNominal)),
+        values: rows.map(r =>
+          useReal ? r.targetSpendingReal : r.targetSpendingNominal
+        ),
         color: '#7c3aed',
         width: 2,
-        dash: [8, 6]
+        dash: [8,6]
       },
       {
         label: 'Actual spending after guardrails',
-        values: rows.map((row) => (useReal ? row.actualSpendingReal : row.actualSpendingNominal)),
+        values: rows.map(r =>
+          useReal ? r.actualSpendingReal : r.actualSpendingNominal
+        ),
         color: '#4f46e5',
         width: 3
       }
     ],
+
     yFormatter: formatCurrency
   });
 }
 
 function buildYearLabels(years) {
-  return Array.from({ length: years + 1 }, (_, index) => index);
+  return Array.from({ length: years + 1 }, (_, i) => i);
 }
 
 function drawLineChart(canvas, config) {
@@ -93,18 +132,19 @@ function drawLineChart(canvas, config) {
 
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
+
   const width = Math.max(420, Math.floor(rect.width || canvas.clientWidth || 420));
   const baseHeight = Number(canvas.getAttribute('height')) || canvas.height || 320;
 
   ctx.font = '12px Inter, system-ui, sans-serif';
 
   const legendItems = [
-    ...(config.stackedAreas || []).map((area) => ({
-      label: area.label,
-      color: area.strokeColor || area.color,
+    ...(config.lines || []),
+    ...(config.stackedAreas || []).map(a => ({
+      label: a.label,
+      color: a.strokeColor || a.color,
       width: 2.5
-    })),
-    ...(config.lines || [])
+    }))
   ];
 
   const legendLayout = measureLegend(ctx, legendItems, width);
@@ -122,8 +162,8 @@ function drawLineChart(canvas, config) {
   canvas.height = height * dpr;
   canvas.style.height = `${height}px`;
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, width, height);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,width,height);
 
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
@@ -133,171 +173,95 @@ function drawLineChart(canvas, config) {
   const allValues = [];
 
   if (config.band) {
-    allValues.push(...config.band.lower, ...config.band.upper);
+    allValues.push(...config.band.lower,...config.band.upper);
   }
 
-  (config.stackedAreas || []).forEach((area) => {
-    allValues.push(...area.values.filter((value) => Number.isFinite(value)));
+  (config.stackedAreas || []).forEach(a => {
+    allValues.push(...a.values.filter(Number.isFinite));
   });
 
   if (config.stackedAreas?.length) {
-    const stackedTotals = config.stackedAreas[0].values.map((_, index) =>
-      config.stackedAreas.reduce(
-        (sum, area) => sum + (Number.isFinite(area.values[index]) ? area.values[index] : 0),
-        0
-      )
+    const totals = config.stackedAreas[0].values.map((_,i)=>
+      config.stackedAreas.reduce((s,a)=>s+(a.values[i]||0),0)
     );
-    allValues.push(...stackedTotals);
+    allValues.push(...totals);
   }
 
-  (config.lines || []).forEach((line) => {
-    allValues.push(...line.values.filter((value) => Number.isFinite(value)));
+  (config.lines || []).forEach(l=>{
+    allValues.push(...l.values.filter(Number.isFinite));
   });
 
-  const maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
+  const maxDataValue = allValues.length ? Math.max(...allValues,1) : 1;
+
   const minY = 0;
   const maxY = niceMax(maxDataValue);
 
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillRect(0,0,width,height);
 
-  drawGrid(ctx, width, height, padding, minY, maxY, config.yFormatter);
+  drawGrid(ctx,width,height,padding,minY,maxY,config.yFormatter);
 
   if (config.band) {
-    drawBand(ctx, config.band.lower, config.band.upper, {
-      width: plotWidth,
-      height: plotHeight,
-      left: padding.left,
-      top: padding.top,
+    drawBand(ctx,config.band.lower,config.band.upper,{
+      width:plotWidth,
+      height:plotHeight,
+      left:padding.left,
+      top:padding.top,
       minY,
       maxY,
-      fill: config.band.fillStyle
+      fill:config.band.fillStyle
     });
   }
 
   if (config.stackedAreas?.length) {
-    drawStackedAreas(ctx, config.stackedAreas, {
-      width: plotWidth,
-      height: plotHeight,
-      left: padding.left,
-      top: padding.top,
+    drawStackedAreas(ctx,config.stackedAreas,{
+      width:plotWidth,
+      height:plotHeight,
+      left:padding.left,
+      top:padding.top,
       minY,
       maxY
     });
   }
 
-  (config.lines || []).forEach((line) => {
-    drawSeries(ctx, line.values, {
-      width: plotWidth,
-      height: plotHeight,
-      left: padding.left,
-      top: padding.top,
+  (config.lines || []).forEach(line=>{
+    drawSeries(ctx,line.values,{
+      width:plotWidth,
+      height:plotHeight,
+      left:padding.left,
+      top:padding.top,
       minY,
       maxY,
-      color: line.color,
-      lineWidth: line.width || 2,
-      dash: line.dash || []
+      color:line.color,
+      lineWidth:line.width || 2,
+      dash:line.dash || []
     });
   });
 
-  drawXAxis(ctx, config.labels, width, height, padding);
-  drawLegend(ctx, width, height, legendLayout);
+  drawXAxis(ctx,config.labels,width,height,padding);
+  drawLegend(ctx,width,height,legendLayout);
 }
 
-function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
-  const plotWidth = width - padding.left - padding.right;
-  const plotHeight = height - padding.top - padding.bottom;
-  const steps = 5;
-
-  ctx.strokeStyle = '#d7deea';
-  ctx.fillStyle = '#657086';
-  ctx.lineWidth = 1;
-  ctx.font = '12px Inter, system-ui, sans-serif';
-
-  for (let index = 0; index <= steps; index += 1) {
-    const ratio = index / steps;
-    const y = padding.top + plotHeight - ratio * plotHeight;
-    const value = minY + ratio * (maxY - minY);
-
-    ctx.beginPath();
-    ctx.moveTo(padding.left, y);
-    ctx.lineTo(width - padding.right, y);
-    ctx.stroke();
-
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(yFormatter(value), 12, y);
-  }
-
-  ctx.strokeStyle = '#aeb7c8';
-  ctx.beginPath();
-  ctx.moveTo(padding.left, padding.top);
-  ctx.lineTo(padding.left, height - padding.bottom);
-  ctx.lineTo(width - padding.right, height - padding.bottom);
-  ctx.stroke();
-
-  ctx.strokeStyle = '#d7deea';
-  for (let index = 0; index <= 5; index += 1) {
-    const x = padding.left + (index / 5) * plotWidth;
-    ctx.beginPath();
-    ctx.moveTo(x, padding.top);
-    ctx.lineTo(x, height - padding.bottom);
-    ctx.stroke();
-  }
-}
-
-function drawBand(ctx, lower, upper, geometry) {
-  if (!lower.length || !upper.length || lower.length !== upper.length) return;
-
-  ctx.beginPath();
-  lower.forEach((value, index) => {
-    const x = geometry.left + getX(index, lower.length, geometry.width);
-    const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-
-  for (let index = upper.length - 1; index >= 0; index -= 1) {
-    const x = geometry.left + getX(index, upper.length, geometry.width);
-    const y = geometry.top + getY(upper[index], geometry.minY, geometry.maxY, geometry.height);
-    ctx.lineTo(x, y);
-  }
-
-  ctx.closePath();
-  ctx.fillStyle = geometry.fill;
-  ctx.fill();
-}
-
-function drawStackedAreas(ctx, areas, geometry) {
-  if (!areas?.length) return;
-
+function drawStackedAreas(ctx,areas,geom) {
   const length = areas[0].values.length;
-  if (!length) return;
+  const cumulative = Array.from({length},()=>0);
 
-  const cumulative = Array.from({ length }, () => 0);
-
-  areas.forEach((area) => {
-    const nextCumulative = cumulative.map((value, index) => {
-      const areaValue = Number.isFinite(area.values[index]) ? area.values[index] : 0;
-      return value + areaValue;
-    });
+  areas.forEach(area=>{
+    const next = cumulative.map((v,i)=>v+(area.values[i]||0));
 
     ctx.beginPath();
 
-    nextCumulative.forEach((value, index) => {
-      const x = geometry.left + getX(index, length, geometry.width);
-      const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+    next.forEach((v,i)=>{
+      const x = geom.left + getX(i,length,geom.width);
+      const y = geom.top + getY(v,geom.minY,geom.maxY,geom.height);
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
     });
 
-    for (let index = length - 1; index >= 0; index -= 1) {
-      const x = geometry.left + getX(index, length, geometry.width);
-      const y = geometry.top + getY(cumulative[index], geometry.minY, geometry.maxY, geometry.height);
-      ctx.lineTo(x, y);
+    for(let i=length-1;i>=0;i--){
+      const x = geom.left + getX(i,length,geom.width);
+      const y = geom.top + getY(cumulative[i],geom.minY,geom.maxY,geom.height);
+      ctx.lineTo(x,y);
     }
 
     ctx.closePath();
@@ -305,188 +269,187 @@ function drawStackedAreas(ctx, areas, geometry) {
     ctx.fill();
 
     ctx.beginPath();
-    nextCumulative.forEach((value, index) => {
-      const x = geometry.left + getX(index, length, geometry.width);
-      const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+
+    next.forEach((v,i)=>{
+      const x = geom.left + getX(i,length,geom.width);
+      const y = geom.top + getY(v,geom.minY,geom.maxY,geom.height);
+      if(i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
     });
 
     ctx.strokeStyle = area.strokeColor || area.color;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    for (let index = 0; index < length; index += 1) {
-      cumulative[index] = nextCumulative[index];
-    }
+    for(let i=0;i<length;i++) cumulative[i]=next[i];
   });
 }
 
-function drawSeries(ctx, values, geometry) {
-  const cleanValues = values.map((value) => (Number.isFinite(value) ? value : 0));
-  if (!cleanValues.length) return;
+function drawSeries(ctx,values,geom) {
+  const clean = values.map(v => Number.isFinite(v)?v:0);
+  if(!clean.length) return;
 
   ctx.save();
   ctx.beginPath();
-  ctx.setLineDash(geometry.dash);
+  ctx.setLineDash(geom.dash);
 
-  cleanValues.forEach((value, index) => {
-    const x = geometry.left + getX(index, cleanValues.length, geometry.width);
-    const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  clean.forEach((v,i)=>{
+    const x = geom.left + getX(i,clean.length,geom.width);
+    const y = geom.top + getY(v,geom.minY,geom.maxY,geom.height);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
   });
 
-  ctx.strokeStyle = geometry.color;
-  ctx.lineWidth = geometry.lineWidth;
+  ctx.strokeStyle = geom.color;
+  ctx.lineWidth = geom.lineWidth;
   ctx.stroke();
   ctx.restore();
 }
 
-function drawXAxis(ctx, labels, width, height, padding) {
-  const plotWidth = width - padding.left - padding.right;
-  const baseline = height - padding.bottom + 14;
-  const tickIndexes = [
-    0,
-    Math.floor((labels.length - 1) * 0.25),
-    Math.floor((labels.length - 1) * 0.5),
-    Math.floor((labels.length - 1) * 0.75),
-    labels.length - 1
-  ];
-  const uniqueIndexes = [...new Set(tickIndexes.filter((value) => value >= 0))];
+function drawGrid(ctx,width,height,padding,minY,maxY,yFormatter) {
+  const plotHeight = height - padding.top - padding.bottom;
+  const steps = 5;
 
+  ctx.strokeStyle = '#d7deea';
   ctx.fillStyle = '#657086';
-  ctx.font = '12px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
+  ctx.lineWidth = 1;
 
-  uniqueIndexes.forEach((index) => {
-    const x = padding.left + getX(index, labels.length, plotWidth);
-    ctx.fillText(String(labels[index]), x, baseline);
+  for(let i=0;i<=steps;i++){
+    const ratio = i/steps;
+    const y = padding.top + plotHeight - ratio*plotHeight;
+    const val = minY + ratio*(maxY-minY);
+
+    ctx.beginPath();
+    ctx.moveTo(padding.left,y);
+    ctx.lineTo(width-padding.right,y);
+    ctx.stroke();
+
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    ctx.fillText(yFormatter(val),12,y);
+  }
+}
+
+function drawBand(ctx,lower,upper,g){
+  if(!lower.length || lower.length!==upper.length) return;
+
+  ctx.beginPath();
+
+  lower.forEach((v,i)=>{
+    const x=g.left+getX(i,lower.length,g.width);
+    const y=g.top+getY(v,g.minY,g.maxY,g.height);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  for(let i=upper.length-1;i>=0;i--){
+    const x=g.left+getX(i,upper.length,g.width);
+    const y=g.top+getY(upper[i],g.minY,g.maxY,g.height);
+    ctx.lineTo(x,y);
+  }
+
+  ctx.closePath();
+  ctx.fillStyle=g.fill;
+  ctx.fill();
+}
+
+function drawXAxis(ctx,labels,width,height,padding){
+  const plotWidth = width-padding.left-padding.right;
+  const baseline = height-padding.bottom+14;
+
+  ctx.fillStyle='#657086';
+  ctx.textAlign='center';
+
+  const ticks=[0,0.25,0.5,0.75,1];
+
+  ticks.forEach(t=>{
+    const i=Math.floor((labels.length-1)*t);
+    const x=padding.left+getX(i,labels.length,plotWidth);
+    ctx.fillText(labels[i],x,baseline);
   });
 }
 
-function measureLegend(ctx, lines, width) {
-  const markerWidth = 18;
-  const markerTextGap = 8;
-  const itemGap = 26;
-  const rowGap = 10;
-  const horizontalPadding = 18;
-  const maxRowWidth = Math.max(200, width - horizontalPadding * 2);
+function measureLegend(ctx,lines,width){
+  const markerWidth=18;
+  const markerTextGap=8;
+  const itemGap=26;
+  const rowGap=10;
+  const maxRowWidth=Math.max(200,width-36);
 
-  const items = lines.map((line) => {
-    const textWidth = ctx.measureText(line.label).width;
-    const widthNeeded = markerWidth + markerTextGap + textWidth;
-    return {
-      ...line,
-      textWidth,
-      widthNeeded
-    };
+  const items=lines.map(l=>{
+    const textWidth=ctx.measureText(l.label).width;
+    const widthNeeded=markerWidth+markerTextGap+textWidth;
+    return {...l,widthNeeded};
   });
 
-  const rows = [];
-  let currentRow = [];
-  let currentWidth = 0;
+  const rows=[];
+  let row=[],w=0;
 
-  items.forEach((item) => {
-    const nextWidth =
-      currentRow.length === 0
-        ? item.widthNeeded
-        : currentWidth + itemGap + item.widthNeeded;
+  items.forEach(item=>{
+    const next=row.length===0?item.widthNeeded:w+itemGap+item.widthNeeded;
 
-    if (nextWidth > maxRowWidth && currentRow.length > 0) {
-      rows.push(currentRow);
-      currentRow = [item];
-      currentWidth = item.widthNeeded;
+    if(next>maxRowWidth && row.length){
+      rows.push(row);
+      row=[item];
+      w=item.widthNeeded;
     } else {
-      currentRow.push(item);
-      currentWidth = nextWidth;
+      row.push(item);
+      w=next;
     }
   });
 
-  if (currentRow.length > 0) {
-    rows.push(currentRow);
-  }
+  if(row.length) rows.push(row);
 
-  const rowHeight = 14;
-  const height = rows.length * rowHeight + Math.max(0, rows.length - 1) * rowGap + 16;
+  const rowHeight=14;
+  const height=rows.length*rowHeight + (rows.length-1)*rowGap + 16;
 
-  return {
-    rows,
-    markerWidth,
-    markerTextGap,
-    itemGap,
-    rowGap,
-    rowHeight,
-    height
-  };
+  return {rows,rowHeight,itemGap,rowGap,markerWidth,markerTextGap,height};
 }
 
-function drawLegend(ctx, width, height, layout) {
-  if (!layout?.rows?.length) return;
+function drawLegend(ctx,width,height,l){
+  let y = height - l.height + 8;
 
-  ctx.font = '12px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
+  l.rows.forEach(row=>{
+    let x = (width - row.reduce((s,i)=>s+i.widthNeeded,0))/2;
 
-  let cursorY = height - layout.height + 8;
-
-  layout.rows.forEach((row) => {
-    const rowWidth = row.reduce((sum, item, index) => {
-      return sum + item.widthNeeded + (index > 0 ? layout.itemGap : 0);
-    }, 0);
-
-    let cursorX = Math.max(18, (width - rowWidth) / 2);
-
-    row.forEach((item) => {
-      const lineY = cursorY;
-
-      ctx.save();
-      ctx.strokeStyle = item.color;
-      ctx.lineWidth = item.width || 2.5;
-      ctx.setLineDash(item.dash || []);
+    row.forEach(item=>{
+      ctx.strokeStyle=item.color;
+      ctx.lineWidth=item.width||2.5;
       ctx.beginPath();
-      ctx.moveTo(cursorX, lineY);
-      ctx.lineTo(cursorX + layout.markerWidth, lineY);
+      ctx.moveTo(x,y);
+      ctx.lineTo(x+l.markerWidth,y);
       ctx.stroke();
-      ctx.restore();
 
-      ctx.fillStyle = '#475569';
-      ctx.fillText(item.label, cursorX + layout.markerWidth + layout.markerTextGap, lineY);
+      ctx.fillStyle='#475569';
+      ctx.fillText(item.label,x+l.markerWidth+l.markerTextGap,y);
 
-      cursorX += item.widthNeeded + layout.itemGap;
+      x+=item.widthNeeded+l.itemGap;
     });
 
-    cursorY += layout.rowHeight + layout.rowGap;
+    y+=l.rowHeight+l.rowGap;
   });
 }
 
-function getX(index, length, width) {
-  if (length <= 1) return 0;
-  return (index / (length - 1)) * width;
+function getX(i,len,w){ return len<=1 ? 0 : (i/(len-1))*w; }
+
+function getY(v,min,max,h){
+  if(max===min) return h;
+  const r=(v-min)/(max-min);
+  return h - r*h;
 }
 
-function getY(value, minY, maxY, height) {
-  if (maxY === minY) return height;
-  const ratio = (value - minY) / (maxY - minY);
-  return height - ratio * height;
-}
+function niceMax(v){
+  if(!Number.isFinite(v)||v<=0) return 1;
 
-function niceMax(value) {
-  if (!Number.isFinite(value) || value <= 0) return 1;
+  const e=Math.floor(Math.log10(v));
+  const b=10**e;
+  const s=v/b;
 
-  const exponent = Math.floor(Math.log10(value));
-  const base = 10 ** exponent;
-  const scaled = value / base;
+  let r;
+  if(s<=1) r=1;
+  else if(s<=2) r=2;
+  else if(s<=5) r=5;
+  else r=10;
 
-  let rounded;
-  if (scaled <= 1) rounded = 1;
-  else if (scaled <= 2) rounded = 2;
-  else if (scaled <= 5) rounded = 5;
-  else rounded = 10;
-
-  return rounded * base;
+  return r*b;
 }
