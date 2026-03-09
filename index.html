@@ -147,7 +147,7 @@
                   <p>One shared state pension amount, with separate names, current ages, and pension ages for each person.</p>
                 </div>
 
-                <div class="people-pension-inline-row">
+                <div class="people-income-grid">
                   <label class="field field-inline field-inline-wide people-pension-inline-field">
                     <span class="field-label with-help field-label-inline">
                       <span>State pension today (per person)</span>
@@ -160,6 +160,62 @@
                       >?</button>
                     </span>
                     <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+
+                  <label class="field field-inline field-inline-wide people-income-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Other income today</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Other income today help"
+                        title="Shared household income in today's money. It starts immediately, rises with inflation, and runs for the number of years entered below."
+                      >?</button>
+                    </span>
+                    <input id="otherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+
+                  <label class="field field-inline people-years-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Other income years</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Other income years help"
+                        title="Number of years that other income is received before it stops."
+                      >?</button>
+                    </span>
+                    <input id="otherIncomeYears" type="number" min="0" max="80" step="1" />
+                  </label>
+
+                  <label class="field field-inline field-inline-wide people-income-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Windfall amount</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Windfall amount help"
+                        title="A one-off household income receipt such as inheritance, downsizing proceeds, or a lump sum."
+                      >?</button>
+                    </span>
+                    <input id="windfallAmount" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+
+                  <label class="field field-inline people-years-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Windfall year</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Windfall year help"
+                        title="The retirement year in which the windfall arrives. Use 0 for none."
+                      >?</button>
+                    </span>
+                    <input id="windfallYear" type="number" min="0" max="80" step="1" />
                   </label>
                 </div>
 
