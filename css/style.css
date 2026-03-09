@@ -671,6 +671,7 @@ canvas{
 .error-box{
   display:none;
   margin-top:16px;
+  margin-bottom:16px;
   background:#fff2f2;
   color:#8f1824;
   border:1px solid #f1c5cb;
