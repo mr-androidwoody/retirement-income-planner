@@ -25,11 +25,13 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   const runway = result.summary?.cashRunwayYears;
   elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
-  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
-  renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
+   renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
 
-  renderMonteCarloSummary(result, elements, useReal, formatters);
+   renderPlanWarnings(result, elements, useReal, formatters);
+
+   renderMonteCarloSummary(result, elements, useReal, formatters);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 
@@ -128,6 +130,101 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
       <div class="summary-item">
         <div class="summary-item-label">${label}</div>
         <div class="summary-item-value">${value}</div>
+      </div>
+    `
+    )
+    .join('');
+}
+
+function renderPlanWarnings(result, elements, useReal, formatters) {
+
+  const container = elements.planWarnings;
+  if (!container) return;
+
+  const rows = result.baseCase?.rows || [];
+  if (!rows.length) return;
+
+  const { formatPercent } = formatters;
+  const inputs = result.inputs;
+
+  const warnings = [];
+
+  /* starting withdrawal rate */
+
+  const startWithdrawalRate = inputs.initialSpending / inputs.initialPortfolio;
+
+  if (startWithdrawalRate > 0.055) {
+    warnings.push({
+      level: 'warning',
+      text: `Aggressive starting withdrawal rate (${formatPercent(startWithdrawalRate)}).`
+    });
+  }
+
+  /* early depletion risk */
+
+  const percentiles = useReal
+    ? result.monteCarlo.realPercentiles
+    : result.monteCarlo.nominalPercentiles;
+
+  const p10 = percentiles.p10;
+  const planYears = inputs.years;
+
+  for (let i = 0; i < p10.length; i++) {
+    if (p10[i] <= 0 && i < planYears * 0.5) {
+      warnings.push({
+        level: 'warning',
+        text: `Weak outcomes reach portfolio depletion by year ${i}.`
+      });
+      break;
+    }
+  }
+
+  /* guardrail cuts */
+
+  const maxCut = Math.max(...rows.map(r => r.spendingCutPercent || 0));
+
+  if (maxCut > 0.15) {
+    warnings.push({
+      level: 'warning',
+      text: `Guardrails reduce spending by up to ${formatPercent(maxCut)}.`
+    });
+  }
+
+  /* portfolio dependence */
+
+  const totals = rows.reduce(
+    (acc, r) => {
+      acc.spending += useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+      acc.withdrawals += useReal ? r.withdrawalReal : r.withdrawalNominal;
+      return acc;
+    },
+    { spending: 0, withdrawals: 0 }
+  );
+
+  const dependence =
+    totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
+
+  if (dependence > 0.7) {
+    warnings.push({
+      level: 'info',
+      text: `High reliance on portfolio withdrawals (${formatPercent(dependence)} of spending).`
+    });
+  }
+
+  if (!warnings.length) {
+    container.innerHTML = `
+      <div class="plan-warning-ok">
+        ✓ No major risks detected in current plan assumptions.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = warnings
+    .map(
+      w => `
+      <div class="plan-warning">
+        ⚠ ${w.text}
       </div>
     `
     )
