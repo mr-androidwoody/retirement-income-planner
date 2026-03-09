@@ -96,7 +96,7 @@ export function validateInputs(rawInputs = {}) {
     inputs.windfallYear < 0 ||
     inputs.windfallYear > inputs.years
   ) {
-    errors.push('Windfall year must be between 0 and retirement years.');
+    errors.push('Windfall year must be between 0 (this year) and how many years from this year you will receive it.');
   }
 
   const allocationTotal =
