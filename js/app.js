@@ -62,6 +62,7 @@ const els = {
   summaryCashRunway: document.getElementById('summaryCashRunway'),
 
   portfolioChart: document.getElementById('portfolioChart'),
+  survivalChart: document.getElementById('survivalChart'),
   spendingChart: document.getElementById('spendingChart'),
   tableCard: document.getElementById('tableCard'),
   resultsTable: document.getElementById('resultsTable')
