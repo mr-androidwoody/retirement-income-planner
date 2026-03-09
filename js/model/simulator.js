@@ -41,6 +41,7 @@ export const DEFAULT_INPUTS = {
   person2Age: 58,
   person2PensionAge: 67,
   person2PensionToday: 12547,
+
   otherIncomeToday: 0,
   otherIncomeYears: 0,
   windfallAmount: 0,
@@ -78,7 +79,11 @@ export function validateInputs(rawInputs = {}) {
     errors.push('Other income today must be zero or greater.');
   }
 
-  if (!Number.isFinite(inputs.otherIncomeYears) || inputs.otherIncomeYears < 0 || inputs.otherIncomeYears > inputs.years) {
+  if (
+    !Number.isFinite(inputs.otherIncomeYears) ||
+    inputs.otherIncomeYears < 0 ||
+    inputs.otherIncomeYears > inputs.years
+  ) {
     errors.push('Other income years must be between 0 and retirement years.');
   }
 
@@ -86,7 +91,11 @@ export function validateInputs(rawInputs = {}) {
     errors.push('Windfall amount must be zero or greater.');
   }
 
-  if (!Number.isFinite(inputs.windfallYear) || inputs.windfallYear < 0 || inputs.windfallYear > inputs.years) {
+  if (
+    !Number.isFinite(inputs.windfallYear) ||
+    inputs.windfallYear < 0 ||
+    inputs.windfallYear > inputs.years
+  ) {
     errors.push('Windfall year must be between 0 and retirement years.');
   }
 
@@ -158,15 +167,25 @@ function normaliseInputs(rawInputs = {}) {
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
     inflation: toRate(merged.inflation),
 
-    person1Name: String(merged.person1Name ?? DEFAULT_INPUTS.person1Name).trim() || DEFAULT_INPUTS.person1Name,
+    person1Name:
+      String(merged.person1Name ?? DEFAULT_INPUTS.person1Name).trim() ||
+      DEFAULT_INPUTS.person1Name,
     person1Age: toInt(merged.person1Age),
     person1PensionAge: toInt(merged.person1PensionAge),
     statePensionToday: resolveSharedStatePensionToday(merged),
     person1PensionToday: resolvePersonPensionToday(merged, 'person1PensionToday'),
-    person2Name: String(merged.person2Name ?? DEFAULT_INPUTS.person2Name).trim() || DEFAULT_INPUTS.person2Name,
+
+    person2Name:
+      String(merged.person2Name ?? DEFAULT_INPUTS.person2Name).trim() ||
+      DEFAULT_INPUTS.person2Name,
     person2Age: toInt(merged.person2Age),
     person2PensionAge: toInt(merged.person2PensionAge),
     person2PensionToday: resolvePersonPensionToday(merged, 'person2PensionToday'),
+
+    otherIncomeToday: toNumber(merged.otherIncomeToday),
+    otherIncomeYears: toInt(merged.otherIncomeYears),
+    windfallAmount: toNumber(merged.windfallAmount),
+    windfallYear: toInt(merged.windfallYear),
 
     upperGuardrail: toRatio(merged.upperGuardrail),
     lowerGuardrail: toRatio(merged.lowerGuardrail),
@@ -323,10 +342,23 @@ function simulatePath(inputs, annualReturns) {
     const pensionNominal = getStatePensionNominal(inputs, yearIndex, inflationIndex);
     const otherIncomeNominal = getOtherIncomeNominal(inputs, yearIndex, inflationIndex);
     const windfallNominal = getWindfallNominal(inputs, yearIndex);
-    const totalNonPortfolioIncomeNominal = pensionNominal + otherIncomeNominal + windfallNominal;
-    const requestedWithdrawalNominal = Math.max(0, spendingNominal - totalNonPortfolioIncomeNominal);
-    const actualWithdrawalNominal = withdrawFromBuckets(buckets, requestedWithdrawalNominal);
-    const surplusIncomeNominal = Math.max(0, totalNonPortfolioIncomeNominal - spendingNominal);
+    const totalNonPortfolioIncomeNominal =
+      pensionNominal + otherIncomeNominal + windfallNominal;
+
+    const requestedWithdrawalNominal = Math.max(
+      0,
+      spendingNominal - totalNonPortfolioIncomeNominal
+    );
+    const actualWithdrawalNominal = withdrawFromBuckets(
+      buckets,
+      requestedWithdrawalNominal
+    );
+
+    const surplusIncomeNominal = Math.max(
+      0,
+      totalNonPortfolioIncomeNominal - spendingNominal
+    );
+
     if (surplusIncomeNominal > 0) {
       buckets.cashlike += surplusIncomeNominal;
     }
@@ -454,7 +486,14 @@ function simulatePath(inputs, annualReturns) {
 function buildSummary(inputs, baseCase, monteCarlo) {
   const openingCash = inputs.initialPortfolio * inputs.cashlikeAllocation;
   const firstYearPension = getStatePensionNominal(inputs, 0, 1);
-  const openingNetWithdrawal = Math.max(0, inputs.initialSpending - firstYearPension);
+  const firstYearOtherIncome = getOtherIncomeNominal(inputs, 0, 1);
+  const firstYearWindfall = getWindfallNominal(inputs, 0);
+
+  const openingNetWithdrawal = Math.max(
+    0,
+    inputs.initialSpending - firstYearPension - firstYearOtherIncome - firstYearWindfall
+  );
+
   const cashRunwayYears =
     openingNetWithdrawal > 0
       ? openingCash / openingNetWithdrawal
@@ -513,9 +552,7 @@ function buildPercentileSeries(paths) {
   const p90 = [];
 
   for (let index = 0; index < length; index += 1) {
-    const values = paths
-      .map((path) => path[index])
-      .sort((a, b) => a - b);
+    const values = paths.map((path) => path[index]).sort((a, b) => a - b);
 
     p10.push(percentile(values, 0.10));
     p50.push(percentile(values, 0.50));
@@ -548,6 +585,7 @@ function createRng(seed) {
     return state / 4294967296;
   };
 }
+
 function resolveSharedStatePensionToday(inputs) {
   if (hasMeaningfulValue(inputs?.statePensionToday)) {
     return toNumber(inputs.statePensionToday);
@@ -575,7 +613,6 @@ function resolvePersonPensionToday(inputs, key) {
 function hasMeaningfulValue(value) {
   return value !== null && value !== undefined && value !== '';
 }
-
 
 function toNumber(value) {
   const numeric = Number(value);
