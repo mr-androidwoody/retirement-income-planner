@@ -26,34 +26,6 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
   });
 }
 
-export function renderSurvivalChart(canvas, result, formatPercent) {
-  if (!result?.monteCarlo?.nominalPercentiles) return;
-
-  const years = result.inputs.years;
-  const p10 = result.monteCarlo.nominalPercentiles.p10;
-
-  const survival = p10.map(v => (v > 0 ? 1 : 0));
-
-  let running = 1;
-  const survivalCurve = survival.map(v => {
-    running = Math.min(running, v);
-    return running;
-  });
-
-  drawLineChart(canvas, {
-    labels: Array.from({ length: years + 1 }, (_, i) => i),
-    lines: [
-      {
-        label: 'Portfolio survival probability',
-        values: survivalCurve,
-        color: '#2563eb',
-        width: 3
-      }
-    ],
-    yFormatter: formatPercent
-  });
-}
-
 export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
   if (!result?.baseCase?.rows) return;
 
@@ -330,6 +302,66 @@ function drawGrid(ctx,width,height,padding,minY,maxY,yFormatter) {
   }
 }
 
+function measureLegend(ctx,lines,width){
+  const markerSize=12;
+  const markerTextGap=8;
+  const itemGap=28;
+  const rowGap=12;
+  const maxRowWidth=Math.max(200,width-36);
+
+  const items=lines.map(l=>{
+    const textWidth=ctx.measureText(l.label).width;
+    const widthNeeded=markerSize+markerTextGap+textWidth;
+    return {...l,widthNeeded};
+  });
+
+  const rows=[];
+  let row=[],w=0;
+
+  items.forEach(item=>{
+    const next=row.length===0?item.widthNeeded:w+itemGap+item.widthNeeded;
+
+    if(next>maxRowWidth && row.length){
+      rows.push(row);
+      row=[item];
+      w=item.widthNeeded;
+    } else {
+      row.push(item);
+      w=next;
+    }
+  });
+
+  if(row.length) rows.push(row);
+
+  const rowHeight=18;
+  const height=rows.length*rowHeight + (rows.length-1)*rowGap + 18;
+
+  return {rows,rowHeight,itemGap,rowGap,markerSize,markerTextGap,height};
+}
+
+function drawLegend(ctx,width,height,l){
+  let y = height - l.height + 10;
+
+  l.rows.forEach(row=>{
+    const rowWidth = row.reduce((s,i)=>s+i.widthNeeded,0) + (row.length-1)*l.itemGap;
+    let x = (width - rowWidth)/2;
+
+    row.forEach(item=>{
+      ctx.fillStyle=item.color;
+      ctx.fillRect(x,y-6,l.markerSize,l.markerSize);
+
+      ctx.fillStyle='#475569';
+      ctx.textAlign='left';
+      ctx.textBaseline='middle';
+      ctx.fillText(item.label,x+l.markerSize+l.markerTextGap,y);
+
+      x+=item.widthNeeded+l.itemGap;
+    });
+
+    y+=l.rowHeight+l.rowGap;
+  });
+}
+
 function drawBand(ctx,lower,upper,g){
   if(!lower.length || lower.length!==upper.length) return;
 
@@ -366,67 +398,6 @@ function drawXAxis(ctx,labels,width,height,padding){
     const i=Math.floor((labels.length-1)*t);
     const x=padding.left+getX(i,labels.length,plotWidth);
     ctx.fillText(labels[i],x,baseline);
-  });
-}
-
-function measureLegend(ctx,lines,width){
-  const markerWidth=18;
-  const markerTextGap=8;
-  const itemGap=26;
-  const rowGap=10;
-  const maxRowWidth=Math.max(200,width-36);
-
-  const items=lines.map(l=>{
-    const textWidth=ctx.measureText(l.label).width;
-    const widthNeeded=markerWidth+markerTextGap+textWidth;
-    return {...l,widthNeeded};
-  });
-
-  const rows=[];
-  let row=[],w=0;
-
-  items.forEach(item=>{
-    const next=row.length===0?item.widthNeeded:w+itemGap+item.widthNeeded;
-
-    if(next>maxRowWidth && row.length){
-      rows.push(row);
-      row=[item];
-      w=item.widthNeeded;
-    } else {
-      row.push(item);
-      w=next;
-    }
-  });
-
-  if(row.length) rows.push(row);
-
-  const rowHeight=14;
-  const height=rows.length*rowHeight + (rows.length-1)*rowGap + 16;
-
-  return {rows,rowHeight,itemGap,rowGap,markerWidth,markerTextGap,height};
-}
-
-function drawLegend(ctx,width,height,l){
-  let y = height - l.height + 8;
-
-  l.rows.forEach(row=>{
-    let x = (width - row.reduce((s,i)=>s+i.widthNeeded,0))/2;
-
-    row.forEach(item=>{
-      ctx.strokeStyle=item.color;
-      ctx.lineWidth=item.width||2.5;
-      ctx.beginPath();
-      ctx.moveTo(x,y);
-      ctx.lineTo(x+l.markerWidth,y);
-      ctx.stroke();
-
-      ctx.fillStyle='#475569';
-      ctx.fillText(item.label,x+l.markerWidth+l.markerTextGap,y);
-
-      x+=item.widthNeeded+l.itemGap;
-    });
-
-    y+=l.rowHeight+l.rowGap;
   });
 }
 
