@@ -1,4 +1,3 @@
-
 import { initialiseBuckets, applyAssetReturns, withdrawFromBuckets, rebalanceBuckets, totalPortfolio } from './cashflow.js';
 
 export function runMonthlyEngine(inputs) {
@@ -26,11 +25,30 @@ export function runMonthlyEngine(inputs) {
     const start = totalPortfolio(buckets);
     const p1Eligible = inputs.person1Age + yearIndex >= inputs.person1PensionAge;
     const p2Eligible = inputs.person2Age + yearIndex >= inputs.person2PensionAge;
-    const pensionAnnual = (p1Eligible ? inputs.person1PensionToday * inflationIndex : 0) + (p2Eligible ? inputs.person2PensionToday * inflationIndex : 0);
+    const pensionAnnual =
+      (p1Eligible ? inputs.person1PensionToday * inflationIndex : 0) +
+      (p2Eligible ? inputs.person2PensionToday * inflationIndex : 0);
+    const otherIncomeAnnual =
+      yearIndex < inputs.otherIncomeYears
+        ? inputs.otherIncomeToday * inflationIndex
+        : 0;
+    const windfallAnnual =
+      monthInYear === 0 && inputs.windfallYear > 0 && yearIndex + 1 === inputs.windfallYear
+        ? inputs.windfallAmount
+        : 0;
+
     const pensionMonthly = pensionAnnual / 12;
+    const otherIncomeMonthly = otherIncomeAnnual / 12;
+    const windfallMonthly = windfallAnnual;
     const spendingMonthly = spending / 12;
-    const withdrawal = Math.max(0, spendingMonthly - pensionMonthly);
+    const totalIncomeMonthly = pensionMonthly + otherIncomeMonthly + windfallMonthly;
+    const withdrawal = Math.max(0, spendingMonthly - totalIncomeMonthly);
     const actualWithdrawal = withdrawFromBuckets(buckets, withdrawal);
+
+    const surplusIncome = Math.max(0, totalIncomeMonthly - spendingMonthly);
+    if (surplusIncome > 0) {
+      buckets.cashlike += surplusIncome;
+    }
 
     applyAssetReturns(buckets, monthlyReturns);
 
@@ -44,6 +62,8 @@ export function runMonthlyEngine(inputs) {
       startPortfolioNominal: start,
       spendingNominal: spendingMonthly,
       statePensionNominal: pensionMonthly,
+      otherIncomeNominal: otherIncomeMonthly,
+      windfallNominal: windfallMonthly,
       withdrawalNominal: actualWithdrawal,
       endPortfolioNominal: totalPortfolio(buckets),
       inflationIndex

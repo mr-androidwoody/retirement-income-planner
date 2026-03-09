@@ -1,4 +1,3 @@
-
 export function summariseAnnual(monthlyLedger) {
   const years = new Map();
 
@@ -9,6 +8,8 @@ export function summariseAnnual(monthlyLedger) {
         startPortfolioNominal: row.startPortfolioNominal,
         spendingNominal: 0,
         statePensionNominal: 0,
+        otherIncomeNominal: 0,
+        windfallNominal: 0,
         withdrawalNominal: 0,
         endPortfolioNominal: row.endPortfolioNominal,
         inflationIndex: row.inflationIndex
@@ -18,6 +19,8 @@ export function summariseAnnual(monthlyLedger) {
     const bucket = years.get(row.year);
     bucket.spendingNominal += row.spendingNominal;
     bucket.statePensionNominal += row.statePensionNominal;
+    bucket.otherIncomeNominal += row.otherIncomeNominal ?? 0;
+    bucket.windfallNominal += row.windfallNominal ?? 0;
     bucket.withdrawalNominal += row.withdrawalNominal;
     bucket.endPortfolioNominal = row.endPortfolioNominal;
     bucket.inflationIndex = row.inflationIndex;
@@ -28,6 +31,8 @@ export function summariseAnnual(monthlyLedger) {
     startPortfolioReal: row.startPortfolioNominal / row.inflationIndex,
     spendingReal: row.spendingNominal / row.inflationIndex,
     statePensionReal: row.statePensionNominal / row.inflationIndex,
+    otherIncomeReal: row.otherIncomeNominal / row.inflationIndex,
+    windfallReal: row.windfallNominal / row.inflationIndex,
     withdrawalReal: row.withdrawalNominal / row.inflationIndex,
     endPortfolioReal: row.endPortfolioNominal / row.inflationIndex
   }));

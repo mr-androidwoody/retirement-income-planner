@@ -41,6 +41,10 @@ export const DEFAULT_INPUTS = {
   person2Age: 58,
   person2PensionAge: 67,
   person2PensionToday: 12547,
+  otherIncomeToday: 0,
+  otherIncomeYears: 0,
+  windfallAmount: 0,
+  windfallYear: 0,
 
   upperGuardrail: 20,
   lowerGuardrail: 20,
@@ -68,6 +72,22 @@ export function validateInputs(rawInputs = {}) {
 
   if (!Number.isFinite(inputs.initialSpending) || inputs.initialSpending < 0) {
     errors.push('Initial household spending must be zero or greater.');
+  }
+
+  if (!Number.isFinite(inputs.otherIncomeToday) || inputs.otherIncomeToday < 0) {
+    errors.push('Other income today must be zero or greater.');
+  }
+
+  if (!Number.isFinite(inputs.otherIncomeYears) || inputs.otherIncomeYears < 0 || inputs.otherIncomeYears > inputs.years) {
+    errors.push('Other income years must be between 0 and retirement years.');
+  }
+
+  if (!Number.isFinite(inputs.windfallAmount) || inputs.windfallAmount < 0) {
+    errors.push('Windfall amount must be zero or greater.');
+  }
+
+  if (!Number.isFinite(inputs.windfallYear) || inputs.windfallYear < 0 || inputs.windfallYear > inputs.years) {
+    errors.push('Windfall year must be between 0 and retirement years.');
   }
 
   const allocationTotal =
@@ -301,8 +321,15 @@ function simulatePath(inputs, annualReturns) {
     const startPortfolioReal = startPortfolioNominal / inflationIndex;
 
     const pensionNominal = getStatePensionNominal(inputs, yearIndex, inflationIndex);
-    const requestedWithdrawalNominal = Math.max(0, spendingNominal - pensionNominal);
+    const otherIncomeNominal = getOtherIncomeNominal(inputs, yearIndex, inflationIndex);
+    const windfallNominal = getWindfallNominal(inputs, yearIndex);
+    const totalNonPortfolioIncomeNominal = pensionNominal + otherIncomeNominal + windfallNominal;
+    const requestedWithdrawalNominal = Math.max(0, spendingNominal - totalNonPortfolioIncomeNominal);
     const actualWithdrawalNominal = withdrawFromBuckets(buckets, requestedWithdrawalNominal);
+    const surplusIncomeNominal = Math.max(0, totalNonPortfolioIncomeNominal - spendingNominal);
+    if (surplusIncomeNominal > 0) {
+      buckets.cashlike += surplusIncomeNominal;
+    }
 
     const eqReturn = annualReturns.equities[yearIndex] ?? inputs.equityReturn;
     const bondReturn = annualReturns.bonds[yearIndex] ?? inputs.bondReturn;
@@ -336,6 +363,8 @@ function simulatePath(inputs, annualReturns) {
     const targetSpendingReal = targetSpendingNominal / inflationIndex;
     const actualSpendingReal = spendingNominal / inflationIndex;
     const pensionReal = pensionNominal / inflationIndex;
+    const otherIncomeReal = otherIncomeNominal / inflationIndex;
+    const windfallReal = windfallNominal / inflationIndex;
     const withdrawalReal = actualWithdrawalNominal / inflationIndex;
 
     rows.push({
@@ -352,6 +381,10 @@ function simulatePath(inputs, annualReturns) {
       spendingReal: actualSpendingReal,
       statePensionNominal: pensionNominal,
       statePensionReal: pensionReal,
+      otherIncomeNominal,
+      otherIncomeReal,
+      windfallNominal,
+      windfallReal,
       requestedWithdrawalNominal,
       requestedWithdrawalReal: requestedWithdrawalNominal / inflationIndex,
       withdrawalNominal: actualWithdrawalNominal,
@@ -451,6 +484,22 @@ function getStatePensionNominal(inputs, yearIndex, inflationIndex) {
   }
 
   return total;
+}
+
+function getOtherIncomeNominal(inputs, yearIndex, inflationIndex) {
+  if (yearIndex < 0 || yearIndex >= inputs.otherIncomeYears) {
+    return 0;
+  }
+
+  return inputs.otherIncomeToday * inflationIndex;
+}
+
+function getWindfallNominal(inputs, yearIndex) {
+  if (inputs.windfallYear <= 0) {
+    return 0;
+  }
+
+  return yearIndex + 1 === inputs.windfallYear ? inputs.windfallAmount : 0;
 }
 
 function buildPercentileSeries(paths) {
