@@ -147,9 +147,9 @@
                   <p>One shared state pension amount, with separate names, current ages, and pension ages for each person.</p>
                 </div>
 
-                <div class="field-grid field-grid-3">
-                  <label class="field field-span-full">
-                    <span class="field-label with-help">
+                <div class="people-pension-inline-row">
+                  <label class="field field-inline field-inline-wide people-pension-inline-field">
+                    <span class="field-label with-help field-label-inline">
                       <span>State pension today (per person)</span>
                       <button
                         class="help"
@@ -163,38 +163,40 @@
                   </label>
                 </div>
 
-                <div class="field-grid field-grid-3">
-                  <label class="field">
-                    <span class="field-label">Name</span>
-                    <input id="person1Name" type="text" placeholder="Enter name" />
-                  </label>
-
-                  <label class="field">
-                    <span class="field-label">Current age</span>
-                    <input id="person1Age" type="number" min="18" max="100" step="1" />
-                  </label>
-
-                  <label class="field">
-                    <span class="field-label">State pension age</span>
-                    <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
-                  </label>
+                <div class="people-grid-header" aria-hidden="true">
+                  <div>Name</div>
+                  <div>Current age</div>
+                  <div>State pension age</div>
                 </div>
 
-                <div class="field-grid field-grid-3">
-                  <label class="field">
-                    <span class="field-label">Name</span>
-                    <input id="person2Name" type="text" placeholder="Enter name" />
-                  </label>
+                <div class="people-grid-rows">
+                  <div class="people-grid-row">
+                    <label class="field person-name-field">
+                      <input id="person1Name" type="text" placeholder="Enter name" />
+                    </label>
 
-                  <label class="field">
-                    <span class="field-label">Current age</span>
-                    <input id="person2Age" type="number" min="18" max="100" step="1" />
-                  </label>
+                    <label class="field person-age-field">
+                      <input id="person1Age" type="number" min="18" max="100" step="1" />
+                    </label>
 
-                  <label class="field">
-                    <span class="field-label">State pension age</span>
-                    <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
-                  </label>
+                    <label class="field person-pension-age-field">
+                      <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
+                    </label>
+                  </div>
+
+                  <div class="people-grid-row">
+                    <label class="field person-name-field">
+                      <input id="person2Name" type="text" placeholder="Enter name" />
+                    </label>
+
+                    <label class="field person-age-field">
+                      <input id="person2Age" type="number" min="18" max="100" step="1" />
+                    </label>
+
+                    <label class="field person-pension-age-field">
+                      <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
+                    </label>
+                  </div>
                 </div>
               </section>
 
@@ -260,57 +262,65 @@
                   <p>Expected return, volatility, and inflation assumptions used for deterministic and Monte Carlo paths.</p>
                 </div>
 
-                <div class="field-grid field-grid-3">
-                  <label class="field">
-                    <span class="field-label">Equity return %</span>
-                    <input id="equityReturn" type="number" step="0.1" />
-                  </label>
+                <div class="asset-assumptions-grid">
+                  <div class="asset-assumption-card">
+                    <div class="asset-assumption-title">Equities</div>
+                    <label class="field">
+                      <span class="field-label">Return %</span>
+                      <input id="equityReturn" type="number" step="0.1" />
+                    </label>
+                    <label class="field">
+                      <span class="field-label">Volatility %</span>
+                      <input id="equityVolatility" type="number" min="0" step="0.1" />
+                    </label>
+                  </div>
 
-                  <label class="field">
-                    <span class="field-label">Equity volatility %</span>
-                    <input id="equityVolatility" type="number" min="0" step="0.1" />
-                  </label>
+                  <div class="asset-assumption-card">
+                    <div class="asset-assumption-title">Bonds</div>
+                    <label class="field">
+                      <span class="field-label">Return %</span>
+                      <input id="bondReturn" type="number" step="0.1" />
+                    </label>
+                    <label class="field">
+                      <span class="field-label">Volatility %</span>
+                      <input id="bondVolatility" type="number" min="0" step="0.1" />
+                    </label>
+                  </div>
 
-                  <label class="field">
-                    <span class="field-label">Bond return %</span>
-                    <input id="bondReturn" type="number" step="0.1" />
-                  </label>
+                  <div class="asset-assumption-card">
+                    <div class="asset-assumption-title">Cashlike</div>
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Return %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Cashlike return help"
+                          title="Expected annual return for the cashlike bucket, such as savings or QMMF held for near-term spending."
+                        >?</button>
+                      </span>
+                      <input id="cashlikeReturn" type="number" step="0.1" />
+                    </label>
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Volatility %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Cashlike volatility help"
+                          title="Expected annual variability of the cashlike bucket. This should usually be low compared with equities or bonds."
+                        >?</button>
+                      </span>
+                      <input id="cashlikeVolatility" type="number" min="0" step="0.1" />
+                    </label>
+                  </div>
+                </div>
 
-                  <label class="field">
-                    <span class="field-label">Bond volatility %</span>
-                    <input id="bondVolatility" type="number" min="0" step="0.1" />
-                  </label>
-
-                  <label class="field">
-                    <span class="field-label with-help">
-                      <span>Cashlike return %</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Cashlike return help"
-                        title="Expected annual return for the cashlike bucket, such as savings or QMMF held for near-term spending."
-                      >?</button>
-                    </span>
-                    <input id="cashlikeReturn" type="number" step="0.1" />
-                  </label>
-
-                  <label class="field">
-                    <span class="field-label with-help">
-                      <span>Cashlike volatility %</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Cashlike volatility help"
-                        title="Expected annual variability of the cashlike bucket. This should usually be low compared with equities or bonds."
-                      >?</button>
-                    </span>
-                    <input id="cashlikeVolatility" type="number" min="0" step="0.1" />
-                  </label>
-
-                  <label class="field field-span-full">
-                    <span class="field-label">Inflation %</span>
+                <div class="asset-assumptions-inflation">
+                  <label class="field field-inline field-inline-wide">
+                    <span class="field-label field-label-inline">Inflation %</span>
                     <input id="inflation" type="number" min="0" step="0.1" />
                   </label>
                 </div>
