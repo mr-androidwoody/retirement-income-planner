@@ -288,22 +288,6 @@ body{
   gap:12px 14px;
 }
 
-.fixed-income-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  margin-bottom:16px;
-}
-
-.income-card{
-  background:var(--panel-soft);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:12px;
-  display:grid;
-  gap:10px;
-}
-
 .field-grid-3{
   grid-template-columns:repeat(3, minmax(0, 1fr));
 }
@@ -384,8 +368,7 @@ input[type="checkbox"]{
 
 .people-income-grid{
   display:grid;
-  grid-template-columns:minmax(260px, 1.4fr) minmax(240px, 1.2fr) 150px;
-  gap:12px 14px;
+  grid-template-columns:1.5fr 1.3fr 140px;  gap:12px 14px;
   align-items:end;
 }
 
