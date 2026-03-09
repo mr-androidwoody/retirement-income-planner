@@ -123,7 +123,8 @@ function drawLineChart(canvas, config) {
   const rect = canvas.getBoundingClientRect();
 
   const width = Math.max(420, Math.floor(rect.width || canvas.clientWidth || 420));
-  const baseHeight = Number(canvas.getAttribute('height')) || canvas.height || 320;
+  const baseHeight = Number(canvas.dataset.baseHeight || canvas.getAttribute('height')) || 320;
+canvas.dataset.baseHeight = String(baseHeight);
 
   ctx.font = '12px Inter, system-ui, sans-serif';
 
