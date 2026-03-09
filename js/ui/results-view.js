@@ -25,13 +25,11 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   const runway = result.summary?.cashRunwayYears;
   elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
-   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+  renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
 
-   renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
-
-   renderPlanWarnings(result, elements, useReal, formatters);
-
-   renderMonteCarloSummary(result, elements, useReal, formatters);
+  renderPlanWarnings(result, elements, useReal, formatters);
+  renderMonteCarloSummary(result, elements, useReal, formatters);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 
@@ -48,7 +46,6 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
 }
 
 function renderMonteCarloSummary(result, elements, useReal, formatters) {
-
   const { formatCurrency, formatPercent } = formatters;
   const grid = elements.planSummaryGrid;
 
@@ -97,7 +94,30 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
     }
   }
 
+  const successRate = result.monteCarlo.successRate;
+  const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
+  const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
+
+  let sustainabilityScore = 100;
+
+  sustainabilityScore -= (1 - successRate) * 50;
+  sustainabilityScore -= maxCut * 120;
+  sustainabilityScore -= Math.max(0, dependence - 0.6) * 80;
+
+  if (yearsToZero !== 'Not depleted') {
+    sustainabilityScore -= 15;
+  }
+
+  sustainabilityScore = Math.max(0, Math.min(100, Math.round(sustainabilityScore)));
+
+  let sustainabilityLabel = 'Excellent';
+  if (sustainabilityScore < 80) sustainabilityLabel = 'Good';
+  if (sustainabilityScore < 65) sustainabilityLabel = 'Moderate risk';
+  if (sustainabilityScore < 50) sustainabilityLabel = 'High risk';
+
   const metrics = [
+    ['Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`],
+
     ['Simulations run', inputs.monteCarloRuns],
     ['Years modelled', inputs.years],
     ['Starting portfolio', formatCurrency(inputs.initialPortfolio)],
@@ -137,7 +157,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
 }
 
 function renderPlanWarnings(result, elements, useReal, formatters) {
-
   const container = elements.planWarnings;
   if (!container) return;
 
@@ -149,8 +168,6 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
 
   const warnings = [];
 
-  /* starting withdrawal rate */
-
   const startWithdrawalRate = inputs.initialSpending / inputs.initialPortfolio;
 
   if (startWithdrawalRate > 0.055) {
@@ -159,8 +176,6 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
       text: `Aggressive starting withdrawal rate (${formatPercent(startWithdrawalRate)}).`
     });
   }
-
-  /* early depletion risk */
 
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
@@ -179,9 +194,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     }
   }
 
-  /* guardrail cuts */
-
-  const maxCut = Math.max(...rows.map(r => r.spendingCutPercent || 0));
+  const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
 
   if (maxCut > 0.15) {
     warnings.push({
@@ -189,8 +202,6 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
       text: `Guardrails reduce spending by up to ${formatPercent(maxCut)}.`
     });
   }
-
-  /* portfolio dependence */
 
   const totals = rows.reduce(
     (acc, r) => {
@@ -222,7 +233,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
 
   container.innerHTML = warnings
     .map(
-      w => `
+      (w) => `
       <div class="plan-warning">
         ⚠ ${w.text}
       </div>
