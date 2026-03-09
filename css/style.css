@@ -36,11 +36,11 @@ body{
 }
 
 .page-header{
-  margin-bottom:12px;
+  margin-bottom:16px;
 }
 
 .title-block h1{
-  margin:0 0 8px;
+  margin:0 0 10px;
   font-size:clamp(2rem, 3vw, 2.6rem);
   line-height:1.05;
   letter-spacing:-0.03em;
@@ -49,9 +49,9 @@ body{
 .intro{
   margin:0;
   font-size:1rem;
-  line-height:1.55;
+  line-height:1.6;
   color:var(--muted);
-  max-width:1100px;
+  max-width:980px;
 }
 
 .summary-band{
@@ -246,20 +246,24 @@ body{
 .input-shell{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:16px;
-  align-items:start;
+  gap:20px;
+  align-items:stretch;
 }
 
 .input-group-card{
   background:var(--panel-soft);
   border:1px solid var(--line);
   border-radius:18px;
-  padding:16px;
+  padding:18px;
   min-width:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
 }
 
 .section-heading{
-  margin-bottom:14px;
+  margin-bottom:16px;
+  min-height:64px;
 }
 
 .section-heading h3{
@@ -273,6 +277,7 @@ body{
   color:var(--muted);
   font-size:0.9rem;
   line-height:1.45;
+  max-width:56ch;
 }
 
 .section-subnote{
@@ -300,7 +305,7 @@ body{
 .field{
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:8px;
   min-width:0;
 }
 
@@ -309,7 +314,7 @@ body{
 }
 
 .field-label{
-  min-height:40px;
+  min-height:46px;
   display:flex;
   align-items:flex-end;
   color:var(--text);
@@ -759,116 +764,6 @@ canvas{
   font-weight:700;
 }
 
-@media (max-width: 1180px){
-  .summary-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
-
-  .input-shell,
-  .results-chart-grid,
-  .asset-assumptions-grid{
-    grid-template-columns:1fr;
-  }
-
-  .field-grid-4{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
-
-  .people-grid-header,
-  .people-grid-row{
-    grid-template-columns:minmax(160px, 1.6fr) 108px 150px;
-  }
-
-  .plan-summary-grid{
-    grid-template-columns:repeat(2, minmax(0,1fr));
-  }
-}
-
-@media (max-width: 860px){
-  .field-grid-4,
-  .field-grid-3,
-  .field-grid,
-  .people-grid-header,
-  .people-grid-row,
-  .asset-assumptions-grid{
-    grid-template-columns:1fr;
-  }
-
-  .field-span-full{
-    grid-column:auto;
-  }
-
-  .panel-header,
-  .card-header,
-  .results-meta-header{
-    flex-direction:column;
-  }
-
-  .card-title-block h2{
-    white-space:normal;
-    overflow:visible;
-    text-overflow:clip;
-  }
-
-  .chart-canvas-wrap,
-  .chart-canvas-wrap canvas{
-    min-height:260px;
-    height:260px;
-  }
-}
-
-@media (max-width: 760px){
-  .page-shell{
-    padding:18px 12px 28px;
-  }
-
-  .summary-grid{
-    grid-template-columns:1fr;
-  }
-
-  .tab-button{
-    flex:1 1 0;
-  }
-
-  .results-toolbar{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .mode-switch{
-    width:100%;
-  }
-
-  .mode-option{
-    flex:1 1 0;
-  }
-
-  .mode-option span,
-  .toggle-chip{
-    width:100%;
-    justify-content:center;
-  }
-
-  .plan-summary-grid{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width: 1100px){
-  .people-income-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
-
-  .people-years-field{
-    max-width:none;
-  }
-}
-
-@media (max-width: 720px){
-  .people-income-grid{
-    grid-template-columns:minmax(0, 1fr);
-  }
-}
 /* ================================
    Spending Cut Diagnostics
    ================================ */
@@ -923,4 +818,119 @@ canvas{
 .worst-cut-year td{
   border-left:4px solid #ef4444;
   font-weight:600;
+}
+
+@media (max-width: 1180px){
+  .summary-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .input-shell,
+  .results-chart-grid,
+  .asset-assumptions-grid{
+    grid-template-columns:1fr;
+  }
+
+  .field-grid-4{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .people-grid-header,
+  .people-grid-row{
+    grid-template-columns:minmax(160px, 1.6fr) 108px 150px;
+  }
+
+  .plan-summary-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+  }
+
+  .section-heading{
+    min-height:0;
+  }
+}
+
+@media (max-width: 1100px){
+  .people-income-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .people-years-field{
+    max-width:none;
+  }
+}
+
+@media (max-width: 860px){
+  .field-grid-4,
+  .field-grid-3,
+  .field-grid,
+  .people-grid-header,
+  .people-grid-row,
+  .asset-assumptions-grid{
+    grid-template-columns:1fr;
+  }
+
+  .field-span-full{
+    grid-column:auto;
+  }
+
+  .panel-header,
+  .card-header,
+  .results-meta-header{
+    flex-direction:column;
+  }
+
+  .card-title-block h2{
+    white-space:normal;
+    overflow:visible;
+    text-overflow:clip;
+  }
+
+  .chart-canvas-wrap,
+  .chart-canvas-wrap canvas{
+    min-height:220px;
+    height:220px;
+  }
+}
+
+@media (max-width: 760px){
+  .page-shell{
+    padding:18px 12px 28px;
+  }
+
+  .summary-grid{
+    grid-template-columns:1fr;
+  }
+
+  .tab-button{
+    flex:1 1 0;
+  }
+
+  .results-toolbar{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .mode-switch{
+    width:100%;
+  }
+
+  .mode-option{
+    flex:1 1 0;
+  }
+
+  .mode-option span,
+  .toggle-chip{
+    width:100%;
+    justify-content:center;
+  }
+
+  .plan-summary-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 720px){
+  .people-income-grid{
+    grid-template-columns:minmax(0, 1fr);
+  }
 }
