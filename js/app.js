@@ -7,6 +7,7 @@ import { createAdvancedForm } from './ui/advanced-form.js';
 const els = {
   years: document.getElementById('years'),
   initialPortfolio: document.getElementById('initialPortfolio'),
+  initialWithdrawalRate: document.getElementById('initialWithdrawalRate'),
   initialSpending: document.getElementById('initialSpending'),
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
@@ -24,16 +25,16 @@ const els = {
   person1Name: document.getElementById('person1Name'),
   person1Age: document.getElementById('person1Age'),
   person1PensionAge: document.getElementById('person1PensionAge'),
-
   person2Name: document.getElementById('person2Name'),
   person2Age: document.getElementById('person2Age'),
   person2PensionAge: document.getElementById('person2PensionAge'),
-
+    
   statePensionToday: document.getElementById('statePensionToday'),
   otherIncomeToday: document.getElementById('otherIncomeToday'),
   otherIncomeYears: document.getElementById('otherIncomeYears'),
   windfallAmount: document.getElementById('windfallAmount'),
   windfallYear: document.getElementById('windfallYear'),
+
 
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
@@ -42,6 +43,10 @@ const els = {
   monteCarloRuns: document.getElementById('monteCarloRuns'),
   seed: document.getElementById('seed'),
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
+  chartModeNominal: document.getElementById('chartModeNominal'),
+  chartModeReal: document.getElementById('chartModeReal'),
+  guytonKlingerOn: document.getElementById('guytonKlingerOn'),
+  guytonKlingerOff: document.getElementById('guytonKlingerOff'),
   showRealValues: document.getElementById('showRealValues'),
   showFullTable: document.getElementById('showFullTable'),
 
@@ -49,6 +54,7 @@ const els = {
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
 
+  summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
   summarySuccessRate: document.getElementById('summarySuccessRate'),
   summaryMedianEnd: document.getElementById('summaryMedianEnd'),
   summaryWorstStress: document.getElementById('summaryWorstStress'),
@@ -58,11 +64,13 @@ const els = {
   portfolioChart: document.getElementById('portfolioChart'),
   spendingChart: document.getElementById('spendingChart'),
   tableCard: document.getElementById('tableCard'),
-  resultsTable: document.getElementById('resultsTable'),
-  resultMeta: document.getElementById('resultMeta')
+  resultsTable: document.getElementById('resultsTable')
 };
 
-const tabs = initialiseTabs({ defaultTab: 'plan' });
+let latestResult = null;
+let latestBaseInputs = null;
+let worker = null;
+let withdrawalInputMode = 'amount';
 
 const parsingHelpers = {
   formatInteger,
@@ -70,11 +78,19 @@ const parsingHelpers = {
   parseLooseInteger
 };
 
+const tabs = initialiseTabs({
+  defaultTab: 'inputs',
+  onChange: (tabName) => {
+    if (tabName === 'results' && latestResult) {
+      requestAnimationFrame(() => {
+        renderAll();
+      });
+    }
+  }
+});
+
 const planForm = createPlanForm(els, parsingHelpers);
 const advancedForm = createAdvancedForm(els, parsingHelpers);
-
-let worker = null;
-let latestResult = null;
 
 initialise();
 
@@ -82,7 +98,9 @@ function initialise() {
   setupWorker();
   applyDefaults();
   attachEvents();
-  tabs.setActiveTab('plan');
+  setResultsViewDefaults();
+  syncInitialWithdrawalRateFromAmount();
+  tabs.setActiveTab('inputs');
 }
 
 function setupWorker() {
@@ -99,9 +117,7 @@ function setupWorker() {
 
       latestResult = event.data.result;
       hideError();
-      renderAll();
-      tabs.setActiveTab('results');
-      scrollToTop();
+      showResults();
     };
 
     worker.onerror = () => {
@@ -117,6 +133,18 @@ function setupWorker() {
 function applyDefaults() {
   planForm.applyDefaults(DEFAULT_INPUTS);
   advancedForm.applyDefaults(DEFAULT_INPUTS);
+  latestBaseInputs = null;
+  withdrawalInputMode = 'amount';
+  syncInitialWithdrawalRateFromAmount();
+}
+
+function setResultsViewDefaults() {
+  if (els.chartModeNominal) els.chartModeNominal.checked = true;
+  if (els.chartModeReal) els.chartModeReal.checked = false;
+  if (els.showRealValues) els.showRealValues.checked = false;
+  if (els.showFullTable) els.showFullTable.checked = true;
+  if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
+  if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
 
 function attachEvents() {
@@ -127,15 +155,25 @@ function attachEvents() {
     onRun: runSimulation,
     onReset: () => {
       applyDefaults();
+      setResultsViewDefaults();
       hideError();
-      tabs.setActiveTab('plan');
-      scrollToTop();
+      tabs.setActiveTab('inputs');
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   });
 
   advancedForm.bindDisplayEvents({
-    onViewChange: renderAll
+    onViewChange: () => {
+      if (latestResult) renderAll();
+    }
   });
+
+  attachWithdrawalRateSync();
+  attachChartModeEvents();
+  attachGuytonKlingerEvents();
 
   window.addEventListener(
     'resize',
@@ -145,10 +183,132 @@ function attachEvents() {
   );
 }
 
+function attachWithdrawalRateSync() {
+  if (els.initialWithdrawalRate) {
+    els.initialWithdrawalRate.addEventListener('input', () => {
+      withdrawalInputMode = 'rate';
+      syncInitialSpendingFromRate();
+    });
+
+    els.initialWithdrawalRate.addEventListener('change', () => {
+      withdrawalInputMode = 'rate';
+      syncInitialSpendingFromRate();
+    });
+  }
+
+  if (els.initialSpending) {
+    els.initialSpending.addEventListener('input', () => {
+      withdrawalInputMode = 'amount';
+      syncInitialWithdrawalRateFromAmount();
+    });
+
+    els.initialSpending.addEventListener('change', () => {
+      withdrawalInputMode = 'amount';
+      syncInitialWithdrawalRateFromAmount();
+    });
+  }
+
+  if (els.initialPortfolio) {
+    els.initialPortfolio.addEventListener('input', () => {
+      if (withdrawalInputMode === 'rate') {
+        syncInitialSpendingFromRate();
+      } else {
+        syncInitialWithdrawalRateFromAmount();
+      }
+    });
+
+    els.initialPortfolio.addEventListener('change', () => {
+      if (withdrawalInputMode === 'rate') {
+        syncInitialSpendingFromRate();
+      } else {
+        syncInitialWithdrawalRateFromAmount();
+      }
+    });
+  }
+}
+
+function attachChartModeEvents() {
+  const updateMode = () => {
+    if (!els.showRealValues) return;
+    els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
+    if (latestResult) {
+      renderAll();
+    }
+  };
+
+  if (els.chartModeNominal) {
+    els.chartModeNominal.addEventListener('change', updateMode);
+  }
+
+  if (els.chartModeReal) {
+    els.chartModeReal.addEventListener('change', updateMode);
+  }
+}
+
+function attachGuytonKlingerEvents() {
+  const rerun = () => {
+    if (!latestBaseInputs) return;
+    rerunResultsWithCurrentOptions();
+  };
+
+  if (els.guytonKlingerOn) {
+    els.guytonKlingerOn.addEventListener('change', rerun);
+  }
+
+  if (els.guytonKlingerOff) {
+    els.guytonKlingerOff.addEventListener('change', rerun);
+  }
+}
+
+function syncInitialWithdrawalRateFromAmount() {
+  if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
+
+  const portfolio = parseLooseNumber(els.initialPortfolio.value);
+  const spending = parseLooseNumber(els.initialSpending.value);
+
+  if (!Number.isFinite(portfolio) || portfolio <= 0 || !Number.isFinite(spending) || spending < 0) {
+    els.initialWithdrawalRate.value = '';
+    return;
+  }
+
+  const rate = (spending / portfolio) * 100;
+  els.initialWithdrawalRate.value = formatRate(rate);
+}
+
+function syncInitialSpendingFromRate() {
+  if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
+
+  const portfolio = parseLooseNumber(els.initialPortfolio.value);
+  const rate = parseLooseNumber(els.initialWithdrawalRate.value);
+
+  if (!Number.isFinite(portfolio) || portfolio < 0 || !Number.isFinite(rate) || rate < 0) {
+    return;
+  }
+
+  const spending = portfolio * (rate / 100);
+  els.initialSpending.value = formatInteger(Math.round(spending));
+}
+
 function gatherInputs() {
-  return {
+  const inputs = {
     ...planForm.readValues(),
     ...advancedForm.readValues()
+  };
+
+  if (els.initialSpending) {
+    const spending = parseLooseNumber(els.initialSpending.value);
+    if (Number.isFinite(spending)) {
+      inputs.initialSpending = spending;
+    }
+  }
+
+  return inputs;
+}
+
+function getResultsOverrideInputs(baseInputs) {
+  return {
+    ...baseInputs,
+    enableGuardrails: Boolean(els.guytonKlingerOn?.checked)
   };
 }
 
@@ -159,28 +319,82 @@ function runSimulation() {
 
   if (errors.length > 0) {
     showError(errors.join(' '));
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     return;
   }
 
   hideError();
+  latestBaseInputs = mergedInputs;
   planForm.setBusy(true);
-  updateResultMeta(mergedInputs);
+
+  const effectiveInputs = getResultsOverrideInputs(mergedInputs);
 
   if (worker) {
-    worker.postMessage({ type: 'run', inputs: mergedInputs });
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
     return;
   }
 
   try {
-    latestResult = runRetirementSimulation(mergedInputs);
+    latestResult = runRetirementSimulation(effectiveInputs);
     planForm.setBusy(false);
-    renderAll();
-    tabs.setActiveTab('results');
-    scrollToTop();
+    showResults();
   } catch (error) {
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
+}
+
+function rerunResultsWithCurrentOptions() {
+  if (!latestBaseInputs) return;
+
+  const effectiveInputs = getResultsOverrideInputs(latestBaseInputs);
+  const errors = validateInputs(effectiveInputs);
+
+  if (errors.length > 0) {
+    showError(errors.join(' '));
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    return;
+  }
+
+  hideError();
+
+  if (worker) {
+    planForm.setBusy(true);
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
+    return;
+  }
+
+  try {
+    latestResult = runRetirementSimulation(effectiveInputs);
+    renderAll();
+  } catch (error) {
+    showError(error instanceof Error ? error.message : 'Simulation failed.');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+}
+
+function showResults() {
+  tabs.setActiveTab('results');
+  requestAnimationFrame(() => {
+    renderAll();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
 }
 
 function renderAll() {
@@ -198,40 +412,39 @@ function renderAll() {
     }
   });
 
-  updateResultMeta(latestResult.inputs || gatherInputs());
+  applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
 }
 
-function updateResultMeta(inputs) {
-  if (!els.resultMeta) return;
+function applySuccessRateTone(successRate) {
+  if (!els.summarySuccessRateCard) return;
 
-  const runs = formatInteger(inputs.monteCarloRuns);
-  const seed =
-    inputs.seed === null || inputs.seed === undefined || Number.isNaN(inputs.seed)
-      ? 'random'
-      : formatInteger(inputs.seed);
-  const basis = els.showRealValues?.checked ? 'real' : 'nominal';
+  els.summarySuccessRateCard.classList.remove(
+    'summary-card--green',
+    'summary-card--amber',
+    'summary-card--red'
+  );
 
-  els.resultMeta.textContent = `${runs} runs • seed ${seed} • ${basis} view`;
+  if (!Number.isFinite(successRate)) return;
+
+  if (successRate >= 0.9) {
+    els.summarySuccessRateCard.classList.add('summary-card--green');
+  } else if (successRate >= 0.75) {
+    els.summarySuccessRateCard.classList.add('summary-card--amber');
+  } else {
+    els.summarySuccessRateCard.classList.add('summary-card--red');
+  }
 }
 
 function showError(message) {
   if (!els.errorBox) return;
   els.errorBox.style.display = 'block';
   els.errorBox.textContent = message;
-  scrollToTop();
 }
 
 function hideError() {
   if (!els.errorBox) return;
   els.errorBox.style.display = 'none';
   els.errorBox.textContent = '';
-}
-
-function scrollToTop() {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
 }
 
 function parseLooseNumber(value) {
@@ -250,6 +463,11 @@ function formatInteger(value) {
   return new Intl.NumberFormat('en-GB', {
     maximumFractionDigits: 0
   }).format(value);
+}
+
+function formatRate(value) {
+  if (!Number.isFinite(value)) return '';
+  return Number(value.toFixed(2)).toString();
 }
 
 function formatCurrency(value) {
