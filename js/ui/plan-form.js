@@ -2,7 +2,11 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
   const planIntegerFieldIds = [
     'initialPortfolio',
     'initialSpending',
-    'statePensionToday'
+    'statePensionToday',
+    'otherIncomeToday',
+    'otherIncomeYears',
+    'windfallAmount',
+    'windfallYear'
   ];
 
   function applyDefaults(defaults) {
@@ -17,6 +21,10 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     elements.rebalanceToTarget.checked = defaults.rebalanceToTarget;
 
     setFieldValue('statePensionToday', sharedStatePensionToday, true);
+    setFieldValue('otherIncomeToday', defaults.otherIncomeToday ?? 0, true);
+    setFieldValue('otherIncomeYears', defaults.otherIncomeYears ?? 0, true);
+    setFieldValue('windfallAmount', defaults.windfallAmount ?? 0, true);
+    setFieldValue('windfallYear', defaults.windfallYear ?? 0, true);
 
     setFieldValue('person1Name', defaults.person1Name ?? 'Person 1');
     setFieldValue('person1Age', defaults.person1Age);
@@ -37,7 +45,10 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
       });
 
       input.addEventListener('blur', () => {
-        const value = parseLooseNumber(input.value);
+        const parser = fieldId.endsWith('Years') || fieldId.endsWith('Year')
+          ? parseLooseInteger
+          : parseLooseNumber;
+        const value = parser(input.value);
         input.value = Number.isFinite(value) ? formatInteger(value) : '';
       });
     });
@@ -56,6 +67,10 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
       rebalanceToTarget: elements.rebalanceToTarget.checked,
 
       statePensionToday: sharedStatePensionToday,
+      otherIncomeToday: parseLooseNumber(elements.otherIncomeToday?.value),
+      otherIncomeYears: parseLooseInteger(elements.otherIncomeYears?.value),
+      windfallAmount: parseLooseNumber(elements.windfallAmount?.value),
+      windfallYear: parseLooseInteger(elements.windfallYear?.value),
 
       person1Name: String(elements.person1Name?.value ?? '').trim(),
       person1Age: parseLooseInteger(elements.person1Age.value),

@@ -16,6 +16,8 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, names = 
       <th>Start portfolio</th>
       <th>Household spending</th>
       <th>State pension</th>
+      <th>Other income</th>
+      <th>Windfall</th>
       <th>Portfolio withdrawal</th>
       <th>End portfolio</th>
     </tr>
@@ -29,6 +31,8 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, names = 
       <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
       <td>${formatCurrency(useReal ? row.spendingReal : row.spendingNominal)}</td>
       <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
+      <td>${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
+      <td>${formatCurrency(useReal ? row.windfallReal : row.windfallNominal)}</td>
       <td>${formatCurrency(useReal ? row.withdrawalReal : row.withdrawalNominal)}</td>
       <td>${formatCurrency(useReal ? row.endPortfolioReal : row.endPortfolioNominal)}</td>
     </tr>
