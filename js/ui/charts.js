@@ -34,13 +34,13 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
         label: 'State pension income',
         values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
         color: 'rgba(0, 0, 0, 0.18)',
-        strokeColor: '#000000'
+        strokeColor: '#059669'
       },
       {
         label: 'Other income',
         values: rows.map((row) => (useReal ? row.otherIncomeReal : row.otherIncomeNominal)),
         color: 'rgba(5, 150, 105, 0.18)',
-        strokeColor: '#059669'
+        strokeColor: '#000000'
       },
       {
         label: 'Portfolio withdrawals',
