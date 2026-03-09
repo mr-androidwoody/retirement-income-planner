@@ -26,6 +26,10 @@ const els = {
   person1Age: document.getElementById('person1Age'),
   person1PensionAge: document.getElementById('person1PensionAge'),
   statePensionToday: document.getElementById('statePensionToday'),
+  otherIncomeToday: document.getElementById('otherIncomeToday'),
+  otherIncomeYears: document.getElementById('otherIncomeYears'),
+  windfallAmount: document.getElementById('windfallAmount'),
+  windfallYear: document.getElementById('windfallYear'),
   person2Name: document.getElementById('person2Name'),
   person2Age: document.getElementById('person2Age'),
   person2PensionAge: document.getElementById('person2PensionAge'),
@@ -152,6 +156,10 @@ function attachEvents() {
       setResultsViewDefaults();
       hideError();
       tabs.setActiveTab('inputs');
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   });
 
@@ -309,6 +317,10 @@ function runSimulation() {
 
   if (errors.length > 0) {
     showError(errors.join(' '));
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     return;
   }
 
@@ -330,6 +342,10 @@ function runSimulation() {
   } catch (error) {
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 }
 
@@ -341,6 +357,10 @@ function rerunResultsWithCurrentOptions() {
 
   if (errors.length > 0) {
     showError(errors.join(' '));
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     return;
   }
 
@@ -357,6 +377,10 @@ function rerunResultsWithCurrentOptions() {
     renderAll();
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Simulation failed.');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 }
 
@@ -364,6 +388,10 @@ function showResults() {
   tabs.setActiveTab('results');
   requestAnimationFrame(() => {
     renderAll();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   });
 }
 
