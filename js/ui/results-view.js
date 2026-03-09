@@ -115,17 +115,18 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
   if (sustainabilityScore < 65) sustainabilityLabel = 'Moderate risk';
   if (sustainabilityScore < 50) sustainabilityLabel = 'High risk';
 
+  const initialWithdrawalRate =
+    inputs.initialPortfolio > 0
+      ? inputs.initialSpending / inputs.initialPortfolio
+      : 0;
+
   const metrics = [
     ['Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`],
 
     ['Simulations run', inputs.monteCarloRuns],
     ['Years modelled', inputs.years],
     ['Starting portfolio', formatCurrency(inputs.initialPortfolio)],
-    ['Initial withdrawal rate', formatPercent(inputs.initialWithdrawalRate / 100)],
-
-    ['State pension today', formatCurrency(inputs.statePensionToday)],
-    ['Other income', formatCurrency(inputs.otherIncomeToday)],
-    ['Windfall', formatCurrency(inputs.windfallAmount)],
+    ['Initial withdrawal rate', formatPercent(initialWithdrawalRate)],
 
     ['Success rate', formatPercent(result.monteCarlo.successRate)],
     ['Median ending portfolio', formatCurrency(medianEnd)],
@@ -141,6 +142,8 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
 
     ['Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate)],
     [`Withdrawal % in year ${inputs.years}`, formatPercent(finalYearWithdrawalPct)],
+    ['Portfolio dependence', formatPercent(dependence)],
+    ['Maximum spending cut', formatPercent(maxCut)],
     ['Years until portfolio hits £0 (worst path)', yearsToZero]
   ];
 
