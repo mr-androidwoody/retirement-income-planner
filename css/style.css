@@ -363,44 +363,50 @@ input[type="checkbox"]{
 .people-pensions-card{
   display:flex;
   flex-direction:column;
-  gap:16px;
+  gap:14px;
 }
 
-.people-pension-shared{
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#f3f6fb;
-}
-
-.people-pension-note{
-  margin:10px 0 0;
-}
-
-.people-columns{
+.people-pension-inline-row{
   display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:16px;
+  grid-template-columns:minmax(0, 1fr);
 }
 
-.person-column{
-  min-width:0;
+.people-pension-inline-field{
+  max-width:560px;
 }
 
-.person-column-heading{
-  margin:0 0 12px;
-  padding-bottom:10px;
-  border-bottom:1px solid var(--line);
-  font-size:0.95rem;
+.people-grid-header,
+.people-grid-row{
+  display:grid;
+  grid-template-columns:minmax(180px, 1.8fr) 112px 160px;
+  gap:12px;
+  align-items:end;
+}
+
+.people-grid-header{
+  color:var(--text);
+  font-size:0.92rem;
   font-weight:800;
   line-height:1.2;
 }
 
-.person-row-grid{
+.people-grid-rows{
   display:grid;
-  grid-template-columns:minmax(0, 1.5fr) 108px 150px;
   gap:12px;
-  align-items:end;
+}
+
+.people-grid-row .field{
+  min-width:0;
+}
+
+.person-name-field input::placeholder{
+  color:#97a3b6;
+}
+
+.person-age-field input,
+.person-pension-age-field input{
+  max-width:100%;
+  text-align:left;
 }
 
 .field-inline{
@@ -416,10 +422,31 @@ input[type="checkbox"]{
   max-width:none;
 }
 
-.person-age-field input,
-.person-pension-age-field input{
-  max-width:100%;
-  text-align:left;
+.asset-assumptions-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:14px;
+}
+
+.asset-assumption-card{
+  display:grid;
+  gap:12px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f8fbff;
+}
+
+.asset-assumption-title{
+  margin:0;
+  font-size:0.95rem;
+  font-weight:800;
+  line-height:1.2;
+}
+
+.asset-assumptions-inflation{
+  margin-top:14px;
+  max-width:220px;
 }
 
 .results-toolbar{
@@ -658,7 +685,7 @@ canvas{
 
   .input-shell,
   .results-chart-grid,
-  .people-columns{
+  .asset-assumptions-grid{
     grid-template-columns:1fr;
   }
 
@@ -666,8 +693,9 @@ canvas{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 
-  .person-row-grid{
-    grid-template-columns:minmax(0, 1.5fr) 108px 150px;
+  .people-grid-header,
+  .people-grid-row{
+    grid-template-columns:minmax(160px, 1.6fr) 108px 150px;
   }
 }
 
@@ -675,7 +703,9 @@ canvas{
   .field-grid-4,
   .field-grid-3,
   .field-grid,
-  .person-row-grid{
+  .people-grid-header,
+  .people-grid-row,
+  .asset-assumptions-grid{
     grid-template-columns:1fr;
   }
 
