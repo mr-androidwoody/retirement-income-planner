@@ -27,42 +27,44 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
 
   const rows = result.baseCase.rows;
 
-drawLineChart(canvas, {
+  drawLineChart(canvas, {
     labels: rows.map((row) => row.year),
+    stackedAreas: [
+      {
+        label: 'State pension income',
+        values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
+        color: 'rgba(0, 0, 0, 0.18)',
+        strokeColor: '#000000'
+      },
+      {
+        label: 'Other income',
+        values: rows.map((row) => (useReal ? row.otherIncomeReal : row.otherIncomeNominal)),
+        color: 'rgba(5, 150, 105, 0.18)',
+        strokeColor: '#059669'
+      },
+      {
+        label: 'Portfolio withdrawals',
+        values: rows.map((row) => (useReal ? row.withdrawalReal : row.withdrawalNominal)),
+        color: 'rgba(220, 38, 38, 0.18)',
+        strokeColor: '#dc2626'
+      }
+    ],
     lines: [
-  {
-    label: 'Planned household spending',
-    values: rows.map((row) => (useReal ? row.targetSpendingReal : row.targetSpendingNominal)),
-    color: '#7c3aed',
-    width: 2,
-    dash: [8, 6]
-  },
-  {
-    label: 'Actual spending after guardrails',
-    values: rows.map((row) => (useReal ? row.actualSpendingReal : row.actualSpendingNominal)),
-    color: '#4f46e5',
-    width: 3
-  },
-  {
-    label: 'State pension income',
-    values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
-    color: '#15803d',
-    width: 2.5
-  },
-  {
-    label: 'Other income',
-    values: rows.map((row) => (useReal ? row.otherIncomeReal : row.otherIncomeNominal)),
-    color: '#059669',
-    width: 2.5
-  },
-  {
-    label: 'Portfolio withdrawals',
-    values: rows.map((row) => (useReal ? row.withdrawalReal : row.withdrawalNominal)),
-    color: '#dc2626',
-    width: 2.5
-  }
-],
-yFormatter: formatCurrency
+      {
+        label: 'Planned household spending',
+        values: rows.map((row) => (useReal ? row.targetSpendingReal : row.targetSpendingNominal)),
+        color: '#7c3aed',
+        width: 2,
+        dash: [8, 6]
+      },
+      {
+        label: 'Actual spending after guardrails',
+        values: rows.map((row) => (useReal ? row.actualSpendingReal : row.actualSpendingNominal)),
+        color: '#4f46e5',
+        width: 3
+      }
+    ],
+    yFormatter: formatCurrency
   });
 }
 
@@ -82,7 +84,17 @@ function drawLineChart(canvas, config) {
   const baseHeight = Number(canvas.getAttribute('height')) || canvas.height || 320;
 
   ctx.font = '12px Inter, system-ui, sans-serif';
-  const legendLayout = measureLegend(ctx, config.lines, width);
+
+  const legendItems = [
+    ...(config.stackedAreas || []).map((area) => ({
+      label: area.label,
+      color: area.strokeColor || area.color,
+      width: 2.5
+    })),
+    ...(config.lines || [])
+  ];
+
+  const legendLayout = measureLegend(ctx, legendItems, width);
 
   const padding = {
     top: 20,
@@ -106,8 +118,28 @@ function drawLineChart(canvas, config) {
   if (plotWidth <= 0 || plotHeight <= 0) return;
 
   const allValues = [];
-  if (config.band) allValues.push(...config.band.lower, ...config.band.upper);
-  config.lines.forEach((line) => allValues.push(...line.values.filter((value) => Number.isFinite(value))));
+
+  if (config.band) {
+    allValues.push(...config.band.lower, ...config.band.upper);
+  }
+
+  (config.stackedAreas || []).forEach((area) => {
+    allValues.push(...area.values.filter((value) => Number.isFinite(value)));
+  });
+
+  if (config.stackedAreas?.length) {
+    const stackedTotals = config.stackedAreas[0].values.map((_, index) =>
+      config.stackedAreas.reduce(
+        (sum, area) => sum + (Number.isFinite(area.values[index]) ? area.values[index] : 0),
+        0
+      )
+    );
+    allValues.push(...stackedTotals);
+  }
+
+  (config.lines || []).forEach((line) => {
+    allValues.push(...line.values.filter((value) => Number.isFinite(value)));
+  });
 
   const maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
   const minY = 0;
@@ -130,7 +162,18 @@ function drawLineChart(canvas, config) {
     });
   }
 
-  config.lines.forEach((line) => {
+  if (config.stackedAreas?.length) {
+    drawStackedAreas(ctx, config.stackedAreas, {
+      width: plotWidth,
+      height: plotHeight,
+      left: padding.left,
+      top: padding.top,
+      minY,
+      maxY
+    });
+  }
+
+  (config.lines || []).forEach((line) => {
     drawSeries(ctx, line.values, {
       width: plotWidth,
       height: plotHeight,
@@ -210,6 +253,63 @@ function drawBand(ctx, lower, upper, geometry) {
   ctx.closePath();
   ctx.fillStyle = geometry.fill;
   ctx.fill();
+}
+
+function drawStackedAreas(ctx, areas, geometry) {
+  if (!areas?.length) return;
+
+  const length = areas[0].values.length;
+  if (!length) return;
+
+  const cumulative = Array.from({ length }, () => 0);
+
+  areas.forEach((area) => {
+    const nextCumulative = cumulative.map((value, index) => {
+      const areaValue = Number.isFinite(area.values[index]) ? area.values[index] : 0;
+      return value + areaValue;
+    });
+
+    ctx.beginPath();
+
+    nextCumulative.forEach((value, index) => {
+      const x = geometry.left + getX(index, length, geometry.width);
+      const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+
+    for (let index = length - 1; index >= 0; index -= 1) {
+      const x = geometry.left + getX(index, length, geometry.width);
+      const y = geometry.top + getY(cumulative[index], geometry.minY, geometry.maxY, geometry.height);
+      ctx.lineTo(x, y);
+    }
+
+    ctx.closePath();
+    ctx.fillStyle = area.color;
+    ctx.fill();
+
+    ctx.beginPath();
+    nextCumulative.forEach((value, index) => {
+      const x = geometry.left + getX(index, length, geometry.width);
+      const y = geometry.top + getY(value, geometry.minY, geometry.maxY, geometry.height);
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+
+    ctx.strokeStyle = area.strokeColor || area.color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    for (let index = 0; index < length; index += 1) {
+      cumulative[index] = nextCumulative[index];
+    }
+  });
 }
 
 function drawSeries(ctx, values, geometry) {
