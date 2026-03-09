@@ -63,7 +63,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         <td>${row.age2}</td>
         <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
         <td>
-          ${formatCurrency(useReal ? row.spendingReal : row.spendingNominal)}
+          ${formatCurrency(useReal ? row.actualSpendingReal : row.actualSpendingNominal)}
           ${badge}
         </td>
         <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>

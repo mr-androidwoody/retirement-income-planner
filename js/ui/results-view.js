@@ -180,8 +180,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
     ['Median ending portfolio', formatCurrency(medianEnd)],
     ['10th percentile ending', formatCurrency(p10End)],
     ['90th percentile ending', formatCurrency(p90End)],
-    ['Worst ending', formatCurrency(worstEnd)],
-    ['Best ending', formatCurrency(bestEnd)],
 
     ['Total household spending', formatCurrency(totals.spending)],
     ['Total withdrawals', formatCurrency(totals.withdrawals)],
@@ -190,9 +188,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
 
     ['Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate)],
     [`Withdrawal % in year ${inputs.years}`, formatPercent(finalYearWithdrawalPct)],
-    ['Portfolio dependence', formatPercent(dependence)],
-    ['Maximum spending cut', formatPercent(maxCut)],
-    ['Years until portfolio hits £0 (worst path)', yearsToZero]
+    ['Portfolio dependence', formatPercent(dependence)]
   ];
 
   grid.innerHTML = metrics
