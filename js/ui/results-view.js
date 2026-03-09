@@ -1,4 +1,4 @@
-import { renderPortfolioChart, renderSpendingChart } from './charts.js';
+import { renderPortfolioChart, renderSpendingChart, renderSurvivalChart } from './charts.js';
 import { renderYearlyTable } from './yearly-table.js';
 
 export function renderResultsView({ result, elements, useReal, showFullTable, formatters }) {
@@ -26,7 +26,12 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-  renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
+
+if (elements.survivalChart) {    
+  renderSurvivalChart(elements.survivalChart, result, formatPercent);
+}
+
+renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 
