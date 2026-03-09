@@ -366,13 +366,20 @@ input[type="checkbox"]{
   gap:14px;
 }
 
-.people-pension-inline-row{
+.people-income-grid{
   display:grid;
-  grid-template-columns:minmax(0, 1fr);
+  grid-template-columns:minmax(260px, 1.4fr) minmax(240px, 1.2fr) 150px;
+  gap:12px 14px;
+  align-items:end;
 }
 
-.people-pension-inline-field{
-  max-width:560px;
+.people-pension-inline-field,
+.people-income-field{
+  max-width:none;
+}
+
+.people-years-field{
+  max-width:150px;
 }
 
 .people-grid-header,
@@ -762,5 +769,21 @@ canvas{
   .toggle-chip{
     width:100%;
     justify-content:center;
+  }
+}
+
+@media (max-width: 1100px){
+  .people-income-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .people-years-field{
+    max-width:none;
+  }
+}
+
+@media (max-width: 720px){
+  .people-income-grid{
+    grid-template-columns:minmax(0, 1fr);
   }
 }
