@@ -27,24 +27,37 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
 
   const rows = result.baseCase.rows;
 
+  const pensionValues = rows.map((row) =>
+    useReal ? row.statePensionReal : row.statePensionNominal
+  );
+
+  const otherIncomeValues = rows.map((row) =>
+    useReal ? row.otherIncomeReal : row.otherIncomeNominal
+  );
+
+  const withdrawalValues = rows.map((row, index) => {
+    const actualSpending = useReal ? row.actualSpendingReal : row.actualSpendingNominal;
+    return Math.max(0, actualSpending - pensionValues[index] - otherIncomeValues[index]);
+  });
+
   drawLineChart(canvas, {
     labels: rows.map((row) => row.year),
     stackedAreas: [
       {
-        label: 'State pension income',
-        values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
-        color: 'rgba(0, 0, 0, 0.18)',
+        label: 'Other income',
+        values: otherIncomeValues,
+        color: 'rgba(5, 150, 105, 0.18)',
         strokeColor: '#059669'
       },
       {
-        label: 'Other income',
-        values: rows.map((row) => (useReal ? row.otherIncomeReal : row.otherIncomeNominal)),
-        color: 'rgba(5, 150, 105, 0.18)',
+        label: 'State pension income',
+        values: pensionValues,
+        color: 'rgba(0, 0, 0, 0.25)',
         strokeColor: '#000000'
       },
       {
         label: 'Portfolio withdrawals',
-        values: rows.map((row) => (useReal ? row.withdrawalReal : row.withdrawalNominal)),
+        values: withdrawalValues,
         color: 'rgba(220, 38, 38, 0.18)',
         strokeColor: '#dc2626'
       }
