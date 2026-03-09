@@ -94,26 +94,43 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
     }
   }
 
-  const successRate = result.monteCarlo.successRate;
-  const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
-  const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
+const successRate = result.monteCarlo.successRate;
+const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
+const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
 
-  let sustainabilityScore = 100;
+const finalWithdrawalRatePressure = medianFinalWithdrawalRate;
+const percentileSpread =
+  medianEnd > 0 ? Math.max(0, (medianEnd - p10End) / medianEnd) : 1;
 
-  sustainabilityScore -= (1 - successRate) * 50;
-  sustainabilityScore -= maxCut * 120;
-  sustainabilityScore -= Math.max(0, dependence - 0.6) * 80;
+let sustainabilityScore = 100;
 
-  if (yearsToZero !== 'Not depleted') {
-    sustainabilityScore -= 15;
-  }
+/* Monte Carlo success remains the anchor */
+sustainabilityScore -= (1 - successRate) * 45;
 
-  sustainabilityScore = Math.max(0, Math.min(100, Math.round(sustainabilityScore)));
+/* Penalise large spending cuts */
+sustainabilityScore -= maxCut * 100;
 
-  let sustainabilityLabel = 'Excellent';
-  if (sustainabilityScore < 80) sustainabilityLabel = 'Good';
-  if (sustainabilityScore < 65) sustainabilityLabel = 'Moderate risk';
-  if (sustainabilityScore < 50) sustainabilityLabel = 'High risk';
+/* Penalise high dependence on portfolio withdrawals */
+sustainabilityScore -= Math.max(0, dependence - 0.5) * 70;
+
+/* Penalise high late-stage withdrawal pressure */
+sustainabilityScore -= Math.max(0, finalWithdrawalRatePressure - 0.05) * 220;
+
+/* Penalise weak downside resilience */
+sustainabilityScore -= percentileSpread * 18;
+
+/* Penalise actual depletion in the weak path */
+if (yearsToZero !== 'Not depleted') {
+  sustainabilityScore -= 12;
+}
+
+sustainabilityScore = Math.max(0, Math.min(100, Math.round(sustainabilityScore)));
+
+let sustainabilityLabel = 'Excellent';
+if (sustainabilityScore < 90) sustainabilityLabel = 'Strong';
+if (sustainabilityScore < 75) sustainabilityLabel = 'Moderate';
+if (sustainabilityScore < 60) sustainabilityLabel = 'Fragile';
+if (sustainabilityScore < 40) sustainabilityLabel = 'Unsustainable';
 
   const initialWithdrawalRate =
     inputs.initialPortfolio > 0
