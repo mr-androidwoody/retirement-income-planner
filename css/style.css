@@ -1,789 +1,486 @@
-:root{
-  --bg:#eef2f8;
-  --panel:#ffffff;
-  --panel-soft:#f7f9fc;
-  --text:#162033;
-  --muted:#657086;
-  --line:#d7deea;
-  --line-strong:#b9c4d8;
-  --accent:#2d5bff;
-  --accent-soft:#dfe8ff;
-  --shadow:0 10px 30px rgba(18, 30, 52, 0.08);
-  --radius:16px;
-  --radius-sm:10px;
-}
-
-*,*::before,*::after{
-  box-sizing:border-box;
-}
-
-html,body{
-  margin:0;
-  padding:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-body{
-  min-height:100vh;
-}
-
-.page-shell{
-  max-width:1460px;
-  margin:0 auto;
-  padding:24px 20px 36px;
-}
-
-.page-header{
-  margin-bottom:12px;
-}
-
-.title-block h1{
-  margin:0 0 8px;
-  font-size:clamp(2rem, 3vw, 2.6rem);
-  line-height:1.05;
-  letter-spacing:-0.03em;
-}
-
-.intro{
-  margin:0;
-  font-size:1rem;
-  line-height:1.55;
-  color:var(--muted);
-  max-width:1100px;
-}
-
-.summary-band{
-  background:linear-gradient(135deg, #15233b 0%, #1d3152 100%);
-  border-radius:22px;
-  padding:18px;
-  box-shadow:var(--shadow);
-  margin-bottom:16px;
-}
-
-.summary-grid{
-  display:grid;
-  grid-template-columns:repeat(4, minmax(0, 1fr));
-  gap:14px;
-}
-
-.summary-card{
-  min-height:132px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
-  padding:16px;
-  color:#fff;
-}
-
-.summary-card--green{
-  background:rgba(16, 185, 129, 0.32);
-  border-color:rgba(52, 211, 153, 0.55);
-}
-
-.summary-card--amber{
-  background:rgba(245, 158, 11, 0.30);
-  border-color:rgba(251, 191, 36, 0.52);
-}
-
-.summary-card--red{
-  background:rgba(239, 68, 68, 0.30);
-  border-color:rgba(248, 113, 113, 0.52);
-}
-
-.summary-label{
-  font-size:0.88rem;
-  font-weight:700;
-  color:rgba(255,255,255,0.82);
-  margin-bottom:10px;
-}
-
-.summary-value{
-  font-size:clamp(1.3rem, 2vw, 1.9rem);
-  font-weight:800;
-  line-height:1.15;
-  margin-bottom:10px;
-  letter-spacing:-0.02em;
-}
-
-.summary-desc{
-  font-size:0.86rem;
-  line-height:1.45;
-  color:rgba(255,255,255,0.76);
-}
-
-.tab-nav{
-  display:flex;
-  gap:10px;
-  margin-bottom:16px;
-  flex-wrap:wrap;
-}
-
-.tab-button{
-  appearance:none;
-  border:1px solid var(--line);
-  background:var(--panel);
-  color:var(--text);
-  border-radius:999px;
-  padding:11px 18px;
-  min-width:120px;
-  font-size:0.95rem;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:var(--shadow);
-}
-
-.tab-button.is-active{
-  background:var(--accent);
-  color:#fff;
-  border-color:var(--accent);
-}
-
-.tab-panels{
-  min-width:0;
-}
-
-.tab-panel{
-  display:none;
-}
-
-.tab-panel.is-active{
-  display:block;
-}
-
-.tab-layout{
-  display:grid;
-  gap:18px;
-  align-items:start;
-}
-
-.tab-layout.single-column{
-  grid-template-columns:minmax(0, 1fr);
-}
-
-.panel,
-.chart-card,
-.table-card{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:20px;
-  box-shadow:var(--shadow);
-}
-
-.input-shell-panel,
-.results-meta-panel,
-.chart-card,
-.table-card{
-  padding:18px;
-}
-
-.panel-header,
-.card-header,
-.results-meta-header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:16px;
-}
-
-.panel-header h2,
-.card-header h2{
-  margin:0 0 6px;
-  font-size:1.2rem;
-}
-
-.panel-header p,
-.card-header p{
-  margin:0;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.5;
-}
-
-.panel-header-tight{
-  margin-bottom:16px;
-}
-
-.action-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  appearance:none;
-  border:none;
-  border-radius:12px;
-  min-height:42px;
-  padding:0 16px;
-  font-size:0.95rem;
-  font-weight:700;
-  cursor:pointer;
-  transition:transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
-}
-
-.btn:hover{
-  transform:translateY(-1px);
-}
-
-.btn:disabled{
-  opacity:0.6;
-  cursor:wait;
-  transform:none;
-}
-
-.btn-primary{
-  background:var(--accent);
-  color:#fff;
-}
-
-.btn-secondary{
-  background:#e9eef8;
-  color:var(--text);
-}
-
-.input-shell{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:16px;
-  align-items:start;
-}
-
-.input-group-card{
-  background:var(--panel-soft);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:16px;
-  min-width:0;
-}
-
-.section-heading{
-  margin-bottom:14px;
-}
-
-.section-heading h3{
-  margin:0 0 6px;
-  font-size:1rem;
-  line-height:1.3;
-}
-
-.section-heading p{
-  margin:0;
-  color:var(--muted);
-  font-size:0.9rem;
-  line-height:1.45;
-}
-
-.section-subnote{
-  margin:-2px 0 14px;
-  color:var(--muted);
-  font-size:0.84rem;
-  line-height:1.45;
-}
-
-.field-grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:12px 14px;
-}
-
-.field-grid-3{
-  grid-template-columns:repeat(3, minmax(0, 1fr));
-}
-
-.field-grid-4{
-  grid-template-columns:repeat(4, minmax(0, 1fr));
-  margin-bottom:14px;
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  min-width:0;
-}
-
-.field-span-full{
-  grid-column:1 / -1;
-}
-
-.field-label{
-  min-height:40px;
-  display:flex;
-  align-items:flex-end;
-  color:var(--text);
-  font-size:0.9rem;
-  font-weight:700;
-  line-height:1.25;
-}
-
-.with-help{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-}
-
-input[type="text"],
-input[type="number"]{
-  width:100%;
-  height:44px;
-  border:1px solid var(--line-strong);
-  border-radius:12px;
-  padding:0 14px;
-  font-size:1rem;
-  color:var(--text);
-  background:#fff;
-}
-
-input[type="checkbox"]{
-  width:18px;
-  height:18px;
-  accent-color:var(--accent);
-  align-self:flex-start;
-  margin-top:6px;
-}
-
-.help{
-  appearance:none;
-  border:none;
-  background:var(--accent-soft);
-  color:var(--accent);
-  width:22px;
-  height:22px;
-  border-radius:999px;
-  font-size:0.8rem;
-  font-weight:800;
-  cursor:help;
-  flex:0 0 auto;
-}
-
-
-.people-pensions-card{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-
-.people-income-grid{
-  display:grid;
-  grid-template-columns:minmax(260px, 1.4fr) minmax(240px, 1.2fr) 150px;
-  gap:12px 14px;
-  align-items:end;
-}
-
-.people-pension-inline-field,
-.people-income-field{
-  max-width:none;
-}
-
-.people-years-field{
-  max-width:150px;
-}
-
-.people-grid-header,
-.people-grid-row{
-  display:grid;
-  grid-template-columns:minmax(180px, 1.8fr) 112px 160px;
-  gap:12px;
-  align-items:end;
-}
-
-.people-grid-header{
-  color:var(--text);
-  font-size:0.92rem;
-  font-weight:800;
-  line-height:1.2;
-}
-
-.people-grid-rows{
-  display:grid;
-  gap:12px;
-}
-
-.people-grid-row .field{
-  min-width:0;
-}
-
-.person-name-field input::placeholder{
-  color:#97a3b6;
-}
-
-.person-age-field input,
-.person-pension-age-field input{
-  max-width:100%;
-  text-align:left;
-}
-
-.field-inline{
-  gap:8px;
-}
-
-.field-label-inline{
-  min-height:0;
-  align-items:center;
-}
-
-.field-inline-wide{
-  max-width:none;
-}
-
-.asset-assumptions-grid{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
-  gap:14px;
-}
-
-.asset-assumption-card{
-  display:grid;
-  gap:12px;
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#f8fbff;
-}
-
-.asset-assumption-title{
-  margin:0;
-  font-size:0.95rem;
-  font-weight:800;
-  line-height:1.2;
-}
-
-.asset-assumptions-inflation{
-  margin-top:14px;
-  max-width:220px;
-}
-
-.results-toolbar{
-  display:flex;
-  flex-wrap:wrap;
-  gap:14px;
-  margin-top:16px;
-  padding-top:16px;
-  border-top:1px solid var(--line);
-  align-items:flex-end;
-}
-
-.chart-mode-group{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.chart-mode-label{
-  color:var(--text);
-  font-size:0.9rem;
-  font-weight:700;
-  line-height:1.2;
-}
-
-.mode-switch{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-}
-
-.mode-option{
-  position:relative;
-  display:inline-flex;
-  align-items:center;
-  cursor:pointer;
-}
-
-.mode-option input{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  pointer-events:none;
-}
-
-.mode-option span{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:86px;
-  min-height:42px;
-  padding:0 14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:var(--panel);
-  color:var(--text);
-  font-size:0.95rem;
-  font-weight:700;
-  transition:background 0.12s ease, border-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
-}
-
-.mode-option input:checked + span{
-  background:var(--accent-soft);
-  border-color:var(--accent);
-  color:var(--accent);
-  box-shadow:inset 0 0 0 1px rgba(45, 91, 255, 0.08);
-}
-
-.toggle-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  min-height:44px;
-  padding:0 14px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:var(--panel-soft);
-  color:var(--text);
-  font-size:0.92rem;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.toggle-chip input[type="checkbox"]{
-  margin:0;
-  align-self:center;
-}
-
-.results-explainer{
-  margin-top:14px;
-  padding:14px 16px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:var(--panel-soft);
-}
-
-.results-explainer p{
-  margin:0;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.55;
-}
-
-.results-explainer p + p{
-  margin-top:8px;
-}
-
-.results-chart-grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:18px;
-  align-items:stretch;
-}
-
-.model-note{
-  background:var(--panel-soft);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-  margin-top:16px;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.6;
-}
-
-.chart-card,
-.table-card{
-  padding:18px;
-}
-
-.chart-card{
-  display:flex;
-  flex-direction:column;
-  min-width:0;
-  height:100%;
-}
-
-.card-header{
-  margin-bottom:12px;
-}
-
-.chart-card-header{
-  margin-bottom:14px;
-  flex:0 0 auto;
-}
-
-.card-title-block{
-  min-width:0;
-}
-
-.card-title-block h2{
-  margin:0;
-  font-size:1.2rem;
-  line-height:1.25;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.card-title-block p{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.45;
-}
-
-.chart-canvas-wrap{
-  position:relative;
-  flex:1 1 auto;
-  min-height:340px;
-  display:flex;
-}
-
-.chart-canvas-wrap canvas{
-  display:block;
-  width:100%;
-  height:340px;
-  min-height:340px;
-  background:#fff;
-  border-radius:16px;
-}
-
-canvas{
-  display:block;
-  width:100%;
-  background:#fff;
-  border-radius:16px;
-}
-
-.table-wrap{
-  overflow:auto;
-}
-
-#resultsTable{
-  width:100%;
-  border-collapse:collapse;
-  min-width:860px;
-}
-
-#resultsTable th,
-#resultsTable td{
-  padding:12px 14px;
-  border-bottom:1px solid var(--line);
-  text-align:left;
-  font-size:0.92rem;
-  white-space:nowrap;
-}
-
-#resultsTable th{
-  position:sticky;
-  top:0;
-  background:#f8fbff;
-  z-index:1;
-}
-
-.error-box{
-  display:none;
-  margin-top:16px;
-  background:#fff2f2;
-  color:#8f1824;
-  border:1px solid #f1c5cb;
-  border-radius:14px;
-  padding:12px 14px;
-  font-size:0.92rem;
-  line-height:1.5;
-}
-
-.hidden{
-  display:none !important;
-}
-
-@media (max-width: 1180px){
-  .summary-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+import { DEFAULT_INPUTS, runRetirementSimulation, validateInputs } from './model/simulator.js';
+import { initialiseTabs } from './ui/tabs.js';
+import { renderResultsView } from './ui/results-view.js';
+import { createPlanForm } from './ui/plan-form.js';
+import { createAdvancedForm } from './ui/advanced-form.js';
+
+const els = {
+  years: document.getElementById('years'),
+  initialPortfolio: document.getElementById('initialPortfolio'),
+  initialWithdrawalRate: document.getElementById('initialWithdrawalRate'),
+  initialSpending: document.getElementById('initialSpending'),
+  equityAllocation: document.getElementById('equityAllocation'),
+  bondAllocation: document.getElementById('bondAllocation'),
+  cashlikeAllocation: document.getElementById('cashlikeAllocation'),
+  rebalanceToTarget: document.getElementById('rebalanceToTarget'),
+
+  equityReturn: document.getElementById('equityReturn'),
+  equityVolatility: document.getElementById('equityVolatility'),
+  bondReturn: document.getElementById('bondReturn'),
+  bondVolatility: document.getElementById('bondVolatility'),
+  cashlikeReturn: document.getElementById('cashlikeReturn'),
+  cashlikeVolatility: document.getElementById('cashlikeVolatility'),
+  inflation: document.getElementById('inflation'),
+
+  person1Name: document.getElementById('person1Name'),
+  person1Age: document.getElementById('person1Age'),
+  person1PensionAge: document.getElementById('person1PensionAge'),
+  statePensionToday: document.getElementById('statePensionToday'),
+  otherIncomeToday: document.getElementById('otherIncomeToday'),
+  otherIncomeYears: document.getElementById('otherIncomeYears'),
+  windfallAmount: document.getElementById('windfallAmount'),
+  windfallYear: document.getElementById('windfallYear'),
+  person2Name: document.getElementById('person2Name'),
+  person2Age: document.getElementById('person2Age'),
+  person2PensionAge: document.getElementById('person2PensionAge'),
+
+  upperGuardrail: document.getElementById('upperGuardrail'),
+  lowerGuardrail: document.getElementById('lowerGuardrail'),
+  adjustmentSize: document.getElementById('adjustmentSize'),
+
+  monteCarloRuns: document.getElementById('monteCarloRuns'),
+  seed: document.getElementById('seed'),
+  skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
+  chartModeNominal: document.getElementById('chartModeNominal'),
+  chartModeReal: document.getElementById('chartModeReal'),
+  guytonKlingerOn: document.getElementById('guytonKlingerOn'),
+  guytonKlingerOff: document.getElementById('guytonKlingerOff'),
+  showRealValues: document.getElementById('showRealValues'),
+  showFullTable: document.getElementById('showFullTable'),
+
+  runSimulationBtn: document.getElementById('runSimulationBtn'),
+  resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
+  errorBox: document.getElementById('errorBox'),
+
+  summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
+  summarySuccessRate: document.getElementById('summarySuccessRate'),
+  summaryMedianEnd: document.getElementById('summaryMedianEnd'),
+  summaryWorstStress: document.getElementById('summaryWorstStress'),
+  summaryWorstStressDesc: document.getElementById('summaryWorstStressDesc'),
+  summaryCashRunway: document.getElementById('summaryCashRunway'),
+
+  portfolioChart: document.getElementById('portfolioChart'),
+  spendingChart: document.getElementById('spendingChart'),
+  tableCard: document.getElementById('tableCard'),
+  resultsTable: document.getElementById('resultsTable')
+};
+
+let latestResult = null;
+let latestBaseInputs = null;
+let worker = null;
+let withdrawalInputMode = 'amount';
+
+const parsingHelpers = {
+  formatInteger,
+  parseLooseNumber,
+  parseLooseInteger
+};
+
+const tabs = initialiseTabs({
+  defaultTab: 'inputs',
+  onChange: (tabName) => {
+    if (tabName === 'results' && latestResult) {
+      requestAnimationFrame(() => {
+        renderAll();
+      });
+    }
   }
+});
 
-  .input-shell,
-  .results-chart-grid,
-  .asset-assumptions-grid{
-    grid-template-columns:1fr;
-  }
+const planForm = createPlanForm(els, parsingHelpers);
+const advancedForm = createAdvancedForm(els, parsingHelpers);
 
-  .field-grid-4{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
+initialise();
 
-  .people-grid-header,
-  .people-grid-row{
-    grid-template-columns:minmax(160px, 1.6fr) 108px 150px;
+function initialise() {
+  setupWorker();
+  applyDefaults();
+  attachEvents();
+  setResultsViewDefaults();
+  syncInitialWithdrawalRateFromAmount();
+  tabs.setActiveTab('inputs');
+}
+
+function setupWorker() {
+  try {
+    worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
+
+    worker.onmessage = (event) => {
+      planForm.setBusy(false);
+
+      if (!event.data?.ok) {
+        showError(event.data?.error || 'Simulation failed.');
+        return;
+      }
+
+      latestResult = event.data.result;
+      hideError();
+      showResults();
+    };
+
+    worker.onerror = () => {
+      worker = null;
+      planForm.setBusy(false);
+      showError('Web Worker failed to load. Falling back to main-thread simulation.');
+    };
+  } catch {
+    worker = null;
   }
 }
 
-@media (max-width: 860px){
-  .field-grid-4,
-  .field-grid-3,
-  .field-grid,
-  .people-grid-header,
-  .people-grid-row,
-  .asset-assumptions-grid{
-    grid-template-columns:1fr;
+function applyDefaults() {
+  planForm.applyDefaults(DEFAULT_INPUTS);
+  advancedForm.applyDefaults(DEFAULT_INPUTS);
+  latestBaseInputs = null;
+  withdrawalInputMode = 'amount';
+  syncInitialWithdrawalRateFromAmount();
+}
+
+function setResultsViewDefaults() {
+  if (els.chartModeNominal) els.chartModeNominal.checked = true;
+  if (els.chartModeReal) els.chartModeReal.checked = false;
+  if (els.showRealValues) els.showRealValues.checked = false;
+  if (els.showFullTable) els.showFullTable.checked = true;
+  if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
+  if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
+}
+
+function attachEvents() {
+  planForm.attachFormatting();
+  advancedForm.attachFormatting();
+
+  planForm.bindActions({
+    onRun: runSimulation,
+    onReset: () => {
+      applyDefaults();
+      setResultsViewDefaults();
+      hideError();
+      tabs.setActiveTab('inputs');
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  });
+
+  advancedForm.bindDisplayEvents({
+    onViewChange: () => {
+      if (latestResult) renderAll();
+    }
+  });
+
+  attachWithdrawalRateSync();
+  attachChartModeEvents();
+  attachGuytonKlingerEvents();
+
+  window.addEventListener(
+    'resize',
+    debounce(() => {
+      if (latestResult) renderAll();
+    }, 100)
+  );
+}
+
+function attachWithdrawalRateSync() {
+  if (els.initialWithdrawalRate) {
+    els.initialWithdrawalRate.addEventListener('input', () => {
+      withdrawalInputMode = 'rate';
+      syncInitialSpendingFromRate();
+    });
+
+    els.initialWithdrawalRate.addEventListener('change', () => {
+      withdrawalInputMode = 'rate';
+      syncInitialSpendingFromRate();
+    });
   }
 
-  .field-span-full{
-    grid-column:auto;
+  if (els.initialSpending) {
+    els.initialSpending.addEventListener('input', () => {
+      withdrawalInputMode = 'amount';
+      syncInitialWithdrawalRateFromAmount();
+    });
+
+    els.initialSpending.addEventListener('change', () => {
+      withdrawalInputMode = 'amount';
+      syncInitialWithdrawalRateFromAmount();
+    });
   }
 
-  .panel-header,
-  .card-header,
-  .results-meta-header{
-    flex-direction:column;
-  }
+  if (els.initialPortfolio) {
+    els.initialPortfolio.addEventListener('input', () => {
+      if (withdrawalInputMode === 'rate') {
+        syncInitialSpendingFromRate();
+      } else {
+        syncInitialWithdrawalRateFromAmount();
+      }
+    });
 
-  .card-title-block h2{
-    white-space:normal;
-    overflow:visible;
-    text-overflow:clip;
-  }
-
-  .chart-canvas-wrap,
-  .chart-canvas-wrap canvas{
-    min-height:320px;
-    height:320px;
+    els.initialPortfolio.addEventListener('change', () => {
+      if (withdrawalInputMode === 'rate') {
+        syncInitialSpendingFromRate();
+      } else {
+        syncInitialWithdrawalRateFromAmount();
+      }
+    });
   }
 }
 
-@media (max-width: 760px){
-  .page-shell{
-    padding:18px 12px 28px;
+function attachChartModeEvents() {
+  const updateMode = () => {
+    if (!els.showRealValues) return;
+    els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
+    if (latestResult) {
+      renderAll();
+    }
+  };
+
+  if (els.chartModeNominal) {
+    els.chartModeNominal.addEventListener('change', updateMode);
   }
 
-  .summary-grid{
-    grid-template-columns:1fr;
-  }
-
-  .tab-button{
-    flex:1 1 0;
-  }
-
-  .results-toolbar{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .mode-switch{
-    width:100%;
-  }
-
-  .mode-option{
-    flex:1 1 0;
-  }
-
-  .mode-option span,
-  .toggle-chip{
-    width:100%;
-    justify-content:center;
+  if (els.chartModeReal) {
+    els.chartModeReal.addEventListener('change', updateMode);
   }
 }
 
-@media (max-width: 1100px){
-  .people-income-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+function attachGuytonKlingerEvents() {
+  const rerun = () => {
+    if (!latestBaseInputs) return;
+    rerunResultsWithCurrentOptions();
+  };
+
+  if (els.guytonKlingerOn) {
+    els.guytonKlingerOn.addEventListener('change', rerun);
   }
 
-  .people-years-field{
-    max-width:none;
+  if (els.guytonKlingerOff) {
+    els.guytonKlingerOff.addEventListener('change', rerun);
   }
 }
 
-@media (max-width: 720px){
-  .people-income-grid{
-    grid-template-columns:minmax(0, 1fr);
+function syncInitialWithdrawalRateFromAmount() {
+  if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
+
+  const portfolio = parseLooseNumber(els.initialPortfolio.value);
+  const spending = parseLooseNumber(els.initialSpending.value);
+
+  if (!Number.isFinite(portfolio) || portfolio <= 0 || !Number.isFinite(spending) || spending < 0) {
+    els.initialWithdrawalRate.value = '';
+    return;
   }
+
+  const rate = (spending / portfolio) * 100;
+  els.initialWithdrawalRate.value = formatRate(rate);
+}
+
+function syncInitialSpendingFromRate() {
+  if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
+
+  const portfolio = parseLooseNumber(els.initialPortfolio.value);
+  const rate = parseLooseNumber(els.initialWithdrawalRate.value);
+
+  if (!Number.isFinite(portfolio) || portfolio < 0 || !Number.isFinite(rate) || rate < 0) {
+    return;
+  }
+
+  const spending = portfolio * (rate / 100);
+  els.initialSpending.value = formatInteger(Math.round(spending));
+}
+
+function gatherInputs() {
+  const inputs = {
+    ...planForm.readValues(),
+    ...advancedForm.readValues()
+  };
+
+  if (els.initialSpending) {
+    const spending = parseLooseNumber(els.initialSpending.value);
+    if (Number.isFinite(spending)) {
+      inputs.initialSpending = spending;
+    }
+  }
+
+  return inputs;
+}
+
+function getResultsOverrideInputs(baseInputs) {
+  return {
+    ...baseInputs,
+    enableGuardrails: Boolean(els.guytonKlingerOn?.checked)
+  };
+}
+
+function runSimulation() {
+  const inputs = gatherInputs();
+  const mergedInputs = { ...DEFAULT_INPUTS, ...inputs };
+  const errors = validateInputs(mergedInputs);
+
+  if (errors.length > 0) {
+    showError(errors.join(' '));
+    return;
+  }
+
+  hideError();
+  latestBaseInputs = mergedInputs;
+  planForm.setBusy(true);
+
+  const effectiveInputs = getResultsOverrideInputs(mergedInputs);
+
+  if (worker) {
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
+    return;
+  }
+
+  try {
+    latestResult = runRetirementSimulation(effectiveInputs);
+    planForm.setBusy(false);
+    showResults();
+  } catch (error) {
+    planForm.setBusy(false);
+    showError(error instanceof Error ? error.message : 'Simulation failed.');
+  }
+}
+
+function rerunResultsWithCurrentOptions() {
+  if (!latestBaseInputs) return;
+
+  const effectiveInputs = getResultsOverrideInputs(latestBaseInputs);
+  const errors = validateInputs(effectiveInputs);
+
+  if (errors.length > 0) {
+    showError(errors.join(' '));
+    return;
+  }
+
+  hideError();
+
+  if (worker) {
+    planForm.setBusy(true);
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
+    return;
+  }
+
+  try {
+    latestResult = runRetirementSimulation(effectiveInputs);
+    renderAll();
+  } catch (error) {
+    showError(error instanceof Error ? error.message : 'Simulation failed.');
+  }
+}
+
+function showResults() {
+  tabs.setActiveTab('results');
+  requestAnimationFrame(() => {
+    renderAll();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
+function renderAll() {
+  if (!latestResult) return;
+
+  renderResultsView({
+    result: latestResult,
+    elements: els,
+    useReal: Boolean(els.showRealValues?.checked),
+    showFullTable: Boolean(els.showFullTable?.checked),
+    formatters: {
+      formatCurrency,
+      formatPercent,
+      formatYears
+    }
+  });
+
+  applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+}
+
+function applySuccessRateTone(successRate) {
+  if (!els.summarySuccessRateCard) return;
+
+  els.summarySuccessRateCard.classList.remove(
+    'summary-card--green',
+    'summary-card--amber',
+    'summary-card--red'
+  );
+
+  if (!Number.isFinite(successRate)) return;
+
+  if (successRate >= 0.9) {
+    els.summarySuccessRateCard.classList.add('summary-card--green');
+  } else if (successRate >= 0.75) {
+    els.summarySuccessRateCard.classList.add('summary-card--amber');
+  } else {
+    els.summarySuccessRateCard.classList.add('summary-card--red');
+  }
+}
+
+function showError(message) {
+  if (!els.errorBox) return;
+  els.errorBox.style.display = 'block';
+  els.errorBox.textContent = message;
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+function hideError() {
+  if (!els.errorBox) return;
+  els.errorBox.style.display = 'none';
+  els.errorBox.textContent = '';
+}
+
+function parseLooseNumber(value) {
+  const cleaned = String(value ?? '').replace(/,/g, '').trim();
+  if (cleaned === '') return NaN;
+  return Number(cleaned);
+}
+
+function parseLooseInteger(value) {
+  const numeric = parseLooseNumber(value);
+  return Number.isFinite(numeric) ? Math.trunc(numeric) : NaN;
+}
+
+function formatInteger(value) {
+  if (!Number.isFinite(value)) return '';
+  return new Intl.NumberFormat('en-GB', {
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatRate(value) {
+  if (!Number.isFinite(value)) return '';
+  return Number(value.toFixed(2)).toString();
+}
+
+function formatCurrency(value) {
+  if (!Number.isFinite(value)) return '—';
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatPercent(value) {
+  if (!Number.isFinite(value)) return '—';
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatYears(value) {
+  if (!Number.isFinite(value)) return '—';
+  return `${value.toFixed(1)} years`;
+}
+
+function debounce(fn, delay) {
+  let timeoutId = null;
+
+  return (...args) => {
+    window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => fn(...args), delay);
+  };
 }
