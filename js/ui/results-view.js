@@ -8,6 +8,30 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   const percentileSeries = useReal ? result.monteCarlo.realPercentiles : result.monteCarlo.nominalPercentiles;
   const medianEnd = percentileSeries.p50[percentileSeries.p50.length - 1];
   const hasStressSummary = result.summary && result.summary.worstStressName;
+  const rows = result.baseCase?.rows || [];
+
+  let firstCutYear = null;
+  let worstCutYear = null;
+  let worstCut = 0;
+
+  rows.forEach((r, i) => {
+    const cut = r.spendingCutPercent || 0;
+
+    if (cut > 0 && firstCutYear === null) {
+      firstCutYear = i;
+    }
+
+    if (cut > worstCut) {
+      worstCut = cut;
+      worstCutYear = i;
+    }
+  });
+
+  const cutDiagnostics = {
+    firstCutYear,
+    worstCutYear,
+    worstCut
+  };
 
   elements.summarySuccessRate.textContent = formatPercent(result.monteCarlo.successRate);
   elements.summaryMedianEnd.textContent = formatCurrency(medianEnd);
@@ -26,7 +50,13 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-  renderSpendingChart(elements.spendingChart, result, useReal, formatCurrency);
+  renderSpendingChart(
+    elements.spendingChart,
+    result,
+    useReal,
+    formatCurrency,
+    cutDiagnostics
+  );
 
   renderPlanWarnings(result, elements, useReal, formatters);
   renderMonteCarloSummary(result, elements, useReal, formatters);
@@ -35,12 +65,13 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
 
   renderYearlyTable(
     elements.resultsTable,
-    result.baseCase?.rows || [],
+    rows,
     useReal,
     formatCurrency,
     {
       person1Name: result.inputs?.person1Name,
-      person2Name: result.inputs?.person2Name
+      person2Name: result.inputs?.person2Name,
+      cutDiagnostics
     }
   );
 }
@@ -94,43 +125,43 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
     }
   }
 
-const successRate = result.monteCarlo.successRate;
-const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
-const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
+  const successRate = result.monteCarlo.successRate;
+  const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
+  const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
 
-const finalWithdrawalRatePressure = medianFinalWithdrawalRate;
-const percentileSpread =
-  medianEnd > 0 ? Math.max(0, (medianEnd - p10End) / medianEnd) : 1;
+  const finalWithdrawalRatePressure = medianFinalWithdrawalRate;
+  const percentileSpread =
+    medianEnd > 0 ? Math.max(0, (medianEnd - p10End) / medianEnd) : 1;
 
-let sustainabilityScore = 100;
+  let sustainabilityScore = 100;
 
-/* Monte Carlo success remains the anchor */
-sustainabilityScore -= (1 - successRate) * 45;
+  /* Monte Carlo success remains the anchor */
+  sustainabilityScore -= (1 - successRate) * 45;
 
-/* Penalise large spending cuts */
-sustainabilityScore -= maxCut * 100;
+  /* Penalise large spending cuts */
+  sustainabilityScore -= maxCut * 100;
 
-/* Penalise high dependence on portfolio withdrawals */
-sustainabilityScore -= Math.max(0, dependence - 0.5) * 70;
+  /* Penalise high dependence on portfolio withdrawals */
+  sustainabilityScore -= Math.max(0, dependence - 0.5) * 70;
 
-/* Penalise high late-stage withdrawal pressure */
-sustainabilityScore -= Math.max(0, finalWithdrawalRatePressure - 0.05) * 220;
+  /* Penalise high late-stage withdrawal pressure */
+  sustainabilityScore -= Math.max(0, finalWithdrawalRatePressure - 0.05) * 220;
 
-/* Penalise weak downside resilience */
-sustainabilityScore -= percentileSpread * 18;
+  /* Penalise weak downside resilience */
+  sustainabilityScore -= percentileSpread * 18;
 
-/* Penalise actual depletion in the weak path */
-if (yearsToZero !== 'Not depleted') {
-  sustainabilityScore -= 12;
-}
+  /* Penalise actual depletion in the weak path */
+  if (yearsToZero !== 'Not depleted') {
+    sustainabilityScore -= 12;
+  }
 
-sustainabilityScore = Math.max(0, Math.min(100, Math.round(sustainabilityScore)));
+  sustainabilityScore = Math.max(0, Math.min(100, Math.round(sustainabilityScore)));
 
-let sustainabilityLabel = 'Excellent';
-if (sustainabilityScore < 90) sustainabilityLabel = 'Strong';
-if (sustainabilityScore < 75) sustainabilityLabel = 'Moderate';
-if (sustainabilityScore < 60) sustainabilityLabel = 'Fragile';
-if (sustainabilityScore < 40) sustainabilityLabel = 'Unsustainable';
+  let sustainabilityLabel = 'Excellent';
+  if (sustainabilityScore < 90) sustainabilityLabel = 'Strong';
+  if (sustainabilityScore < 75) sustainabilityLabel = 'Moderate';
+  if (sustainabilityScore < 60) sustainabilityLabel = 'Fragile';
+  if (sustainabilityScore < 40) sustainabilityLabel = 'Unsustainable';
 
   const initialWithdrawalRate =
     inputs.initialPortfolio > 0
