@@ -13,14 +13,14 @@
       <div class="title-block">
         <h1>Enhanced Retirement Simulator</h1>
         <p class="intro">
-          Build and test retirement plans using Monte Carlo modelling, Guyton-Klinger guardrails, two-person state pension offsets, cashlike buffers, and deterministic base-case projections. This phase introduces a cleaner UI structure so the simulator can grow without turning into a single crowded page.
+          Build and test retirement plans using Monte Carlo modelling, Guyton-Klinger guardrails, two-person state pension offsets, cashlike buffers, and deterministic base-case projections.
         </p>
       </div>
     </header>
 
     <section class="summary-band" aria-label="Key results">
       <div class="summary-grid">
-        <article class="summary-card">
+        <article class="summary-card" id="summarySuccessRateCard">
           <div class="summary-label">Monte Carlo success rate</div>
           <div class="summary-value" id="summarySuccessRate">—</div>
           <div class="summary-desc">Share of simulated paths that avoid depletion across the full plan.</div>
@@ -47,21 +47,21 @@
     </section>
 
     <nav class="tab-nav" aria-label="Simulator sections" role="tablist">
-      <button class="tab-button is-active" type="button" role="tab" aria-selected="true" data-tab-button="plan">Plan</button>
-      <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab-button="advanced">Advanced</button>
+      <button class="tab-button is-active" type="button" role="tab" aria-selected="true" data-tab-button="inputs">Inputs</button>
       <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab-button="results">Results</button>
     </nav>
 
     <div class="tab-panels">
-      <section class="tab-panel is-active" data-tab-panel="plan">
-        <div class="tab-layout two-column">
-          <aside class="panel input-panel">
-            <div class="panel-header">
+      <section class="tab-panel is-active" data-tab-panel="inputs">
+        <div class="tab-layout single-column">
+          <section class="panel input-shell-panel">
+            <div class="panel-header panel-header-tight">
               <div>
-                <h2>Plan</h2>
-                <p>Core retirement assumptions, allocations, fixed income, and spending rule.</p>
+                <h2>Inputs</h2>
+                <p>All planning and modelling controls on one page so more functionality stays above the fold.</p>
               </div>
-              <div class="action-row compact">
+
+              <div class="action-row">
                 <button id="runSimulationBtn" class="btn btn-primary" type="button">Run simulation</button>
                 <button id="resetDefaultsBtn" class="btn btn-secondary" type="button">Reset defaults</button>
               </div>
@@ -69,308 +69,352 @@
 
             <div id="errorBox" class="error-box" role="alert" aria-live="polite"></div>
 
-            <div class="input-section no-top-border">
-              <h3>Plan setup</h3>
-              <div class="field-grid">
-                <label class="field">
-                  <span class="field-label">Retirement years</span>
-                  <input id="years" type="number" min="1" max="80" step="1" />
-                </label>
+            <div class="input-shell">
+              <section class="input-group-card">
+                <div class="section-heading">
+                  <h3>Core assumptions</h3>
+                  <p>Retirement horizon, portfolio size, starting spend, and allocation mix.</p>
+                </div>
 
-                <label class="field">
-                  <span class="field-label">Initial portfolio</span>
-                  <input id="initialPortfolio" type="text" inputmode="numeric" data-format="integer" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Initial household spending</span>
-                  <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Equity allocation %</span>
-                  <input id="equityAllocation" type="number" min="0" max="100" step="0.1" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Bond allocation %</span>
-                  <input id="bondAllocation" type="number" min="0" max="100" step="0.1" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label with-help">
-                    <span>Cashlike %</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Cashlike help" title="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer.">?</button>
-                  </span>
-                  <input id="cashlikeAllocation" type="number" min="0" max="100" step="0.1" />
-                </label>
-
-                <label class="field field-checkbox field-span-2">
-                  <span class="field-label with-help">
-                    <span>Annual rebalance to target</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Annual rebalance to target help" title="At the end of each year, the portfolio is moved back to the target equity, bond and cashlike weights.">?</button>
-                  </span>
-                  <input id="rebalanceToTarget" type="checkbox" />
-                </label>
-              </div>
-            </div>
-
-            <div class="input-section">
-              <h3>Fixed income</h3>
-              <p class="section-copy">State pension, other income and windfalls that offset portfolio withdrawals.</p>
-
-              <div class="fixed-income-grid">
-                <div class="income-card">
-                  <h4 class="income-card-title">State pension</h4>
+                <div class="field-grid field-grid-4">
                   <label class="field">
-                    <span class="field-label">State pension (per person)</span>
-                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+                    <span class="field-label">Retirement years</span>
+                    <input id="years" type="number" min="1" max="80" step="1" />
+                  </label>
+
+                  <label class="field">
+                    <span class="field-label">Initial portfolio</span>
+                    <input id="initialPortfolio" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+
+                  <label class="field">
+                    <span class="field-label">Initial withdrawal rate (%)</span>
+                    <input id="initialWithdrawalRate" type="number" min="0" step="0.1" />
+                  </label>
+
+                  <label class="field">
+                    <span class="field-label">Initial household spending (£)</span>
+                    <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
                   </label>
                 </div>
 
-                <div class="income-card">
-                  <h4 class="income-card-title">Other income</h4>
+                <div class="section-subnote">
+                  Edit either the starting withdrawal rate or the starting spend. The other field updates automatically.
+                </div>
+
+                <div class="field-grid field-grid-3">
                   <label class="field">
-                    <span class="field-label">Other income</span>
+                    <span class="field-label">Equity allocation %</span>
+                    <input id="equityAllocation" type="number" min="0" max="100" step="0.1" />
+                  </label>
+
+                  <label class="field">
+                    <span class="field-label">Bond allocation %</span>
+                    <input id="bondAllocation" type="number" min="0" max="100" step="0.1" />
+                  </label>
+
+                  <label class="field">
+                    <span class="field-label with-help">
+                      <span>Cashlike %</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Cashlike help"
+                        title="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
+                      >?</button>
+                    </span>
+                    <input id="cashlikeAllocation" type="number" min="0" max="100" step="0.1" />
+                  </label>
+
+                  <label class="field field-span-full">
+                    <span class="field-label with-help">
+                      <span>Annual rebalance to target</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Annual rebalance to target help"
+                        title="At the end of each year, the portfolio is moved back to the target equity, bond and cashlike weights."
+                      >?</button>
+                    </span>
+                    <input id="rebalanceToTarget" type="checkbox" />
+                  </label>
+                </div>
+              </section>
+
+              <section class="input-group-card people-pensions-card">
+                <div class="section-heading">
+                  <h3>Fixed income</h3>
+                  <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
+                </div>
+
+                <div class="people-income-grid">
+                  <label class="field field-inline field-inline-wide people-pension-inline-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>State pension today (per person)</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="State pension today help"
+                        title="Entered in today's money. The simulator increases this with inflation until each person reaches state pension age, and continues increasing it afterwards."
+                      >?</button>
+                    </span>
+                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+
+                  <label class="field field-inline field-inline-wide people-income-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Other income</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Other income help"
+                        title="Shared household income in today's money. It starts immediately, rises with inflation, and runs for the number of years entered below."
+                      >?</button>
+                    </span>
                     <input id="otherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
                   </label>
 
-                  <label class="field">
-                    <span class="field-label">Number of years</span>
+                  <label class="field field-inline people-years-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Number of years</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Other income years help"
+                        title="Number of years that other income is received before it stops."
+                      >?</button>
+                    </span>
                     <input id="otherIncomeYears" type="number" min="0" max="80" step="1" />
                   </label>
-                </div>
 
-                <div class="income-card">
-                  <h4 class="income-card-title">Windfall</h4>
-                  <label class="field">
-                    <span class="field-label">Windfall amount</span>
+                  <label class="field field-inline field-inline-wide people-income-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Windfall amount</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Windfall amount help"
+                        title="A one-off household income receipt such as inheritance, downsizing proceeds, or a lump sum."
+                      >?</button>
+                    </span>
                     <input id="windfallAmount" type="text" inputmode="numeric" data-format="integer" />
                   </label>
 
-                  <label class="field">
-                    <span class="field-label">In which year</span>
+                  <label class="field field-inline people-years-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>In which year</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Windfall year help"
+                        title="The retirement year in which the windfall arrives. Use 0 for none."
+                      >?</button>
+                    </span>
                     <input id="windfallYear" type="number" min="0" max="80" step="1" />
                   </label>
                 </div>
-              </div>
 
-              <div class="field-grid">
-                <label class="field">
-                  <span class="field-label">Name</span>
-                  <input id="person1Name" type="text" placeholder="Person 1" />
-                </label>
+                <div class="people-grid-header" aria-hidden="true">
+                  <div>Name</div>
+                  <div>Current age</div>
+                  <div>State pension age</div>
+                </div>
 
-                <label class="field">
-                  <span class="field-label">Current age</span>
-                  <input id="person1Age" type="number" min="18" max="100" step="1" />
-                </label>
+                <div class="people-grid-rows">
+                  <div class="people-grid-row">
+                    <label class="field person-name-field">
+                      <input id="person1Name" type="text" placeholder="Enter name" />
+                    </label>
 
-                <label class="field">
-                  <span class="field-label">State pension age</span>
-                  <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
-                </label>
+                    <label class="field person-age-field">
+                      <input id="person1Age" type="number" min="18" max="100" step="1" />
+                    </label>
 
-                <label class="field">
-                  <span class="field-label">Name</span>
-                  <input id="person2Name" type="text" placeholder="Person 2" />
-                </label>
+                    <label class="field person-pension-age-field">
+                      <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
+                    </label>
+                  </div>
 
-                <label class="field">
-                  <span class="field-label">Current age</span>
-                  <input id="person2Age" type="number" min="18" max="100" step="1" />
-                </label>
+                  <div class="people-grid-row">
+                    <label class="field person-name-field">
+                      <input id="person2Name" type="text" placeholder="Enter name" />
+                    </label>
 
-                <label class="field">
-                  <span class="field-label">State pension age</span>
-                  <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
-                </label>
-              </div>
-            </div>
+                    <label class="field person-age-field">
+                      <input id="person2Age" type="number" min="18" max="100" step="1" />
+                    </label>
 
-            <div class="input-section">
-              <h3>
-                Guyton-Klinger guardrails
-                <button class="help inline-help" type="button" tabindex="-1" aria-label="Guyton-Klinger guardrails help" title="Guardrails adjust spending up or down when the current withdrawal rate drifts too far from the starting withdrawal rate.">?</button>
-              </h3>
-              <div class="field-grid">
-                <label class="field">
-                  <span class="field-label with-help">
-                    <span>Upper guardrail %</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Upper guardrail help" title="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size.">?</button>
-                  </span>
-                  <input id="upperGuardrail" type="number" min="0" step="0.1" />
-                </label>
+                    <label class="field person-pension-age-field">
+                      <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
+                    </label>
+                  </div>
+                </div>
+              </section>
 
-                <label class="field">
-                  <span class="field-label with-help">
-                    <span>Lower guardrail %</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Lower guardrail help" title="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size.">?</button>
-                  </span>
-                  <input id="lowerGuardrail" type="number" min="0" step="0.1" />
-                </label>
+              <section class="input-group-card">
+                <div class="section-heading">
+                  <h3>Withdrawal policy</h3>
+                  <p>Guyton-Klinger guardrails plus the inflation-skip rule used by the simulator.</p>
+                </div>
 
-                <label class="field field-span-2">
-                  <span class="field-label with-help">
-                    <span>Adjustment size %</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Adjustment size help" title="The percentage change applied to spending when a guardrail is breached.">?</button>
-                  </span>
-                  <input id="adjustmentSize" type="number" min="0" step="0.1" />
-                </label>
-              </div>
-            </div>
-          </aside>
+                <div class="field-grid field-grid-3">
+                  <label class="field">
+                    <span class="field-label with-help">
+                      <span>Upper guardrail %</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Upper guardrail help"
+                        title="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size."
+                      >?</button>
+                    </span>
+                    <input id="upperGuardrail" type="number" min="0" step="0.1" />
+                  </label>
 
-          <section class="panel guidance-panel">
-            <div class="panel-header">
-              <div>
-                <h2>Plan guidance</h2>
-                <p>Keep the main planning inputs simple here. More technical controls sit in Advanced.</p>
-              </div>
-            </div>
+                  <label class="field">
+                    <span class="field-label with-help">
+                      <span>Lower guardrail %</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Lower guardrail help"
+                        title="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size."
+                      >?</button>
+                    </span>
+                    <input id="lowerGuardrail" type="number" min="0" step="0.1" />
+                  </label>
 
-            <div class="guidance-grid">
-              <article class="info-card">
-                <h3>What belongs in Plan</h3>
-                <p>Retirement horizon, initial assets, spending target, asset mix, fixed income, and the spending rule. This should stay focused on the household plan rather than capital-markets detail.</p>
-              </article>
+                  <label class="field">
+                    <span class="field-label with-help">
+                      <span>Adjustment size %</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Adjustment size help"
+                        title="The percentage change applied to spending when a guardrail is breached."
+                      >?</button>
+                    </span>
+                    <input id="adjustmentSize" type="number" min="0" step="0.1" />
+                  </label>
 
-              <article class="info-card">
-                <h3>What moved out</h3>
-                <p>Return assumptions, volatility, Monte Carlo run count, seed, and display controls are now in Advanced so the planning page stays readable as the simulator grows.</p>
-              </article>
+                  <label class="field field-span-full">
+                    <span class="field-label">Skip inflation increase after a negative market year</span>
+                    <input id="skipInflationAfterNegative" type="checkbox" />
+                  </label>
+                </div>
+              </section>
 
-              <article class="info-card">
-                <h3>Current engine scope</h3>
-                <p>This version still runs the existing engine and worker, but the UI is now structured to support the next phase: modular forms, clearer state flow, and later a monthly-first model.</p>
-              </article>
-            </div>
-          </section>
-        </div>
-      </section>
+              <section class="input-group-card">
+                <div class="section-heading">
+                  <h3>Market assumptions</h3>
+                  <p>Expected return, volatility, and inflation assumptions used for deterministic and Monte Carlo paths.</p>
+                </div>
 
-      <section class="tab-panel" data-tab-panel="advanced" hidden>
-        <div class="tab-layout two-column">
-          <aside class="panel input-panel">
-            <div class="panel-header">
-              <div>
-                <h2>Advanced</h2>
-                <p>Simulation controls, market assumptions, and output display settings.</p>
-              </div>
-            </div>
+                <div class="asset-assumptions-grid">
+                  <div class="asset-assumption-card">
+                    <div class="asset-assumption-title">Equities</div>
+                    <label class="field">
+                      <span class="field-label">Return %</span>
+                      <input id="equityReturn" type="number" step="0.1" />
+                    </label>
+                    <label class="field">
+                      <span class="field-label">Volatility %</span>
+                      <input id="equityVolatility" type="number" min="0" step="0.1" />
+                    </label>
+                  </div>
 
-            <div class="input-section no-top-border">
-              <h3>Display and run controls</h3>
-              <div class="control-stack">
-                <label class="toggle">
-                  <input type="checkbox" id="skipInflationAfterNegative" />
-                  <span>Skip inflation increase after a negative market year</span>
-                </label>
+                  <div class="asset-assumption-card">
+                    <div class="asset-assumption-title">Bonds</div>
+                    <label class="field">
+                      <span class="field-label">Return %</span>
+                      <input id="bondReturn" type="number" step="0.1" />
+                    </label>
+                    <label class="field">
+                      <span class="field-label">Volatility %</span>
+                      <input id="bondVolatility" type="number" min="0" step="0.1" />
+                    </label>
+                  </div>
 
-                <label class="toggle">
-                  <input type="checkbox" id="showRealValues" checked />
-                  <span>Show real values</span>
-                </label>
+                  <div class="asset-assumption-card">
+                    <div class="asset-assumption-title">Cashlike</div>
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Return %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Cashlike return help"
+                          title="Expected annual return for the cashlike bucket, such as savings or QMMF held for near-term spending."
+                        >?</button>
+                      </span>
+                      <input id="cashlikeReturn" type="number" step="0.1" />
+                    </label>
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Volatility %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Cashlike volatility help"
+                          title="Expected annual variability of the cashlike bucket. This should usually be low compared with equities or bonds."
+                        >?</button>
+                      </span>
+                      <input id="cashlikeVolatility" type="number" min="0" step="0.1" />
+                    </label>
+                  </div>
+                </div>
 
-                <label class="toggle">
-                  <input type="checkbox" id="showFullTable" checked />
-                  <span>Show full yearly table</span>
-                </label>
-              </div>
-            </div>
+                <div class="asset-assumptions-inflation">
+                  <label class="field field-inline field-inline-wide">
+                    <span class="field-label field-label-inline">Inflation %</span>
+                    <input id="inflation" type="number" min="0" step="0.1" />
+                  </label>
+                </div>
+              </section>
 
-            <div class="input-section">
-              <h3>Market assumptions</h3>
-              <div class="field-grid">
-                <label class="field">
-                  <span class="field-label">Equity return %</span>
-                  <input id="equityReturn" type="number" step="0.1" />
-                </label>
+              <section class="input-group-card">
+                <div class="section-heading">
+                  <h3>Simulation settings</h3>
+                  <p>Monte Carlo controls.</p>
+                </div>
 
-                <label class="field">
-                  <span class="field-label">Equity volatility %</span>
-                  <input id="equityVolatility" type="number" min="0" step="0.1" />
-                </label>
+                <div class="field-grid field-grid-3">
+                  <label class="field">
+                    <span class="field-label with-help">
+                      <span>Monte Carlo runs</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Monte Carlo runs help"
+                        title="Number of simulated return paths. More runs are smoother and more stable, but slower."
+                      >?</button>
+                    </span>
+                    <input id="monteCarloRuns" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
 
-                <label class="field">
-                  <span class="field-label">Bond return %</span>
-                  <input id="bondReturn" type="number" step="0.1" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Bond volatility %</span>
-                  <input id="bondVolatility" type="number" min="0" step="0.1" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label with-help">
-                    <span>Cashlike return %</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Cashlike return help" title="Expected annual return for the cashlike bucket, such as savings or QMMF held for near-term spending.">?</button>
-                  </span>
-                  <input id="cashlikeReturn" type="number" step="0.1" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label with-help">
-                    <span>Cashlike volatility %</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Cashlike volatility help" title="Expected annual variability of the cashlike bucket. This should usually be low compared with equities or bonds.">?</button>
-                  </span>
-                  <input id="cashlikeVolatility" type="number" min="0" step="0.1" />
-                </label>
-
-                <label class="field field-span-2">
-                  <span class="field-label">Inflation %</span>
-                  <input id="inflation" type="number" min="0" step="0.1" />
-                </label>
-              </div>
-            </div>
-
-            <div class="input-section">
-              <h3>Simulation settings</h3>
-              <div class="field-grid">
-                <label class="field">
-                  <span class="field-label with-help">
-                    <span>Monte Carlo runs</span>
-                    <button class="help" type="button" tabindex="-1" aria-label="Monte Carlo runs help" title="Number of simulated return paths. More runs are smoother and more stable, but slower.">?</button>
-                  </span>
-                  <input id="monteCarloRuns" type="text" inputmode="numeric" data-format="integer" />
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Seed</span>
-                  <input id="seed" type="text" inputmode="numeric" data-format="integer" placeholder="Optional" />
-                </label>
-              </div>
+                  <label class="field">
+                    <span class="field-label">Seed</span>
+                    <input id="seed" type="text" inputmode="numeric" data-format="integer" placeholder="Optional" />
+                  </label>
+                </div>
+              </section>
             </div>
 
             <div class="model-note">
-              Total household spending starts from the initial withdrawal amount and normally rises with inflation. If the inflation-skip rule is enabled, inflation increases are skipped after negative return years. State pension starts at the chosen pension age for each person and reduces the amount drawn from the portfolio. Withdrawals are taken from cashlike assets first, then bonds, then equities.
-            </div>
-          </aside>
-
-          <section class="panel guidance-panel">
-            <div class="panel-header">
-              <div>
-                <h2>Advanced roadmap</h2>
-                <p>This panel is now where the next credibility and realism layers belong.</p>
-              </div>
-            </div>
-
-            <div class="guidance-grid">
-              <article class="info-card">
-                <h3>P0 next</h3>
-                <p>Monthly cashflow engine, fuller Guyton-Klinger rules, better inflation handling, and correlation-aware return modelling fit naturally here without cluttering Plan.</p>
-              </article>
-
-              <article class="info-card">
-                <h3>P1 later</h3>
-                <p>Tax wrappers, fees, DB pension, annuities, inheritance flows, and glidepaths should each become their own advanced blocks once the engine structure is ready.</p>
-              </article>
-
-              <article class="info-card">
-                <h3>Why this matters</h3>
-                <p>The simulator now has a clear place for technical controls. That makes the next refactor simpler: splitting form logic out of <code>app.js</code> without mixing core plan inputs and engine parameters.</p>
-              </article>
+              The simulator can keep a high portfolio survival rate even when starting spend is aggressive, because the guardrails are allowed to cut spending over time. Use the yearly results and spending chart to see how far withdrawals are being reduced.
             </div>
           </section>
         </div>
@@ -382,32 +426,85 @@
             <div class="panel-header results-meta-header">
               <div>
                 <h2>Results</h2>
-                <p>Charts and yearly outputs from the current deterministic base case and Monte Carlo engine.</p>
+                <p>Charts and yearly outputs from the current deterministic base case and Monte Carlo engine, including the effect of Guyton-Klinger guardrails.</p>
               </div>
-              <div class="result-meta" id="resultMeta">—</div>
+            </div>
+
+            <div class="results-toolbar">
+              <div class="chart-mode-group" role="group" aria-label="Chart mode">
+                <div class="chart-mode-label">Chart mode</div>
+                <div class="mode-switch">
+                  <label class="mode-option">
+                    <input id="chartModeNominal" type="radio" name="chartMode" checked />
+                    <span>Nominal</span>
+                  </label>
+                  <label class="mode-option">
+                    <input id="chartModeReal" type="radio" name="chartMode" />
+                    <span>Real</span>
+                  </label>
+                </div>
+                <input id="showRealValues" type="checkbox" hidden />
+              </div>
+
+              <div class="chart-mode-group" role="group" aria-label="Guardrails mode">
+                <div class="chart-mode-label">Guardrails</div>
+                <div class="mode-switch">
+                  <label class="mode-option">
+                    <input id="guytonKlingerOn" type="radio" name="guytonKlingerMode" checked />
+                    <span>On</span>
+                  </label>
+                  <label class="mode-option">
+                    <input id="guytonKlingerOff" type="radio" name="guytonKlingerMode" />
+                    <span>Off</span>
+                  </label>
+                </div>
+              </div>
+
+              <label class="toggle-chip" for="showFullTable">
+                <input id="showFullTable" type="checkbox" checked />
+                <span>Show full yearly table</span>
+              </label>
+            </div>
+
+            <div class="results-explainer">
+              <p>Nominal shows the future pound amounts you would actually see at the time.</p>
+              <p>Real removes inflation so everything is shown in today’s spending power.</p>
+              <p>For retirement income planning, real view is usually the better guide because the guardrails adjust spending using inflation.</p>
             </div>
           </section>
 
-          <section class="chart-card panel">
-            <div class="card-header">
-              <h2>Portfolio projection</h2>
-              <p>Median, percentile band, and deterministic base case.</p>
-            </div>
-            <canvas id="portfolioChart" height="360"></canvas>
-          </section>
+          <div class="results-chart-grid">
+            <section class="chart-card panel">
+              <div class="card-header chart-card-header">
+                <div class="card-title-block">
+                  <h2>Portfolio projection</h2>
+                  <p>Shows the central outcome, the likely range of outcomes, and the base-case path.</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap">
+                <canvas id="portfolioChart" height="340"></canvas>
+              </div>
+            </section>
 
-          <section class="chart-card panel">
-            <div class="card-header">
-              <h2>Annual household spending path</h2>
-              <p>Household spending, state pension, other income, windfall effects, and portfolio withdrawals.</p>
-            </div>
-            <canvas id="spendingChart" height="320"></canvas>
-          </section>
+            <section class="chart-card panel">
+              <div class="card-header chart-card-header">
+                <div class="card-title-block">
+                  <h2>Spending path</h2>
+                  <p>Shows target spending, actual spending after guardrail changes, pension income, and portfolio withdrawals.</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap">
+                <canvas id="spendingChart" height="340"></canvas>
+              </div>
+            </section>
+          </div>
 
           <section class="table-card panel" id="tableCard">
             <div class="card-header">
-              <h2>Yearly results</h2>
-              <p>Base-case projection using the deterministic expected return path.</p>
+              <div class="card-title-block">
+                <h2>Yearly results</h2>
+                <p>Shows the year-by-year base-case path including spending, pension income, withdrawals and portfolio value.</p>
+              </div>
             </div>
             <div class="table-wrap">
               <table id="resultsTable">
