@@ -27,36 +27,42 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency) {
 
   const rows = result.baseCase.rows;
 
-  drawLineChart(canvas, {
+drawLineChart(canvas, {
     labels: rows.map((row) => row.year),
     lines: [
-      {
-        label: 'Planned household spending',
-        values: rows.map((row) => (useReal ? row.targetSpendingReal : row.targetSpendingNominal)),
-        color: '#7c3aed',
-        width: 2,
-        dash: [8, 6]
-      },
-      {
-        label: 'Actual spending after guardrails',
-        values: rows.map((row) => (useReal ? row.actualSpendingReal : row.actualSpendingNominal)),
-        color: '#4f46e5',
-        width: 3
-      },
-      {
-        label: 'State pension income',
-        values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
-        color: '#15803d',
-        width: 2.5
-      },
-      {
-        label: 'Portfolio withdrawals',
-        values: rows.map((row) => (useReal ? row.withdrawalReal : row.withdrawalNominal)),
-        color: '#dc2626',
-        width: 2.5
-      }
-    ],
-    yFormatter: formatCurrency
+  {
+    label: 'Planned household spending',
+    values: rows.map((row) => (useReal ? row.targetSpendingReal : row.targetSpendingNominal)),
+    color: '#7c3aed',
+    width: 2,
+    dash: [8, 6]
+  },
+  {
+    label: 'Actual spending after guardrails',
+    values: rows.map((row) => (useReal ? row.actualSpendingReal : row.actualSpendingNominal)),
+    color: '#4f46e5',
+    width: 3
+  },
+  {
+    label: 'State pension income',
+    values: rows.map((row) => (useReal ? row.statePensionReal : row.statePensionNominal)),
+    color: '#15803d',
+    width: 2.5
+  },
+  {
+    label: 'Other income',
+    values: rows.map((row) => (useReal ? row.otherIncomeReal : row.otherIncomeNominal)),
+    color: '#059669',
+    width: 2.5
+  },
+  {
+    label: 'Portfolio withdrawals',
+    values: rows.map((row) => (useReal ? row.withdrawalReal : row.withdrawalNominal)),
+    color: '#dc2626',
+    width: 2.5
+  }
+],
+yFormatter: formatCurrency
   });
 }
 
