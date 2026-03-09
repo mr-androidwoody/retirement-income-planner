@@ -869,3 +869,58 @@ canvas{
     grid-template-columns:minmax(0, 1fr);
   }
 }
+/* ================================
+   Spending Cut Diagnostics
+   ================================ */
+
+.cut-badge{
+  display:inline-block;
+  margin-left:8px;
+  padding:2px 8px;
+  font-size:0.72rem;
+  font-weight:700;
+  border-radius:999px;
+  line-height:1.3;
+  vertical-align:middle;
+}
+
+/* Mild cuts (<5%) */
+.cut-mild td{
+  background:#fefce8;
+}
+
+.cut-badge.cut-mild{
+  background:#fde68a;
+  color:#92400e;
+}
+
+/* Moderate cuts (5–10%) */
+.cut-moderate td{
+  background:#fff7ed;
+}
+
+.cut-badge.cut-moderate{
+  background:#fdba74;
+  color:#7c2d12;
+}
+
+/* Severe cuts (>10%) */
+.cut-severe td{
+  background:#fee2e2;
+}
+
+.cut-badge.cut-severe{
+  background:#f87171;
+  color:#7f1d1d;
+}
+
+/* First spending cut year */
+.first-cut-year td{
+  border-left:4px solid #f59e0b;
+}
+
+/* Worst spending cut year */
+.worst-cut-year td{
+  border-left:4px solid #ef4444;
+  font-weight:600;
+}
