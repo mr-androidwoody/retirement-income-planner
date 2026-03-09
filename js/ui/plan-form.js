@@ -26,11 +26,11 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     setFieldValue('windfallAmount', defaults.windfallAmount ?? 0, true);
     setFieldValue('windfallYear', defaults.windfallYear ?? 0, true);
 
-    setFieldValue('person1Name', defaults.person1Name ?? '');
+    setFieldValue('person1Name', '');
     setFieldValue('person1Age', defaults.person1Age);
     setFieldValue('person1PensionAge', defaults.person1PensionAge);
 
-    setFieldValue('person2Name', defaults.person2Name ?? '');
+    setFieldValue('person2Name', '');
     setFieldValue('person2Age', defaults.person2Age);
     setFieldValue('person2PensionAge', defaults.person2PensionAge);
   }
