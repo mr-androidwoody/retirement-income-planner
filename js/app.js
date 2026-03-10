@@ -30,7 +30,18 @@ const els = {
   person2PensionAge: document.getElementById('person2PensionAge'),
     
   statePensionToday: document.getElementById('statePensionToday'),
+  person1GetsFullPension: document.getElementById('person1GetsFullPension'),
+  person1OtherIncomeToday: document.getElementById('person1OtherIncomeToday'),
+  person1OtherIncomeYears: document.getElementById('person1OtherIncomeYears'),
+  person1WindfallAmount: document.getElementById('person1WindfallAmount'),
+  person1WindfallYear: document.getElementById('person1WindfallYear'),
 
+  person2GetsFullPension: document.getElementById('person2GetsFullPension'),
+  person2OtherIncomeToday: document.getElementById('person2OtherIncomeToday'),
+  person2OtherIncomeYears: document.getElementById('person2OtherIncomeYears'),
+  person2WindfallAmount: document.getElementById('person2WindfallAmount'),
+  person2WindfallYear: document.getElementById('person2WindfallYear'),
+  
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
   adjustmentSize: document.getElementById('adjustmentSize'),
