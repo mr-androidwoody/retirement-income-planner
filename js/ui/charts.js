@@ -59,19 +59,6 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
     }))
     .filter((x) => x.cut > 0);
 
-  const shortfallYears = rows
-    .map((r, i) => {
-      const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
-      const actual = useReal ? r.spendingReal : r.spendingNominal;
-      return {
-        index: i,
-        shortfall: Math.max(0, target - actual)
-      };
-    })
-    .filter((x) => x.shortfall > 0);
-
-  const shortfallMarkerIndexes = shortfallYears.map((x) => x.index);
-
   drawLineChart(canvas, {
     labels: rows.map((r) => r.year),
 
@@ -154,18 +141,6 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
         : null
     ].filter(Boolean),
 
-    annotationBox:
-      cutDiagnostics?.firstShortfallYear != null
-        ? {
-            title: 'Shortfall markers',
-            lines: [
-              'Dotted lines mark the first and worst spending shortfall years.',
-              'Red shading shows the gap between target and actual spending.'
-            ]
-          }
-        : null,
-
-    shortfallMarkerIndexes,
     yFormatter: formatCurrency
   });
 }
@@ -179,6 +154,35 @@ function drawLineChart(canvas, config) {
 
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
+
+  const state = canvas.__chartHoverState || {
+    hoverX: null,
+    hoverY: null,
+    isHovering: false,
+    listenersBound: false
+  };
+
+  canvas.__chartHoverState = state;
+  canvas.__chartConfig = config;
+
+  if (!state.listenersBound) {
+    canvas.addEventListener('mousemove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      state.hoverX = event.clientX - rect.left;
+      state.hoverY = event.clientY - rect.top;
+      state.isHovering = true;
+      drawLineChart(canvas, canvas.__chartConfig);
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      state.hoverX = null;
+      state.hoverY = null;
+      state.isHovering = false;
+      drawLineChart(canvas, canvas.__chartConfig);
+    });
+
+    state.listenersBound = true;
+  }
 
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
@@ -341,8 +345,19 @@ function drawLineChart(canvas, config) {
     });
   }
 
-  if (config.annotationBox) {
-    drawAnnotationBox(ctx, config.annotationBox, width, padding);
+  const hoverPayload = state.isHovering
+    ? getHoverPayload(config, state, {
+        width: plotWidth,
+        height: plotHeight,
+        left: padding.left,
+        top: padding.top,
+        minY,
+        maxY
+      })
+    : null;
+
+  if (hoverPayload) {
+    drawHoverOverlay(ctx, hoverPayload, width, height, padding);
   }
 
   drawXAxis(ctx, config.labels, width, height, padding);
@@ -400,7 +415,7 @@ function drawGapBand(ctx, lower, upper, geom) {
 
 function drawPointHighlights(ctx, highlights, geom) {
   highlights.forEach((highlight) => {
-    const { index, values, color, label } = highlight;
+    const { index, values, color } = highlight;
     if (index < 0 || index >= values.length) return;
 
     const value = values[index];
@@ -421,44 +436,115 @@ function drawPointHighlights(ctx, highlights, geom) {
     ctx.fillStyle = color;
     ctx.fill();
 
-    const boxWidth = Math.max(88, ctx.measureText(label).width + 16);
-    const boxHeight = 24;
-    const boxX = Math.min(geom.left + geom.width - boxWidth, x + 10);
-    const boxY = Math.max(geom.top + 4, y - 30);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.95)';
-    roundRect(ctx, boxX, boxY, boxWidth, boxHeight, 8);
-    ctx.fill();
-
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    roundRect(ctx, boxX, boxY, boxWidth, boxHeight, 8);
-    ctx.stroke();
-
-    ctx.fillStyle = '#334155';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(label, boxX + 8, boxY + boxHeight / 2);
-
     ctx.restore();
   });
 }
 
-function drawAnnotationBox(ctx, annotation, width, padding) {
-  const title = annotation.title || '';
-  const lines = annotation.lines || [];
+function getHoverPayload(config, state, geom) {
+  const markers = config.verticalMarkers || [];
+  const pointHighlights = config.pointHighlights || [];
+  const hoverRadius = 10;
+
+  for (const marker of markers) {
+    const x = geom.left + getX(marker.index, config.labels.length, geom.width);
+    if (Math.abs(state.hoverX - x) <= hoverRadius) {
+      return {
+        x,
+        y: geom.top + 16,
+        title: marker.label,
+        lines: getMarkerDetailLines(marker.label)
+      };
+    }
+  }
+
+  for (const point of pointHighlights) {
+    const { index, values, label } = point;
+    if (index < 0 || index >= values.length) continue;
+
+    const value = values[index];
+    if (!Number.isFinite(value)) continue;
+
+    const x = geom.left + getX(index, values.length, geom.width);
+    const y = geom.top + getY(value, geom.minY, geom.maxY, geom.height);
+
+    const dx = state.hoverX - x;
+    const dy = state.hoverY - y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance <= hoverRadius + 2) {
+      return {
+        x,
+        y,
+        title: label,
+        lines: getMarkerDetailLines(label)
+      };
+    }
+  }
+
+  return null;
+}
+
+function getMarkerDetailLines(label) {
+  switch (label) {
+    case 'First cut':
+      return [
+        'This is the first year spending is reduced by guardrails.',
+        'Actual spending falls below the planned level.'
+      ];
+    case 'Worst cut':
+      return [
+        'This is the year with the largest guardrail spending cut.',
+        'The gap to target spending is at its biggest cut percentage.'
+      ];
+    case 'First shortfall':
+    case 'Shortfall begins':
+      return [
+        'This is the first year target spending is not fully funded.',
+        'Red shading shows the unfunded gap versus planned spending.'
+      ];
+    case 'Worst shortfall':
+      return [
+        'This is the year with the largest £ spending shortfall.',
+        'The red shaded band is widest here.'
+      ];
+    default:
+      return [
+        'This marker highlights a spending plan stress point.'
+      ];
+  }
+}
+
+function drawHoverOverlay(ctx, payload, width, height, padding) {
+  const title = payload.title || '';
+  const lines = payload.lines || [];
   if (!title && !lines.length) return;
 
-  const boxWidth = Math.min(320, width - padding.left - padding.right - 16);
+  const widths = [ctx.measureText(title).width, ...lines.map((line) => ctx.measureText(line).width), 140];
+  const maxTextWidth = Math.max(...widths);
+
+  const boxWidth = Math.min(340, maxTextWidth + 24);
   const lineHeight = 16;
   const titleHeight = title ? 18 : 0;
   const boxHeight = 16 + titleHeight + lines.length * lineHeight + 12;
-  const x = width - padding.right - boxWidth;
-  const y = padding.top + 10;
+
+  let x = payload.x + 14;
+  let y = payload.y - boxHeight - 10;
+
+  if (x + boxWidth > width - padding.right) {
+    x = payload.x - boxWidth - 14;
+  }
+
+  if (x < padding.left + 4) {
+    x = padding.left + 4;
+  }
+
+  if (y < padding.top + 4) {
+    y = payload.y + 12;
+  }
 
   ctx.save();
 
-  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.fillStyle = 'rgba(255,255,255,0.97)';
   roundRect(ctx, x, y, boxWidth, boxHeight, 10);
   ctx.fill();
 
