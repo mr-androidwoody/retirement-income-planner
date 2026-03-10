@@ -32,7 +32,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
     }
 
     const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
-    const actual = useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+    const actual = useReal ? r.spendingReal : r.spendingNominal;
     const shortfall = Math.max(0, target - actual);
 
     if (shortfall > 0) {
@@ -122,7 +122,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
 
   const totals = rows.reduce(
     (acc, r) => {
-      acc.spending += useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+      acc.spending += useReal ? r.spendingReal : r.spendingNominal;
       acc.withdrawals += useReal ? r.withdrawalReal : r.withdrawalNominal;
       acc.pension += useReal ? r.statePensionReal : r.statePensionNominal;
       acc.otherIncome += useReal ? r.otherIncomeReal : r.otherIncomeNominal;
@@ -277,7 +277,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
 
   const totals = rows.reduce(
     (acc, r) => {
-      acc.spending += useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+      acc.spending += useReal ? r.spendingReal : r.spendingNominal;
       acc.withdrawals += useReal ? r.withdrawalReal : r.withdrawalNominal;
       return acc;
     },
@@ -300,7 +300,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
 
   rows.forEach((r, i) => {
     const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
-    const actual = useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+    const actual = useReal ? r.spendingReal : r.spendingNominal;
     const shortfall = Math.max(0, target - actual);
 
     if (shortfall > 0) {

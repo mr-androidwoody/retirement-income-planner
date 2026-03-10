@@ -30,7 +30,6 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
   `;
 
   tbody.innerHTML = rows.map((row, index) => {
-
     const cut = row.spendingCutPercent || 0;
 
     let severity = '';
@@ -50,7 +49,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     }
 
     const target = useReal ? row.targetSpendingReal : row.targetSpendingNominal;
-    const actual = useReal ? row.actualSpendingReal : row.actualSpendingNominal;
+    const actual = useReal ? row.spendingReal : row.spendingNominal;
     const shortfall = Math.max(0, target - actual);
 
     let shortfallBadge = '';
