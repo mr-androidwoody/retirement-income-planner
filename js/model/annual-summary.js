@@ -32,7 +32,6 @@ export function summariseAnnual(monthlyLedger) {
     ...row,
     startPortfolioReal: row.startPortfolioNominal / row.inflationIndex,
     targetSpendingReal: row.targetSpendingNominal / row.inflationIndex,
-    targetSpendingNominal: row.targetSpendingNominal,
     spendingReal: row.spendingNominal / row.inflationIndex,
     statePensionReal: row.statePensionNominal / row.inflationIndex,
     otherIncomeReal: row.otherIncomeNominal / row.inflationIndex,
