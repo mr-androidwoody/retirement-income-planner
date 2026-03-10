@@ -33,7 +33,13 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
 
     const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
     const actual = useReal ? r.spendingReal : r.spendingNominal;
-    const shortfall = Math.max(0, target - actual);
+    const portfolioEnd = useReal ? r.endPortfolioReal : r.endPortfolioNominal;
+
+    let shortfall = Math.max(0, target - actual);
+
+    if (shortfall === 0 && portfolioEnd <= 0 && target > actual) {
+      shortfall = target - actual;
+    }
 
     if (shortfall > 0) {
       shortfallYears += 1;
@@ -301,7 +307,13 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   rows.forEach((r, i) => {
     const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
     const actual = useReal ? r.spendingReal : r.spendingNominal;
-    const shortfall = Math.max(0, target - actual);
+    const portfolioEnd = useReal ? r.endPortfolioReal : r.endPortfolioNominal;
+
+    let shortfall = Math.max(0, target - actual);
+
+    if (shortfall === 0 && portfolioEnd <= 0 && target > actual) {
+      shortfall = target - actual;
+    }
 
     if (shortfall > 0) {
       if (firstShortfallYear === null) {
