@@ -40,8 +40,8 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
   );
 
   const withdrawalValues = rows.map((r, i) => {
-    const spending = useReal ? r.actualSpendingReal : r.actualSpendingNominal;
-    return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
+  const spending = useReal ? r.spendingReal : r.spendingNominal;
+  return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
   });
 
   const cutYears = rows
@@ -87,9 +87,9 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
       },
       {
         label: 'Actual spending after guardrails',
-        values: rows.map((r) =>
-          useReal ? r.actualSpendingReal : r.actualSpendingNominal
-        ),
+         values: rows.map((r) =>
+           useReal ? r.spendingReal : r.spendingNominal
+         ),
         color: '#4f46e5',
         width: 3,
         markers: cutYears.map((c) => c.index)
@@ -97,11 +97,17 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
     ],
 
     verticalMarkers: [
-      cutDiagnostics?.firstCutYear != null
+        cutDiagnostics?.firstCutYear != null
         ? { index: cutDiagnostics.firstCutYear, color: '#f59e0b', label: 'First cut' }
         : null,
-      cutDiagnostics?.worstCutYear != null
+        cutDiagnostics?.worstCutYear != null
         ? { index: cutDiagnostics.worstCutYear, color: '#ef4444', label: 'Worst cut' }
+        : null,
+        cutDiagnostics?.firstShortfallYear != null
+        ? { index: cutDiagnostics.firstShortfallYear, color: '#dc2626', label: 'First shortfall' }
+        : null,
+        cutDiagnostics?.worstShortfallYear != null
+        ? { index: cutDiagnostics.worstShortfallYear, color: '#7f1d1d', label: 'Worst shortfall' }
         : null
     ].filter(Boolean),
 
