@@ -19,6 +19,7 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     setFieldValue('years', defaults.years);
     setFieldValue('initialPortfolio', defaults.initialPortfolio, true);
     setFieldValue('initialSpending', defaults.initialSpending, true);
+    setFieldValue('initialWithdrawalRate', '');
     setFieldValue('equityAllocation', defaults.equityAllocation);
     setFieldValue('bondAllocation', defaults.bondAllocation);
     setFieldValue('cashlikeAllocation', defaults.cashlikeAllocation);
@@ -26,7 +27,7 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
 
     setFieldValue('statePensionToday', sharedStatePensionToday, true);
 
-    setFieldValue('person1Name', defaults.person1Name ?? '');
+    setFieldValue('person1Name', '');
     setFieldValue('person1Age', defaults.person1Age);
     setFieldValue('person1PensionAge', defaults.person1PensionAge);
     elements.person1GetsFullPension.checked = resolveGetsFullPension(defaults, 'person1');
@@ -35,7 +36,7 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     setFieldValue('person1WindfallAmount', defaults.person1WindfallAmount ?? 0, true);
     setFieldValue('person1WindfallYear', defaults.person1WindfallYear ?? 0, true);
 
-    setFieldValue('person2Name', defaults.person2Name ?? '');
+    setFieldValue('person2Name', '');
     setFieldValue('person2Age', defaults.person2Age);
     setFieldValue('person2PensionAge', defaults.person2PensionAge);
     elements.person2GetsFullPension.checked = resolveGetsFullPension(defaults, 'person2');
