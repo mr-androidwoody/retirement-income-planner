@@ -31,6 +31,14 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
 
   const rows = result.baseCase.rows;
 
+  const targetValues = rows.map((r) =>
+    useReal ? r.targetSpendingReal : r.targetSpendingNominal
+  );
+
+  const actualValues = rows.map((r) =>
+    useReal ? r.spendingReal : r.spendingNominal
+  );
+
   const pensionValues = rows.map((r) =>
     useReal ? r.statePensionReal : r.statePensionNominal
   );
@@ -40,8 +48,8 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
   );
 
   const withdrawalValues = rows.map((r, i) => {
-  const spending = useReal ? r.spendingReal : r.spendingNominal;
-  return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
+    const spending = useReal ? r.spendingReal : r.spendingNominal;
+    return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
   });
 
   const cutYears = rows
@@ -50,6 +58,19 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
       cut: r.spendingCutPercent || 0
     }))
     .filter((x) => x.cut > 0);
+
+  const shortfallYears = rows
+    .map((r, i) => {
+      const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
+      const actual = useReal ? r.spendingReal : r.spendingNominal;
+      return {
+        index: i,
+        shortfall: Math.max(0, target - actual)
+      };
+    })
+    .filter((x) => x.shortfall > 0);
+
+  const shortfallMarkerIndexes = shortfallYears.map((x) => x.index);
 
   drawLineChart(canvas, {
     labels: rows.map((r) => r.year),
@@ -75,21 +96,24 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
       }
     ],
 
+    gapBand: {
+      upper: targetValues,
+      lower: actualValues,
+      fillStyle: 'rgba(220, 38, 38, 0.16)',
+      strokeStyle: '#dc2626'
+    },
+
     lines: [
       {
         label: 'Planned household spending',
-        values: rows.map((r) =>
-          useReal ? r.targetSpendingReal : r.targetSpendingNominal
-        ),
+        values: targetValues,
         color: '#7c3aed',
         width: 2,
         dash: [8, 6]
       },
       {
         label: 'Actual spending after guardrails',
-         values: rows.map((r) =>
-           useReal ? r.spendingReal : r.spendingNominal
-         ),
+        values: actualValues,
         color: '#4f46e5',
         width: 3,
         markers: cutYears.map((c) => c.index)
@@ -97,20 +121,51 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
     ],
 
     verticalMarkers: [
-        cutDiagnostics?.firstCutYear != null
+      cutDiagnostics?.firstCutYear != null
         ? { index: cutDiagnostics.firstCutYear, color: '#f59e0b', label: 'First cut' }
         : null,
-        cutDiagnostics?.worstCutYear != null
+      cutDiagnostics?.worstCutYear != null
         ? { index: cutDiagnostics.worstCutYear, color: '#ef4444', label: 'Worst cut' }
         : null,
-        cutDiagnostics?.firstShortfallYear != null
+      cutDiagnostics?.firstShortfallYear != null
         ? { index: cutDiagnostics.firstShortfallYear, color: '#dc2626', label: 'First shortfall' }
         : null,
-        cutDiagnostics?.worstShortfallYear != null
+      cutDiagnostics?.worstShortfallYear != null
         ? { index: cutDiagnostics.worstShortfallYear, color: '#7f1d1d', label: 'Worst shortfall' }
         : null
     ].filter(Boolean),
 
+    pointHighlights: [
+      cutDiagnostics?.firstShortfallYear != null
+        ? {
+            index: cutDiagnostics.firstShortfallYear,
+            values: targetValues,
+            color: '#dc2626',
+            label: 'Shortfall begins'
+          }
+        : null,
+      cutDiagnostics?.worstShortfallYear != null
+        ? {
+            index: cutDiagnostics.worstShortfallYear,
+            values: targetValues,
+            color: '#7f1d1d',
+            label: 'Worst shortfall'
+          }
+        : null
+    ].filter(Boolean),
+
+    annotationBox:
+      cutDiagnostics?.firstShortfallYear != null
+        ? {
+            title: 'Shortfall markers',
+            lines: [
+              'Dotted lines mark the first and worst spending shortfall years.',
+              'Red shading shows the gap between target and actual spending.'
+            ]
+          }
+        : null,
+
+    shortfallMarkerIndexes,
     yFormatter: formatCurrency
   });
 }
@@ -130,7 +185,7 @@ function drawLineChart(canvas, config) {
 
   const width = Math.max(420, Math.floor(rect.width || canvas.clientWidth || 420));
   const baseHeight = Number(canvas.dataset.baseHeight || canvas.getAttribute('height')) || 320;
-canvas.dataset.baseHeight = String(baseHeight);
+  canvas.dataset.baseHeight = String(baseHeight);
 
   ctx.font = '12px Inter, system-ui, sans-serif';
 
@@ -145,7 +200,14 @@ canvas.dataset.baseHeight = String(baseHeight);
       label: a.label,
       color: a.strokeColor || a.color,
       width: 2.5
-    }))
+    })),
+    ...(config.gapBand
+      ? [{
+          label: 'Shortfall gap',
+          color: config.gapBand.strokeStyle || '#dc2626',
+          width: 2
+        }]
+      : [])
   ];
 
   const legendLayout = measureLegend(ctx, legendItems, width);
@@ -175,6 +237,11 @@ canvas.dataset.baseHeight = String(baseHeight);
 
   if (config.band) {
     allValues.push(...config.band.lower, ...config.band.upper);
+  }
+
+  if (config.gapBand) {
+    allValues.push(...config.gapBand.lower.filter(Number.isFinite));
+    allValues.push(...config.gapBand.upper.filter(Number.isFinite));
   }
 
   (config.stackedAreas || []).forEach((area) => {
@@ -224,6 +291,19 @@ canvas.dataset.baseHeight = String(baseHeight);
     });
   }
 
+  if (config.gapBand) {
+    drawGapBand(ctx, config.gapBand.lower, config.gapBand.upper, {
+      width: plotWidth,
+      height: plotHeight,
+      left: padding.left,
+      top: padding.top,
+      minY,
+      maxY,
+      fill: config.gapBand.fillStyle,
+      stroke: config.gapBand.strokeStyle
+    });
+  }
+
   if (config.stackedAreas?.length) {
     drawStackedAreas(ctx, config.stackedAreas, {
       width: plotWidth,
@@ -250,8 +330,174 @@ canvas.dataset.baseHeight = String(baseHeight);
     });
   });
 
+  if (config.pointHighlights?.length) {
+    drawPointHighlights(ctx, config.pointHighlights, {
+      width: plotWidth,
+      height: plotHeight,
+      left: padding.left,
+      top: padding.top,
+      minY,
+      maxY
+    });
+  }
+
+  if (config.annotationBox) {
+    drawAnnotationBox(ctx, config.annotationBox, width, padding);
+  }
+
   drawXAxis(ctx, config.labels, width, height, padding);
   drawLegend(ctx, width, height, legendLayout);
+}
+
+function drawGapBand(ctx, lower, upper, geom) {
+  if (!lower.length || lower.length !== upper.length) return;
+
+  const ranges = [];
+  let start = null;
+
+  for (let i = 0; i < upper.length; i += 1) {
+    const hasGap = Number.isFinite(upper[i]) && Number.isFinite(lower[i]) && upper[i] > lower[i];
+
+    if (hasGap && start === null) {
+      start = i;
+    }
+
+    if ((!hasGap || i === upper.length - 1) && start !== null) {
+      const end = hasGap && i === upper.length - 1 ? i : i - 1;
+      ranges.push([start, end]);
+      start = null;
+    }
+  }
+
+  ranges.forEach(([startIndex, endIndex]) => {
+    ctx.beginPath();
+
+    for (let i = startIndex; i <= endIndex; i += 1) {
+      const x = geom.left + getX(i, upper.length, geom.width);
+      const y = geom.top + getY(upper[i], geom.minY, geom.maxY, geom.height);
+      if (i === startIndex) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+
+    for (let i = endIndex; i >= startIndex; i -= 1) {
+      const x = geom.left + getX(i, lower.length, geom.width);
+      const y = geom.top + getY(lower[i], geom.minY, geom.maxY, geom.height);
+      ctx.lineTo(x, y);
+    }
+
+    ctx.closePath();
+    ctx.fillStyle = geom.fill;
+    ctx.fill();
+
+    ctx.save();
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = geom.stroke;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function drawPointHighlights(ctx, highlights, geom) {
+  highlights.forEach((highlight) => {
+    const { index, values, color, label } = highlight;
+    if (index < 0 || index >= values.length) return;
+
+    const value = values[index];
+    if (!Number.isFinite(value)) return;
+
+    const x = geom.left + getX(index, values.length, geom.width);
+    const y = geom.top + getY(value, geom.minY, geom.maxY, geom.height);
+
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    const boxWidth = Math.max(88, ctx.measureText(label).width + 16);
+    const boxHeight = 24;
+    const boxX = Math.min(geom.left + geom.width - boxWidth, x + 10);
+    const boxY = Math.max(geom.top + 4, y - 30);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    roundRect(ctx, boxX, boxY, boxWidth, boxHeight, 8);
+    ctx.fill();
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    roundRect(ctx, boxX, boxY, boxWidth, boxHeight, 8);
+    ctx.stroke();
+
+    ctx.fillStyle = '#334155';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, boxX + 8, boxY + boxHeight / 2);
+
+    ctx.restore();
+  });
+}
+
+function drawAnnotationBox(ctx, annotation, width, padding) {
+  const title = annotation.title || '';
+  const lines = annotation.lines || [];
+  if (!title && !lines.length) return;
+
+  const boxWidth = Math.min(320, width - padding.left - padding.right - 16);
+  const lineHeight = 16;
+  const titleHeight = title ? 18 : 0;
+  const boxHeight = 16 + titleHeight + lines.length * lineHeight + 12;
+  const x = width - padding.right - boxWidth;
+  const y = padding.top + 10;
+
+  ctx.save();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  roundRect(ctx, x, y, boxWidth, boxHeight, 10);
+  ctx.fill();
+
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 10);
+  ctx.stroke();
+
+  let textY = y + 16;
+
+  if (title) {
+    ctx.fillStyle = '#0f172a';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, x + 12, textY);
+    textY += titleHeight;
+  }
+
+  ctx.fillStyle = '#475569';
+  lines.forEach((line) => {
+    ctx.fillText(line, x + 12, textY);
+    textY += lineHeight;
+  });
+
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
 }
 
 function drawStackedAreas(ctx, areas, geom) {
