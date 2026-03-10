@@ -354,6 +354,8 @@ function simulatePath(inputs, annualReturns) {
       requestedWithdrawalNominal
     );
 
+    const actualSpendingNominal = totalNonPortfolioIncomeNominal + actualWithdrawalNominal;
+
     const surplusIncomeNominal = Math.max(
       0,
       totalNonPortfolioIncomeNominal - spendingNominal
@@ -393,7 +395,7 @@ function simulatePath(inputs, annualReturns) {
     const endPortfolioReal = endPortfolioNominal / inflationIndex;
 
     const targetSpendingReal = targetSpendingNominal / inflationIndex;
-    const actualSpendingReal = spendingNominal / inflationIndex;
+    const actualSpendingReal = actualSpendingNominal / inflationIndex;
     const pensionReal = pensionNominal / inflationIndex;
     const otherIncomeReal = otherIncomeNominal / inflationIndex;
     const windfallReal = windfallNominal / inflationIndex;
@@ -407,9 +409,9 @@ function simulatePath(inputs, annualReturns) {
       startPortfolioReal,
       targetSpendingNominal,
       targetSpendingReal,
-      actualSpendingNominal: spendingNominal,
+      actualSpendingNominal,
       actualSpendingReal,
-      spendingNominal,
+      spendingNominal: actualSpendingNominal,
       spendingReal: actualSpendingReal,
       statePensionNominal: pensionNominal,
       statePensionReal: pensionReal,
@@ -421,11 +423,11 @@ function simulatePath(inputs, annualReturns) {
       requestedWithdrawalReal: requestedWithdrawalNominal / inflationIndex,
       withdrawalNominal: actualWithdrawalNominal,
       withdrawalReal,
-      spendingCutNominal: Math.max(0, targetSpendingNominal - spendingNominal),
+      spendingCutNominal: Math.max(0, targetSpendingNominal - actualSpendingNominal),
       spendingCutReal: Math.max(0, targetSpendingReal - actualSpendingReal),
       spendingCutPercent:
         targetSpendingNominal > 0
-          ? Math.max(0, 1 - spendingNominal / targetSpendingNominal)
+          ? Math.max(0, 1 - actualSpendingNominal / targetSpendingNominal)
           : 0,
       endPortfolioNominal,
       endPortfolioReal
@@ -444,7 +446,7 @@ function simulatePath(inputs, annualReturns) {
       previousMarketReturn < 0;
 
     const nextTargetSpendingNominal = targetSpendingNominal * (1 + inflationRate);
-    let nextActualSpendingNominal = spendingNominal;
+    let nextActualSpendingNominal = actualSpendingNominal;
 
     if (!shouldSkipInflation) {
       nextActualSpendingNominal *= 1 + inflationRate;
@@ -471,7 +473,16 @@ function simulatePath(inputs, annualReturns) {
     }
 
     targetSpendingNominal = Math.max(0, nextTargetSpendingNominal);
-    spendingNominal = Math.max(0, nextActualSpendingNominal);
+
+    const nextIncomeOnly =
+      getStatePensionNominal(inputs, yearIndex + 1, inflationIndex) +
+      getOtherIncomeNominal(inputs, yearIndex + 1, inflationIndex);
+
+    spendingNominal = Math.max(
+      0,
+      Math.min(nextActualSpendingNominal, nextIncomeOnly + endPortfolioNominal)
+    );
+
     previousMarketReturn = realisedReturn;
   }
 
