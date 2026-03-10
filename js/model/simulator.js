@@ -354,7 +354,10 @@ function simulatePath(inputs, annualReturns) {
       requestedWithdrawalNominal
     );
 
-    const actualSpendingNominal = totalNonPortfolioIncomeNominal + actualWithdrawalNominal;
+    const actualSpendingNominal = Math.min(
+      spendingNominal,
+      totalNonPortfolioIncomeNominal + actualWithdrawalNominal
+    );
 
     const surplusIncomeNominal = Math.max(
       0,
