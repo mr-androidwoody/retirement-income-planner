@@ -14,6 +14,11 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   let worstCutYear = null;
   let worstCut = 0;
 
+  let firstShortfallYear = null;
+  let worstShortfallYear = null;
+  let worstShortfall = 0;
+  let shortfallYears = 0;
+
   rows.forEach((r, i) => {
     const cut = r.spendingCutPercent || 0;
 
@@ -25,12 +30,33 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
       worstCut = cut;
       worstCutYear = i;
     }
+
+    const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
+    const actual = useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+    const shortfall = Math.max(0, target - actual);
+
+    if (shortfall > 0) {
+      shortfallYears += 1;
+
+      if (firstShortfallYear === null) {
+        firstShortfallYear = i;
+      }
+
+      if (shortfall > worstShortfall) {
+        worstShortfall = shortfall;
+        worstShortfallYear = i;
+      }
+    }
   });
 
   const cutDiagnostics = {
     firstCutYear,
     worstCutYear,
-    worstCut
+    worstCut,
+    firstShortfallYear,
+    worstShortfallYear,
+    worstShortfall,
+    shortfallYears
   };
 
   elements.summarySuccessRate.textContent = formatPercent(result.monteCarlo.successRate);
@@ -59,7 +85,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   );
 
   renderPlanWarnings(result, elements, useReal, formatters);
-  renderMonteCarloSummary(result, elements, useReal, formatters);
+  renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 
@@ -76,7 +102,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   );
 }
 
-function renderMonteCarloSummary(result, elements, useReal, formatters) {
+function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics = {}) {
   const { formatCurrency, formatPercent } = formatters;
   const grid = elements.planSummaryGrid;
 
@@ -93,9 +119,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
   const medianEnd = percentiles.p50[lastIndex];
   const p10End = percentiles.p10[lastIndex];
   const p90End = percentiles.p90[lastIndex];
-
-  const worstEnd = Math.min(...percentiles.p10);
-  const bestEnd = Math.max(...percentiles.p90);
 
   const totals = rows.reduce(
     (acc, r) => {
@@ -135,22 +158,12 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
 
   let sustainabilityScore = 100;
 
-  /* Monte Carlo success remains the anchor */
   sustainabilityScore -= (1 - successRate) * 45;
-
-  /* Penalise large spending cuts */
   sustainabilityScore -= maxCut * 100;
-
-  /* Penalise high dependence on portfolio withdrawals */
   sustainabilityScore -= Math.max(0, dependence - 0.5) * 70;
-
-  /* Penalise high late-stage withdrawal pressure */
   sustainabilityScore -= Math.max(0, finalWithdrawalRatePressure - 0.05) * 220;
-
-  /* Penalise weak downside resilience */
   sustainabilityScore -= percentileSpread * 18;
 
-  /* Penalise actual depletion in the weak path */
   if (yearsToZero !== 'Not depleted') {
     sustainabilityScore -= 12;
   }
@@ -167,6 +180,14 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
     inputs.initialPortfolio > 0
       ? inputs.initialSpending / inputs.initialPortfolio
       : 0;
+
+  const firstShortfallYearLabel =
+    cutDiagnostics.firstShortfallYear === null ? 'None' : cutDiagnostics.firstShortfallYear;
+
+  const worstShortfallLabel =
+    cutDiagnostics.worstShortfallYear === null
+      ? 'None'
+      : `${formatCurrency(cutDiagnostics.worstShortfall)} in year ${cutDiagnostics.worstShortfallYear}`;
 
   const metrics = [
     ['Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`],
@@ -188,7 +209,11 @@ function renderMonteCarloSummary(result, elements, useReal, formatters) {
 
     ['Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate)],
     [`Withdrawal % in year ${inputs.years}`, formatPercent(finalYearWithdrawalPct)],
-    ['Portfolio dependence', formatPercent(dependence)]
+    ['Portfolio dependence', formatPercent(dependence)],
+
+    ['First spending shortfall year', firstShortfallYearLabel],
+    ['Worst spending shortfall', worstShortfallLabel],
+    ['Years with spending shortfall', cutDiagnostics.shortfallYears || 0]
   ];
 
   grid.innerHTML = metrics
@@ -210,7 +235,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   const rows = result.baseCase?.rows || [];
   if (!rows.length) return;
 
-  const { formatPercent } = formatters;
+  const { formatPercent, formatCurrency } = formatters;
   const inputs = result.inputs;
 
   const warnings = [];
@@ -266,6 +291,34 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     warnings.push({
       level: 'info',
       text: `High reliance on portfolio withdrawals (${formatPercent(dependence)} of spending).`
+    });
+  }
+
+  let firstShortfallYear = null;
+  let worstShortfall = 0;
+  let worstShortfallYear = null;
+
+  rows.forEach((r, i) => {
+    const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
+    const actual = useReal ? r.actualSpendingReal : r.actualSpendingNominal;
+    const shortfall = Math.max(0, target - actual);
+
+    if (shortfall > 0) {
+      if (firstShortfallYear === null) {
+        firstShortfallYear = i;
+      }
+
+      if (shortfall > worstShortfall) {
+        worstShortfall = shortfall;
+        worstShortfallYear = i;
+      }
+    }
+  });
+
+  if (firstShortfallYear !== null) {
+    warnings.push({
+      level: 'warning',
+      text: `Target spending is not fully met from year ${firstShortfallYear}. Worst shortfall is ${formatCurrency(worstShortfall)} in year ${worstShortfallYear}.`
     });
   }
 

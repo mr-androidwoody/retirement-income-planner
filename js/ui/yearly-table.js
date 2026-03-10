@@ -11,6 +11,8 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
   const cutDiagnostics = options.cutDiagnostics || {};
   const firstCutYear = cutDiagnostics.firstCutYear;
   const worstCutYear = cutDiagnostics.worstCutYear;
+  const firstShortfallYear = cutDiagnostics.firstShortfallYear;
+  const worstShortfallYear = cutDiagnostics.worstShortfallYear;
 
   thead.innerHTML = `
     <tr>
@@ -32,7 +34,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     const cut = row.spendingCutPercent || 0;
 
     let severity = '';
-    let badge = '';
+    let cutBadge = '';
 
     if (cut > 0) {
       if (cut < 0.05) severity = 'cut-mild';
@@ -44,16 +46,34 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         : cut < 0.10 ? 'Moderate cut'
         : 'Severe cut';
 
-      badge = `<span class="cut-badge ${severity}">${label}</span>`;
+      cutBadge = `<span class="cut-badge ${severity}">${label}</span>`;
+    }
+
+    const target = useReal ? row.targetSpendingReal : row.targetSpendingNominal;
+    const actual = useReal ? row.actualSpendingReal : row.actualSpendingNominal;
+    const shortfall = Math.max(0, target - actual);
+
+    let shortfallBadge = '';
+    let shortfallClass = '';
+
+    if (shortfall > 0) {
+      shortfallClass = 'spending-shortfall';
+      shortfallBadge = `<span class="shortfall-badge">Shortfall</span>`;
     }
 
     const firstCutClass = index === firstCutYear ? 'first-cut-year' : '';
     const worstCutClass = index === worstCutYear ? 'worst-cut-year' : '';
 
+    const firstShortfallClass = index === firstShortfallYear ? 'first-shortfall-year' : '';
+    const worstShortfallClass = index === worstShortfallYear ? 'worst-shortfall-year' : '';
+
     const rowClass = [
       severity,
+      shortfallClass,
       firstCutClass,
-      worstCutClass
+      worstCutClass,
+      firstShortfallClass,
+      worstShortfallClass
     ].filter(Boolean).join(' ');
 
     return `
@@ -63,8 +83,9 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         <td>${row.age2}</td>
         <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
         <td>
-          ${formatCurrency(useReal ? row.actualSpendingReal : row.actualSpendingNominal)}
-          ${badge}
+          ${formatCurrency(actual)}
+          ${cutBadge}
+          ${shortfallBadge}
         </td>
         <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
         <td>${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
