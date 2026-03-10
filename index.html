@@ -144,120 +144,126 @@
                 </div>
               </section>
 
-              <section class="input-group-card people-pensions-card">
-                <div class="section-heading">
-                  <h3>Fixed income</h3>
-                  <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
-                </div>
+<section class="input-group-card people-pensions-card">
+  <div class="section-heading">
+    <h3>Fixed income</h3>
+    <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
+  </div>
 
-                <div class="people-income-grid">
-                  <label class="field field-inline field-inline-wide people-pension-inline-field">
-                    <span class="field-label with-help field-label-inline">
-                      <span>State pension today (per person)</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="State pension today help"
-                        title="Entered in today's money. The simulator increases this with inflation until each person reaches state pension age, and continues increasing it afterwards."
-                      >?</button>
-                    </span>
-                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
-                  </label>
+  <div class="field-grid field-grid-2">
+    <label class="field field-inline field-inline-wide people-pension-inline-field">
+      <span class="field-label with-help field-label-inline">
+        <span>Full state pension today value</span>
+        <button
+          class="help"
+          type="button"
+          tabindex="-1"
+          aria-label="Full state pension today value help"
+          title="Today's annual value of a full state pension. Tick the checkbox in each person panel if that person is expected to receive it."
+        >?</button>
+      </span>
+      <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+    </label>
+  </div>
 
-                  <label class="field field-inline field-inline-wide people-income-field">
-                    <span class="field-label with-help field-label-inline">
-                      <span>Other income</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Other income help"
-                        title="Shared household income in today's money. It starts immediately, rises with inflation, and runs for the number of years entered below."
-                      >?</button>
-                    </span>
-                    <input id="otherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
-                  </label>
+  <div class="people-panels">
+    <section class="person-panel">
+      <div class="person-panel-title">Person 1</div>
 
-                  <label class="field field-inline people-years-field">
-                    <span class="field-label with-help field-label-inline">
-                      <span>Number of years</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Other income years help"
-                        title="Number of years that other income is received before it stops."
-                      >?</button>
-                    </span>
-                    <input id="otherIncomeYears" type="number" min="0" max="80" step="1" />
-                  </label>
+      <div class="field-grid field-grid-3">
+        <label class="field person-name-field">
+          <span class="field-label">Name</span>
+          <input id="person1Name" type="text" placeholder="Enter name" />
+        </label>
 
-                  <label class="field field-inline field-inline-wide people-income-field">
-                    <span class="field-label with-help field-label-inline">
-                      <span>Windfall amount</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Windfall amount help"
-                        title="A one-off household income receipt such as inheritance, downsizing proceeds, or a lump sum."
-                      >?</button>
-                    </span>
-                    <input id="windfallAmount" type="text" inputmode="numeric" data-format="integer" />
-                  </label>
+        <label class="field person-age-field">
+          <span class="field-label">Current age</span>
+          <input id="person1Age" type="number" min="18" max="100" step="1" />
+        </label>
 
-                  <label class="field field-inline people-years-field">
-                    <span class="field-label with-help field-label-inline">
-                      <span>In which year</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Windfall year help"
-                        title="The retirement year in which the windfall arrives. Use 0 for none."
-                      >?</button>
-                    </span>
-                    <input id="windfallYear" type="number" min="0" max="80" step="1" />
-                  </label>
-                </div>
+        <label class="field person-pension-age-field">
+          <span class="field-label">State pension age</span>
+          <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
+        </label>
+      </div>
 
-                <div class="people-grid-header" aria-hidden="true">
-                  <div>Name</div>
-                  <div>Current age</div>
-                  <div>State pension age</div>
-                </div>
+      <label class="field field-inline field-inline-wide person-pension-checkbox">
+        <span class="field-label field-label-inline">Receives full state pension</span>
+        <input id="person1GetsFullPension" type="checkbox" />
+      </label>
 
-                <div class="people-grid-rows">
-                  <div class="people-grid-row">
-                    <label class="field person-name-field">
-                      <input id="person1Name" type="text" placeholder="Enter name" />
-                    </label>
+      <div class="field-grid field-grid-2">
+        <label class="field">
+          <span class="field-label">Other income</span>
+          <input id="person1OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
+        </label>
 
-                    <label class="field person-age-field">
-                      <input id="person1Age" type="number" min="18" max="100" step="1" />
-                    </label>
+        <label class="field">
+          <span class="field-label">Number of years</span>
+          <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" />
+        </label>
 
-                    <label class="field person-pension-age-field">
-                      <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
-                    </label>
-                  </div>
+        <label class="field">
+          <span class="field-label">Windfall amount</span>
+          <input id="person1WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
+        </label>
 
-                  <div class="people-grid-row">
-                    <label class="field person-name-field">
-                      <input id="person2Name" type="text" placeholder="Enter name" />
-                    </label>
+        <label class="field">
+          <span class="field-label">In which year</span>
+          <input id="person1WindfallYear" type="number" min="0" max="80" step="1" />
+        </label>
+      </div>
+    </section>
 
-                    <label class="field person-age-field">
-                      <input id="person2Age" type="number" min="18" max="100" step="1" />
-                    </label>
+    <section class="person-panel">
+      <div class="person-panel-title">Person 2</div>
 
-                    <label class="field person-pension-age-field">
-                      <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
-                    </label>
-                  </div>
-                </div>
-              </section>
+      <div class="field-grid field-grid-3">
+        <label class="field person-name-field">
+          <span class="field-label">Name</span>
+          <input id="person2Name" type="text" placeholder="Enter name" />
+        </label>
+
+        <label class="field person-age-field">
+          <span class="field-label">Current age</span>
+          <input id="person2Age" type="number" min="18" max="100" step="1" />
+        </label>
+
+        <label class="field person-pension-age-field">
+          <span class="field-label">State pension age</span>
+          <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
+        </label>
+      </div>
+
+      <label class="field field-inline field-inline-wide person-pension-checkbox">
+        <span class="field-label field-label-inline">Receives full state pension</span>
+        <input id="person2GetsFullPension" type="checkbox" />
+      </label>
+
+      <div class="field-grid field-grid-2">
+        <label class="field">
+          <span class="field-label">Other income</span>
+          <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Number of years</span>
+          <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Windfall amount</span>
+          <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">In which year</span>
+          <input id="person2WindfallYear" type="number" min="0" max="80" step="1" />
+        </label>
+      </div>
+    </section>
+  </div>
+</section>
 
               <section class="input-group-card">
                 <div class="section-heading">
