@@ -30,11 +30,6 @@ const els = {
   person2PensionAge: document.getElementById('person2PensionAge'),
     
   statePensionToday: document.getElementById('statePensionToday'),
-  otherIncomeToday: document.getElementById('otherIncomeToday'),
-  otherIncomeYears: document.getElementById('otherIncomeYears'),
-  windfallAmount: document.getElementById('windfallAmount'),
-  windfallYear: document.getElementById('windfallYear'),
-
 
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
