@@ -60,7 +60,10 @@ export function runMonthlyEngine(inputs) {
     const requiredWithdrawal = Math.max(0, targetSpendingMonthly - totalIncomeMonthly);
     const actualWithdrawal = withdrawFromBuckets(buckets, requiredWithdrawal);
 
-    const actualSpendingMonthly = totalIncomeMonthly + actualWithdrawal;
+    const actualSpendingMonthly = Math.min(
+      targetSpendingMonthly,
+      totalIncomeMonthly + actualWithdrawal
+    );
 
     const surplusIncome = Math.max(0, totalIncomeMonthly - targetSpendingMonthly);
     if (surplusIncome > 0) {
