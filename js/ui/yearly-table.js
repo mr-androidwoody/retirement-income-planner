@@ -20,7 +20,10 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
       <th>${escapeHtml(person1Name)}</th>
       <th>${escapeHtml(person2Name)}</th>
       <th>Start portfolio</th>
-      <th>Household spending</th>
+      <th>Target spending</th>
+      <th>Actual spending</th>
+      <th>Cut</th>
+      <th>Shortfall</th>
       <th>State pension</th>
       <th>Other income</th>
       <th>Windfall</th>
@@ -32,8 +35,14 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
   tbody.innerHTML = rows.map((row, index) => {
     const cut = row.spendingCutPercent || 0;
 
+    const target = useReal ? row.targetSpendingReal : row.targetSpendingNominal;
+    const actual = useReal ? row.spendingReal : row.spendingNominal;
+    const shortfall = Math.max(0, target - actual);
+
     let severity = '';
     let cutBadge = '';
+    let shortfallBadge = '';
+    let shortfallClass = '';
 
     if (cut > 0) {
       if (cut < 0.05) severity = 'cut-mild';
@@ -47,13 +56,6 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
 
       cutBadge = `<span class="cut-badge ${severity}">${label}</span>`;
     }
-
-    const target = useReal ? row.targetSpendingReal : row.targetSpendingNominal;
-    const actual = useReal ? row.spendingReal : row.spendingNominal;
-    const shortfall = Math.max(0, target - actual);
-
-    let shortfallBadge = '';
-    let shortfallClass = '';
 
     if (shortfall > 0) {
       shortfallClass = 'spending-shortfall';
@@ -75,17 +77,25 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
       worstShortfallClass
     ].filter(Boolean).join(' ');
 
+    const cutDisplay = cut > 0 ? `${(cut * 100).toFixed(1)}%` : '—';
+    const shortfallDisplay = shortfall > 0 ? formatCurrency(shortfall) : '—';
+
     return `
       <tr class="${rowClass}">
         <td>${row.year}</td>
         <td>${row.age1}</td>
         <td>${row.age2}</td>
         <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
+        <td>${formatCurrency(target)}</td>
         <td>
           ${formatCurrency(actual)}
-          ${cutBadge}
           ${shortfallBadge}
         </td>
+        <td>
+          ${cutDisplay}
+          ${cutBadge}
+        </td>
+        <td>${shortfallDisplay}</td>
         <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
         <td>${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
         <td>${formatCurrency(useReal ? row.windfallReal : row.windfallNominal)}</td>
