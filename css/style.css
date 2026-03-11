@@ -858,11 +858,6 @@ input[type="checkbox"]{
   text-align:right;
 }
 
-/* Fallback alignment for current markup before JS classes are added */
-#resultsTable td:nth-child(n+4){
-  text-align:right;
-}
-
 /* Column nudges */
 #resultsTable th:nth-child(1),
 #resultsTable td:nth-child(1){
