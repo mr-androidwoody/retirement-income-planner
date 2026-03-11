@@ -13,6 +13,16 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     'person2WindfallYear'
   ];
 
+  const person2FieldIds = [
+    'person2Name',
+    'person2Age',
+    'person2PensionAge',
+    'person2OtherIncomeToday',
+    'person2OtherIncomeYears',
+    'person2WindfallAmount',
+    'person2WindfallYear'
+  ];
+
   function applyDefaults(defaults) {
     const sharedStatePensionToday = resolveSharedStatePensionToday(defaults);
 
@@ -36,6 +46,10 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     setFieldValue('person1WindfallAmount', defaults.person1WindfallAmount ?? 0, true);
     setFieldValue('person1WindfallYear', defaults.person1WindfallYear ?? 0, true);
 
+    if (elements.includePerson2) {
+      elements.includePerson2.checked = resolveIncludePerson2(defaults);
+    }
+
     setFieldValue('person2Name', '');
     setFieldValue('person2Age', defaults.person2Age);
     setFieldValue('person2PensionAge', defaults.person2PensionAge);
@@ -44,6 +58,8 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     setFieldValue('person2OtherIncomeYears', defaults.person2OtherIncomeYears ?? 0, true);
     setFieldValue('person2WindfallAmount', defaults.person2WindfallAmount ?? 0, true);
     setFieldValue('person2WindfallYear', defaults.person2WindfallYear ?? 0, true);
+
+    syncPerson2State();
   }
 
   function attachFormatting() {
@@ -63,23 +79,39 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
         input.value = Number.isFinite(value) ? formatInteger(value) : '';
       });
     });
+
+    if (elements.includePerson2) {
+      elements.includePerson2.addEventListener('change', () => {
+        syncPerson2State();
+      });
+    }
   }
 
   function readValues() {
     const fullStatePensionToday = parseLooseNumber(elements.statePensionToday?.value);
 
+    const includePerson2 = Boolean(elements.includePerson2?.checked ?? true);
+
     const person1GetsFullPension = Boolean(elements.person1GetsFullPension?.checked);
-    const person2GetsFullPension = Boolean(elements.person2GetsFullPension?.checked);
+    const person2GetsFullPension = includePerson2 && Boolean(elements.person2GetsFullPension?.checked);
 
     const person1OtherIncomeToday = parseLooseNumber(elements.person1OtherIncomeToday?.value);
     const person1OtherIncomeYears = parseLooseInteger(elements.person1OtherIncomeYears?.value);
     const person1WindfallAmount = parseLooseNumber(elements.person1WindfallAmount?.value);
     const person1WindfallYear = parseLooseInteger(elements.person1WindfallYear?.value);
 
-    const person2OtherIncomeToday = parseLooseNumber(elements.person2OtherIncomeToday?.value);
-    const person2OtherIncomeYears = parseLooseInteger(elements.person2OtherIncomeYears?.value);
-    const person2WindfallAmount = parseLooseNumber(elements.person2WindfallAmount?.value);
-    const person2WindfallYear = parseLooseInteger(elements.person2WindfallYear?.value);
+    const person2OtherIncomeToday = includePerson2
+      ? parseLooseNumber(elements.person2OtherIncomeToday?.value)
+      : 0;
+    const person2OtherIncomeYears = includePerson2
+      ? parseLooseInteger(elements.person2OtherIncomeYears?.value)
+      : 0;
+    const person2WindfallAmount = includePerson2
+      ? parseLooseNumber(elements.person2WindfallAmount?.value)
+      : 0;
+    const person2WindfallYear = includePerson2
+      ? parseLooseInteger(elements.person2WindfallYear?.value)
+      : 0;
 
     return {
       years: parseLooseInteger(elements.years.value),
@@ -102,9 +134,11 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
       person1WindfallAmount,
       person1WindfallYear,
 
-      person2Name: String(elements.person2Name?.value ?? '').trim(),
-      person2Age: parseLooseInteger(elements.person2Age.value),
-      person2PensionAge: parseLooseInteger(elements.person2PensionAge.value),
+      includePerson2,
+
+      person2Name: includePerson2 ? String(elements.person2Name?.value ?? '').trim() : '',
+      person2Age: includePerson2 ? parseLooseInteger(elements.person2Age.value) : 0,
+      person2PensionAge: includePerson2 ? parseLooseInteger(elements.person2PensionAge.value) : 0,
       person2PensionToday: person2GetsFullPension ? fullStatePensionToday : 0,
       person2GetsFullPension,
       person2OtherIncomeToday,
@@ -135,6 +169,26 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     elements[id].value = formatAsInteger ? formatInteger(value) : String(value ?? '');
   }
 
+  function syncPerson2State() {
+    const includePerson2 = Boolean(elements.includePerson2?.checked ?? true);
+
+    if (elements.person2Panel) {
+      elements.person2Panel.classList.toggle('person-panel-disabled', !includePerson2);
+    }
+
+    person2FieldIds.forEach((fieldId) => {
+      if (!elements[fieldId]) return;
+      elements[fieldId].disabled = !includePerson2;
+    });
+
+    if (elements.person2GetsFullPension) {
+      elements.person2GetsFullPension.disabled = !includePerson2;
+      if (!includePerson2) {
+        elements.person2GetsFullPension.checked = false;
+      }
+    }
+  }
+
   function resolveSharedStatePensionToday(defaults) {
     if (Number.isFinite(parseLooseNumber(defaults?.statePensionToday))) {
       return parseLooseNumber(defaults.statePensionToday);
@@ -157,6 +211,19 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
 
     const pensionToday = parseLooseNumber(defaults?.[`${personKey}PensionToday`]);
     return pensionToday > 0;
+  }
+
+  function resolveIncludePerson2(defaults) {
+    if (typeof defaults?.includePerson2 === 'boolean') {
+      return defaults.includePerson2;
+    }
+
+    const hasName = String(defaults?.person2Name ?? '').trim() !== '';
+    const hasPension = parseLooseNumber(defaults?.person2PensionToday) > 0;
+    const hasOtherIncome = parseLooseNumber(defaults?.person2OtherIncomeToday) > 0;
+    const hasWindfall = parseLooseNumber(defaults?.person2WindfallAmount) > 0;
+
+    return hasName || hasPension || hasOtherIncome || hasWindfall;
   }
 
   function unformatNumberString(value) {
