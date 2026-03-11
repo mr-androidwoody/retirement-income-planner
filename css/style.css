@@ -1259,10 +1259,13 @@ input[type="checkbox"]{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:20px;
-  align-items:start;
+  align-items:stretch;
 }
 
 .outlook-glossary-card{
+  display:flex;
+  flex-direction:column;
+  height:100%;
   background:rgba(148, 163, 184, 0.05);
   border:1px solid var(--line);
   border-radius:18px;
@@ -1270,10 +1273,13 @@ input[type="checkbox"]{
 }
 
 .outlook-glossary-card h4{
-  margin:0 0 14px;
-  font-size:1rem;
-  font-weight:700;
-  line-height:1.3;
+  margin:0 0 16px;
+  padding-bottom:10px;
+  font-size:1.12rem;
+  font-weight:800;
+  line-height:1.25;
+  color:var(--text);
+  border-bottom:1px solid var(--line);
 }
 
 .outlook-glossary-item{
