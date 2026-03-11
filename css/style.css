@@ -836,6 +836,33 @@ input[type="checkbox"]{
   font-variant-numeric:tabular-nums;
 }
 
+/* ========================================
+   Status cells (Cut / Shortfall)
+   ======================================== */
+
+#resultsTable td.cut-cell,
+#resultsTable td.shortfall-cell{
+  overflow:visible;
+  text-overflow:clip;
+}
+
+#resultsTable .status-cell{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  min-width:0;
+  width:100%;
+}
+
+#resultsTable .status-value{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+
 #resultsTable td:nth-child(n+4){
   text-align:right;
 }
@@ -933,16 +960,17 @@ input[type="checkbox"]{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:78px;
-  height:22px;
-  margin-left:8px;
+  height:24px;
   padding:0 10px;
+  margin-left:0;
   border-radius:999px;
   vertical-align:middle;
   white-space:nowrap;
   font-size:0.72rem;
   font-weight:700;
   line-height:1;
+  min-width:52px;
+  flex:0 0 auto;
 }
 
 .cut-mild td{
