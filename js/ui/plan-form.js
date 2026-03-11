@@ -81,26 +81,6 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     const person2WindfallAmount = parseLooseNumber(elements.person2WindfallAmount?.value);
     const person2WindfallYear = parseLooseInteger(elements.person2WindfallYear?.value);
 
-    const aggregatedStatePensionToday =
-      (person1GetsFullPension ? fullStatePensionToday : 0) +
-      (person2GetsFullPension ? fullStatePensionToday : 0);
-
-    const aggregatedOtherIncomeToday =
-      person1OtherIncomeToday + person2OtherIncomeToday;
-
-    const aggregatedOtherIncomeYears = Math.max(
-      normaliseInteger(person1OtherIncomeYears),
-      normaliseInteger(person2OtherIncomeYears)
-    );
-
-    const aggregatedWindfallAmount =
-      person1WindfallAmount + person2WindfallAmount;
-
-    const aggregatedWindfallYear = resolveAggregatedWindfallYear(
-      { amount: person1WindfallAmount, year: person1WindfallYear },
-      { amount: person2WindfallAmount, year: person2WindfallYear }
-    );
-
     return {
       years: parseLooseInteger(elements.years.value),
       initialPortfolio: parseLooseNumber(elements.initialPortfolio.value),
@@ -110,11 +90,7 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
       cashlikeAllocation: parseLooseNumber(elements.cashlikeAllocation.value),
       rebalanceToTarget: elements.rebalanceToTarget.checked,
 
-      statePensionToday: aggregatedStatePensionToday,
-      otherIncomeToday: aggregatedOtherIncomeToday,
-      otherIncomeYears: aggregatedOtherIncomeYears,
-      windfallAmount: aggregatedWindfallAmount,
-      windfallYear: aggregatedWindfallYear,
+      statePensionToday: fullStatePensionToday,
 
       person1Name: String(elements.person1Name?.value ?? '').trim(),
       person1Age: parseLooseInteger(elements.person1Age.value),
@@ -181,28 +157,6 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
 
     const pensionToday = parseLooseNumber(defaults?.[`${personKey}PensionToday`]);
     return pensionToday > 0;
-  }
-
-  function resolveAggregatedWindfallYear(person1, person2) {
-    const person1HasWindfall = normaliseNumber(person1.amount) > 0;
-    const person2HasWindfall = normaliseNumber(person2.amount) > 0;
-
-    if (!person1HasWindfall && !person2HasWindfall) return 0;
-    if (person1HasWindfall && !person2HasWindfall) return normaliseInteger(person1.year);
-    if (!person1HasWindfall && person2HasWindfall) return normaliseInteger(person2.year);
-
-    return Math.min(
-      normaliseInteger(person1.year),
-      normaliseInteger(person2.year)
-    );
-  }
-
-  function normaliseNumber(value) {
-    return Number.isFinite(value) ? value : 0;
-  }
-
-  function normaliseInteger(value) {
-    return Number.isFinite(value) ? value : 0;
   }
 
   function unformatNumberString(value) {
