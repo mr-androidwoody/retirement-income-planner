@@ -521,18 +521,25 @@
             </div>
           </section>
 
-          <section class="panel plan-summary-panel" id="planSummaryPanel">
-            <div class="card-header">
-              <div class="card-title-block">
-                <h2>Plan outlook</h2>
+        <section class="panel plan-summary-panel" id="planSummaryPanel">
+          <div class="card-header">
+            <div class="card-title-block">
+              <h2>Plan outlook</h2>
                 <p>Key planning metrics and outcomes from the current simulation.</p>
-              </div>
             </div>
 
-            <div class="plan-summary-grid" id="planSummaryGrid">
-              <!-- Populated by results-view.js -->
-            </div>
-          </section>
+          <div class="outlook-panel-actions">
+           <button
+             id="explainOutlookTerms"
+             class="outlook-glossary-trigger"
+             type="button">Explain these terms
+           </button>
+         </div>
+        </div>
+
+         <div class="plan-summary-grid" id="planSummaryGrid"></div>
+
+       </section>
 
           <section class="table-card panel" id="tableCard">
             <div class="card-header">
