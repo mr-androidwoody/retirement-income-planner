@@ -45,18 +45,27 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     let shortfallDot = '';
     let shortfallClass = '';
 
-    if (cut > 0) {
-      if (cut < 0.05) severity = 'cut-mild';
-      else if (cut < 0.10) severity = 'cut-moderate';
-      else severity = 'cut-severe';
+if (cut > 0) {
+  let cutLabel = '';
 
-      cutDot = `<span class="status-dot ${severity}" aria-hidden="true"></span>`;
-    }
+  if (cut < 0.05) {
+    severity = 'cut-mild';
+    cutLabel = 'Mild spending cut';
+  } else if (cut < 0.10) {
+    severity = 'cut-moderate';
+    cutLabel = 'Moderate spending cut';
+  } else {
+    severity = 'cut-severe';
+    cutLabel = 'Severe spending cut';
+  }
 
-    if (shortfall > 0) {
-      shortfallClass = 'spending-shortfall';
-      shortfallDot = `<span class="status-dot shortfall-dot" aria-hidden="true"></span>`;
-    }
+  cutDot = `<span class="status-dot ${severity}" aria-hidden="true" title="${cutLabel}"></span>`;
+}
+
+if (shortfall > 0) {
+  shortfallClass = 'spending-shortfall';
+  shortfallDot = `<span class="status-dot shortfall-dot" aria-hidden="true" title="Spending shortfall"></span>`;
+}
 
     const firstCutClass = index === firstCutYear ? 'first-cut-year' : '';
     const worstCutClass = index === worstCutYear ? 'worst-cut-year' : '';
