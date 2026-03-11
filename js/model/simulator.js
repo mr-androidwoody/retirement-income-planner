@@ -42,10 +42,15 @@ export const DEFAULT_INPUTS = {
   person2PensionAge: 67,
   person2PensionToday: 12547,
 
-  otherIncomeToday: 0,
-  otherIncomeYears: 0,
-  windfallAmount: 0,
-  windfallYear: 0,
+  person1OtherIncomeToday: 0,
+  person1OtherIncomeYears: 0,
+  person1WindfallAmount: 0,
+  person1WindfallYear: 0,
+
+  person2OtherIncomeToday: 0,
+  person2OtherIncomeYears: 0,
+  person2WindfallAmount: 0,
+  person2WindfallYear: 0,
 
   upperGuardrail: 20,
   lowerGuardrail: 20,
@@ -75,28 +80,52 @@ export function validateInputs(rawInputs = {}) {
     errors.push('Initial household spending must be zero or greater.');
   }
 
-  if (!Number.isFinite(inputs.otherIncomeToday) || inputs.otherIncomeToday < 0) {
-    errors.push('Other income today must be zero or greater.');
+  if (!Number.isFinite(inputs.person1OtherIncomeToday) || inputs.person1OtherIncomeToday < 0) {
+    errors.push('Person 1 other income today must be zero or greater.');
+  }
+
+  if (!Number.isFinite(inputs.person2OtherIncomeToday) || inputs.person2OtherIncomeToday < 0) {
+    errors.push('Person 2 other income today must be zero or greater.');
   }
 
   if (
-    !Number.isFinite(inputs.otherIncomeYears) ||
-    inputs.otherIncomeYears < 0 ||
-    inputs.otherIncomeYears > inputs.years
+    !Number.isFinite(inputs.person1OtherIncomeYears) ||
+    inputs.person1OtherIncomeYears < 0 ||
+    inputs.person1OtherIncomeYears > inputs.years
   ) {
-    errors.push('Other income years must be between 0 and retirement years.');
-  }
-
-  if (!Number.isFinite(inputs.windfallAmount) || inputs.windfallAmount < 0) {
-    errors.push('Windfall amount must be zero or greater.');
+    errors.push('Person 1 other income years must be between 0 and retirement years.');
   }
 
   if (
-    !Number.isFinite(inputs.windfallYear) ||
-    inputs.windfallYear < 0 ||
-    inputs.windfallYear > inputs.years
+    !Number.isFinite(inputs.person2OtherIncomeYears) ||
+    inputs.person2OtherIncomeYears < 0 ||
+    inputs.person2OtherIncomeYears > inputs.years
   ) {
-    errors.push('Windfall year must be between 0 (this year) and how many years from this year you will receive it.');
+    errors.push('Person 2 other income years must be between 0 and retirement years.');
+  }
+
+  if (!Number.isFinite(inputs.person1WindfallAmount) || inputs.person1WindfallAmount < 0) {
+    errors.push('Person 1 windfall amount must be zero or greater.');
+  }
+
+  if (!Number.isFinite(inputs.person2WindfallAmount) || inputs.person2WindfallAmount < 0) {
+    errors.push('Person 2 windfall amount must be zero or greater.');
+  }
+
+  if (
+    !Number.isFinite(inputs.person1WindfallYear) ||
+    inputs.person1WindfallYear < 0 ||
+    inputs.person1WindfallYear > inputs.years
+  ) {
+    errors.push('Person 1 windfall year must be between 0 (this year) and how many years from this year you will receive it.');
+  }
+
+  if (
+    !Number.isFinite(inputs.person2WindfallYear) ||
+    inputs.person2WindfallYear < 0 ||
+    inputs.person2WindfallYear > inputs.years
+  ) {
+    errors.push('Person 2 windfall year must be between 0 (this year) and how many years from this year you will receive it.');
   }
 
   const allocationTotal =
@@ -182,10 +211,15 @@ function normaliseInputs(rawInputs = {}) {
     person2PensionAge: toInt(merged.person2PensionAge),
     person2PensionToday: resolvePersonPensionToday(merged, 'person2PensionToday'),
 
-    otherIncomeToday: toNumber(merged.otherIncomeToday),
-    otherIncomeYears: toInt(merged.otherIncomeYears),
-    windfallAmount: toNumber(merged.windfallAmount),
-    windfallYear: toInt(merged.windfallYear),
+    person1OtherIncomeToday: toNumber(merged.person1OtherIncomeToday),
+    person1OtherIncomeYears: toInt(merged.person1OtherIncomeYears),
+    person1WindfallAmount: toNumber(merged.person1WindfallAmount),
+    person1WindfallYear: toInt(merged.person1WindfallYear),
+
+    person2OtherIncomeToday: toNumber(merged.person2OtherIncomeToday),
+    person2OtherIncomeYears: toInt(merged.person2OtherIncomeYears),
+    person2WindfallAmount: toNumber(merged.person2WindfallAmount),
+    person2WindfallYear: toInt(merged.person2WindfallYear),
 
     upperGuardrail: toRatio(merged.upperGuardrail),
     lowerGuardrail: toRatio(merged.lowerGuardrail),
@@ -540,19 +574,37 @@ function getStatePensionNominal(inputs, yearIndex, inflationIndex) {
 }
 
 function getOtherIncomeNominal(inputs, yearIndex, inflationIndex) {
-  if (yearIndex < 0 || yearIndex >= inputs.otherIncomeYears) {
-    return 0;
+  let total = 0;
+
+  if (yearIndex >= 0 && yearIndex < inputs.person1OtherIncomeYears) {
+    total += inputs.person1OtherIncomeToday * inflationIndex;
   }
 
-  return inputs.otherIncomeToday * inflationIndex;
+  if (yearIndex >= 0 && yearIndex < inputs.person2OtherIncomeYears) {
+    total += inputs.person2OtherIncomeToday * inflationIndex;
+  }
+
+  return total;
 }
 
 function getWindfallNominal(inputs, yearIndex) {
-  if (inputs.windfallYear <= 0) {
-    return 0;
+  let total = 0;
+
+  if (
+    inputs.person1WindfallYear > 0 &&
+    yearIndex + 1 === inputs.person1WindfallYear
+  ) {
+    total += inputs.person1WindfallAmount;
   }
 
-  return yearIndex + 1 === inputs.windfallYear ? inputs.windfallAmount : 0;
+  if (
+    inputs.person2WindfallYear > 0 &&
+    yearIndex + 1 === inputs.person2WindfallYear
+  ) {
+    total += inputs.person2WindfallAmount;
+  }
+
+  return total;
 }
 
 function buildPercentileSeries(paths) {
