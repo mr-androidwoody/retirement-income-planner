@@ -559,5 +559,122 @@
       </section>
     </div>
   </div>
+  <div
+    id="outlookGlossaryOverlay"
+    class="outlook-glossary-overlay hidden"
+    aria-hidden="true"
+  >
+    <div class="outlook-glossary-backdrop"></div>
+
+    <div
+      class="outlook-glossary-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="outlookGlossaryTitle"
+    >
+      <div class="outlook-glossary-header">
+        <div>
+          <h3 id="outlookGlossaryTitle">Plan outlook glossary</h3>
+          <p>Definitions for the key terms used in the Plan outlook panel.</p>
+        </div>
+
+        <button
+          id="closeOutlookGlossary"
+          class="outlook-glossary-close"
+          type="button"
+          aria-label="Close glossary"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="outlook-glossary-body">
+        <section class="outlook-glossary-section">
+          <h4>Plan health</h4>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Spending sustainability score</div>
+            <div class="outlook-glossary-definition">
+              A simple composite score intended to summarise how durable the current plan looks.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Initial withdrawal rate</div>
+            <div class="outlook-glossary-definition">
+              First-year household spending divided by the starting portfolio.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Median final withdrawal rate</div>
+            <div class="outlook-glossary-definition">
+              The middle ending withdrawal rate across the modelled outcomes.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Portfolio dependence</div>
+            <div class="outlook-glossary-definition">
+              The share of total spending funded by portfolio withdrawals rather than pensions or other income.
+            </div>
+          </div>
+        </section>
+
+        <section class="outlook-glossary-section">
+          <h4>Outcomes and risks</h4>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Median ending portfolio</div>
+            <div class="outlook-glossary-definition">
+              The middle end value across all simulated outcomes.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">10th percentile ending</div>
+            <div class="outlook-glossary-definition">
+              A weaker-than-average outcome: 10% of simulations finish below this level.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">90th percentile ending</div>
+            <div class="outlook-glossary-definition">
+              A stronger-than-average outcome: 10% of simulations finish above this level.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">First spending shortfall year</div>
+            <div class="outlook-glossary-definition">
+              The first year in which actual spending falls below target spending.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Worst spending shortfall</div>
+            <div class="outlook-glossary-definition">
+              The largest gap between target spending and actual spending in any year.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Years with spending shortfall</div>
+            <div class="outlook-glossary-definition">
+              Number of years where the plan does not fully meet target spending.
+            </div>
+          </div>
+
+          <div class="outlook-glossary-item">
+            <div class="outlook-glossary-term">Total state pension income</div>
+            <div class="outlook-glossary-definition">
+              Sum of state pension income received across the full plan.
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>    
 </body>
 </html>
