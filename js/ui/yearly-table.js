@@ -17,19 +17,19 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
 
   thead.innerHTML = `
     <tr>
-      <th>Year</th>
-      <th>${escapeHtml(person1Name)}</th>
-      ${includePerson2 ? `<th>${escapeHtml(person2Name)}</th>` : ''}
-      <th>Start portfolio</th>
-      <th>Target spending</th>
-      <th>Actual spending</th>
-      <th>Cut</th>
-      <th>Shortfall</th>
-      <th>State pension</th>
-      <th>Other income</th>
-      <th>Windfall</th>
-      <th>Portfolio withdrawal</th>
-      <th>End portfolio</th>
+      <th class="col-text">Year</th>
+      <th class="col-text">${escapeHtml(person1Name)}</th>
+      ${includePerson2 ? `<th class="col-text">${escapeHtml(person2Name)}</th>` : ''}
+      <th class="col-number">Start portfolio</th>
+      <th class="col-number">Target spending</th>
+      <th class="col-number">Actual spending</th>
+      <th class="col-number">Cut</th>
+      <th class="col-number">Shortfall</th>
+      <th class="col-number">State pension</th>
+      <th class="col-number">Other income</th>
+      <th class="col-number">Windfall</th>
+      <th class="col-number">Portfolio withdrawal</th>
+      <th class="col-number">End portfolio</th>
     </tr>
   `;
 
@@ -45,27 +45,27 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     let shortfallDot = '';
     let shortfallClass = '';
 
-if (cut > 0) {
-  let cutLabel = '';
+    if (cut > 0) {
+      let cutLabel = '';
 
-  if (cut < 0.05) {
-    severity = 'cut-mild';
-    cutLabel = 'Mild spending cut';
-  } else if (cut < 0.10) {
-    severity = 'cut-moderate';
-    cutLabel = 'Moderate spending cut';
-  } else {
-    severity = 'cut-severe';
-    cutLabel = 'Severe spending cut';
-  }
+      if (cut < 0.05) {
+        severity = 'cut-mild';
+        cutLabel = 'Mild spending cut';
+      } else if (cut < 0.10) {
+        severity = 'cut-moderate';
+        cutLabel = 'Moderate spending cut';
+      } else {
+        severity = 'cut-severe';
+        cutLabel = 'Severe spending cut';
+      }
 
-  cutDot = `<span class="status-dot ${severity}" aria-hidden="true" title="${cutLabel}"></span>`;
-}
+      cutDot = `<span class="status-dot ${severity}" aria-hidden="true" title="${cutLabel}"></span>`;
+    }
 
-if (shortfall > 0) {
-  shortfallClass = 'spending-shortfall';
-  shortfallDot = `<span class="status-dot shortfall-dot" aria-hidden="true" title="Spending shortfall"></span>`;
-}
+    if (shortfall > 0) {
+      shortfallClass = 'spending-shortfall';
+      shortfallDot = `<span class="status-dot shortfall-dot" aria-hidden="true" title="Spending shortfall"></span>`;
+    }
 
     const firstCutClass = index === firstCutYear ? 'first-cut-year' : '';
     const worstCutClass = index === worstCutYear ? 'worst-cut-year' : '';
@@ -87,29 +87,29 @@ if (shortfall > 0) {
 
     return `
       <tr class="${rowClass}">
-        <td>${row.year}</td>
-        <td>${row.age1}</td>
-        ${includePerson2 ? `<td>${row.age2}</td>` : ''}
-        <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
-        <td>${formatCurrency(target)}</td>
-        <td>${formatCurrency(actual)}</td>
-        <td class="cut-cell">
+        <td class="col-text">${row.year}</td>
+        <td class="col-text">${row.age1}</td>
+        ${includePerson2 ? `<td class="col-text">${row.age2}</td>` : ''}
+        <td class="col-number">${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
+        <td class="col-number">${formatCurrency(target)}</td>
+        <td class="col-number">${formatCurrency(actual)}</td>
+        <td class="cut-cell col-number">
           <div class="status-cell">
             <span class="status-value">${cutDisplay}</span>
             ${cutDot}
           </div>
         </td>
-        <td class="shortfall-cell">
+        <td class="shortfall-cell col-number">
           <div class="status-cell">
             <span class="status-value">${shortfallDisplay}</span>
             ${shortfallDot}
           </div>
         </td>
-        <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
-        <td>${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
-        <td>${formatCurrency(useReal ? row.windfallReal : row.windfallNominal)}</td>
-        <td>${formatCurrency(useReal ? row.withdrawalReal : row.withdrawalNominal)}</td>
-        <td>${formatCurrency(useReal ? row.endPortfolioReal : row.endPortfolioNominal)}</td>
+        <td class="col-number">${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
+        <td class="col-number">${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
+        <td class="col-number">${formatCurrency(useReal ? row.windfallReal : row.windfallNominal)}</td>
+        <td class="col-number">${formatCurrency(useReal ? row.withdrawalReal : row.withdrawalNominal)}</td>
+        <td class="col-number">${formatCurrency(useReal ? row.endPortfolioReal : row.endPortfolioNominal)}</td>
       </tr>
     `;
   }).join('');
