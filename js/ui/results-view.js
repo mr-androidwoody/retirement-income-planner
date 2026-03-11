@@ -116,7 +116,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   const percentiles = useReal ? result.monteCarlo.realPercentiles : result.monteCarlo.nominalPercentiles;
 
   const lastIndex = percentiles.p50.length - 1;
-
   const medianEnd = percentiles.p50[lastIndex];
   const p10End = percentiles.p10[lastIndex];
   const p90End = percentiles.p90[lastIndex];
@@ -133,12 +132,10 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   );
 
   const lastRow = rows[rows.length - 1];
-
   const finalWithdrawal = useReal ? lastRow.withdrawalReal : lastRow.withdrawalNominal;
   const finalPortfolioStart = useReal ? lastRow.startPortfolioReal : lastRow.startPortfolioNominal;
 
   const medianFinalWithdrawalRate = medianEnd > 0 ? finalWithdrawal / medianEnd : 0;
-  const finalYearWithdrawalPct = finalPortfolioStart > 0 ? finalWithdrawal / finalPortfolioStart : 0;
 
   let yearsToZero = 'Not depleted';
 
@@ -190,43 +187,56 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
       ? 'None'
       : `${formatCurrency(cutDiagnostics.worstShortfall)} in year ${cutDiagnostics.worstShortfallYear}`;
 
-  const metrics = [
-    ['Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`],
-
-    ['Simulations run', inputs.monteCarloRuns],
-    ['Years modelled', inputs.years],
-    ['Starting portfolio', formatCurrency(inputs.initialPortfolio)],
-    ['Initial withdrawal rate', formatPercent(initialWithdrawalRate)],
-
-    ['Success rate', formatPercent(result.monteCarlo.successRate)],
-    ['Median ending portfolio', formatCurrency(medianEnd)],
-    ['10th percentile ending', formatCurrency(p10End)],
-    ['90th percentile ending', formatCurrency(p90End)],
-
-    ['Total household spending', formatCurrency(totals.spending)],
-    ['Total withdrawals', formatCurrency(totals.withdrawals)],
-    ['Total state pension income', formatCurrency(totals.pension)],
-    ['Total other income', formatCurrency(totals.otherIncome)],
-
-    ['Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate)],
-    [`Withdrawal % in year ${inputs.years}`, formatPercent(finalYearWithdrawalPct)],
-    ['Portfolio dependence', formatPercent(dependence)],
-
-    ['First spending shortfall year', firstShortfallYearLabel],
-    ['Worst spending shortfall', worstShortfallLabel],
-    ['Years with spending shortfall', cutDiagnostics.shortfallYears || 0]
-  ];
-
-  grid.innerHTML = metrics
-    .map(
-      ([label, value]) => `
-      <div class="summary-item">
-        <div class="summary-item-label">${label}</div>
-        <div class="summary-item-value">${value}</div>
+  grid.innerHTML = `
+    <div class="summary-section">
+      <div class="summary-section-title">Plan health</div>
+      <div class="summary-section-grid">
+        ${renderSummaryItem('Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`)}
+        ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
+        ${renderSummaryItem('Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate))}
+        ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
       </div>
-    `
-    )
-    .join('');
+    </div>
+
+    <div class="summary-section">
+      <div class="summary-section-title">Simulation</div>
+      <div class="summary-section-grid">
+        ${renderSummaryItem('Simulations run', formatInteger(inputs.monteCarloRuns))}
+        ${renderSummaryItem('Years modelled', formatInteger(inputs.years))}
+        ${renderSummaryItem('Starting portfolio', formatCurrency(inputs.initialPortfolio))}
+        ${renderSummaryItem('Total household spending', formatCurrency(totals.spending))}
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <div class="summary-section-title">Portfolio outcomes</div>
+      <div class="summary-section-grid">
+        ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
+        ${renderSummaryItem('10th percentile ending', formatCurrency(p10End))}
+        ${renderSummaryItem('90th percentile ending', formatCurrency(p90End))}
+        ${renderSummaryItem('Total withdrawals', formatCurrency(totals.withdrawals))}
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <div class="summary-section-title">Risk signals</div>
+      <div class="summary-section-grid">
+        ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
+        ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
+        ${renderSummaryItem('Years with spending shortfall', formatInteger(cutDiagnostics.shortfallYears || 0))}
+        ${renderSummaryItem('Total state pension income', formatCurrency(totals.pension))}
+      </div>
+    </div>
+  `;
+}
+
+function renderSummaryItem(label, value) {
+  return `
+    <div class="summary-item">
+      <div class="summary-item-label">${label}</div>
+      <div class="summary-item-value">${value}</div>
+    </div>
+  `;
 }
 
 function renderPlanWarnings(result, elements, useReal, formatters) {
@@ -464,4 +474,10 @@ function getRowShortfall(row, useReal) {
   }
 
   return shortfall;
+}
+
+function formatInteger(value) {
+  return new Intl.NumberFormat('en-GB', {
+    maximumFractionDigits: 0
+  }).format(value);
 }
