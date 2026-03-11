@@ -836,10 +836,14 @@ input[type="checkbox"]{
   white-space:normal;
   overflow:visible;
   text-overflow:clip;
-  word-break:normal;
-  overflow-wrap:anywhere;
+  word-break:keep-all;
+  overflow-wrap:normal;
   line-height:1.2;
   font-size:0.86rem;
+}
+
+#resultsTable th:nth-child(1){
+  white-space:nowrap;
 }
 
 #resultsTable td{
