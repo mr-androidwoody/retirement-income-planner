@@ -199,7 +199,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
     </div>
 
     <div class="summary-section">
-      <div class="summary-section-title">Simulation</div>
+      <div class="summary-section-title">Plan setup</div>
       <div class="summary-section-grid">
         ${renderSummaryItem('Simulations run', formatInteger(inputs.monteCarloRuns))}
         ${renderSummaryItem('Years modelled', formatInteger(inputs.years))}
@@ -219,7 +219,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
     </div>
 
     <div class="summary-section">
-      <div class="summary-section-title">Risk signals</div>
+      <div class="summary-section-title">Plan risks</div>
       <div class="summary-section-grid">
         ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
         ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
