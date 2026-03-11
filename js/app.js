@@ -25,6 +25,10 @@ const els = {
   person1Name: document.getElementById('person1Name'),
   person1Age: document.getElementById('person1Age'),
   person1PensionAge: document.getElementById('person1PensionAge'),
+
+  includePerson2: document.getElementById('includePerson2'),
+  person2Panel: document.getElementById('person2Panel'),
+
   person2Name: document.getElementById('person2Name'),
   person2Age: document.getElementById('person2Age'),
   person2PensionAge: document.getElementById('person2PensionAge'),
