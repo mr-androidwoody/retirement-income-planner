@@ -293,6 +293,10 @@ body{
   gap:12px 14px;
 }
 
+.field-grid-2{
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+}
+
 .field-grid-3{
   grid-template-columns:repeat(3, minmax(0, 1fr));
 }
@@ -424,10 +428,6 @@ input[type="checkbox"]{
    Person Panels (Fixed Income)
    ================================ */
 
-.field-grid-2{
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-}
-
 .people-panels{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -461,20 +461,6 @@ input[type="checkbox"]{
 
 .person-pension-checkbox input{
   margin-top:0;
-}
-
-/* responsive behaviour */
-
-@media (max-width: 980px){
-  .people-panels{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width: 720px){
-  .field-grid-2{
-    grid-template-columns:1fr;
-  }
 }
 
 .field-inline{
@@ -721,6 +707,7 @@ canvas{
   text-align:left;
   font-size:0.92rem;
   white-space:nowrap;
+  position:relative;
 }
 
 #resultsTable th{
@@ -825,18 +812,23 @@ canvas{
    Spending Cut Diagnostics
    ================================ */
 
-.cut-badge{
-  display:inline-block;
+.cut-badge,
+.shortfall-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:78px;
+  height:22px;
   margin-left:8px;
-  padding:2px 8px;
+  padding:0 10px;
+  border-radius:999px;
   font-size:0.72rem;
   font-weight:700;
-  border-radius:999px;
-  line-height:1.3;
+  line-height:1;
   vertical-align:middle;
+  white-space:nowrap;
 }
 
-/* Mild cuts (<5%) */
 .cut-mild td{
   background:#fefce8;
 }
@@ -846,7 +838,6 @@ canvas{
   color:#92400e;
 }
 
-/* Moderate cuts (5–10%) */
 .cut-moderate td{
   background:#fff7ed;
 }
@@ -856,7 +847,6 @@ canvas{
   color:#7c2d12;
 }
 
-/* Severe cuts (>10%) */
 .cut-severe td{
   background:#fee2e2;
 }
@@ -866,15 +856,22 @@ canvas{
   color:#7f1d1d;
 }
 
-/* First spending cut year */
-.first-cut-year td{
-  border-left:4px solid #f59e0b;
+.first-cut-year td:first-child::before,
+.worst-cut-year td:first-child::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
 }
 
-/* Worst spending cut year */
-.worst-cut-year td{
-  border-left:4px solid #ef4444;
-  font-weight:600;
+.first-cut-year td:first-child::before{
+  background:#f59e0b;
+}
+
+.worst-cut-year td:first-child::before{
+  background:#ef4444;
 }
 
 /* ================================
@@ -882,35 +879,30 @@ canvas{
    ================================ */
 
 .shortfall-badge{
-  display:inline-block;
-  margin-left:8px;
-  padding:2px 8px;
-  font-size:0.72rem;
-  font-weight:700;
-  border-radius:999px;
-  line-height:1.3;
-  vertical-align:middle;
   background:#c7d2fe;
   color:#1e3a8a;
 }
-
-/* Spending shortfall rows */
 
 .spending-shortfall td{
   background:#eef2ff;
 }
 
-/* First shortfall year */
-
-.first-shortfall-year td{
-  border-left:4px solid #6366f1;
+.first-shortfall-year td:last-child::after,
+.worst-shortfall-year td:last-child::after{
+  content:'';
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:4px;
 }
 
-/* Worst shortfall year */
+.first-shortfall-year td:last-child::after{
+  background:#6366f1;
+}
 
-.worst-shortfall-year td{
-  border-left:4px solid #4338ca;
-  font-weight:600;
+.worst-shortfall-year td:last-child::after{
+  background:#4338ca;
 }
 
 @media (max-width: 1180px){
@@ -952,12 +944,16 @@ canvas{
   }
 }
 
+@media (max-width: 980px){
+  .people-panels{
+    grid-template-columns:1fr;
+  }
+}
+
 @media (max-width: 860px){
   .field-grid-4,
   .field-grid-3,
   .field-grid,
-  .people-grid-header,
-  .people-grid-row,
   .asset-assumptions-grid{
     grid-template-columns:1fr;
   }
@@ -1023,7 +1019,79 @@ canvas{
 }
 
 @media (max-width: 720px){
-  .people-income-grid{
-    grid-template-columns:minmax(0, 1fr);
+  .people-income-grid,
+  .field-grid-2{
+    grid-template-columns:1fr;
   }
+}
+/* ===== Yearly results table scroll container ===== */
+
+.yearly-table-container {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* sticky header */
+
+#yearlyTable thead th {
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 2;
+}
+
+/* tighter rows */
+
+#yearlyTable td,
+#yearlyTable th {
+  padding: 6px 10px;
+  line-height: 1.2;
+}
+/* existing CSS */
+
+/* existing rule */
+.table-wrap {
+  overflow-x:auto;
+}
+
+/* ------------------------------------------------ */
+/* Person 2 optional panel support */
+/* ------------------------------------------------ */
+
+.person-panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--line);
+}
+
+.person-panel-header .person-panel-title{
+  padding-bottom:0;
+  border-bottom:none;
+}
+
+.person-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:0.88rem;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.person-toggle input{
+  margin:0;
+  align-self:center;
+}
+
+.person-panel-disabled{
+  opacity:0.55;
+}
+
+.person-panel-disabled input,
+.person-panel-disabled select,
+.person-panel-disabled textarea{
+  cursor:not-allowed;
 }
