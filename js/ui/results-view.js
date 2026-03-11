@@ -83,7 +83,10 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   );
 
   renderPlanWarnings(result, elements, useReal, formatters);
+  renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
+
   elements.tableCard.classList.toggle('hidden', !showFullTable);
+
   renderStatusLegend(elements, rows);
 
   renderYearlyTable(
@@ -105,8 +108,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   const grid = elements.planSummaryGrid;
 
   if (!grid) return;
-
-  ensureOutlookGlossaryTrigger(elements);
 
   const rows = result.baseCase?.rows || [];
   if (!rows.length) return;
@@ -132,7 +133,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
 
   const lastRow = rows[rows.length - 1];
   const finalWithdrawal = useReal ? lastRow.withdrawalReal : lastRow.withdrawalNominal;
-  const finalPortfolioStart = useReal ? lastRow.startPortfolioReal : lastRow.startPortfolioNominal;
 
   const medianFinalWithdrawalRate = medianEnd > 0 ? finalWithdrawal / medianEnd : 0;
 
@@ -148,10 +148,8 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   const successRate = result.monteCarlo.successRate;
   const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
   const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
-
   const finalWithdrawalRatePressure = medianFinalWithdrawalRate;
-  const percentileSpread =
-    medianEnd > 0 ? Math.max(0, (medianEnd - p10End) / medianEnd) : 1;
+  const percentileSpread = medianEnd > 0 ? Math.max(0, (medianEnd - p10End) / medianEnd) : 1;
 
   let sustainabilityScore = 100;
 
@@ -236,247 +234,6 @@ function renderSummaryItem(label, value) {
       <div class="summary-item-value">${value}</div>
     </div>
   `;
-}
-
-function ensureOutlookGlossaryTrigger(elements) {
-  if (elements.outlookGlossaryTrigger) return elements.outlookGlossaryTrigger;
-
-  const panel = elements.planSummaryGrid?.closest('.plan-summary-panel');
-  if (!panel) return null;
-
-  let header = panel.querySelector('.outlook-panel-header');
-
-  if (!header) {
-    header = document.createElement('div');
-    header.className = 'outlook-panel-header';
-
-    const heading = document.createElement('div');
-    heading.className = 'outlook-panel-heading';
-    heading.innerHTML = `
-      <h3>Retirement outlook</h3>
-      <p>Key planning metrics and outcomes from the current projection.</p>
-    `;
-
-    const actions = document.createElement('div');
-    actions.className = 'outlook-panel-actions';
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'outlook-glossary-trigger';
-    button.textContent = 'Explain these terms';
-
-    button.addEventListener('click', () => openOutlookGlossary(elements));
-
-    actions.appendChild(button);
-    header.appendChild(heading);
-    header.appendChild(actions);
-
-    panel.insertBefore(header, panel.firstChild);
-
-    elements.outlookGlossaryTrigger = button;
-    return button;
-  }
-
-  let button = header.querySelector('.outlook-glossary-trigger');
-
-  if (!button) {
-    button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'outlook-glossary-trigger';
-    button.textContent = 'Explain these terms';
-    button.addEventListener('click', () => openOutlookGlossary(elements));
-
-    let actions = header.querySelector('.outlook-panel-actions');
-    if (!actions) {
-      actions = document.createElement('div');
-      actions.className = 'outlook-panel-actions';
-      header.appendChild(actions);
-    }
-
-    actions.appendChild(button);
-  }
-
-  elements.outlookGlossaryTrigger = button;
-  return button;
-}
-
-function ensureOutlookGlossary(elements) {
-  if (elements.outlookGlossaryOverlay && elements.outlookGlossaryDialog) {
-    return {
-      overlay: elements.outlookGlossaryOverlay,
-      dialog: elements.outlookGlossaryDialog
-    };
-  }
-
-  const overlay = document.createElement('div');
-  overlay.className = 'outlook-glossary-overlay hidden';
-  overlay.setAttribute('aria-hidden', 'true');
-
-  overlay.innerHTML = `
-    <div class="outlook-glossary-backdrop" data-glossary-close="true"></div>
-    <div
-      class="outlook-glossary-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="outlookGlossaryTitle"
-    >
-      <div class="outlook-glossary-header">
-        <div>
-          <h3 id="outlookGlossaryTitle">Explain these terms</h3>
-          <p>Definitions for the key metrics used in the Retirement outlook panel.</p>
-        </div>
-        <button type="button" class="outlook-glossary-close" aria-label="Close glossary">×</button>
-      </div>
-
-      <div class="outlook-glossary-body">
-        <section class="outlook-glossary-section">
-          <h4>Plan health</h4>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Spending sustainability score</div>
-            <div class="outlook-glossary-definition">A combined score showing how resilient the plan looks across different market outcomes. Higher is better.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Initial withdrawal rate</div>
-            <div class="outlook-glossary-definition">The percentage of the starting portfolio withdrawn in the first year.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Median final withdrawal rate</div>
-            <div class="outlook-glossary-definition">The percentage withdrawn in the final modelled year relative to the portfolio value at that point, using the median outcome.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Portfolio dependence</div>
-            <div class="outlook-glossary-definition">The share of total spending funded by portfolio withdrawals rather than pensions or other income.</div>
-          </div>
-        </section>
-
-        <section class="outlook-glossary-section">
-          <h4>Plan setup</h4>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Simulations run</div>
-            <div class="outlook-glossary-definition">The number of market scenarios tested in the projection.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Years modelled</div>
-            <div class="outlook-glossary-definition">The number of years included in the projection.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Starting portfolio</div>
-            <div class="outlook-glossary-definition">The portfolio value at the beginning of the plan.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Total household spending</div>
-            <div class="outlook-glossary-definition">Total spending across the full model period.</div>
-          </div>
-        </section>
-
-        <section class="outlook-glossary-section">
-          <h4>Portfolio outcomes</h4>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Median ending portfolio</div>
-            <div class="outlook-glossary-definition">The ending portfolio value in the middle outcome across all simulations.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">10th percentile ending</div>
-            <div class="outlook-glossary-definition">A weaker outcome. Only 10% of simulations finished below this level.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">90th percentile ending</div>
-            <div class="outlook-glossary-definition">A stronger outcome. Only 10% of simulations finished above this level.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Total withdrawals</div>
-            <div class="outlook-glossary-definition">The total amount withdrawn from the portfolio across the full plan.</div>
-          </div>
-        </section>
-
-        <section class="outlook-glossary-section">
-          <h4>Plan risks</h4>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">First spending shortfall year</div>
-            <div class="outlook-glossary-definition">The first year in which target spending is not fully met.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Worst spending shortfall</div>
-            <div class="outlook-glossary-definition">The largest single-year gap between target spending and actual spending.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Years with spending shortfall</div>
-            <div class="outlook-glossary-definition">The number of years in which target spending is not fully met.</div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Total state pension income</div>
-            <div class="outlook-glossary-definition">Total state pension income received across the plan.</div>
-          </div>
-        </section>
-      </div>
-    </div>
-  `;
-
-  overlay.addEventListener('click', (event) => {
-    if (event.target instanceof HTMLElement && event.target.dataset.glossaryClose === 'true') {
-      closeOutlookGlossary(elements);
-    }
-  });
-
-  const closeButton = overlay.querySelector('.outlook-glossary-close');
-  if (closeButton) {
-    closeButton.addEventListener('click', () => closeOutlookGlossary(elements));
-  }
-
-  document.body.appendChild(overlay);
-
-  const dialog = overlay.querySelector('.outlook-glossary-dialog');
-
-  elements.outlookGlossaryOverlay = overlay;
-  elements.outlookGlossaryDialog = dialog;
-  elements.outlookGlossaryKeyHandler = (event) => {
-    if (event.key === 'Escape') {
-      closeOutlookGlossary(elements);
-    }
-  };
-
-  return { overlay, dialog };
-}
-
-function openOutlookGlossary(elements) {
-  const glossary = ensureOutlookGlossary(elements);
-  if (!glossary) return;
-
-  glossary.overlay.classList.remove('hidden');
-  glossary.overlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('glossary-open');
-  document.addEventListener('keydown', elements.outlookGlossaryKeyHandler);
-
-  const closeButton = glossary.overlay.querySelector('.outlook-glossary-close');
-  closeButton?.focus();
-}
-
-function closeOutlookGlossary(elements) {
-  const overlay = elements.outlookGlossaryOverlay;
-  if (!overlay) return;
-
-  overlay.classList.add('hidden');
-  overlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('glossary-open');
-  document.removeEventListener('keydown', elements.outlookGlossaryKeyHandler);
-
-  elements.outlookGlossaryTrigger?.focus();
 }
 
 function renderPlanWarnings(result, elements, useReal, formatters) {
