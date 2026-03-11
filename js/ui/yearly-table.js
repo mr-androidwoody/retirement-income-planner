@@ -88,19 +88,19 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         ${includePerson2 ? `<td>${row.age2}</td>` : ''}
         <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
         <td>${formatCurrency(target)}</td>
-        <td>
-          <div class="table-cell-with-badge">
-            <span class="table-cell-value">${formatCurrency(actual)}</span>
-            ${shortfallBadge}
-          </div>
-        </td>
-        <td>
-          <div class="table-cell-with-badge">
-            <span class="table-cell-value">${cutDisplay}</span>
+        <td>${formatCurrency(actual)}</td>
+        <td class="cut-cell">
+          <div class="status-cell">
+            <span class="status-value">${cutDisplay}</span>
             ${cutBadge}
           </div>
         </td>
-        <td>${shortfallDisplay}</td>
+        <td class="shortfall-cell">
+          <div class="status-cell">
+            <span class="status-value">${shortfallDisplay}</span>
+            ${shortfallBadge}
+          </div>
+        </td>
         <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
         <td>${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
         <td>${formatCurrency(useReal ? row.windfallReal : row.windfallNominal)}</td>
