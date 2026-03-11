@@ -802,7 +802,7 @@ input[type="checkbox"]{
 
 #resultsTable{
   width:100%;
-  table-layout:fixed;
+  table-layout:auto;
   border-collapse:collapse;
 }
 
@@ -813,6 +813,7 @@ input[type="checkbox"]{
   text-align:left;
   font-size:0.92rem;
   position:relative;
+  vertical-align:middle;
 }
 
 #resultsTable thead th{
@@ -824,9 +825,12 @@ input[type="checkbox"]{
 
 #resultsTable th{
   white-space:normal;
-  line-height:1.2;
   overflow:visible;
-  word-break:break-word;
+  text-overflow:clip;
+  word-break:normal;
+  overflow-wrap:anywhere;
+  line-height:1.2;
+  font-size:0.86rem;
 }
 
 #resultsTable td{
@@ -835,16 +839,6 @@ input[type="checkbox"]{
   text-overflow:ellipsis;
   font-variant-numeric:tabular-nums;
 }
-
-/* Narrow the Year column */
-#resultsTable th:nth-child(1),
-#resultsTable td:nth-child(1){
-  width:60px;
-}
-
-/* ========================================
-   Status cells (Cut / Shortfall)
-   ======================================== */
 
 #resultsTable td.cut-cell,
 #resultsTable td.shortfall-cell{
@@ -856,7 +850,7 @@ input[type="checkbox"]{
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  gap:8px;
+  gap:6px;
   min-width:0;
   width:100%;
 }
@@ -871,6 +865,24 @@ input[type="checkbox"]{
 
 #resultsTable td:nth-child(n+4){
   text-align:right;
+}
+
+#resultsTable th:nth-child(1),
+#resultsTable td:nth-child(1){
+  width:60px;
+}
+
+/* ========================================
+   Status dots
+   ======================================== */
+
+#resultsTable .status-dot,
+.results-legend .status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  display:inline-block;
+  flex:0 0 auto;
 }
 
 /* ========================================
@@ -961,49 +973,28 @@ input[type="checkbox"]{
    Preserve existing diagnostic styling
    ======================================== */
 
-.cut-badge,
-.shortfall-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  height:24px;
-  padding:0 10px;
-  margin-left:0;
-  border-radius:999px;
-  vertical-align:middle;
-  white-space:nowrap;
-  font-size:0.72rem;
-  font-weight:700;
-  line-height:1;
-  min-width:52px;
-  flex:0 0 auto;
-}
-
 .cut-mild td{
   background:#fefce8;
-}
-
-.cut-badge.cut-mild{
-  background:#fde68a;
-  color:#92400e;
 }
 
 .cut-moderate td{
   background:#fff7ed;
 }
 
-.cut-badge.cut-moderate{
-  background:#fdba74;
-  color:#7c2d12;
-}
-
 .cut-severe td{
   background:#fee2e2;
 }
 
-.cut-badge.cut-severe{
-  background:#f87171;
-  color:#7f1d1d;
+.cut-mild .status-dot{
+  background:#fbbf24;
+}
+
+.cut-moderate .status-dot{
+  background:#f97316;
+}
+
+.cut-severe .status-dot{
+  background:#ef4444;
 }
 
 .first-cut-year td:first-child::before,
@@ -1029,9 +1020,8 @@ input[type="checkbox"]{
    Preserve existing shortfall styling
    ======================================== */
 
-.shortfall-badge{
-  background:#c7d2fe;
-  color:#1e3a8a;
+.shortfall-dot{
+  background:#3b82f6;
 }
 
 .spending-shortfall td{
@@ -1054,6 +1044,26 @@ input[type="checkbox"]{
 
 .worst-shortfall-year td:last-child::after{
   background:#4338ca;
+}
+
+/* ========================================
+   Results Legend
+   ======================================== */
+
+.results-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  margin:0 0 10px;
+  color:var(--muted);
+  font-size:0.85rem;
+  line-height:1.4;
+}
+
+.legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
 
 /* ========================================
@@ -1170,6 +1180,10 @@ input[type="checkbox"]{
 
   .plan-summary-grid{
     grid-template-columns:1fr;
+  }
+
+  .results-legend{
+    gap:10px;
   }
 }
 
