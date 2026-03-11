@@ -847,7 +847,6 @@ input[type="checkbox"]{
   text-align:left;
 }
 
-/* Preferred permanent alignment classes */
 #resultsTable th.col-text,
 #resultsTable td.col-text{
   text-align:left;
@@ -858,7 +857,6 @@ input[type="checkbox"]{
   text-align:right;
 }
 
-/* Column nudges */
 #resultsTable th:nth-child(1),
 #resultsTable td:nth-child(1){
   width:56px;
@@ -880,7 +878,6 @@ input[type="checkbox"]{
   min-width:110px;
 }
 
-/* Status cells */
 #resultsTable td.cut-cell,
 #resultsTable td.shortfall-cell{
   overflow:visible;
@@ -951,7 +948,57 @@ input[type="checkbox"]{
 }
 
 /* ========================================
-   Monte Carlo Summary
+   Retirement Outlook Summary
+   ======================================== */
+
+.outlook-panel-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:16px;
+}
+
+.outlook-panel-heading h3{
+  margin:0 0 6px;
+  font-size:1.2rem;
+  line-height:1.2;
+}
+
+.outlook-panel-heading p{
+  margin:0;
+  color:var(--muted);
+  font-size:0.92rem;
+  line-height:1.5;
+}
+
+.outlook-panel-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+}
+
+.outlook-glossary-trigger{
+  appearance:none;
+  min-height:38px;
+  padding:0 14px;
+  background:var(--panel-soft);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:999px;
+  cursor:pointer;
+  font-size:0.9rem;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.outlook-glossary-trigger:hover{
+  background:#eef4ff;
+}
+
+/* ========================================
+   Monte Carlo / Outlook Summary Tiles
    ======================================== */
 
 .plan-summary-grid{
@@ -1118,6 +1165,111 @@ input[type="checkbox"]{
 }
 
 /* ========================================
+   Retirement Outlook Glossary
+   ======================================== */
+
+.outlook-glossary-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.outlook-glossary-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(15, 23, 42, 0.48);
+}
+
+.outlook-glossary-dialog{
+  position:relative;
+  z-index:1;
+  width:min(920px, 100%);
+  max-height:min(84vh, 920px);
+  overflow:auto;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.outlook-glossary-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:22px 22px 16px;
+  border-bottom:1px solid var(--line);
+}
+
+.outlook-glossary-header h3{
+  margin:0 0 6px;
+  font-size:1.25rem;
+  line-height:1.2;
+}
+
+.outlook-glossary-header p{
+  margin:0;
+  color:var(--muted);
+  font-size:0.92rem;
+  line-height:1.5;
+}
+
+.outlook-glossary-close{
+  appearance:none;
+  width:36px;
+  height:36px;
+  background:var(--panel-soft);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:999px;
+  cursor:pointer;
+  font-size:1.2rem;
+  line-height:1;
+  flex:0 0 auto;
+}
+
+.outlook-glossary-body{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:22px 24px;
+  padding:22px;
+}
+
+.outlook-glossary-section h4{
+  margin:0 0 12px;
+  color:var(--text);
+  font-size:0.98rem;
+  font-weight:800;
+  line-height:1.2;
+}
+
+.outlook-glossary-item + .outlook-glossary-item{
+  margin-top:14px;
+}
+
+.outlook-glossary-term{
+  margin-bottom:4px;
+  color:var(--text);
+  font-size:0.92rem;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.outlook-glossary-definition{
+  color:var(--muted);
+  font-size:0.9rem;
+  line-height:1.55;
+}
+
+body.glossary-open{
+  overflow:hidden;
+}
+
+/* ========================================
    Responsive
    ======================================== */
 
@@ -1162,6 +1314,10 @@ input[type="checkbox"]{
 
 @media (max-width: 980px){
   .people-panels{
+    grid-template-columns:1fr;
+  }
+
+  .outlook-glossary-body{
     grid-template-columns:1fr;
   }
 }
@@ -1235,6 +1391,31 @@ input[type="checkbox"]{
 
   .results-legend{
     gap:10px;
+  }
+
+  .outlook-panel-header{
+    flex-direction:column;
+  }
+
+  .outlook-panel-actions{
+    width:100%;
+  }
+
+  .outlook-glossary-trigger{
+    width:100%;
+  }
+
+  .outlook-glossary-overlay{
+    padding:12px;
+  }
+
+  .outlook-glossary-body{
+    grid-template-columns:1fr;
+    padding:18px;
+  }
+
+  .outlook-glossary-header{
+    padding:18px 18px 14px;
   }
 }
 
