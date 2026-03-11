@@ -31,15 +31,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
       worstCutYear = i;
     }
 
-    const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
-    const actual = useReal ? r.spendingReal : r.spendingNominal;
-    const portfolioEnd = useReal ? r.endPortfolioReal : r.endPortfolioNominal;
-
-    let shortfall = Math.max(0, target - actual);
-
-    if (shortfall === 0 && portfolioEnd <= 0 && target > actual) {
-      shortfall = target - actual;
-    }
+    const shortfall = getRowShortfall(r, useReal);
 
     if (shortfall > 0) {
       shortfallYears += 1;
@@ -94,6 +86,8 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
+
+  renderStatusLegend(elements, rows);
 
   renderYearlyTable(
     elements.resultsTable,
@@ -306,15 +300,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   let worstShortfallYear = null;
 
   rows.forEach((r, i) => {
-    const target = useReal ? r.targetSpendingReal : r.targetSpendingNominal;
-    const actual = useReal ? r.spendingReal : r.spendingNominal;
-    const portfolioEnd = useReal ? r.endPortfolioReal : r.endPortfolioNominal;
-
-    let shortfall = Math.max(0, target - actual);
-
-    if (shortfall === 0 && portfolioEnd <= 0 && target > actual) {
-      shortfall = target - actual;
-    }
+    const shortfall = getRowShortfall(r, useReal);
 
     if (shortfall > 0) {
       if (firstShortfallYear === null) {
@@ -353,4 +339,129 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     `
     )
     .join('');
+}
+
+function renderStatusLegend(elements, rows) {
+  const legend = ensureResultsLegendContainer(elements);
+  if (!legend) return;
+
+  const flags = getLegendFlags(rows);
+
+  if (!flags.hasMild && !flags.hasModerate && !flags.hasSevere && !flags.hasShortfall) {
+    legend.innerHTML = '';
+    legend.classList.add('hidden');
+    return;
+  }
+
+  const items = [];
+
+  if (flags.hasMild) {
+    items.push(`
+      <span class="legend-item">
+        <span class="status-dot cut-mild" aria-hidden="true"></span>
+        <span>Spending cut (mild)</span>
+      </span>
+    `);
+  }
+
+  if (flags.hasModerate) {
+    items.push(`
+      <span class="legend-item">
+        <span class="status-dot cut-moderate" aria-hidden="true"></span>
+        <span>Spending cut (moderate)</span>
+      </span>
+    `);
+  }
+
+  if (flags.hasSevere) {
+    items.push(`
+      <span class="legend-item">
+        <span class="status-dot cut-severe" aria-hidden="true"></span>
+        <span>Spending cut (severe)</span>
+      </span>
+    `);
+  }
+
+  if (flags.hasShortfall) {
+    items.push(`
+      <span class="legend-item">
+        <span class="status-dot shortfall-dot" aria-hidden="true"></span>
+        <span>Spending shortfall</span>
+      </span>
+    `);
+  }
+
+  legend.innerHTML = items.join('');
+  legend.classList.remove('hidden');
+}
+
+function ensureResultsLegendContainer(elements) {
+  if (elements.resultsLegend) {
+    return elements.resultsLegend;
+  }
+
+  const table = elements.resultsTable;
+  const tableCard = elements.tableCard;
+
+  if (!table || !tableCard) {
+    return null;
+  }
+
+  let legend = tableCard.querySelector('#resultsLegend');
+
+  if (!legend) {
+    legend = document.createElement('div');
+    legend.id = 'resultsLegend';
+    legend.className = 'results-legend hidden';
+
+    const tableWrap = table.closest('.table-wrap');
+    if (tableWrap && tableWrap.parentNode) {
+      tableWrap.parentNode.insertBefore(legend, tableWrap);
+    } else {
+      tableCard.insertBefore(legend, tableCard.firstChild);
+    }
+  }
+
+  elements.resultsLegend = legend;
+  return legend;
+}
+
+function getLegendFlags(rows) {
+  let hasMild = false;
+  let hasModerate = false;
+  let hasSevere = false;
+  let hasShortfall = false;
+
+  rows.forEach((r) => {
+    const cut = r.spendingCutPercent || 0;
+
+    if (cut > 0 && cut < 0.05) hasMild = true;
+    else if (cut >= 0.05 && cut < 0.10) hasModerate = true;
+    else if (cut >= 0.10) hasSevere = true;
+
+    if (getRowShortfall(r, true) > 0 || getRowShortfall(r, false) > 0) {
+      hasShortfall = true;
+    }
+  });
+
+  return {
+    hasMild,
+    hasModerate,
+    hasSevere,
+    hasShortfall
+  };
+}
+
+function getRowShortfall(row, useReal) {
+  const target = useReal ? row.targetSpendingReal : row.targetSpendingNominal;
+  const actual = useReal ? row.spendingReal : row.spendingNominal;
+  const portfolioEnd = useReal ? row.endPortfolioReal : row.endPortfolioNominal;
+
+  let shortfall = Math.max(0, target - actual);
+
+  if (shortfall === 0 && portfolioEnd <= 0 && target > actual) {
+    shortfall = target - actual;
+  }
+
+  return shortfall;
 }

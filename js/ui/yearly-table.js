@@ -41,8 +41,8 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     const shortfall = Math.max(0, target - actual);
 
     let severity = '';
-    let cutBadge = '';
-    let shortfallBadge = '';
+    let cutDot = '';
+    let shortfallDot = '';
     let shortfallClass = '';
 
     if (cut > 0) {
@@ -50,17 +50,12 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
       else if (cut < 0.10) severity = 'cut-moderate';
       else severity = 'cut-severe';
 
-      const label =
-        cut < 0.05 ? 'Mild cut'
-        : cut < 0.10 ? 'Moderate cut'
-        : 'Severe cut';
-
-      cutBadge = `<span class="cut-badge ${severity}">${label}</span>`;
+      cutDot = `<span class="status-dot ${severity}" aria-hidden="true"></span>`;
     }
 
     if (shortfall > 0) {
       shortfallClass = 'spending-shortfall';
-      shortfallBadge = `<span class="shortfall-badge">Shortfall</span>`;
+      shortfallDot = `<span class="status-dot shortfall-dot" aria-hidden="true"></span>`;
     }
 
     const firstCutClass = index === firstCutYear ? 'first-cut-year' : '';
@@ -92,13 +87,13 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         <td class="cut-cell">
           <div class="status-cell">
             <span class="status-value">${cutDisplay}</span>
-            ${cutBadge}
+            ${cutDot}
           </div>
         </td>
         <td class="shortfall-cell">
           <div class="status-cell">
             <span class="status-value">${shortfallDisplay}</span>
-            ${shortfallBadge}
+            ${shortfallDot}
           </div>
         </td>
         <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
