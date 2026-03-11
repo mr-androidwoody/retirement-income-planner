@@ -1,3 +1,7 @@
+/* ========================================
+   Root Tokens
+   ======================================== */
+
 :root{
   --bg:#eef2f8;
   --panel:#ffffff;
@@ -13,11 +17,18 @@
   --radius-sm:10px;
 }
 
-*,*::before,*::after{
+/* ========================================
+   Base / Reset
+   ======================================== */
+
+*,
+*::before,
+*::after{
   box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
   margin:0;
   padding:0;
   background:var(--bg);
@@ -28,6 +39,21 @@ html,body{
 body{
   min-height:100vh;
 }
+
+canvas{
+  display:block;
+  width:100%;
+  background:#fff;
+  border-radius:16px;
+}
+
+.hidden{
+  display:none !important;
+}
+
+/* ========================================
+   Page Layout
+   ======================================== */
 
 .page-shell{
   max-width:1460px;
@@ -48,18 +74,22 @@ body{
 
 .intro{
   margin:0;
+  max-width:980px;
+  color:var(--muted);
   font-size:1rem;
   line-height:1.6;
-  color:var(--muted);
-  max-width:980px;
 }
 
+/* ========================================
+   Summary Band
+   ======================================== */
+
 .summary-band{
+  margin-bottom:16px;
+  padding:18px;
   background:linear-gradient(135deg, #15233b 0%, #1d3152 100%);
   border-radius:22px;
-  padding:18px;
   box-shadow:var(--shadow);
-  margin-bottom:16px;
 }
 
 .summary-grid{
@@ -70,11 +100,11 @@ body{
 
 .summary-card{
   min-height:132px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
   padding:16px;
   color:#fff;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
 }
 
 .summary-card--green{
@@ -93,45 +123,49 @@ body{
 }
 
 .summary-label{
+  margin-bottom:10px;
+  color:rgba(255,255,255,0.82);
   font-size:0.88rem;
   font-weight:700;
-  color:rgba(255,255,255,0.82);
-  margin-bottom:10px;
 }
 
 .summary-value{
+  margin-bottom:10px;
   font-size:clamp(1.3rem, 2vw, 1.9rem);
   font-weight:800;
   line-height:1.15;
-  margin-bottom:10px;
   letter-spacing:-0.02em;
 }
 
 .summary-desc{
+  color:rgba(255,255,255,0.76);
   font-size:0.86rem;
   line-height:1.45;
-  color:rgba(255,255,255,0.76);
 }
+
+/* ========================================
+   Tabs
+   ======================================== */
 
 .tab-nav{
   display:flex;
+  flex-wrap:wrap;
   gap:10px;
   margin-bottom:16px;
-  flex-wrap:wrap;
 }
 
 .tab-button{
   appearance:none;
-  border:1px solid var(--line);
+  min-width:120px;
+  padding:11px 18px;
   background:var(--panel);
   color:var(--text);
+  border:1px solid var(--line);
   border-radius:999px;
-  padding:11px 18px;
-  min-width:120px;
+  box-shadow:var(--shadow);
+  cursor:pointer;
   font-size:0.95rem;
   font-weight:800;
-  cursor:pointer;
-  box-shadow:var(--shadow);
 }
 
 .tab-button.is-active{
@@ -162,6 +196,10 @@ body{
   grid-template-columns:minmax(0, 1fr);
 }
 
+/* ========================================
+   Shared Panels / Cards
+   ======================================== */
+
 .panel,
 .chart-card,
 .table-card{
@@ -174,7 +212,9 @@ body{
 .input-shell-panel,
 .results-meta-panel,
 .chart-card,
-.table-card{
+.table-card,
+.plan-summary-panel,
+.plan-warnings-panel{
   padding:18px;
 }
 
@@ -205,21 +245,61 @@ body{
   margin-bottom:16px;
 }
 
+.card-header{
+  margin-bottom:12px;
+}
+
+.chart-card{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100%;
+}
+
+.chart-card-header{
+  margin-bottom:14px;
+  flex:0 0 auto;
+}
+
+.card-title-block{
+  min-width:0;
+}
+
+.card-title-block h2{
+  margin:0;
+  font-size:1.2rem;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.card-title-block p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:0.92rem;
+  line-height:1.45;
+}
+
+/* ========================================
+   Buttons / Controls
+   ======================================== */
+
 .action-row{
   display:flex;
-  gap:10px;
   flex-wrap:wrap;
+  gap:10px;
 }
 
 .btn{
   appearance:none;
-  border:none;
-  border-radius:12px;
   min-height:42px;
   padding:0 16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
   font-size:0.95rem;
   font-weight:700;
-  cursor:pointer;
   transition:transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
 }
 
@@ -243,6 +323,10 @@ body{
   color:var(--text);
 }
 
+/* ========================================
+   Input Shell / Form Layout
+   ======================================== */
+
 .input-shell{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -251,19 +335,19 @@ body{
 }
 
 .input-group-card{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100%;
+  padding:18px;
   background:var(--panel-soft);
   border:1px solid var(--line);
   border-radius:18px;
-  padding:18px;
-  min-width:0;
-  height:100%;
-  display:flex;
-  flex-direction:column;
 }
 
 .section-heading{
-  margin-bottom:16px;
   min-height:64px;
+  margin-bottom:16px;
 }
 
 .section-heading h3{
@@ -274,10 +358,10 @@ body{
 
 .section-heading p{
   margin:0;
+  max-width:56ch;
   color:var(--muted);
   font-size:0.9rem;
   line-height:1.45;
-  max-width:56ch;
 }
 
 .section-subnote{
@@ -318,9 +402,9 @@ body{
 }
 
 .field-label{
-  min-height:46px;
   display:flex;
   align-items:flex-end;
+  min-height:46px;
   color:var(--text);
   font-size:0.9rem;
   font-weight:700;
@@ -338,35 +422,39 @@ input[type="text"],
 input[type="number"]{
   width:100%;
   height:44px;
+  padding:0 14px;
+  background:#fff;
+  color:var(--text);
   border:1px solid var(--line-strong);
   border-radius:12px;
-  padding:0 14px;
   font-size:1rem;
-  color:var(--text);
-  background:#fff;
 }
 
 input[type="checkbox"]{
   width:18px;
   height:18px;
-  accent-color:var(--accent);
-  align-self:flex-start;
   margin-top:6px;
+  align-self:flex-start;
+  accent-color:var(--accent);
 }
 
 .help{
   appearance:none;
-  border:none;
-  background:var(--accent-soft);
-  color:var(--accent);
+  flex:0 0 auto;
   width:22px;
   height:22px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  border:none;
   border-radius:999px;
+  cursor:help;
   font-size:0.8rem;
   font-weight:800;
-  cursor:help;
-  flex:0 0 auto;
 }
+
+/* ========================================
+   People / Income / Pension Inputs
+   ======================================== */
 
 .people-pensions-card{
   display:flex;
@@ -424,45 +512,6 @@ input[type="checkbox"]{
   text-align:left;
 }
 
-/* ================================
-   Person Panels (Fixed Income)
-   ================================ */
-
-.people-panels{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:18px;
-  margin-top:6px;
-}
-
-.person-panel{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#ffffff;
-}
-
-.person-panel-title{
-  font-size:0.92rem;
-  font-weight:800;
-  color:var(--text);
-  letter-spacing:0.02em;
-  padding-bottom:6px;
-  border-bottom:1px solid var(--line);
-}
-
-.person-pension-checkbox{
-  align-items:center;
-  gap:10px;
-}
-
-.person-pension-checkbox input{
-  margin-top:0;
-}
-
 .field-inline{
   gap:8px;
 }
@@ -476,6 +525,87 @@ input[type="checkbox"]{
   max-width:none;
 }
 
+.person-pension-checkbox{
+  align-items:center;
+  gap:10px;
+}
+
+.person-pension-checkbox input{
+  margin-top:0;
+}
+
+/* ========================================
+   Person Panels
+   ======================================== */
+
+.people-panels{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:18px;
+  margin-top:6px;
+}
+
+.person-panel{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+
+.person-panel-title{
+  padding-bottom:6px;
+  color:var(--text);
+  border-bottom:1px solid var(--line);
+  font-size:0.92rem;
+  font-weight:800;
+  letter-spacing:0.02em;
+}
+
+.person-panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--line);
+}
+
+.person-panel-header .person-panel-title{
+  padding-bottom:0;
+  border-bottom:none;
+}
+
+.person-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:0.88rem;
+  font-weight:700;
+}
+
+.person-toggle input{
+  margin:0;
+  align-self:center;
+}
+
+.person-panel-disabled{
+  opacity:0.55;
+}
+
+.person-panel-disabled input,
+.person-panel-disabled select,
+.person-panel-disabled textarea{
+  cursor:not-allowed;
+}
+
+/* ========================================
+   Asset Assumptions
+   ======================================== */
+
 .asset-assumptions-grid{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -486,9 +616,9 @@ input[type="checkbox"]{
   display:grid;
   gap:12px;
   padding:14px;
+  background:#f8fbff;
   border:1px solid var(--line);
   border-radius:14px;
-  background:#f8fbff;
 }
 
 .asset-assumption-title{
@@ -499,18 +629,22 @@ input[type="checkbox"]{
 }
 
 .asset-assumptions-inflation{
-  margin-top:14px;
   max-width:220px;
+  margin-top:14px;
 }
+
+/* ========================================
+   Results Toolbar / Mode Controls
+   ======================================== */
 
 .results-toolbar{
   display:flex;
   flex-wrap:wrap;
+  align-items:flex-end;
   gap:14px;
   margin-top:16px;
   padding-top:16px;
   border-top:1px solid var(--line);
-  align-items:flex-end;
 }
 
 .chart-mode-group{
@@ -553,19 +687,23 @@ input[type="checkbox"]{
   min-width:86px;
   min-height:42px;
   padding:0 14px;
-  border:1px solid var(--line);
-  border-radius:14px;
   background:var(--panel);
   color:var(--text);
+  border:1px solid var(--line);
+  border-radius:14px;
   font-size:0.95rem;
   font-weight:700;
-  transition:background 0.12s ease, border-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
 .mode-option input:checked + span{
   background:var(--accent-soft);
-  border-color:var(--accent);
   color:var(--accent);
+  border-color:var(--accent);
   box-shadow:inset 0 0 0 1px rgba(45, 91, 255, 0.08);
 }
 
@@ -575,13 +713,13 @@ input[type="checkbox"]{
   gap:10px;
   min-height:44px;
   padding:0 14px;
-  border:1px solid var(--line);
-  border-radius:999px;
   background:var(--panel-soft);
   color:var(--text);
+  border:1px solid var(--line);
+  border-radius:999px;
+  cursor:pointer;
   font-size:0.92rem;
   font-weight:700;
-  cursor:pointer;
 }
 
 .toggle-chip input[type="checkbox"]{
@@ -589,12 +727,16 @@ input[type="checkbox"]{
   align-self:center;
 }
 
+/* ========================================
+   Results Supporting Text
+   ======================================== */
+
 .results-explainer{
   margin-top:14px;
   padding:14px 16px;
+  background:var(--panel-soft);
   border:1px solid var(--line);
   border-radius:14px;
-  background:var(--panel-soft);
 }
 
 .results-explainer p{
@@ -608,6 +750,21 @@ input[type="checkbox"]{
   margin-top:8px;
 }
 
+.model-note{
+  margin-top:16px;
+  padding:14px;
+  background:var(--panel-soft);
+  color:var(--muted);
+  border:1px solid var(--line);
+  border-radius:16px;
+  font-size:0.92rem;
+  line-height:1.6;
+}
+
+/* ========================================
+   Results Grid / Charts
+   ======================================== */
+
 .results-chart-grid{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -615,63 +772,11 @@ input[type="checkbox"]{
   align-items:stretch;
 }
 
-.model-note{
-  background:var(--panel-soft);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-  margin-top:16px;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.6;
-}
-
-.chart-card,
-.table-card{
-  padding:18px;
-}
-
-.chart-card{
-  display:flex;
-  flex-direction:column;
-  min-width:0;
-  height:100%;
-}
-
-.card-header{
-  margin-bottom:12px;
-}
-
-.chart-card-header{
-  margin-bottom:14px;
-  flex:0 0 auto;
-}
-
-.card-title-block{
-  min-width:0;
-}
-
-.card-title-block h2{
-  margin:0;
-  font-size:1.2rem;
-  line-height:1.25;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.card-title-block p{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:0.92rem;
-  line-height:1.45;
-}
-
 .chart-canvas-wrap{
   position:relative;
+  display:flex;
   flex:1 1 auto;
   min-height:220px;
-  display:flex;
 }
 
 .chart-canvas-wrap canvas{
@@ -683,18 +788,16 @@ input[type="checkbox"]{
   border-radius:16px;
 }
 
-canvas{
-  display:block;
-  width:100%;
-  background:#fff;
-  border-radius:16px;
-}
+/* ========================================
+   Yearly Results Table
+   Consolidated single source of truth
+   ======================================== */
 
 .table-wrap{
+  width:100%;
   max-height:60vh;
   overflow-y:auto;
   overflow-x:hidden;
-  width:100%;
 }
 
 #resultsTable{
@@ -709,78 +812,87 @@ canvas{
   border-bottom:1px solid var(--line);
   text-align:left;
   font-size:0.92rem;
-  white-space:nowrap;
   position:relative;
 }
 
-#resultsTable th{
+#resultsTable thead th{
   position:sticky;
   top:0;
+  z-index:2;
   background:#f8fbff;
-  z-index:1;
 }
+
+#resultsTable th{
+  white-space:normal;
+  line-height:1.2;
+  overflow:visible;
+  word-break:break-word;
+}
+
+#resultsTable td{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums;
+}
+
+#resultsTable td:nth-child(n+4){
+  text-align:right;
+}
+
+/* ========================================
+   Errors / Status
+   ======================================== */
 
 .error-box{
   display:none;
   margin-top:16px;
   margin-bottom:16px;
+  padding:12px 14px;
   background:#fff2f2;
   color:#8f1824;
   border:1px solid #f1c5cb;
   border-radius:14px;
-  padding:12px 14px;
   font-size:0.92rem;
   line-height:1.5;
 }
 
-.hidden{
-  display:none !important;
-}
-
-/* ================================
-   Monte Carlo Summary Panel
-   ================================ */
-
-.plan-summary-panel{
-  padding:18px;
-}
+/* ========================================
+   Monte Carlo Summary
+   ======================================== */
 
 .plan-summary-grid{
   display:grid;
-  grid-template-columns:repeat(4, minmax(0,1fr));
+  grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:14px;
   margin-top:12px;
 }
 
 .summary-item{
-  background:var(--panel-soft);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:12px 14px;
   display:flex;
   flex-direction:column;
   gap:6px;
+  padding:12px 14px;
+  background:var(--panel-soft);
+  border:1px solid var(--line);
+  border-radius:14px;
 }
 
 .summary-item-label{
+  color:var(--muted);
   font-size:0.82rem;
   font-weight:700;
-  color:var(--muted);
 }
 
 .summary-item-value{
+  color:var(--text);
   font-size:1.05rem;
   font-weight:800;
-  color:var(--text);
 }
 
-/* ================================
-   Plan Warnings Panel
-   ================================ */
-
-.plan-warnings-panel{
-  padding:18px;
-}
+/* ========================================
+   Plan Warnings
+   ======================================== */
 
 #planWarnings{
   display:flex;
@@ -789,31 +901,32 @@ canvas{
   margin-top:10px;
 }
 
-.plan-warning{
-  background:#fff7ed;
-  border:1px solid #fdba74;
-  border-radius:12px;
+.plan-warning,
+.plan-warning-ok{
   padding:12px 14px;
+  border-radius:12px;
   font-size:0.92rem;
   line-height:1.45;
+}
+
+.plan-warning{
+  background:#fff7ed;
   color:#7c2d12;
+  border:1px solid #fdba74;
   font-weight:600;
 }
 
 .plan-warning-ok{
   background:#ecfdf5;
-  border:1px solid #6ee7b7;
-  border-radius:12px;
-  padding:12px 14px;
-  font-size:0.92rem;
-  line-height:1.45;
   color:#065f46;
+  border:1px solid #6ee7b7;
   font-weight:700;
 }
 
-/* ================================
+/* ========================================
    Spending Cut Diagnostics
-   ================================ */
+   Preserve existing diagnostic styling
+   ======================================== */
 
 .cut-badge,
 .shortfall-badge{
@@ -825,11 +938,11 @@ canvas{
   margin-left:8px;
   padding:0 10px;
   border-radius:999px;
+  vertical-align:middle;
+  white-space:nowrap;
   font-size:0.72rem;
   font-weight:700;
   line-height:1;
-  vertical-align:middle;
-  white-space:nowrap;
 }
 
 .cut-mild td{
@@ -861,11 +974,11 @@ canvas{
 
 .first-cut-year td:first-child::before,
 .worst-cut-year td:first-child::before{
-  content:'';
+  content:"";
   position:absolute;
-  left:0;
   top:0;
   bottom:0;
+  left:0;
   width:4px;
 }
 
@@ -877,9 +990,10 @@ canvas{
   background:#ef4444;
 }
 
-/* ================================
+/* ========================================
    Spending Shortfall Diagnostics
-   ================================ */
+   Preserve existing shortfall styling
+   ======================================== */
 
 .shortfall-badge{
   background:#c7d2fe;
@@ -892,10 +1006,10 @@ canvas{
 
 .first-shortfall-year td:last-child::after,
 .worst-shortfall-year td:last-child::after{
-  content:'';
+  content:"";
   position:absolute;
-  right:0;
   top:0;
+  right:0;
   bottom:0;
   width:4px;
 }
@@ -907,6 +1021,10 @@ canvas{
 .worst-shortfall-year td:last-child::after{
   background:#4338ca;
 }
+
+/* ========================================
+   Responsive
+   ======================================== */
 
 @media (max-width: 1180px){
   .summary-grid{
@@ -929,7 +1047,7 @@ canvas{
   }
 
   .plan-summary-grid{
-    grid-template-columns:repeat(2, minmax(0,1fr));
+    grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 
   .section-heading{
@@ -954,9 +1072,9 @@ canvas{
 }
 
 @media (max-width: 860px){
-  .field-grid-4,
-  .field-grid-3,
   .field-grid,
+  .field-grid-3,
+  .field-grid-4,
   .asset-assumptions-grid{
     grid-template-columns:1fr;
   }
@@ -979,8 +1097,8 @@ canvas{
 
   .chart-canvas-wrap,
   .chart-canvas-wrap canvas{
-    min-height:220px;
     height:220px;
+    min-height:220px;
   }
 }
 
@@ -1026,98 +1144,4 @@ canvas{
   .field-grid-2{
     grid-template-columns:1fr;
   }
-}
-/* ===== Yearly results table scroll container ===== */
-
-.yearly-table-container {
-  max-height: 420px;
-  overflow-y: auto;
-}
-
-/* sticky header */
-
-#yearlyTable thead th {
-  position: sticky;
-  top: 0;
-  background: var(--card-bg);
-  z-index: 2;
-}
-
-/* tighter rows */
-
-#yearlyTable td,
-#yearlyTable th {
-  padding: 6px 10px;
-  line-height: 1.2;
-}
-/* existing CSS */
-
-/* existing rule */
-.table-wrap{
-  max-height:60vh;
-  overflow-y:auto;
-  overflow-x:hidden;
-  width:100%;
-}
-
-#resultsTable{
-  width:100%;
-  table-layout:fixed;
-  border-collapse:collapse;
-}
-
-#resultsTable th,
-#resultsTable td{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-
-#resultsTable thead th{
-  position:sticky;
-  top:0;
-  background:var(--panel);
-  z-index:2;
-}
-
-/* ------------------------------------------------ */
-/* Person 2 optional panel support */
-/* ------------------------------------------------ */
-
-.person-panel-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding-bottom:6px;
-  border-bottom:1px solid var(--line);
-}
-
-.person-panel-header .person-panel-title{
-  padding-bottom:0;
-  border-bottom:none;
-}
-
-.person-toggle{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  font-size:0.88rem;
-  font-weight:700;
-  color:var(--muted);
-}
-
-.person-toggle input{
-  margin:0;
-  align-self:center;
-}
-
-.person-panel-disabled{
-  opacity:0.55;
-}
-
-.person-panel-disabled input,
-.person-panel-disabled select,
-.person-panel-disabled textarea{
-  cursor:not-allowed;
 }
