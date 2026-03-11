@@ -691,13 +691,16 @@ canvas{
 }
 
 .table-wrap{
-  overflow:auto;
+  max-height:60vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  width:100%;
 }
 
 #resultsTable{
   width:100%;
+  table-layout:fixed;
   border-collapse:collapse;
-  min-width:860px;
 }
 
 #resultsTable th,
@@ -1050,8 +1053,31 @@ canvas{
 /* existing CSS */
 
 /* existing rule */
-.table-wrap {
-  overflow-x:auto;
+.table-wrap{
+  max-height:60vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  width:100%;
+}
+
+#resultsTable{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:collapse;
+}
+
+#resultsTable th,
+#resultsTable td{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+#resultsTable thead th{
+  position:sticky;
+  top:0;
+  background:var(--panel);
+  z-index:2;
 }
 
 /* ------------------------------------------------ */
