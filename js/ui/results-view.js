@@ -103,6 +103,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
     {
       person1Name: result.inputs?.person1Name,
       person2Name: result.inputs?.person2Name,
+      includePerson2: result.inputs?.includePerson2,
       cutDiagnostics
     }
   );
