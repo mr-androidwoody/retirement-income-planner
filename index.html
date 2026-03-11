@@ -215,54 +215,60 @@
       </div>
     </section>
 
-    <section class="person-panel">
-      <div class="person-panel-title">Person 2</div>
+    <section class="person-panel" id="person2Panel">
+  <div class="person-panel-header">
+    <div class="person-panel-title">Person 2</div>
 
-      <div class="field-grid field-grid-3">
-        <label class="field person-name-field">
-          <span class="field-label">Name</span>
-          <input id="person2Name" type="text" placeholder="Enter name" />
-        </label>
-
-        <label class="field person-age-field">
-          <span class="field-label">Current age</span>
-          <input id="person2Age" type="number" min="18" max="100" step="1" />
-        </label>
-
-        <label class="field person-pension-age-field">
-          <span class="field-label">State pension age</span>
-          <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
-        </label>
-      </div>
-
-      <label class="field field-inline field-inline-wide person-pension-checkbox">
-        <span class="field-label field-label-inline">Receives full state pension</span>
-        <input id="person2GetsFullPension" type="checkbox" />
-      </label>
-
-      <div class="field-grid field-grid-2">
-        <label class="field">
-          <span class="field-label">Other income</span>
-          <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
-        </label>
-
-        <label class="field">
-          <span class="field-label">Number of years</span>
-          <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" />
-        </label>
-
-        <label class="field">
-          <span class="field-label">Windfall amount</span>
-          <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
-        </label>
-
-        <label class="field">
-          <span class="field-label">In which year</span>
-          <input id="person2WindfallYear" type="number" min="0" max="80" step="1" />
-        </label>
-      </div>
-    </section>
+    <label class="person-toggle">
+      <input id="includePerson2" type="checkbox" checked />
+      <span>Include person 2</span>
+    </label>
   </div>
+
+  <div class="field-grid field-grid-3">
+    <label class="field person-name-field">
+      <span class="field-label">Name</span>
+      <input id="person2Name" type="text" placeholder="Enter name" />
+    </label>
+
+    <label class="field person-age-field">
+      <span class="field-label">Current age</span>
+      <input id="person2Age" type="number" min="18" max="100" step="1" />
+    </label>
+
+    <label class="field person-pension-age-field">
+      <span class="field-label">State pension age</span>
+      <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
+    </label>
+  </div>
+
+  <label class="field field-inline field-inline-wide person-pension-checkbox">
+    <span class="field-label field-label-inline">Receives full state pension</span>
+    <input id="person2GetsFullPension" type="checkbox" />
+  </label>
+
+  <div class="field-grid field-grid-2">
+    <label class="field">
+      <span class="field-label">Other income</span>
+      <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
+    </label>
+
+    <label class="field">
+      <span class="field-label">Number of years</span>
+      <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" />
+    </label>
+
+    <label class="field">
+      <span class="field-label">Windfall amount</span>
+      <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
+    </label>
+
+    <label class="field">
+      <span class="field-label">In which year</span>
+      <input id="person2WindfallYear" type="number" min="0" max="80" step="1" />
+    </label>
+  </div>
+ </section>/div>
 </section>
 
               <section class="input-group-card">
