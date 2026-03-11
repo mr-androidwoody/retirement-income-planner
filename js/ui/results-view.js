@@ -478,3 +478,35 @@ function formatInteger(value) {
     maximumFractionDigits: 0
   }).format(value);
 }
+const glossaryButton = document.getElementById('explainOutlookTerms');
+const glossaryOverlay = document.getElementById('outlookGlossaryOverlay');
+const glossaryClose = document.getElementById('closeOutlookGlossary');
+const glossaryBackdrop = glossaryOverlay?.querySelector('.outlook-glossary-backdrop');
+
+if (glossaryButton && glossaryOverlay) {
+  glossaryButton.addEventListener('click', () => {
+    glossaryOverlay.classList.remove('hidden');
+    document.body.classList.add('glossary-open');
+  });
+}
+
+if (glossaryClose && glossaryOverlay) {
+  glossaryClose.addEventListener('click', () => {
+    glossaryOverlay.classList.add('hidden');
+    document.body.classList.remove('glossary-open');
+  });
+}
+
+if (glossaryBackdrop && glossaryOverlay) {
+  glossaryBackdrop.addEventListener('click', () => {
+    glossaryOverlay.classList.add('hidden');
+    document.body.classList.remove('glossary-open');
+  });
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && glossaryOverlay && !glossaryOverlay.classList.contains('hidden')) {
+    glossaryOverlay.classList.add('hidden');
+    document.body.classList.remove('glossary-open');
+  }
+});
