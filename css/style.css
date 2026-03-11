@@ -836,6 +836,12 @@ input[type="checkbox"]{
   font-variant-numeric:tabular-nums;
 }
 
+/* Narrow the Year column */
+#resultsTable th:nth-child(1),
+#resultsTable td:nth-child(1){
+  width:60px;
+}
+
 /* ========================================
    Status cells (Cut / Shortfall)
    ======================================== */
