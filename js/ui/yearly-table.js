@@ -6,6 +6,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
   if (!thead || !tbody) return;
 
   const person1Name = sanitiseHeaderLabel(options.person1Name, 'Person 1');
+  const includePerson2 = Boolean(options.includePerson2);
   const person2Name = sanitiseHeaderLabel(options.person2Name, 'Person 2');
 
   const cutDiagnostics = options.cutDiagnostics || {};
@@ -18,7 +19,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     <tr>
       <th>Year</th>
       <th>${escapeHtml(person1Name)}</th>
-      <th>${escapeHtml(person2Name)}</th>
+      ${includePerson2 ? `<th>${escapeHtml(person2Name)}</th>` : ''}
       <th>Start portfolio</th>
       <th>Target spending</th>
       <th>Actual spending</th>
@@ -84,16 +85,20 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
       <tr class="${rowClass}">
         <td>${row.year}</td>
         <td>${row.age1}</td>
-        <td>${row.age2}</td>
+        ${includePerson2 ? `<td>${row.age2}</td>` : ''}
         <td>${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
         <td>${formatCurrency(target)}</td>
         <td>
-          ${formatCurrency(actual)}
-          ${shortfallBadge}
+          <div class="table-cell-with-badge">
+            <span class="table-cell-value">${formatCurrency(actual)}</span>
+            ${shortfallBadge}
+          </div>
         </td>
         <td>
-          ${cutDisplay}
-          ${cutBadge}
+          <div class="table-cell-with-badge">
+            <span class="table-cell-value">${cutDisplay}</span>
+            ${cutBadge}
+          </div>
         </td>
         <td>${shortfallDisplay}</td>
         <td>${formatCurrency(useReal ? row.statePensionReal : row.statePensionNominal)}</td>
