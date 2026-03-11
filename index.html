@@ -144,132 +144,133 @@
                 </div>
               </section>
 
-<section class="input-group-card people-pensions-card">
-  <div class="section-heading">
-    <h3>Fixed income</h3>
-    <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
-  </div>
+              <section class="input-group-card people-pensions-card">
+                <div class="section-heading">
+                  <h3>Fixed income</h3>
+                  <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
+                </div>
 
-  <div class="field-grid field-grid-2">
-    <label class="field field-inline field-inline-wide people-pension-inline-field">
-      <span class="field-label with-help field-label-inline">
-        <span>Full state pension today value</span>
-        <button
-          class="help"
-          type="button"
-          tabindex="-1"
-          aria-label="Full state pension today value help"
-          title="Today's annual value of a full state pension. Tick the checkbox in each person panel if that person is expected to receive it."
-        >?</button>
-      </span>
-      <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
-    </label>
-  </div>
+                <div class="field-grid field-grid-2">
+                  <label class="field field-inline field-inline-wide people-pension-inline-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Full state pension today value</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Full state pension today value help"
+                        title="Today's annual value of a full state pension. Tick the checkbox in each person panel if that person is expected to receive it."
+                      >?</button>
+                    </span>
+                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+                </div>
 
-  <div class="people-panels">
-    <section class="person-panel">
-      <div class="person-panel-title">Person 1</div>
+                <div class="people-panels">
+                  <section class="person-panel">
+                    <div class="person-panel-title">Person 1</div>
 
-      <div class="field-grid field-grid-3">
-        <label class="field person-name-field">
-          <span class="field-label">Name</span>
-          <input id="person1Name" type="text" placeholder="Enter name" />
-        </label>
+                    <div class="field-grid field-grid-3">
+                      <label class="field person-name-field">
+                        <span class="field-label">Name</span>
+                        <input id="person1Name" type="text" placeholder="Enter name" />
+                      </label>
 
-        <label class="field person-age-field">
-          <span class="field-label">Current age</span>
-          <input id="person1Age" type="number" min="18" max="100" step="1" />
-        </label>
+                      <label class="field person-age-field">
+                        <span class="field-label">Current age</span>
+                        <input id="person1Age" type="number" min="18" max="100" step="1" />
+                      </label>
 
-        <label class="field person-pension-age-field">
-          <span class="field-label">State pension age</span>
-          <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
-        </label>
-      </div>
+                      <label class="field person-pension-age-field">
+                        <span class="field-label">State pension age</span>
+                        <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
+                      </label>
+                    </div>
 
-      <label class="field field-inline field-inline-wide person-pension-checkbox">
-        <span class="field-label field-label-inline">Receives full state pension</span>
-        <input id="person1GetsFullPension" type="checkbox" />
-      </label>
+                    <label class="field field-inline field-inline-wide person-pension-checkbox">
+                      <span class="field-label field-label-inline">Receives full state pension</span>
+                      <input id="person1GetsFullPension" type="checkbox" />
+                    </label>
 
-      <div class="field-grid field-grid-2">
-        <label class="field">
-          <span class="field-label">Other income</span>
-          <input id="person1OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
-        </label>
+                    <div class="field-grid field-grid-2">
+                      <label class="field">
+                        <span class="field-label">Other income</span>
+                        <input id="person1OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
+                      </label>
 
-        <label class="field">
-          <span class="field-label">Number of years</span>
-          <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" />
-        </label>
+                      <label class="field">
+                        <span class="field-label">Number of years</span>
+                        <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" />
+                      </label>
 
-        <label class="field">
-          <span class="field-label">Windfall amount</span>
-          <input id="person1WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
-        </label>
+                      <label class="field">
+                        <span class="field-label">Windfall amount</span>
+                        <input id="person1WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
+                      </label>
 
-        <label class="field">
-          <span class="field-label">In which year</span>
-          <input id="person1WindfallYear" type="number" min="0" max="80" step="1" />
-        </label>
-      </div>
-    </section>
+                      <label class="field">
+                        <span class="field-label">In which year</span>
+                        <input id="person1WindfallYear" type="number" min="0" max="80" step="1" />
+                      </label>
+                    </div>
+                  </section>
 
-    <section class="person-panel" id="person2Panel">
-  <div class="person-panel-header">
-    <div class="person-panel-title">Person 2</div>
+                  <section class="person-panel" id="person2Panel">
+                    <div class="person-panel-header">
+                      <div class="person-panel-title">Person 2</div>
 
-    <label class="person-toggle">
-      <input id="includePerson2" type="checkbox" checked />
-      <span>Include person 2</span>
-    </label>
-  </div>
+                      <label class="person-toggle">
+                        <input id="includePerson2" type="checkbox" checked />
+                        <span>Include person 2</span>
+                      </label>
+                    </div>
 
-  <div class="field-grid field-grid-3">
-    <label class="field person-name-field">
-      <span class="field-label">Name</span>
-      <input id="person2Name" type="text" placeholder="Enter name" />
-    </label>
+                    <div class="field-grid field-grid-3">
+                      <label class="field person-name-field">
+                        <span class="field-label">Name</span>
+                        <input id="person2Name" type="text" placeholder="Enter name" />
+                      </label>
 
-    <label class="field person-age-field">
-      <span class="field-label">Current age</span>
-      <input id="person2Age" type="number" min="18" max="100" step="1" />
-    </label>
+                      <label class="field person-age-field">
+                        <span class="field-label">Current age</span>
+                        <input id="person2Age" type="number" min="18" max="100" step="1" />
+                      </label>
 
-    <label class="field person-pension-age-field">
-      <span class="field-label">State pension age</span>
-      <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
-    </label>
-  </div>
+                      <label class="field person-pension-age-field">
+                        <span class="field-label">State pension age</span>
+                        <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
+                      </label>
+                    </div>
 
-  <label class="field field-inline field-inline-wide person-pension-checkbox">
-    <span class="field-label field-label-inline">Receives full state pension</span>
-    <input id="person2GetsFullPension" type="checkbox" />
-  </label>
+                    <label class="field field-inline field-inline-wide person-pension-checkbox">
+                      <span class="field-label field-label-inline">Receives full state pension</span>
+                      <input id="person2GetsFullPension" type="checkbox" />
+                    </label>
 
-  <div class="field-grid field-grid-2">
-    <label class="field">
-      <span class="field-label">Other income</span>
-      <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
-    </label>
+                    <div class="field-grid field-grid-2">
+                      <label class="field">
+                        <span class="field-label">Other income</span>
+                        <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" />
+                      </label>
 
-    <label class="field">
-      <span class="field-label">Number of years</span>
-      <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" />
-    </label>
+                      <label class="field">
+                        <span class="field-label">Number of years</span>
+                        <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" />
+                      </label>
 
-    <label class="field">
-      <span class="field-label">Windfall amount</span>
-      <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
-    </label>
+                      <label class="field">
+                        <span class="field-label">Windfall amount</span>
+                        <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" />
+                      </label>
 
-    <label class="field">
-      <span class="field-label">In which year</span>
-      <input id="person2WindfallYear" type="number" min="0" max="80" step="1" />
-    </label>
-  </div>
- </section></div>
-</section>
+                      <label class="field">
+                        <span class="field-label">In which year</span>
+                        <input id="person2WindfallYear" type="number" min="0" max="80" step="1" />
+                      </label>
+                    </div>
+                  </section>
+                </div>
+              </section>
 
               <section class="input-group-card">
                 <div class="section-heading">
@@ -521,25 +522,26 @@
             </div>
           </section>
 
-        <section class="panel plan-summary-panel" id="planSummaryPanel">
-          <div class="card-header">
-            <div class="card-title-block">
-              <h2>Plan outlook</h2>
+          <section class="panel plan-summary-panel" id="planSummaryPanel">
+            <div class="card-header">
+              <div class="card-title-block">
+                <h2>Plan outlook</h2>
                 <p>Key planning metrics and outcomes from the current simulation.</p>
+              </div>
+
+              <div class="outlook-panel-actions">
+                <button
+                  id="explainOutlookTerms"
+                  class="outlook-glossary-trigger"
+                  type="button"
+                >
+                  Explain these terms
+                </button>
+              </div>
             </div>
 
-          <div class="outlook-panel-actions">
-           <button
-             id="explainOutlookTerms"
-             class="outlook-glossary-trigger"
-             type="button">Explain these terms
-           </button>
-         </div>
-        </div>
-
-         <div class="plan-summary-grid" id="planSummaryGrid"></div>
-
-       </section>
+            <div class="plan-summary-grid" id="planSummaryGrid"></div>
+          </section>
 
           <section class="table-card panel" id="tableCard">
             <div class="card-header">
@@ -559,6 +561,7 @@
       </section>
     </div>
   </div>
+
   <div
     id="outlookGlossaryOverlay"
     class="outlook-glossary-overlay hidden"
@@ -589,92 +592,98 @@
       </div>
 
       <div class="outlook-glossary-body">
-        <section class="outlook-glossary-section">
-          <h4>Plan health</h4>
+        <div class="outlook-glossary-grid">
+          <div class="outlook-glossary-column">
+            <section class="outlook-glossary-section">
+              <h4>Plan health</h4>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Spending sustainability score</div>
-            <div class="outlook-glossary-definition">
-              A simple composite score intended to summarise how durable the current plan looks.
-            </div>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Spending sustainability score</div>
+                <div class="outlook-glossary-definition">
+                  A simple composite score intended to summarise how durable the current plan looks.
+                </div>
+              </div>
+
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Initial withdrawal rate</div>
+                <div class="outlook-glossary-definition">
+                  First-year household spending divided by the starting portfolio.
+                </div>
+              </div>
+
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Median final withdrawal rate</div>
+                <div class="outlook-glossary-definition">
+                  The middle ending withdrawal rate across the modelled outcomes.
+                </div>
+              </div>
+
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Portfolio dependence</div>
+                <div class="outlook-glossary-definition">
+                  The share of total spending funded by portfolio withdrawals rather than pensions or other income.
+                </div>
+              </div>
+            </section>
           </div>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Initial withdrawal rate</div>
-            <div class="outlook-glossary-definition">
-              First-year household spending divided by the starting portfolio.
-            </div>
-          </div>
+          <div class="outlook-glossary-column">
+            <section class="outlook-glossary-section">
+              <h4>Outcomes and risks</h4>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Median final withdrawal rate</div>
-            <div class="outlook-glossary-definition">
-              The middle ending withdrawal rate across the modelled outcomes.
-            </div>
-          </div>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Median ending portfolio</div>
+                <div class="outlook-glossary-definition">
+                  The middle end value across all simulated outcomes.
+                </div>
+              </div>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Portfolio dependence</div>
-            <div class="outlook-glossary-definition">
-              The share of total spending funded by portfolio withdrawals rather than pensions or other income.
-            </div>
-          </div>
-        </section>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">10th percentile ending</div>
+                <div class="outlook-glossary-definition">
+                  A weaker-than-average outcome: 10% of simulations finish below this level.
+                </div>
+              </div>
 
-        <section class="outlook-glossary-section">
-          <h4>Outcomes and risks</h4>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">90th percentile ending</div>
+                <div class="outlook-glossary-definition">
+                  A stronger-than-average outcome: 10% of simulations finish above this level.
+                </div>
+              </div>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Median ending portfolio</div>
-            <div class="outlook-glossary-definition">
-              The middle end value across all simulated outcomes.
-            </div>
-          </div>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">First spending shortfall year</div>
+                <div class="outlook-glossary-definition">
+                  The first year in which actual spending falls below target spending.
+                </div>
+              </div>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">10th percentile ending</div>
-            <div class="outlook-glossary-definition">
-              A weaker-than-average outcome: 10% of simulations finish below this level.
-            </div>
-          </div>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Worst spending shortfall</div>
+                <div class="outlook-glossary-definition">
+                  The largest gap between target spending and actual spending in any year.
+                </div>
+              </div>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">90th percentile ending</div>
-            <div class="outlook-glossary-definition">
-              A stronger-than-average outcome: 10% of simulations finish above this level.
-            </div>
-          </div>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Years with spending shortfall</div>
+                <div class="outlook-glossary-definition">
+                  Number of years where the plan does not fully meet target spending.
+                </div>
+              </div>
 
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">First spending shortfall year</div>
-            <div class="outlook-glossary-definition">
-              The first year in which actual spending falls below target spending.
-            </div>
+              <div class="outlook-glossary-item">
+                <div class="outlook-glossary-term">Total state pension income</div>
+                <div class="outlook-glossary-definition">
+                  Sum of state pension income received across the full plan.
+                </div>
+              </div>
+            </section>
           </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Worst spending shortfall</div>
-            <div class="outlook-glossary-definition">
-              The largest gap between target spending and actual spending in any year.
-            </div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Years with spending shortfall</div>
-            <div class="outlook-glossary-definition">
-              Number of years where the plan does not fully meet target spending.
-            </div>
-          </div>
-
-          <div class="outlook-glossary-item">
-            <div class="outlook-glossary-term">Total state pension income</div>
-            <div class="outlook-glossary-definition">
-              Sum of state pension income received across the full plan.
-            </div>
-          </div>
-        </section>
+        </div>
       </div>
     </div>
-  </div>    
+  </div>
 </body>
 </html>
