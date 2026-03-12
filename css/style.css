@@ -1499,3 +1499,105 @@ input[type="checkbox"]{
     white-space:normal;
   }
 }
+/* =========================================================
+   Retirement outlook hero + panel state
+   Appended for results clarity improvements
+   ========================================================= */
+
+.retirement-outlook-hero{
+  margin:0 0 16px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,0.03);
+}
+
+.retirement-outlook-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:0.82rem;
+  font-weight:800;
+  letter-spacing:0.01em;
+  margin-bottom:10px;
+}
+
+.retirement-outlook-badge--strong{
+  color:#d1fae5;
+  background:rgba(16,185,129,0.22);
+  border:1px solid rgba(52,211,153,0.35);
+}
+
+.retirement-outlook-badge--watch{
+  color:#fef3c7;
+  background:rgba(245,158,11,0.20);
+  border:1px solid rgba(251,191,36,0.35);
+}
+
+.retirement-outlook-badge--weak{
+  color:#fee2e2;
+  background:rgba(239,68,68,0.20);
+  border:1px solid rgba(248,113,113,0.35);
+}
+
+.retirement-outlook-message{
+  margin:0 0 12px;
+  color:var(--text);
+  line-height:1.55;
+}
+
+.retirement-outlook-stats{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px;
+}
+
+.retirement-outlook-stat{
+  padding:12px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.retirement-outlook-stat__label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+  font-size:0.82rem;
+  font-weight:700;
+}
+
+.retirement-outlook-stat__value{
+  display:block;
+  color:var(--text);
+  font-size:1rem;
+  line-height:1.35;
+}
+
+.plan-summary-panel--strong{
+  border-color:rgba(52,211,153,0.35);
+  box-shadow:0 0 0 1px rgba(16,185,129,0.08), var(--shadow);
+}
+
+.plan-summary-panel--watch{
+  border-color:rgba(251,191,36,0.35);
+  box-shadow:0 0 0 1px rgba(245,158,11,0.08), var(--shadow);
+}
+
+.plan-summary-panel--weak{
+  border-color:rgba(248,113,113,0.35);
+  box-shadow:0 0 0 1px rgba(239,68,68,0.08), var(--shadow);
+}
+
+.deterministic-note{
+  margin:8px 0 10px;
+  color:var(--muted);
+  font-size:0.85rem;
+}
+
+@media (max-width:900px){
+  .retirement-outlook-stats{
+    grid-template-columns:1fr;
+  }
+}
