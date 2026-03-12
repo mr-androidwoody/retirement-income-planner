@@ -1663,3 +1663,19 @@ input[type="checkbox"]{
   color:#b91c1c;
   font-weight:800;
 }
+.plan-warning-group{
+  margin:0 0 14px;
+}
+
+.plan-warning-group:last-child{
+  margin-bottom:0;
+}
+
+.plan-warning-group-title{
+  margin:0 0 8px;
+  color:var(--muted);
+  font-size:0.82rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
