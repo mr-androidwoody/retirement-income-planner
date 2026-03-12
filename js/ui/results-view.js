@@ -174,15 +174,12 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
    shortfallYears >= 5 ||
    worstShortfall > targetSpending * 0.20
  ) {
-   guardrailNotice = `
-    <div class="retirement-outlook-warning">
-      ⚠ Spending pressure detected — guardrails reduce spending below the target in
-      ${shortfallYears} years of the plan.
-      Worst shortfall: ${formatCurrency(worstShortfall)}
-      in year ${worstYear}.
-    </div>
-  `;
-}
+guardrailNotice = `
+  <div class="retirement-outlook-warning">
+    <strong>⚠ Spending pressure detected</strong> — guardrails reduce spending below the target in ${shortfallYears} years of the plan.
+    Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
+  </div>
+`;
     
   if (successRate < 0.70) {
     status = 'weak';
