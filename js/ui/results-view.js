@@ -165,31 +165,32 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
   let message = 'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
   let guardrailNotice = '';
 
-  const targetSpending = result.inputs?.initialSpending || 0;
-  const shortfallYears = cutDiagnostics.shortfallYears || 0;
-  const worstShortfall = cutDiagnostics.worstShortfall || 0;
-  const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
+const targetSpending = result.inputs?.initialSpending || 0;
+const shortfallYears = cutDiagnostics.shortfallYears || 0;
+const worstShortfall = cutDiagnostics.worstShortfall || 0;
+const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
 
-  if (
-   shortfallYears >= 5 ||
-   worstShortfall > targetSpending * 0.20
- ) {
-guardrailNotice = `
-  <div class="retirement-outlook-warning">
-    <strong>⚠ Spending pressure detected</strong> — guardrails reduce spending below the target in ${shortfallYears} years of the plan.
-    Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
-  </div>
-`;
-    
-  if (successRate < 0.70) {
-    status = 'weak';
-    label = 'Weak';
-    message = 'Your plan shows a material risk of running short and may need lower spending, more income, or a larger starting portfolio.';
-  } else if (successRate < 0.90) {
-    status = 'watch';
-    label = 'Watch';
-    message = 'Your plan works in many scenarios, but later outcomes become less secure and need monitoring.';
-  }
+if (
+  shortfallYears >= 5 ||
+  worstShortfall > targetSpending * 0.20
+) {
+  guardrailNotice = `
+    <div class="retirement-outlook-warning">
+      <strong>⚠ Spending pressure detected</strong> — guardrails reduce spending below the target in ${shortfallYears} years of the plan.
+      Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
+    </div>
+  `;
+}
+
+if (successRate < 0.70) {
+  status = 'weak';
+  label = 'Weak';
+  message = 'Your plan shows a material risk of running short and may need lower spending, more income, or a larger starting portfolio.';
+} else if (successRate < 0.90) {
+  status = 'watch';
+  label = 'Watch';
+  message = 'Your plan works in many scenarios, but later outcomes become less secure and need monitoring.';
+}
 
   const firstShortfallText =
     cutDiagnostics.firstShortfallYear === null
