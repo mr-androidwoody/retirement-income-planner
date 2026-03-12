@@ -997,6 +997,43 @@ input[type="checkbox"]{
   background:#eef4ff;
 }
 
+.retirement-outlook-hero{
+  margin:0 0 16px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--panel-soft);
+}
+
+.retirement-outlook-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:0.82rem;
+  font-weight:800;
+  letter-spacing:0.01em;
+  margin-bottom:10px;
+}
+
+.retirement-outlook-badge--strong{
+  color:#065f46;
+  background:rgba(16,185,129,0.18);
+  border:1px solid rgba(16,185,129,0.45);
+}
+
+.retirement-outlook-badge--watch{
+  color:#92400e;
+  background:rgba(245,158,11,0.18);
+  border:1px solid rgba(245,158,11,0.45);
+}
+
+.retirement-outlook-badge--weak{
+  color:#7f1d1d;
+  background:rgba(239,68,68,0.18);
+  border:1px solid rgba(239,68,68,0.45);
+}
+
 .retirement-outlook-message{
   margin:0 0 12px;
   color:var(--text);
@@ -1004,7 +1041,24 @@ input[type="checkbox"]{
   line-height:1.55;
 }
 
-.retirement-outlook-summary-title{
+.retirement-outlook-warning{
+  margin:10px 0 14px;
+  padding:12px 14px;
+  border-radius:10px;
+  background:rgba(239,68,68,0.08);
+  border:1px solid rgba(239,68,68,0.35);
+  color:#7f1d1d;
+  font-size:0.92rem;
+  line-height:1.45;
+  font-weight:600;
+}
+
+.retirement-outlook-warning strong{
+  color:#b91c1c;
+  font-weight:800;
+}
+
+.plan-summary-heading{
   margin:12px 0 8px;
   font-size:0.78rem;
   font-weight:800;
@@ -1013,69 +1067,14 @@ input[type="checkbox"]{
   color:var(--muted);
 }
 
-.retirement-outlook-stats{
+.plan-summary-metrics{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:10px;
   min-width:0;
-  margin-bottom:12px;
 }
 
-.retirement-outlook-stat{
-  min-width:0;
-  padding:12px 14px;
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:8px;
-}
-
-.retirement-outlook-stat__label{
-  display:block;
-  margin:0 0 6px;
-  font-size:0.72rem;
-  font-weight:700;
-  line-height:1.3;
-  color:var(--muted);
-}
-
-.retirement-outlook-stat__value{
-  display:block;
-  margin:0;
-  font-size:1.05rem;
-  font-weight:800;
-  line-height:1.25;
-  color:var(--text);
-  overflow-wrap:anywhere;
-}
-
-.plan-summary-grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:16px 18px;
-  align-items:start;
-  min-width:0;
-}
-
-.summary-section{
-  min-width:0;
-}
-
-.summary-section-title{
-  margin:0 0 8px;
-  font-size:0.78rem;
-  font-weight:700;
-  line-height:1.35;
-  color:var(--text);
-}
-
-.summary-section-grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:8px;
-  min-width:0;
-}
-
-.summary-item{
+.plan-summary-metrics .summary-item{
   min-width:0;
   width:100%;
   margin:0;
@@ -1086,7 +1085,7 @@ input[type="checkbox"]{
   box-sizing:border-box;
 }
 
-.summary-item-label{
+.plan-summary-metrics .summary-label{
   margin:0 0 6px;
   font-size:0.72rem;
   font-weight:700;
@@ -1095,7 +1094,7 @@ input[type="checkbox"]{
   overflow-wrap:anywhere;
 }
 
-.summary-item-value{
+.plan-summary-metrics .summary-value{
   margin:0;
   font-size:1.05rem;
   font-weight:800;
@@ -1106,84 +1105,91 @@ input[type="checkbox"]{
 
 .plan-summary-panel--strong{
   border-color:rgba(16,185,129,0.45);
+  box-shadow:0 0 0 1px rgba(16,185,129,0.08), var(--shadow);
 }
 
 .plan-summary-panel--watch{
   border-color:rgba(245,158,11,0.45);
+  box-shadow:0 0 0 1px rgba(245,158,11,0.08), var(--shadow);
 }
 
 .plan-summary-panel--weak{
   border-color:rgba(239,68,68,0.45);
-}
-
-@media (max-width: 900px){
-  .retirement-outlook-stats{
-    grid-template-columns:1fr;
-  }
-
-  .plan-summary-grid{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width: 640px){
-  .summary-section-grid{
-    grid-template-columns:1fr;
-  }
+  box-shadow:0 0 0 1px rgba(239,68,68,0.08), var(--shadow);
 }
 
 /* ========================================
    Monte Carlo / Outlook Summary Tiles
+   Matches current results-view.js structure:
+   title + row pairs without section wrappers
    ======================================== */
 
 .plan-summary-grid{
   display:grid;
-  grid-template-columns:repeat(4, minmax(0, 1fr));
-  gap:20px 18px;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  grid-template-rows:auto auto auto auto;
+  gap:8px 18px;
   margin-top:12px;
+  align-items:start;
 }
 
-.summary-section{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+.plan-summary-grid > .summary-section-title,
+.plan-summary-grid > .summary-grid-row{
   min-width:0;
 }
 
+.plan-summary-grid > .summary-section-title:nth-child(1){ grid-column:1; grid-row:1; }
+.plan-summary-grid > .summary-grid-row:nth-child(2){ grid-column:1; grid-row:2; }
+.plan-summary-grid > .summary-section-title:nth-child(3){ grid-column:2; grid-row:1; }
+.plan-summary-grid > .summary-grid-row:nth-child(4){ grid-column:2; grid-row:2; }
+.plan-summary-grid > .summary-section-title:nth-child(5){ grid-column:1; grid-row:3; }
+.plan-summary-grid > .summary-grid-row:nth-child(6){ grid-column:1; grid-row:4; }
+.plan-summary-grid > .summary-section-title:nth-child(7){ grid-column:2; grid-row:3; }
+.plan-summary-grid > .summary-grid-row:nth-child(8){ grid-column:2; grid-row:4; }
+
 .summary-section-title{
+  margin:0;
   color:var(--text);
-  font-size:0.95rem;
+  font-size:0.78rem;
   font-weight:800;
-  letter-spacing:0.01em;
-  line-height:1.2;
+  line-height:1.3;
 }
 
-.summary-section-grid{
+.summary-grid-row{
   display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+  min-width:0;
 }
 
 .summary-item{
   display:flex;
   flex-direction:column;
   gap:6px;
-  padding:14px 16px;
+  min-width:0;
+  width:100%;
+  padding:12px 14px;
   background:var(--panel-soft);
   border:1px solid var(--line);
-  border-radius:14px;
+  border-radius:10px;
 }
 
-.summary-item-label{
+.summary-label{
+  margin:0;
   color:var(--muted);
-  font-size:0.82rem;
+  font-size:0.72rem;
   font-weight:700;
+  line-height:1.3;
+  overflow-wrap:anywhere;
 }
 
-.summary-item-value{
+.summary-value{
+  margin:0;
   color:var(--text);
   font-size:1.05rem;
   font-weight:800;
+  line-height:1.25;
+  overflow-wrap:anywhere;
 }
 
 /* ========================================
@@ -1217,6 +1223,23 @@ input[type="checkbox"]{
   color:#065f46;
   border:1px solid #6ee7b7;
   font-weight:700;
+}
+
+.plan-warning-group{
+  margin:0 0 14px;
+}
+
+.plan-warning-group:last-child{
+  margin-bottom:0;
+}
+
+.plan-warning-group-title{
+  margin:0 0 8px;
+  color:var(--muted);
+  font-size:0.82rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
 }
 
 /* ========================================
@@ -1293,11 +1316,24 @@ input[type="checkbox"]{
   line-height:1.4;
 }
 
-.legend-item{
+.legend-item,
+.results-legend-item{
   display:inline-flex;
   align-items:center;
   gap:6px;
 }
+
+.results-legend-swatch{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  flex:0 0 auto;
+}
+
+.results-legend-swatch--mild{ background:#fde68a; }
+.results-legend-swatch--moderate{ background:#fdba74; }
+.results-legend-swatch--severe{ background:#fca5a5; }
+.results-legend-swatch--shortfall{ background:#818cf8; }
 
 /* ========================================
    Retirement Outlook Glossary
@@ -1388,8 +1424,6 @@ input[type="checkbox"]{
   overflow-y:auto;
 }
 
-/* 2 x 2 section-card layout */
-
 .outlook-glossary-sections{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -1472,10 +1506,6 @@ input[type="checkbox"]{
     grid-template-columns:minmax(160px, 1.6fr) 108px 150px;
   }
 
-  .plan-summary-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
-
   .section-heading{
     min-height:0;
   }
@@ -1493,6 +1523,16 @@ input[type="checkbox"]{
 
 @media (max-width: 980px){
   .people-panels{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 900px){
+  .plan-summary-metrics{
+    grid-template-columns:1fr;
+  }
+
+  .outlook-glossary-sections{
     grid-template-columns:1fr;
   }
 }
@@ -1562,6 +1602,14 @@ input[type="checkbox"]{
 
   .plan-summary-grid{
     grid-template-columns:1fr;
+    grid-template-rows:none;
+    gap:8px;
+  }
+
+  .plan-summary-grid > .summary-section-title,
+  .plan-summary-grid > .summary-grid-row{
+    grid-column:auto !important;
+    grid-row:auto !important;
   }
 
   .results-legend{
@@ -1588,11 +1636,6 @@ input[type="checkbox"]{
     padding:18px;
   }
 
-  .outlook-glossary-grid{
-    grid-template-columns:1fr;
-    gap:18px;
-  }
-
   .outlook-glossary-header{
     padding:18px 18px 14px;
   }
@@ -1600,17 +1643,8 @@ input[type="checkbox"]{
 
 @media (max-width: 720px){
   .people-income-grid,
-  .field-grid-2{
-    grid-template-columns:1fr;
-  }
-}
-
-/* ========================================
-   Glossary responsive layout
-   ======================================== */
-
-@media (max-width: 900px){
-  .outlook-glossary-sections{
+  .field-grid-2,
+  .summary-grid-row{
     grid-template-columns:1fr;
   }
 }
@@ -1634,112 +1668,16 @@ input[type="checkbox"]{
     white-space:normal;
   }
 }
-/* =========================================================
-   Retirement outlook hero + panel state
-   Appended for results clarity improvements
-   ========================================================= */
 
-.retirement-outlook-hero{
-  margin:0 0 16px;
-  padding:16px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:rgba(255,255,255,0.03);
-}
-
-.retirement-outlook-badge{
-  display:inline-flex;
-  align-items:center;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:0.82rem;
-  font-weight:800;
-  letter-spacing:0.01em;
-  margin-bottom:10px;
-}
-
-.retirement-outlook-badge--strong{
-  color:#065f46;
-  background:rgba(16,185,129,0.18);
-  border:1px solid rgba(16,185,129,0.45);
-}
-
-.retirement-outlook-badge--watch{
-  color:#92400e;
-  background:rgba(245,158,11,0.18);
-  border:1px solid rgba(245,158,11,0.45);
-}
-
-.retirement-outlook-badge--weak{
-  color:#7f1d1d;
-  background:rgba(239,68,68,0.18);
-  border:1px solid rgba(239,68,68,0.45);
-}
-
-.retirement-outlook-message{
-  margin:0 0 12px;
-  color:var(--text);
-  line-height:1.55;
-}
-
-.retirement-outlook-stats{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
-  gap:12px;
-}
-
-.retirement-outlook-stat{
-  padding:12px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.08);
-}
-
-.retirement-outlook-stat__label{
-  display:block;
-  margin-bottom:6px;
-  color:var(--muted);
-  font-size:0.82rem;
-  font-weight:700;
-}
-
-.retirement-outlook-stat__value{
-  display:block;
-  color:var(--text);
-  font-size:1rem;
-  line-height:1.35;
-}
-
-.plan-summary-panel--strong{
-  border-color:rgba(52,211,153,0.35);
-  box-shadow:0 0 0 1px rgba(16,185,129,0.08), var(--shadow);
-}
-
-.plan-summary-panel--watch{
-  border-color:rgba(251,191,36,0.35);
-  box-shadow:0 0 0 1px rgba(245,158,11,0.08), var(--shadow);
-}
-
-.plan-summary-panel--weak{
-  border-color:rgba(248,113,113,0.35);
-  box-shadow:0 0 0 1px rgba(239,68,68,0.08), var(--shadow);
-}
+/* ========================================
+   Deterministic note + portfolio horizon summary
+   ======================================== */
 
 .deterministic-note{
   margin:8px 0 10px;
   color:var(--muted);
   font-size:0.85rem;
 }
-
-@media (max-width:900px){
-  .retirement-outlook-stats{
-    grid-template-columns:1fr;
-  }
-}
-
-/* =========================================================
-   Portfolio chart horizon summary
-   ========================================================= */
 
 .chart-horizon-summary{
   display:grid;
@@ -1774,140 +1712,4 @@ input[type="checkbox"]{
   .chart-horizon-summary{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
-}
-
-/* ==========================================
-   Retirement outlook + plan warnings
-   Shared visual language for:
-   - retirement outlook status
-   - retirement outlook warning
-   - plan warning groups
-   - outlook summary heading
-   ========================================== */
-
-/* Shared alert panel base */
-.retirement-outlook-status,
-.retirement-outlook-warning{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  margin:10px 0 14px;
-  padding:12px 14px;
-  border:1px solid transparent;
-  border-radius:10px;
-
-  font-size:0.92rem;
-  line-height:1.5;
-  font-weight:600;
-}
-
-.retirement-outlook-status strong,
-.retirement-outlook-warning strong{
-  font-weight:800;
-}
-
-/* Keep the warning as the danger variant */
-.retirement-outlook-warning{
-  background:rgba(239,68,68,0.08);
-  border-color:rgba(239,68,68,0.35);
-  color:#7f1d1d;
-}
-
-.retirement-outlook-warning strong{
-  color:#b91c1c;
-}
-
-/* Primary outlook status variants
-   Use these for the main outlook state so they match the warning system */
-.retirement-outlook-status--strong{
-  background:rgba(16,185,129,0.10);
-  border-color:rgba(16,185,129,0.35);
-  color:#166534;
-}
-
-.retirement-outlook-status--strong strong{
-  color:#047857;
-}
-
-.retirement-outlook-status--watch{
-  background:rgba(245,158,11,0.12);
-  border-color:rgba(245,158,11,0.36);
-  color:#92400e;
-}
-
-.retirement-outlook-status--watch strong{
-  color:#b45309;
-}
-
-.retirement-outlook-status--weak{
-  background:rgba(239,68,68,0.08);
-  border-color:rgba(239,68,68,0.35);
-  color:#7f1d1d;
-}
-
-.retirement-outlook-status--weak strong{
-  color:#b91c1c;
-}
-
-/* Optional leading symbols to align status and warning styles */
-.retirement-outlook-status::before,
-.retirement-outlook-warning::before{
-  flex:0 0 auto;
-  font-weight:800;
-  line-height:1.2;
-}
-
-.retirement-outlook-status--strong::before{
-  content:"✓";
-}
-
-.retirement-outlook-status--watch::before{
-  content:"!";
-}
-
-.retirement-outlook-status--weak::before,
-.retirement-outlook-warning::before{
-  content:"⚠";
-}
-
-/* Hide the old pill badge if the new status banner is used */
-.retirement-outlook-badge{
-  display:none;
-}
-
-/* Supporting copy under the status / warning block */
-.retirement-outlook-message{
-  margin:0 0 12px;
-  color:var(--text);
-  font-size:0.95rem;
-  line-height:1.55;
-}
-
-/* Plan warnings groups */
-.plan-warning-group{
-  margin:0 0 14px;
-}
-
-.plan-warning-group:last-child{
-  margin-bottom:0;
-}
-
-.plan-warning-group-title{
-  margin:0 0 8px;
-  color:var(--muted);
-  font-size:0.82rem;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:0.04em;
-}
-
-/* Small heading above the outcome metrics */
-.retirement-outlook-summary-title,
-.plan-summary-heading{
-  margin:12px 0 8px;
-  font-size:0.85rem;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:0.05em;
-  color:var(--muted);
 }
