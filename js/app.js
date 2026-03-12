@@ -28,11 +28,10 @@ const els = {
 
   includePerson2: document.getElementById('includePerson2'),
   person2Panel: document.getElementById('person2Panel'),
-
   person2Name: document.getElementById('person2Name'),
   person2Age: document.getElementById('person2Age'),
   person2PensionAge: document.getElementById('person2PensionAge'),
-    
+
   statePensionToday: document.getElementById('statePensionToday'),
   person1GetsFullPension: document.getElementById('person1GetsFullPension'),
   person1OtherIncomeToday: document.getElementById('person1OtherIncomeToday'),
@@ -45,14 +44,14 @@ const els = {
   person2OtherIncomeYears: document.getElementById('person2OtherIncomeYears'),
   person2WindfallAmount: document.getElementById('person2WindfallAmount'),
   person2WindfallYear: document.getElementById('person2WindfallYear'),
-  
+
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
   adjustmentSize: document.getElementById('adjustmentSize'),
-
   monteCarloRuns: document.getElementById('monteCarloRuns'),
   seed: document.getElementById('seed'),
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
+
   chartModeNominal: document.getElementById('chartModeNominal'),
   chartModeReal: document.getElementById('chartModeReal'),
   guytonKlingerOn: document.getElementById('guytonKlingerOn'),
@@ -73,10 +72,14 @@ const els = {
 
   portfolioChart: document.getElementById('portfolioChart'),
   planWarnings: document.getElementById('planWarnings'),
+  planSummaryPanel: document.getElementById('planSummaryPanel'),
+  retirementOutlookHero: document.getElementById('retirementOutlookHero'),
   planSummaryGrid: document.getElementById('planSummaryGrid'),
   spendingChart: document.getElementById('spendingChart'),
   tableCard: document.getElementById('tableCard'),
-  resultsTable: document.getElementById('resultsTable')
+  resultsTable: document.getElementById('resultsTable'),
+  deterministicNote: document.getElementById('deterministicNote'),
+  resultsLegend: document.getElementById('resultsLegend')
 };
 
 let latestResult = null;
@@ -84,11 +87,7 @@ let latestBaseInputs = null;
 let worker = null;
 let withdrawalInputMode = 'amount';
 
-const parsingHelpers = {
-  formatInteger,
-  parseLooseNumber,
-  parseLooseInteger
-};
+const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 
 const tabs = initialiseTabs({
   defaultTab: 'inputs',
@@ -170,10 +169,7 @@ function attachEvents() {
       setResultsViewDefaults();
       hideError();
       tabs.setActiveTab('inputs');
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
 
@@ -243,6 +239,7 @@ function attachChartModeEvents() {
   const updateMode = () => {
     if (!els.showRealValues) return;
     els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
+
     if (latestResult) {
       renderAll();
     }
@@ -331,10 +328,7 @@ function runSimulation() {
 
   if (errors.length > 0) {
     showError(errors.join(' '));
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -356,10 +350,7 @@ function runSimulation() {
   } catch (error) {
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
@@ -371,10 +362,7 @@ function rerunResultsWithCurrentOptions() {
 
   if (errors.length > 0) {
     showError(errors.join(' '));
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -391,21 +379,16 @@ function rerunResultsWithCurrentOptions() {
     renderAll();
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Simulation failed.');
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
 function showResults() {
   tabs.setActiveTab('results');
+
   requestAnimationFrame(() => {
     renderAll();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
@@ -472,9 +455,7 @@ function parseLooseInteger(value) {
 
 function formatInteger(value) {
   if (!Number.isFinite(value)) return '';
-  return new Intl.NumberFormat('en-GB', {
-    maximumFractionDigits: 0
-  }).format(value);
+  return new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 }).format(value);
 }
 
 function formatRate(value) {
