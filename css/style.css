@@ -112,14 +112,14 @@ canvas{
   border-color:rgba(52, 211, 153, 0.68);
 }
 
-.summary-label{
+.summary-card .summary-label{
   margin-bottom:10px;
   color:rgba(255,255,255,0.92);
   font-size:0.88rem;
   font-weight:700;
 }
 
-.summary-value{
+.summary-card .summary-value{
   margin-bottom:10px;
   color:#ffffff;
   font-size:clamp(1.3rem, 2vw, 1.9rem);
@@ -128,7 +128,7 @@ canvas{
   letter-spacing:-0.02em;
 }
 
-.summary-desc{
+.summary-card .summary-desc{
   color:rgba(255,255,255,0.88);
   font-size:0.86rem;
   line-height:1.45;
