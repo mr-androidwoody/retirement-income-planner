@@ -185,7 +185,7 @@ if (
 if (successRate < 0.70) {
   status = 'weak';
   label = 'Weak';
-  message = 'Your plan shows a material risk of running short and may need lower spending, more income, or a larger starting portfolio.';
+  message = 'Your plan is unlikely to sustain the target spending level across the full retirement horizon.Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
 } else if (successRate < 0.90) {
   status = 'watch';
   label = 'Watch';
@@ -210,9 +210,10 @@ if (successRate < 0.70) {
     <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
       Retirement outlook: ${label}
     </div>
-    <p class="retirement-outlook-message">${message}</p>
-    ${guardrailNotice}    <div class="retirement-outlook-stats">
-      <div class="retirement-outlook-stat">
+    ${guardrailNotice}
+     <p class="retirement-outlook-message">${message}</p>
+      <div class="retirement-outlook-summary-title">Outcome summary</div>
+      <div class="retirement-outlook-stats">
         <span class="retirement-outlook-stat__label">Plan success</span>
         <strong class="retirement-outlook-stat__value">${formatPercent(successRate)}</strong>
       </div>
