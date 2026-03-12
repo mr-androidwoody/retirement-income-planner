@@ -182,11 +182,10 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
     'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
   let guardrailNotice = '';
 
-  if (successRate < 0.70 || severeShortfall) {
-    status = 'weak';
-    label = 'Weak';
-    message =
-      'Your plan is not reliably sustaining the target spending level. Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
+if (successRate < 0.70 || severeShortfall) {
+  status = 'weak';
+  label = 'Weak';
+  message = 'Your plan is not reliably sustaining the target spending level. Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
 
     if (hasAnyShortfall) {
       guardrailNotice = `
