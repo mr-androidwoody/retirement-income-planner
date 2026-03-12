@@ -368,19 +368,8 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   const rows = result.baseCase?.rows || [];
   if (!rows.length) return;
 
-  const { formatPercent, formatCurrency } = formatters;
+  const { formatPercent } = formatters;
   const inputs = result.inputs;
-
-  const warnings = [];
-
-  const startWithdrawalRate = inputs.initialSpending / inputs.initialPortfolio;
-
-  if (startWithdrawalRate > 0.055) {
-    warnings.push({
-      level: 'warning',
-      text: `Aggressive starting withdrawal rate (${formatPercent(startWithdrawalRate)}).`
-    });
-  }
 
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
@@ -389,71 +378,27 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   const p10 = percentiles.p10;
   const planYears = inputs.years;
 
+  const inputWarnings = [];
+  const modelWarnings = [];
+
+  const startWithdrawalRate = inputs.initialPortfolio > 0
+    ? inputs.initialSpending / inputs.initialPortfolio
+    : 0;
+
+  if (startWithdrawalRate > 0.055) {
+    inputWarnings.push(
+      `Aggressive starting withdrawal rate (${formatPercent(startWithdrawalRate)}).`
+    );
+  }
+
   for (let i = 0; i < p10.length; i++) {
     if (p10[i] <= 0 && i < planYears * 0.5) {
-      warnings.push({
-        level: 'warning',
-        text: `Weak outcomes reach portfolio depletion by year ${i}.`
-      });
+      modelWarnings.push(`Weak outcomes reach portfolio depletion by year ${i}.`);
       break;
     }
   }
 
-  const maxCut = Math.max(...rows.map((r) => r.spendingCutPercent || 0));
-
-  if (maxCut > 0.15) {
-    warnings.push({
-      level: 'warning',
-      text: `Guardrails reduce spending by up to ${formatPercent(maxCut)}.`
-    });
-  }
-
-  const totals = rows.reduce(
-    (acc, r) => {
-      acc.spending += useReal ? r.spendingReal : r.spendingNominal;
-      acc.withdrawals += useReal ? r.withdrawalReal : r.withdrawalNominal;
-      return acc;
-    },
-    { spending: 0, withdrawals: 0 }
-  );
-
-  const dependence =
-    totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
-
-  if (dependence > 0.7) {
-    warnings.push({
-      level: 'info',
-      text: `High reliance on portfolio withdrawals (${formatPercent(dependence)} of spending).`
-    });
-  }
-
-  let firstShortfallYear = null;
-  let worstShortfall = 0;
-  let worstShortfallYear = null;
-
-  rows.forEach((r, i) => {
-    const shortfall = getRowShortfall(r, useReal);
-
-    if (shortfall > 0) {
-      if (firstShortfallYear === null) {
-        firstShortfallYear = i;
-      }
-
-      if (shortfall > worstShortfall) {
-        worstShortfall = shortfall;
-        worstShortfallYear = i;
-      }
-    }
-  });
-
-  if (firstShortfallYear !== null) {
-    warnings.push({
-      level: 'warning',
-      text: `Target spending is not fully met from year ${firstShortfallYear}. Worst shortfall is ${formatCurrency(worstShortfall)} in year ${worstShortfallYear}.`
-    });
-  }
-
-  if (!warnings.length) {
+  if (!inputWarnings.length && !modelWarnings.length) {
     container.innerHTML = `
       <div class="plan-warning-ok">
         ✓ No major risks detected in current plan assumptions.
@@ -462,15 +407,27 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     return;
   }
 
-  container.innerHTML = warnings
-    .map(
-      (w) => `
-      <div class="plan-warning">
-        ⚠ ${w.text}
+  const groups = [];
+
+  if (inputWarnings.length) {
+    groups.push(`
+      <div class="plan-warning-group">
+        <div class="plan-warning-group-title">Input warning</div>
+        ${inputWarnings.map((text) => `<div class="plan-warning">⚠ ${text}</div>`).join('')}
       </div>
-    `
-    )
-    .join('');
+    `);
+  }
+
+  if (modelWarnings.length) {
+    groups.push(`
+      <div class="plan-warning-group">
+        <div class="plan-warning-group-title">Model risk</div>
+        ${modelWarnings.map((text) => `<div class="plan-warning">⚠ ${text}</div>`).join('')}
+      </div>
+    `);
+  }
+
+  container.innerHTML = groups.join('');
 }
 
 function renderDeterministicNote(elements) {
