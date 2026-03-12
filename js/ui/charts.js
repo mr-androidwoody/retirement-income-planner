@@ -11,8 +11,26 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
 
   const labels = buildYearLabels(result.inputs.years);
 
-  const verticalMarkers = [];
+const verticalMarkers = [];
 
+/* existing pension logic remains unchanged */
+
+/* ---- Windfall markers ---- */
+
+const windfalls = result.inputs?.windfalls || [];
+
+windfalls.forEach((wf) => {
+  const yearIndex = Number(wf.year);
+
+  if (!Number.isFinite(yearIndex)) return;
+
+  verticalMarkers.push({
+    index: yearIndex,
+    color: '#f59e0b',
+    label: `${wf.name || 'Windfall'} £${Math.round(wf.amount || 0).toLocaleString()}`
+  });
+});
+    
   const person1YearsToPension =
     Number.isFinite(result.inputs?.person1Age) &&
     Number.isFinite(result.inputs?.person1PensionAge)
