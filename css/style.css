@@ -1642,28 +1642,113 @@ input[type="checkbox"]{
 }
 
 /* ==========================================
-   Retirement outlook warning
+   Retirement outlook + plan warnings
+   Shared visual language for:
+   - retirement outlook status
+   - retirement outlook warning
+   - plan warning groups
+   - outlook summary heading
    ========================================== */
 
+/* Shared alert panel base */
+.retirement-outlook-status,
 .retirement-outlook-warning{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
   margin:10px 0 14px;
   padding:12px 14px;
+  border:1px solid transparent;
   border-radius:10px;
 
-  background:rgba(239,68,68,0.08);
-  border:1px solid rgba(239,68,68,0.35);
-
-  color:#7f1d1d;
   font-size:0.92rem;
-  line-height:1.45;
+  line-height:1.5;
   font-weight:600;
+}
+
+.retirement-outlook-status strong,
+.retirement-outlook-warning strong{
+  font-weight:800;
+}
+
+/* Keep the warning as the danger variant */
+.retirement-outlook-warning{
+  background:rgba(239,68,68,0.08);
+  border-color:rgba(239,68,68,0.35);
+  color:#7f1d1d;
 }
 
 .retirement-outlook-warning strong{
   color:#b91c1c;
-  font-weight:800;
 }
 
+/* Primary outlook status variants
+   Use these for the main outlook state so they match the warning system */
+.retirement-outlook-status--strong{
+  background:rgba(16,185,129,0.10);
+  border-color:rgba(16,185,129,0.35);
+  color:#166534;
+}
+
+.retirement-outlook-status--strong strong{
+  color:#047857;
+}
+
+.retirement-outlook-status--watch{
+  background:rgba(245,158,11,0.12);
+  border-color:rgba(245,158,11,0.36);
+  color:#92400e;
+}
+
+.retirement-outlook-status--watch strong{
+  color:#b45309;
+}
+
+.retirement-outlook-status--weak{
+  background:rgba(239,68,68,0.08);
+  border-color:rgba(239,68,68,0.35);
+  color:#7f1d1d;
+}
+
+.retirement-outlook-status--weak strong{
+  color:#b91c1c;
+}
+
+/* Optional leading symbols to align status and warning styles */
+.retirement-outlook-status::before,
+.retirement-outlook-warning::before{
+  flex:0 0 auto;
+  font-weight:800;
+  line-height:1.2;
+}
+
+.retirement-outlook-status--strong::before{
+  content:"✓";
+}
+
+.retirement-outlook-status--watch::before{
+  content:"!";
+}
+
+.retirement-outlook-status--weak::before,
+.retirement-outlook-warning::before{
+  content:"⚠";
+}
+
+/* Hide the old pill badge if the new status banner is used */
+.retirement-outlook-badge{
+  display:none;
+}
+
+/* Supporting copy under the status / warning block */
+.retirement-outlook-message{
+  margin:0 0 12px;
+  color:var(--text);
+  font-size:0.95rem;
+  line-height:1.55;
+}
+
+/* Plan warnings groups */
 .plan-warning-group{
   margin:0 0 14px;
 }
@@ -1681,7 +1766,9 @@ input[type="checkbox"]{
   letter-spacing:0.04em;
 }
 
-.retirement-outlook-summary-title{
+/* Small heading above the outcome metrics */
+.retirement-outlook-summary-title,
+.plan-summary-heading{
   margin:12px 0 8px;
   font-size:0.85rem;
   font-weight:800;
