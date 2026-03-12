@@ -1640,3 +1640,26 @@ input[type="checkbox"]{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ==========================================
+   Retirement outlook warning
+   ========================================== */
+
+.retirement-outlook-warning{
+  margin:10px 0 14px;
+  padding:12px 14px;
+  border-radius:10px;
+
+  background:rgba(239,68,68,0.12);
+  border:1px solid rgba(239,68,68,0.35);
+
+  color:#7f1d1d;
+  font-size:0.92rem;
+  line-height:1.45;
+  font-weight:600;
+}
+
+.retirement-outlook-warning strong{
+  color:#b91c1c;
+  font-weight:800;
+}
