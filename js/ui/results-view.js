@@ -5,7 +5,9 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   if (!result) return;
 
   const { formatCurrency, formatPercent, formatYears } = formatters;
-  const percentileSeries = useReal ? result.monteCarlo.realPercentiles : result.monteCarlo.nominalPercentiles;
+  const percentileSeries = useReal
+    ? result.monteCarlo.realPercentiles
+    : result.monteCarlo.nominalPercentiles;
   const medianEnd = percentileSeries.p50[percentileSeries.p50.length - 1];
   const hasStressSummary = result.summary && result.summary.worstStressName;
   const rows = result.baseCase?.rows || [];
@@ -13,7 +15,6 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   let firstCutYear = null;
   let worstCutYear = null;
   let worstCut = 0;
-
   let firstShortfallYear = null;
   let worstShortfallYear = null;
   let worstShortfall = 0;
@@ -62,16 +63,21 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
 
   if (hasStressSummary) {
     elements.summaryWorstStress.textContent = result.summary.worstStressName;
-    elements.summaryWorstStressDesc.textContent = `Lowest ending portfolio across the deterministic stress paths: ${formatCurrency(
-      useReal ? result.summary.worstStressTerminalReal : result.summary.worstStressTerminalNominal
-    )}.`;
+    elements.summaryWorstStressDesc.textContent =
+      `Lowest ending portfolio across the deterministic stress paths: ${formatCurrency(
+        useReal
+          ? result.summary.worstStressTerminalReal
+          : result.summary.worstStressTerminalNominal
+      )}.`;
   } else {
     elements.summaryWorstStress.textContent = 'Removed';
-    elements.summaryWorstStressDesc.textContent = 'Deterministic stress scenarios are no longer shown in the UI.';
+    elements.summaryWorstStressDesc.textContent =
+      'Deterministic stress scenarios are no longer shown in the UI.';
   }
 
   const runway = result.summary?.cashRunwayYears;
-  elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
+  elements.summaryCashRunway.textContent =
+    runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
   renderPortfolioHorizonSummary(result, elements, useReal, formatters);
@@ -82,7 +88,6 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
     formatCurrency,
     cutDiagnostics
   );
-
   renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
   renderPlanWarnings(result, elements, useReal, formatters);
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
@@ -111,38 +116,32 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
   if (!container) return;
 
   const { formatCurrency } = formatters;
-
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
     : result.monteCarlo.nominalPercentiles;
-
-  const basePath = useReal
-    ? result.baseCase.pathReal
-    : result.baseCase.pathNominal;
-
+  const basePath = useReal ? result.baseCase.pathReal : result.baseCase.pathNominal;
   const lastIndex = percentiles.p50.length - 1;
-
   const p10 = percentiles.p10[lastIndex];
   const p50 = percentiles.p50[lastIndex];
   const p90 = percentiles.p90[lastIndex];
   const base = basePath[lastIndex];
 
   container.innerHTML = `
-    <div class="chart-horizon-pill">
-      <span class="chart-horizon-pill__label">P10</span>
-      <strong class="chart-horizon-pill__value">${formatCurrency(p10)}</strong>
+    <div class="portfolio-horizon-stat">
+      <span class="portfolio-horizon-label">P10</span>
+      <strong>${formatCurrency(p10)}</strong>
     </div>
-    <div class="chart-horizon-pill">
-      <span class="chart-horizon-pill__label">Median</span>
-      <strong class="chart-horizon-pill__value">${formatCurrency(p50)}</strong>
+    <div class="portfolio-horizon-stat">
+      <span class="portfolio-horizon-label">Median</span>
+      <strong>${formatCurrency(p50)}</strong>
     </div>
-    <div class="chart-horizon-pill">
-      <span class="chart-horizon-pill__label">P90</span>
-      <strong class="chart-horizon-pill__value">${formatCurrency(p90)}</strong>
+    <div class="portfolio-horizon-stat">
+      <span class="portfolio-horizon-label">P90</span>
+      <strong>${formatCurrency(p90)}</strong>
     </div>
-    <div class="chart-horizon-pill">
-      <span class="chart-horizon-pill__label">Base case</span>
-      <strong class="chart-horizon-pill__value">${formatCurrency(base)}</strong>
+    <div class="portfolio-horizon-stat">
+      <span class="portfolio-horizon-label">Base case</span>
+      <strong>${formatCurrency(base)}</strong>
     </div>
   `;
 }
@@ -150,53 +149,64 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
 function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics = {}) {
   const hero = elements.retirementOutlookHero;
   const panel = elements.planSummaryPanel;
-
   if (!panel) return;
 
   const { formatCurrency, formatPercent } = formatters;
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
     : result.monteCarlo.nominalPercentiles;
-
   const medianEnd = percentiles.p50[percentiles.p50.length - 1];
   const successRate = result.monteCarlo.successRate;
-
-  let status = 'strong';
-  let label = 'Strong';
-  let message = 'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
-  let guardrailNotice = '';
 
   const targetSpending = result.inputs?.initialSpending || 0;
   const shortfallYears = cutDiagnostics.shortfallYears || 0;
   const worstShortfall = cutDiagnostics.worstShortfall || 0;
+  const firstShortfallYear = cutDiagnostics.firstShortfallYear;
   const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
 
-  if (
-    shortfallYears >= 5 ||
-    worstShortfall > targetSpending * 0.20
-  ) {
-    guardrailNotice = `
-      <div class="retirement-outlook-warning">
-        <strong>⚠ Spending target not sustainable</strong> — guardrails reduce spending below the target in ${shortfallYears} years of the plan.
-        Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
-      </div>
-    `;
-  }
+  const shortfallRatio = targetSpending > 0 ? worstShortfall / targetSpending : 0;
+  const hasAnyShortfall = shortfallYears > 0;
 
-  if (successRate < 0.70) {
+  const severeShortfall =
+    shortfallYears >= 5 ||
+    shortfallRatio >= 0.20 ||
+    (firstShortfallYear !== null && firstShortfallYear <= 10);
+
+  const moderateShortfall =
+    hasAnyShortfall ||
+    shortfallRatio >= 0.10;
+
+  let status = 'strong';
+  let label = 'Strong';
+  let message =
+    'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
+  let guardrailNotice = '';
+
+  if (successRate < 0.70 || severeShortfall) {
     status = 'weak';
     label = 'Weak';
-    message = 'Your plan is unlikely to sustain the target spending level across the full retirement horizon. Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
-  } else if (successRate < 0.90) {
+    message =
+      'Your plan is not reliably sustaining the target spending level. Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
+
+    if (hasAnyShortfall) {
+      guardrailNotice = `
+        <div class="retirement-outlook-warning">
+          ⚠ Spending target not sustainable — the base case falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
+          Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
+        </div>
+      `;
+    }
+  } else if (successRate < 0.90 || moderateShortfall) {
     status = 'watch';
     label = 'Watch';
-    message = 'Your plan works in many scenarios, but later outcomes become less secure and need monitoring.';
+    message =
+      'Your plan remains broadly viable, but spending pressure appears in the base case and should be monitored closely.';
   }
 
   const firstShortfallText =
-    cutDiagnostics.firstShortfallYear === null
+    firstShortfallYear === null
       ? 'No spending shortfall in base case'
-      : `First base-case shortfall: year ${cutDiagnostics.firstShortfallYear}`;
+      : `First base-case shortfall: year ${firstShortfallYear}`;
 
   panel.classList.remove(
     'plan-summary-panel--strong',
@@ -216,21 +226,12 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
 
     <p class="retirement-outlook-message">${message}</p>
 
-    <div class="retirement-outlook-summary-title">Outcome summary</div>
+    <div class="plan-summary-heading">Outcome summary</div>
 
-    <div class="retirement-outlook-stats">
-      <div class="retirement-outlook-stat">
-        <span class="retirement-outlook-stat__label">Plan success</span>
-        <strong class="retirement-outlook-stat__value">${formatPercent(successRate)}</strong>
-      </div>
-      <div class="retirement-outlook-stat">
-        <span class="retirement-outlook-stat__label">Median ending portfolio</span>
-        <strong class="retirement-outlook-stat__value">${formatCurrency(medianEnd)}</strong>
-      </div>
-      <div class="retirement-outlook-stat">
-        <span class="retirement-outlook-stat__label">Base-case timing</span>
-        <strong class="retirement-outlook-stat__value">${firstShortfallText}</strong>
-      </div>
+    <div class="plan-summary-metrics">
+      ${renderSummaryItem('Plan success', formatPercent(successRate))}
+      ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
+      ${renderSummaryItem('Base-case timing', firstShortfallText)}
     </div>
   `;
 }
@@ -238,15 +239,15 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
 function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics = {}) {
   const { formatCurrency, formatPercent } = formatters;
   const grid = elements.planSummaryGrid;
-
   if (!grid) return;
 
   const rows = result.baseCase?.rows || [];
   if (!rows.length) return;
 
   const inputs = result.inputs;
-  const percentiles = useReal ? result.monteCarlo.realPercentiles : result.monteCarlo.nominalPercentiles;
-
+  const percentiles = useReal
+    ? result.monteCarlo.realPercentiles
+    : result.monteCarlo.nominalPercentiles;
   const lastIndex = percentiles.p50.length - 1;
   const medianEnd = percentiles.p50[lastIndex];
   const p10End = percentiles.p10[lastIndex];
@@ -265,11 +266,9 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
 
   const lastRow = rows[rows.length - 1];
   const finalWithdrawal = useReal ? lastRow.withdrawalReal : lastRow.withdrawalNominal;
-
   const medianFinalWithdrawalRate = medianEnd > 0 ? finalWithdrawal / medianEnd : 0;
 
   let yearsToZero = 'Not depleted';
-
   for (let i = 0; i < percentiles.p10.length; i++) {
     if (percentiles.p10[i] <= 0) {
       yearsToZero = i;
@@ -284,7 +283,6 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   const percentileSpread = medianEnd > 0 ? Math.max(0, (medianEnd - p10End) / medianEnd) : 1;
 
   let sustainabilityScore = 100;
-
   sustainabilityScore -= (1 - successRate) * 45;
   sustainabilityScore -= maxCut * 100;
   sustainabilityScore -= Math.max(0, dependence - 0.5) * 70;
@@ -304,9 +302,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   if (sustainabilityScore < 40) sustainabilityLabel = 'Unsustainable';
 
   const initialWithdrawalRate =
-    inputs.initialPortfolio > 0
-      ? inputs.initialSpending / inputs.initialPortfolio
-      : 0;
+    inputs.initialPortfolio > 0 ? inputs.initialSpending / inputs.initialPortfolio : 0;
 
   const firstShortfallYearLabel =
     cutDiagnostics.firstShortfallYear === null ? 'None' : cutDiagnostics.firstShortfallYear;
@@ -317,44 +313,36 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
       : `${formatCurrency(cutDiagnostics.worstShortfall)} in year ${cutDiagnostics.worstShortfallYear}`;
 
   grid.innerHTML = `
-    <div class="summary-section">
-      <div class="summary-section-title">Plan health</div>
-      <div class="summary-section-grid">
-        ${renderSummaryItem('Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`)}
-        ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
-        ${renderSummaryItem('Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate))}
-        ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
-      </div>
+    <div class="summary-section-title">Plan health</div>
+    <div class="summary-grid-row">
+      ${renderSummaryItem('Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`)}
+      ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
+      ${renderSummaryItem('Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate))}
+      ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
     </div>
 
-    <div class="summary-section">
-      <div class="summary-section-title">Plan setup</div>
-      <div class="summary-section-grid">
-        ${renderSummaryItem('Simulations run', formatInteger(inputs.monteCarloRuns))}
-        ${renderSummaryItem('Years modelled', formatInteger(inputs.years))}
-        ${renderSummaryItem('Starting portfolio', formatCurrency(inputs.initialPortfolio))}
-        ${renderSummaryItem('Total household spending', formatCurrency(totals.spending))}
-      </div>
+    <div class="summary-section-title">Plan setup</div>
+    <div class="summary-grid-row">
+      ${renderSummaryItem('Simulations run', formatInteger(inputs.monteCarloRuns))}
+      ${renderSummaryItem('Years modelled', formatInteger(inputs.years))}
+      ${renderSummaryItem('Starting portfolio', formatCurrency(inputs.initialPortfolio))}
+      ${renderSummaryItem('Total household spending', formatCurrency(totals.spending))}
     </div>
 
-    <div class="summary-section">
-      <div class="summary-section-title">Portfolio outcomes</div>
-      <div class="summary-section-grid">
-        ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-        ${renderSummaryItem('10th percentile ending', formatCurrency(p10End))}
-        ${renderSummaryItem('90th percentile ending', formatCurrency(p90End))}
-        ${renderSummaryItem('Total withdrawals', formatCurrency(totals.withdrawals))}
-      </div>
+    <div class="summary-section-title">Portfolio outcomes</div>
+    <div class="summary-grid-row">
+      ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
+      ${renderSummaryItem('10th percentile ending', formatCurrency(p10End))}
+      ${renderSummaryItem('90th percentile ending', formatCurrency(p90End))}
+      ${renderSummaryItem('Total withdrawals', formatCurrency(totals.withdrawals))}
     </div>
 
-    <div class="summary-section">
-      <div class="summary-section-title">Plan risks</div>
-      <div class="summary-section-grid">
-        ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
-        ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
-        ${renderSummaryItem('Years with spending shortfall', formatInteger(cutDiagnostics.shortfallYears || 0))}
-        ${renderSummaryItem('Total state pension income', formatCurrency(totals.pension))}
-      </div>
+    <div class="summary-section-title">Plan risks</div>
+    <div class="summary-grid-row">
+      ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
+      ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
+      ${renderSummaryItem('Years with spending shortfall', formatInteger(cutDiagnostics.shortfallYears || 0))}
+      ${renderSummaryItem('Total state pension income', formatCurrency(totals.pension))}
     </div>
   `;
 }
@@ -362,8 +350,8 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
 function renderSummaryItem(label, value) {
   return `
     <div class="summary-item">
-      <div class="summary-item-label">${label}</div>
-      <div class="summary-item-value">${value}</div>
+      <div class="summary-label">${label}</div>
+      <div class="summary-value">${value}</div>
     </div>
   `;
 }
@@ -377,25 +365,19 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
 
   const { formatPercent } = formatters;
   const inputs = result.inputs;
-
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
     : result.monteCarlo.nominalPercentiles;
-
   const p10 = percentiles.p10;
   const planYears = inputs.years;
-
   const inputWarnings = [];
   const modelWarnings = [];
 
-  const startWithdrawalRate = inputs.initialPortfolio > 0
-    ? inputs.initialSpending / inputs.initialPortfolio
-    : 0;
+  const startWithdrawalRate =
+    inputs.initialPortfolio > 0 ? inputs.initialSpending / inputs.initialPortfolio : 0;
 
   if (startWithdrawalRate > 0.055) {
-    inputWarnings.push(
-      `Aggressive starting withdrawal rate (${formatPercent(startWithdrawalRate)}).`
-    );
+    inputWarnings.push(`Aggressive starting withdrawal rate (${formatPercent(startWithdrawalRate)}).`);
   }
 
   for (let i = 0; i < p10.length; i++) {
@@ -407,9 +389,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
 
   if (!inputWarnings.length && !modelWarnings.length) {
     container.innerHTML = `
-      <div class="plan-warning-ok">
-        ✓ No major risks detected in current plan assumptions.
-      </div>
+      <div class="plan-warning-ok">✓ No major risks detected in current plan assumptions.</div>
     `;
     return;
   }
@@ -419,8 +399,10 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   if (inputWarnings.length) {
     groups.push(`
       <div class="plan-warning-group">
-        <div class="plan-warning-group-title">Input warning</div>
-        ${inputWarnings.map((text) => `<div class="plan-warning">⚠ ${text}</div>`).join('')}
+        <h4>Input warning</h4>
+        ${inputWarnings.map((text) => `
+          <div class="plan-warning-item">⚠ ${text}</div>
+        `).join('')}
       </div>
     `);
   }
@@ -428,8 +410,10 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   if (modelWarnings.length) {
     groups.push(`
       <div class="plan-warning-group">
-        <div class="plan-warning-group-title">Model risk</div>
-        ${modelWarnings.map((text) => `<div class="plan-warning">⚠ ${text}</div>`).join('')}
+        <h4>Model risk</h4>
+        ${modelWarnings.map((text) => `
+          <div class="plan-warning-item">⚠ ${text}</div>
+        `).join('')}
       </div>
     `);
   }
@@ -492,37 +476,37 @@ function renderStatusLegend(elements, rows) {
 
   if (flags.hasMild) {
     items.push(`
-      <span class="legend-item">
-        <span class="status-dot cut-mild" aria-hidden="true"></span>
+      <div class="results-legend-item">
+        <span class="results-legend-swatch results-legend-swatch--mild"></span>
         <span>Spending cut (mild)</span>
-      </span>
+      </div>
     `);
   }
 
   if (flags.hasModerate) {
     items.push(`
-      <span class="legend-item">
-        <span class="status-dot cut-moderate" aria-hidden="true"></span>
+      <div class="results-legend-item">
+        <span class="results-legend-swatch results-legend-swatch--moderate"></span>
         <span>Spending cut (moderate)</span>
-      </span>
+      </div>
     `);
   }
 
   if (flags.hasSevere) {
     items.push(`
-      <span class="legend-item">
-        <span class="status-dot cut-severe" aria-hidden="true"></span>
+      <div class="results-legend-item">
+        <span class="results-legend-swatch results-legend-swatch--severe"></span>
         <span>Spending cut (severe)</span>
-      </span>
+      </div>
     `);
   }
 
   if (flags.hasShortfall) {
     items.push(`
-      <span class="legend-item">
-        <span class="status-dot shortfall-dot" aria-hidden="true"></span>
+      <div class="results-legend-item">
+        <span class="results-legend-swatch results-legend-swatch--shortfall"></span>
         <span>Spending shortfall</span>
-      </span>
+      </div>
     `);
   }
 
@@ -570,21 +554,20 @@ function getLegendFlags(rows) {
   rows.forEach((r) => {
     const cut = r.spendingCutPercent || 0;
 
-    if (cut > 0 && cut < 0.05) hasMild = true;
-    else if (cut >= 0.05 && cut < 0.10) hasModerate = true;
-    else if (cut >= 0.10) hasSevere = true;
+    if (cut > 0 && cut < 0.05) {
+      hasMild = true;
+    } else if (cut >= 0.05 && cut < 0.10) {
+      hasModerate = true;
+    } else if (cut >= 0.10) {
+      hasSevere = true;
+    }
 
     if (getRowShortfall(r, true) > 0 || getRowShortfall(r, false) > 0) {
       hasShortfall = true;
     }
   });
 
-  return {
-    hasMild,
-    hasModerate,
-    hasSevere,
-    hasShortfall
-  };
+  return { hasMild, hasModerate, hasSevere, hasShortfall };
 }
 
 function getRowShortfall(row, useReal) {
@@ -602,9 +585,7 @@ function getRowShortfall(row, useReal) {
 }
 
 function formatInteger(value) {
-  return new Intl.NumberFormat('en-GB', {
-    maximumFractionDigits: 0
-  }).format(value);
+  return new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 }).format(value);
 }
 
 const glossaryButton = document.getElementById('explainOutlookTerms');
