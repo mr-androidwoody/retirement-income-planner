@@ -19,17 +19,31 @@ const verticalMarkers = [];
 
 const windfalls = result.inputs?.windfalls || [];
 
+console.log('Windfalls received by chart:', windfalls);
+
 windfalls.forEach((wf) => {
-  const yearIndex = Number(wf.year);
+
+  const rawYear = wf.year;
+  const yearIndex = Number(rawYear);
+
+  console.log('Processing windfall:', {
+    name: wf.name,
+    rawYear,
+    yearIndex,
+    amount: wf.amount
+  });
 
   if (!Number.isFinite(yearIndex)) return;
 
   verticalMarkers.push({
     index: yearIndex,
-    color: '#f59e0b',
+    color: '#dc2626',   // bright red so it's obvious on the chart
     label: `${wf.name || 'Windfall'} £${Math.round(wf.amount || 0).toLocaleString()}`
   });
+
 });
+
+console.log('Final verticalMarkers array:', verticalMarkers);
     
   const person1YearsToPension =
     Number.isFinite(result.inputs?.person1Age) &&
