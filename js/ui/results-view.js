@@ -82,11 +82,13 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
     cutDiagnostics
   );
 
+  renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
   renderPlanWarnings(result, elements, useReal, formatters);
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
 
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 
+  renderDeterministicNote(elements);
   renderStatusLegend(elements, rows);
 
   renderYearlyTable(
@@ -101,6 +103,70 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
       cutDiagnostics
     }
   );
+}
+
+function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics = {}) {
+  const hero = elements.retirementOutlookHero;
+  const panel = elements.planSummaryPanel;
+
+  if (!panel) return;
+
+  const { formatCurrency, formatPercent } = formatters;
+  const percentiles = useReal
+    ? result.monteCarlo.realPercentiles
+    : result.monteCarlo.nominalPercentiles;
+
+  const medianEnd = percentiles.p50[percentiles.p50.length - 1];
+  const successRate = result.monteCarlo.successRate;
+
+  let status = 'strong';
+  let label = 'Strong';
+  let message = 'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
+
+  if (successRate < 0.70) {
+    status = 'weak';
+    label = 'Weak';
+    message = 'Your plan shows a material risk of running short and may need lower spending, more income, or a larger starting portfolio.';
+  } else if (successRate < 0.90) {
+    status = 'watch';
+    label = 'Watch';
+    message = 'Your plan works in many scenarios, but later outcomes become less secure and need monitoring.';
+  }
+
+  const firstShortfallText =
+    cutDiagnostics.firstShortfallYear === null
+      ? 'No spending shortfall in base case'
+      : `First base-case shortfall: year ${cutDiagnostics.firstShortfallYear}`;
+
+  panel.classList.remove(
+    'plan-summary-panel--strong',
+    'plan-summary-panel--watch',
+    'plan-summary-panel--weak'
+  );
+  panel.classList.add(`plan-summary-panel--${status}`);
+
+  if (!hero) return;
+
+  hero.innerHTML = `
+    <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
+      Retirement outlook: ${label}
+    </div>
+    <p class="retirement-outlook-message">${message}</p>
+    <div class="retirement-outlook-stats">
+      <div class="retirement-outlook-stat">
+        <span class="retirement-outlook-stat__label">Plan success</span>
+        <strong class="retirement-outlook-stat__value">${formatPercent(successRate)}</strong>
+      </div>
+      <div class="retirement-outlook-stat">
+        <span class="retirement-outlook-stat__label">Median ending portfolio</span>
+        <strong class="retirement-outlook-stat__value">${formatCurrency(medianEnd)}</strong>
+      </div>
+      <div class="retirement-outlook-stat">
+        <span class="retirement-outlook-stat__label">Base-case timing</span>
+        <strong class="retirement-outlook-stat__value">${firstShortfallText}</strong>
+      </div>
+    </div>
+  `;
 }
 
 function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics = {}) {
@@ -348,6 +414,45 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     .join('');
 }
 
+function renderDeterministicNote(elements) {
+  const note = ensureDeterministicNoteContainer(elements);
+  if (!note) return;
+
+  note.textContent = 'This table shows the deterministic base case only.';
+  note.classList.remove('hidden');
+}
+
+function ensureDeterministicNoteContainer(elements) {
+  if (elements.deterministicNote) {
+    return elements.deterministicNote;
+  }
+
+  const table = elements.resultsTable;
+  const tableCard = elements.tableCard;
+
+  if (!table || !tableCard) {
+    return null;
+  }
+
+  let note = tableCard.querySelector('#deterministicNote');
+
+  if (!note) {
+    note = document.createElement('p');
+    note.id = 'deterministicNote';
+    note.className = 'deterministic-note hidden';
+
+    const tableWrap = table.closest('.table-wrap');
+    if (tableWrap && tableWrap.parentNode) {
+      tableWrap.parentNode.insertBefore(note, tableWrap);
+    } else {
+      tableCard.insertBefore(note, tableCard.firstChild);
+    }
+  }
+
+  elements.deterministicNote = note;
+  return note;
+}
+
 function renderStatusLegend(elements, rows) {
   const legend = ensureResultsLegendContainer(elements);
   if (!legend) return;
@@ -478,6 +583,7 @@ function formatInteger(value) {
     maximumFractionDigits: 0
   }).format(value);
 }
+
 const glossaryButton = document.getElementById('explainOutlookTerms');
 const glossaryOverlay = document.getElementById('outlookGlossaryOverlay');
 const glossaryClose = document.getElementById('closeOutlookGlossary');

@@ -11,6 +11,37 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
 
   const labels = buildYearLabels(result.inputs.years);
 
+  const verticalMarkers = [];
+
+  const person1YearsToPension =
+    Number.isFinite(result.inputs?.person1Age) &&
+    Number.isFinite(result.inputs?.person1PensionAge)
+      ? Math.max(0, result.inputs.person1PensionAge - result.inputs.person1Age)
+      : null;
+
+  const person2YearsToPension =
+    result.inputs?.includePerson2 &&
+    Number.isFinite(result.inputs?.person2Age) &&
+    Number.isFinite(result.inputs?.person2PensionAge)
+      ? Math.max(0, result.inputs.person2PensionAge - result.inputs.person2Age)
+      : null;
+
+  if (person1YearsToPension != null && person1YearsToPension <= result.inputs.years) {
+    verticalMarkers.push({
+      index: person1YearsToPension,
+      color: '#0f766e',
+      label: `${result.inputs?.person1Name || 'Person 1'} state pension`
+    });
+  }
+
+  if (person2YearsToPension != null && person2YearsToPension <= result.inputs.years) {
+    verticalMarkers.push({
+      index: person2YearsToPension,
+      color: '#7c3aed',
+      label: `${result.inputs?.person2Name || 'Person 2'} state pension`
+    });
+  }
+
   drawLineChart(canvas, {
     labels,
     band: {
@@ -19,9 +50,10 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
       fillStyle: 'rgba(45, 91, 255, 0.15)'
     },
     lines: [
-      { label: 'Median Monte Carlo', values: percentileSeries.p50, color: '#2d5bff', width: 3 },
-      { label: 'Deterministic base case', values: basePath, color: '#0f766e', width: 2.5 }
+      { label: 'Median simulation', values: percentileSeries.p50, color: '#2d5bff', width: 3 },
+      { label: 'Base case', values: basePath, color: '#0f766e', width: 2.5 }
     ],
+    verticalMarkers,
     yFormatter: formatCurrency
   });
 }
