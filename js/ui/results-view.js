@@ -74,6 +74,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
   renderSpendingChart(
     elements.spendingChart,
     result,
@@ -105,6 +106,46 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   );
 }
 
+function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
+  const container = elements.portfolioHorizonSummary;
+  if (!container) return;
+
+  const { formatCurrency } = formatters;
+
+  const percentiles = useReal
+    ? result.monteCarlo.realPercentiles
+    : result.monteCarlo.nominalPercentiles;
+
+  const basePath = useReal
+    ? result.baseCase.pathReal
+    : result.baseCase.pathNominal;
+
+  const lastIndex = percentiles.p50.length - 1;
+
+  const p10 = percentiles.p10[lastIndex];
+  const p50 = percentiles.p50[lastIndex];
+  const p90 = percentiles.p90[lastIndex];
+  const base = basePath[lastIndex];
+
+  container.innerHTML = `
+    <div class="chart-horizon-pill">
+      <span class="chart-horizon-pill__label">P10</span>
+      <strong class="chart-horizon-pill__value">${formatCurrency(p10)}</strong>
+    </div>
+    <div class="chart-horizon-pill">
+      <span class="chart-horizon-pill__label">Median</span>
+      <strong class="chart-horizon-pill__value">${formatCurrency(p50)}</strong>
+    </div>
+    <div class="chart-horizon-pill">
+      <span class="chart-horizon-pill__label">P90</span>
+      <strong class="chart-horizon-pill__value">${formatCurrency(p90)}</strong>
+    </div>
+    <div class="chart-horizon-pill">
+      <span class="chart-horizon-pill__label">Base case</span>
+      <strong class="chart-horizon-pill__value">${formatCurrency(base)}</strong>
+    </div>
+  `;
+}
 function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics = {}) {
   const hero = elements.retirementOutlookHero;
   const panel = elements.planSummaryPanel;
@@ -122,7 +163,27 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
   let status = 'strong';
   let label = 'Strong';
   let message = 'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
+  let guardrailNotice = '';
 
+  const targetSpending = result.inputs?.initialSpending || 0;
+  const shortfallYears = cutDiagnostics.shortfallYears || 0;
+  const worstShortfall = cutDiagnostics.worstShortfall || 0;
+  const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
+
+  if (
+   shortfallYears >= 5 ||
+   worstShortfall > targetSpending * 0.20
+ ) {
+   guardrailNotice = `
+    <div class="retirement-outlook-warning">
+      ⚠ Spending pressure detected — guardrails reduce spending below the target in
+      ${shortfallYears} years of the plan.
+      Worst shortfall: ${formatCurrency(worstShortfall)}
+      in year ${worstYear}.
+    </div>
+  `;
+}
+    
   if (successRate < 0.70) {
     status = 'weak';
     label = 'Weak';
@@ -152,7 +213,7 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
       Retirement outlook: ${label}
     </div>
     <p class="retirement-outlook-message">${message}</p>
-    <div class="retirement-outlook-stats">
+    ${guardrailNotice}    <div class="retirement-outlook-stats">
       <div class="retirement-outlook-stat">
         <span class="retirement-outlook-stat__label">Plan success</span>
         <strong class="retirement-outlook-stat__value">${formatPercent(successRate)}</strong>
