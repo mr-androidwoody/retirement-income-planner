@@ -74,7 +74,7 @@ export function renderResultsView({ result, elements, useReal, showFullTable, fo
   elements.summaryCashRunway.textContent = runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
 
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+  renderPortfolioHorizonSummary(result, elements, useReal, formatters);
   renderSpendingChart(
     elements.spendingChart,
     result,
@@ -146,6 +146,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
     </div>
   `;
 }
+
 function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics = {}) {
   const hero = elements.retirementOutlookHero;
   const panel = elements.planSummaryPanel;
@@ -165,32 +166,32 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
   let message = 'Your plan is on track to fund the full retirement horizon in most simulated outcomes.';
   let guardrailNotice = '';
 
-const targetSpending = result.inputs?.initialSpending || 0;
-const shortfallYears = cutDiagnostics.shortfallYears || 0;
-const worstShortfall = cutDiagnostics.worstShortfall || 0;
-const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
+  const targetSpending = result.inputs?.initialSpending || 0;
+  const shortfallYears = cutDiagnostics.shortfallYears || 0;
+  const worstShortfall = cutDiagnostics.worstShortfall || 0;
+  const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
 
-if (
-  shortfallYears >= 5 ||
-  worstShortfall > targetSpending * 0.20
-) {
-  guardrailNotice = `
-    <div class="retirement-outlook-warning">
-      <strong>⚠ Spending pressure detected</strong> — guardrails reduce spending below the target in ${shortfallYears} years of the plan.
-      Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
-    </div>
-  `;
-}
+  if (
+    shortfallYears >= 5 ||
+    worstShortfall > targetSpending * 0.20
+  ) {
+    guardrailNotice = `
+      <div class="retirement-outlook-warning">
+        <strong>⚠ Spending target not sustainable</strong> — guardrails reduce spending below the target in ${shortfallYears} years of the plan.
+        Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
+      </div>
+    `;
+  }
 
-if (successRate < 0.70) {
-  status = 'weak';
-  label = 'Weak';
-  message = 'Your plan is unlikely to sustain the target spending level across the full retirement horizon.Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
-} else if (successRate < 0.90) {
-  status = 'watch';
-  label = 'Watch';
-  message = 'Your plan works in many scenarios, but later outcomes become less secure and need monitoring.';
-}
+  if (successRate < 0.70) {
+    status = 'weak';
+    label = 'Weak';
+    message = 'Your plan is unlikely to sustain the target spending level across the full retirement horizon. Lower spending, additional income, or a larger starting portfolio would materially improve resilience.';
+  } else if (successRate < 0.90) {
+    status = 'watch';
+    label = 'Watch';
+    message = 'Your plan works in many scenarios, but later outcomes become less secure and need monitoring.';
+  }
 
   const firstShortfallText =
     cutDiagnostics.firstShortfallYear === null
@@ -210,10 +211,15 @@ if (successRate < 0.70) {
     <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
       Retirement outlook: ${label}
     </div>
+
     ${guardrailNotice}
-     <p class="retirement-outlook-message">${message}</p>
-      <div class="retirement-outlook-summary-title">Outcome summary</div>
-      <div class="retirement-outlook-stats">
+
+    <p class="retirement-outlook-message">${message}</p>
+
+    <div class="retirement-outlook-summary-title">Outcome summary</div>
+
+    <div class="retirement-outlook-stats">
+      <div class="retirement-outlook-stat">
         <span class="retirement-outlook-stat__label">Plan success</span>
         <strong class="retirement-outlook-stat__value">${formatPercent(successRate)}</strong>
       </div>
