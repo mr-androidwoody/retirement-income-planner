@@ -1273,9 +1273,9 @@ input[type="checkbox"]{
 }
 
 .outlook-glossary-card h4{
-  margin:0 0 16px;
+  margin:0 0 18px;
   padding-bottom:10px;
-  font-size:1.12rem;
+  font-size:1.15rem;
   font-weight:800;
   line-height:1.25;
   color:var(--text);
