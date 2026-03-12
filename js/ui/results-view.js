@@ -217,24 +217,26 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
 
   if (!hero) return;
 
-  hero.innerHTML = `
-    <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
+hero.innerHTML = `
+  <div class="retirement-outlook-status retirement-outlook-status--${status}">
+    <div class="retirement-outlook-status__title">
       Retirement outlook: ${label}
     </div>
-
-    ${guardrailNotice}
-
-    <p class="retirement-outlook-message">${message}</p>
-
-    <div class="plan-summary-heading">Outcome summary</div>
-
-    <div class="plan-summary-metrics">
-      ${renderSummaryItem('Plan success', formatPercent(successRate))}
-      ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-      ${renderSummaryItem('Base-case timing', firstShortfallText)}
+    <div class="retirement-outlook-status__message">
+      ${message}
     </div>
-  `;
-}
+  </div>
+
+  ${guardrailNotice}
+
+  <div class="plan-summary-heading">Outcome summary</div>
+
+  <div class="plan-summary-metrics">
+    ${renderSummaryItem('Plan success', formatPercent(successRate))}
+    ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
+    ${renderSummaryItem('Base-case timing', firstShortfallText)}
+  </div>
+`;
 
 function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics = {}) {
   const { formatCurrency, formatPercent } = formatters;
