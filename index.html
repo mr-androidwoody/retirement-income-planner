@@ -282,63 +282,91 @@
                 </div>
               </section>
 
-            <div class="input-column-stack">
-              <section class="input-group-card">
-                <div class="section-heading">
-                  <h3>Withdrawal policy</h3>
-                  <p>Guyton-Klinger guardrails plus the inflation-skip rule used by the simulator.</p>
-                </div>
+              <div class="input-column-stack">
+                <section class="input-group-card">
+                  <div class="section-heading">
+                    <h3>Withdrawal policy</h3>
+                    <p>Guyton-Klinger guardrails plus the inflation-skip rule used by the simulator.</p>
+                  </div>
 
-                <div class="field-grid field-grid-3">
-                  <label class="field">
-                    <span class="field-label with-help">
-                      <span>Upper guardrail %</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Upper guardrail help"
-                        title="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size."
-                      >?</button>
-                    </span>
-                    <input id="upperGuardrail" type="number" min="0" step="0.1" />
-                  </label>
+                  <div class="field-grid field-grid-3">
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Upper guardrail %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Upper guardrail help"
+                          title="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size."
+                        >?</button>
+                      </span>
+                      <input id="upperGuardrail" type="number" min="0" step="0.1" />
+                    </label>
 
-                  <label class="field">
-                    <span class="field-label with-help">
-                      <span>Lower guardrail %</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Lower guardrail help"
-                        title="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size."
-                      >?</button>
-                    </span>
-                    <input id="lowerGuardrail" type="number" min="0" step="0.1" />
-                  </label>
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Lower guardrail %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Lower guardrail help"
+                          title="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size."
+                        >?</button>
+                      </span>
+                      <input id="lowerGuardrail" type="number" min="0" step="0.1" />
+                    </label>
 
-                  <label class="field">
-                    <span class="field-label with-help">
-                      <span>Adjustment size %</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Adjustment size help"
-                        title="The percentage change applied to spending when a guardrail is breached."
-                      >?</button>
-                    </span>
-                    <input id="adjustmentSize" type="number" min="0" step="0.1" />
-                  </label>
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Adjustment size %</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Adjustment size help"
+                          title="The percentage change applied to spending when a guardrail is breached."
+                        >?</button>
+                      </span>
+                      <input id="adjustmentSize" type="number" min="0" step="0.1" />
+                    </label>
 
-                  <label class="field field-span-full">
-                    <span class="field-label">Skip inflation increase after a negative market year</span>
-                    <input id="skipInflationAfterNegative" type="checkbox" />
-                  </label>
-                </div>
-              </section>
-            </div>
+                    <label class="field field-span-full">
+                      <span class="field-label">Skip inflation increase after a negative market year</span>
+                      <input id="skipInflationAfterNegative" type="checkbox" />
+                    </label>
+                  </div>
+                </section>
+
+                <section class="input-group-card">
+                  <div class="section-heading">
+                    <h3>Simulation settings</h3>
+                    <p>Monte Carlo controls.</p>
+                  </div>
+
+                  <div class="field-grid field-grid-3">
+                    <label class="field">
+                      <span class="field-label with-help">
+                        <span>Monte Carlo runs</span>
+                        <button
+                          class="help"
+                          type="button"
+                          tabindex="-1"
+                          aria-label="Monte Carlo runs help"
+                          title="Number of simulated return paths. More runs are smoother and more stable, but slower."
+                        >?</button>
+                      </span>
+                      <input id="monteCarloRuns" type="text" inputmode="numeric" data-format="integer" />
+                    </label>
+
+                    <label class="field">
+                      <span class="field-label">Seed</span>
+                      <input id="seed" type="text" inputmode="numeric" data-format="integer" placeholder="Optional" />
+                    </label>
+                  </div>
+                </section>
+              </div>
 
               <section class="input-group-card">
                 <div class="section-heading">
@@ -406,34 +434,6 @@
                   <label class="field field-inline field-inline-wide">
                     <span class="field-label field-label-inline">Inflation %</span>
                     <input id="inflation" type="number" min="0" step="0.1" />
-                  </label>
-                </div>
-              </section>
-
-              <section class="input-group-card">
-                <div class="section-heading">
-                  <h3>Simulation settings</h3>
-                  <p>Monte Carlo controls.</p>
-                </div>
-
-                <div class="field-grid field-grid-3">
-                  <label class="field">
-                    <span class="field-label with-help">
-                      <span>Monte Carlo runs</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Monte Carlo runs help"
-                        title="Number of simulated return paths. More runs are smoother and more stable, but slower."
-                      >?</button>
-                    </span>
-                    <input id="monteCarloRuns" type="text" inputmode="numeric" data-format="integer" />
-                  </label>
-
-                  <label class="field">
-                    <span class="field-label">Seed</span>
-                    <input id="seed" type="text" inputmode="numeric" data-format="integer" placeholder="Optional" />
                   </label>
                 </div>
               </section>
@@ -505,7 +505,7 @@
               </div>
               <div class="chart-canvas-wrap">
                 <canvas id="portfolioChart" height="260"></canvas>
-                  <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
+                <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
               </div>
             </section>
 
