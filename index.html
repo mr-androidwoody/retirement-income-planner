@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
-  <title>Retirement Simulator</title>
+  <title>Retirement Income Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/style.css" />
   <script type="module" src="js/app.js" defer></script>
@@ -11,11 +11,27 @@
   <div class="page-shell">
     <header class="page-header">
       <div class="title-block">
-        <h1>Retirement Simulator</h1>
-        <p class="intro">
-          Build and test retirement plans using Monte Carlo modelling, Guyton-Klinger guardrails, two-person state pension offsets, and cashlike buffers.
-          Enter your assumptions below and run the simulation to explore portfolio outcomes, spending sustainability, and how guardrails adjust withdrawals over time.
-        </p>
+        <h1>Retirement Income Planner</h1>
+            <p class="intro">
+            Build and test retirement plans using
+            <span class="inline-help-term">
+            <span>Monte Carlo modelling</span>
+            <button
+            class="help"
+            type="button"
+            aria-label="Monte Carlo modelling help"
+            title="Monte Carlo runs your plan many times using different market return paths, so you can see how often it holds up under good and bad conditions.">?</button>
+            </span>,
+            <span class="inline-help-term">
+            <span>Guyton-Klinger guardrails</span>
+            <button
+            class="help"
+            type="button"
+            aria-label="Guyton-Klinger guardrails help"
+            title="Guyton-Klinger guardrails are spending rules that raise or cut withdrawals when your withdrawal rate moves too far from its starting level, helping income stay flexible and reducing the risk of running out.">?</button>
+            </span>,
+            two-person state pension offsets, and cashlike buffers.
+            Enter your assumptions below and run the simulation to explore portfolio outcomes, spending sustainability, and how guardrails adjust withdrawals over time.</p>
       </div>
     </header>
 
@@ -84,7 +100,7 @@
                   </label>
 
                   <label class="field">
-                    <span class="field-label">Initial portfolio</span>
+                    <span class="field-label">Value of investments and savings</span>
                     <input id="initialPortfolio" type="text" inputmode="numeric" data-format="integer" />
                   </label>
 
