@@ -1221,22 +1221,27 @@ input[type="checkbox"]{
 #planWarnings{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:12px;
   margin-top:10px;
 }
 
 .plan-warning,
-.plan-warning-ok{
+.plan-warning-ok,
+.plan-warning-group{
   padding:12px 14px;
   border-radius:12px;
   font-size:0.92rem;
   line-height:1.45;
 }
 
-.plan-warning{
+.plan-warning,
+.plan-warning-group{
   background:#fff7ed;
   color:#7c2d12;
   border:1px solid #fdba74;
+}
+
+.plan-warning{
   font-weight:600;
 }
 
@@ -1248,7 +1253,7 @@ input[type="checkbox"]{
 }
 
 .plan-warning-group{
-  margin:0 0 14px;
+  margin:0;
 }
 
 .plan-warning-group:last-child{
@@ -1257,11 +1262,21 @@ input[type="checkbox"]{
 
 .plan-warning-group-title{
   margin:0 0 8px;
-  color:var(--muted);
+  color:inherit;
   font-size:0.82rem;
   font-weight:800;
   text-transform:uppercase;
   letter-spacing:0.04em;
+}
+
+.plan-warning-group p,
+.plan-warning-group div,
+.plan-warning-group li{
+  margin:0;
+}
+
+.plan-warning-group > * + *{
+  margin-top:8px;
 }
 
 /* ========================================
