@@ -1081,6 +1081,8 @@ input[type="checkbox"]{
 }
 
 .plan-summary-note{
+  display:grid;
+  gap:4px;
   margin:12px 0 4px;
   padding:12px 14px;
   border-radius:12px;
@@ -1095,9 +1097,15 @@ input[type="checkbox"]{
   font-weight:800;
 }
 
+.plan-summary-note--info{
+  background:#eff6ff;
+  border:1px solid #93c5fd;
+  color:#1e3a8a;
+}
+
 .plan-summary-note--warning{
   background:#fff7ed;
-  border-color:#fdba74;
+  border:1px solid #fdba74;
   color:#7c2d12;
 }
 
@@ -1126,9 +1134,7 @@ input[type="checkbox"]{
 }
 
 /* ========================================
-   Plan summary sections
-   Matches current results-view.js structure:
-   repeated section wrappers with heading + metrics
+   Plan Outlook summary grid
    ======================================== */
 
 .plan-summary-grid{
@@ -1136,22 +1142,36 @@ input[type="checkbox"]{
   grid-template-columns:1fr;
   gap:18px;
   margin-top:16px;
+  align-items:start;
 }
 
 .plan-summary-section{
-  display:flex;
-  flex-direction:column;
+  display:grid;
   gap:10px;
+  min-width:0;
 }
 
-.plan-summary-metrics{
+.plan-summary-section-title{
+  margin:0;
+  color:var(--muted);
+  font-size:0.82rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+
+.plan-summary-section-grid{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:12px;
   min-width:0;
 }
 
-.plan-summary-metrics .summary-metric{
+.plan-summary-section-grid--top{
+  margin-top:4px;
+}
+
+.summary-item{
   min-width:0;
   width:100%;
   margin:0;
@@ -1162,7 +1182,7 @@ input[type="checkbox"]{
   box-sizing:border-box;
 }
 
-.plan-summary-metrics .summary-label{
+.summary-item .summary-label{
   margin:0 0 8px;
   font-size:0.78rem;
   font-weight:700;
@@ -1171,7 +1191,7 @@ input[type="checkbox"]{
   overflow-wrap:anywhere;
 }
 
-.plan-summary-metrics .summary-value{
+.summary-item .summary-value{
   margin:0;
   font-size:1.05rem;
   font-weight:800;
@@ -1182,52 +1202,15 @@ input[type="checkbox"]{
 }
 
 @media (max-width: 980px){
-  .plan-summary-metrics{
+  .plan-summary-section-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px){
-  .outlook-panel-header{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .outlook-panel-actions{
-    width:100%;
-    justify-content:flex-start;
-  }
-
-  .outlook-glossary-trigger{
-    width:100%;
-    justify-content:center;
-  }
-
-  .plan-summary-metrics{
+  .plan-summary-section-grid{
     grid-template-columns:1fr;
   }
-}
-
-.plan-summary-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:12px;
-  margin-top:12px;
-  align-items:start;
-}
-
-.plan-summary-grid > .plan-summary-heading,
-.plan-summary-grid > .plan-summary-metrics{
-  grid-column:1 / -1;
-  min-width:0;
-}
-
-.plan-summary-grid > .plan-summary-heading{
-  margin:2px 0 0;
-}
-
-.plan-summary-grid > .plan-summary-metrics{
-  margin:0 0 6px;
 }
 
 /* ========================================
@@ -1581,10 +1564,6 @@ input[type="checkbox"]{
 }
 
 @media (max-width: 900px){
-  .plan-summary-metrics{
-    grid-template-columns:1fr;
-  }
-
   .outlook-glossary-sections{
     grid-template-columns:1fr;
   }
@@ -1732,7 +1711,7 @@ input[type="checkbox"]{
   margin-top:14px;
 }
 
-.portfolio-horizon-stat{
+.portfolio-horizon-item{
   padding:10px 12px;
   border:1px solid var(--line);
   border-radius:12px;
@@ -1748,10 +1727,11 @@ input[type="checkbox"]{
   font-weight:700;
 }
 
-.portfolio-horizon-stat strong{
+.portfolio-horizon-value{
   display:block;
   color:var(--text);
   font-size:0.95rem;
+  font-weight:800;
   line-height:1.3;
   overflow-wrap:anywhere;
 }
@@ -1760,32 +1740,4 @@ input[type="checkbox"]{
   .chart-horizon-summary{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
-}
-
-/* ========================================
-   Base Case Note
-   ======================================== */
-
-.plan-summary-note{
-  margin:14px 0 18px;
-  padding:10px 14px;
-  border-radius:10px;
-
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-
-  font-size:0.9rem;
-  line-height:1.5;
-
-  color:#334155;
-}
-
-.plan-summary-note strong{
-  font-weight:600;
-}
-
-.plan-summary-note--warning{
-  background:#fff7ed;
-  border:1px solid #fdba74;
-  color:#7c2d12;
 }
