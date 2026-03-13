@@ -399,8 +399,16 @@ canvas{
   gap:10px;
 }
 
+.field-span-full:has(input[type="checkbox"]) .field-label{
+  min-height:0;
+  align-items:center;
+  flex:1 1 auto;
+}
+
 .field-span-full:has(input[type="checkbox"]) input{
   margin:0;
+  align-self:center;
+  flex:0 0 auto;
 }
 
 .field-label{
@@ -529,14 +537,22 @@ input[type="checkbox"]{
 
 .person-pension-checkbox{
   display:flex;
+  flex-direction:row;
   align-items:center;
   justify-content:space-between;
   gap:10px;
 }
 
+.person-pension-checkbox .field-label{
+  min-height:0;
+  align-items:center;
+  flex:1 1 auto;
+}
+
 .person-pension-checkbox input{
-  width:auto;
   margin:0;
+  align-self:center;
+  flex:0 0 auto;
 }
 
 /* ========================================
