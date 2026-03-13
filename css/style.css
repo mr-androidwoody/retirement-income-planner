@@ -324,6 +324,12 @@ canvas{
   gap:20px;
 }
 
+.input-column-stack{
+  display:grid;
+  gap:20px;
+  align-content:start;
+}
+
 .input-group-card{
   display:flex;
   flex-direction:column;
