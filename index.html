@@ -137,9 +137,25 @@
                     </span>
                     <input id="cashlikeAllocation" type="number" min="0" max="100" step="0.1" />
                   </label>
+                </div>
 
-                  <label class="field field-span-full">
-                    <span class="field-label with-help">
+                <div class="field-grid field-grid-2">
+                  <label class="field field-inline field-inline-wide people-pension-inline-field">
+                    <span class="field-label with-help field-label-inline">
+                      <span>Full state pension today value</span>
+                      <button
+                        class="help"
+                        type="button"
+                        tabindex="-1"
+                        aria-label="Full state pension today value help"
+                        title="Today's annual value of a full state pension."
+                      >?</button>
+                    </span>
+                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+                  </label>
+
+                  <label class="field field-inline field-inline-wide">
+                    <span class="field-label with-help field-label-inline">
                       <span>Annual rebalance to target</span>
                       <button
                         class="help"
@@ -158,22 +174,6 @@
                 <div class="section-heading">
                   <h3>Fixed income</h3>
                   <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
-                </div>
-
-                <div class="field-grid field-grid-2">
-                  <label class="field field-inline field-inline-wide people-pension-inline-field">
-                    <span class="field-label with-help field-label-inline">
-                      <span>Full state pension today value</span>
-                      <button
-                        class="help"
-                        type="button"
-                        tabindex="-1"
-                        aria-label="Full state pension today value help"
-                        title="Today's annual value of a full state pension. Tick the checkbox in each person panel if that person is expected to receive it."
-                      >?</button>
-                    </span>
-                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
-                  </label>
                 </div>
 
                 <div class="people-panels">
