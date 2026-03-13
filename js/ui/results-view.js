@@ -319,11 +319,11 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
 
   sustainabilityScore = Math.max(0, Math.min(100, Math.round(sustainabilityScore)));
 
-  let sustainabilityLabel = 'Excellent';
-  if (sustainabilityScore < 90) sustainabilityLabel = 'Strong';
+  let sustainabilityLabel = 'Low pressure';
+  if (sustainabilityScore < 90) sustainabilityLabel = 'Manageable';
   if (sustainabilityScore < 75) sustainabilityLabel = 'Moderate';
-  if (sustainabilityScore < 60) sustainabilityLabel = 'Fragile';
-  if (sustainabilityScore < 40) sustainabilityLabel = 'Unsustainable';
+  if (sustainabilityScore < 60) sustainabilityLabel = 'High';
+  if (sustainabilityScore < 40) sustainabilityLabel = 'Severe';
 
   const initialWithdrawalRate =
     inputs.initialPortfolio > 0 ? inputs.initialSpending / inputs.initialPortfolio : 0;
@@ -339,7 +339,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   grid.innerHTML = `
     <div class="summary-section-title">Plan health</div>
     <div class="summary-grid-row">
-      ${renderSummaryItem('Spending sustainability score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`)}
+      ${renderSummaryItem('Spending pressure score', `${sustainabilityScore}/100 — ${sustainabilityLabel}`)}
       ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
       ${renderSummaryItem('Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate))}
       ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
