@@ -424,16 +424,20 @@
         <input id="cashlikeVolatility" type="number" min="0" step="0.1" />
       </label>
     </div>
-  </div>
 
-  <div class="asset-assumptions-inflation">
-    <label class="field field-inline field-inline-wide">
-      <span class="field-label field-label-inline">Inflation %</span>
-      <input id="inflation" type="number" min="0" step="0.1" />
-    </label>
+    <div class="asset-assumptions-inflation asset-assumption-card inflation-card">
+      <div class="asset-assumption-title">Inflation</div>
 
-    <div class="section-subnote">
-      Used to increase spending and income over time so results can be shown in today's spending power.
+      <div class="inflation-row">
+        <div class="section-subnote inflation-copy">
+          Used to increase spending and income over time so results can be shown in today's spending power.
+        </div>
+
+        <label class="field inflation-field">
+          <span class="field-label">Inflation %</span>
+          <input id="inflation" type="number" min="0" step="0.1" />
+        </label>
+      </div>
     </div>
   </div>
 </section>
