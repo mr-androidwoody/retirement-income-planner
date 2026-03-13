@@ -551,7 +551,23 @@ function getHoverPayload(config, state, geom) {
   return null;
 }
 
+/* Chart Tooltips */
+
 function getMarkerDetailLines(label) {
+  if (/windfall/i.test(label)) {
+    return [
+      'This is a one-off cash inflow added to the plan in this year.',
+      'It reduces the need for portfolio withdrawals and can lift the portfolio path.'
+    ];
+  }
+
+  if (/state pension/i.test(label)) {
+    return [
+      'This is the year state pension starts for this person.',
+      'From this point, portfolio withdrawals may reduce because guaranteed income increases.'
+    ];
+  }
+
   switch (label) {
     case 'First cut':
       return [
@@ -576,10 +592,12 @@ function getMarkerDetailLines(label) {
       ];
     default:
       return [
-        'This marker highlights a spending plan stress point.'
+        'This marker highlights a key plan event.'
       ];
   }
 }
+
+/* End Chart Tooltips */
 
 function drawHoverOverlay(ctx, payload, width, height, padding) {
   const title = payload.title || '';
