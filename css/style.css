@@ -434,6 +434,23 @@ canvas{
   gap:8px;
 }
 
+/* ========================================
+   Core assumptions vertical spacing fix
+   ======================================== */
+
+.input-group-card .field-grid{
+  margin-top:12px;
+}
+
+.input-group-card .field-grid + .field-grid{
+  margin-top:18px;
+}
+
+.input-group-card .section-subnote{
+  margin-top:10px;
+  margin-bottom:8px;
+}
+
 /* Core assumptions bottom row fixes */
 
 .core-assumptions-bottom-row{
