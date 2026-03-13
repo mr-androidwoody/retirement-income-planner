@@ -730,17 +730,20 @@ input[type="checkbox"]{
   line-height:1.2;
 }
 
-/* Inflation card spans full grid width and is tightened vertically */
+/* Inflation card spans full grid width and must not stretch its inner rows */
 
 .asset-assumptions-inflation{
   grid-column:1 / -1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  gap:10px;
   margin-top:14px;
-  padding-top:10px;
-  padding-bottom:12px;
+  padding:14px;
 }
 
 .asset-assumptions-inflation .asset-assumption-title{
-  margin-bottom:4px;
+  margin:0;
 }
 
 /* Layout for inflation explanation + input */
@@ -749,7 +752,7 @@ input[type="checkbox"]{
   display:flex;
   align-items:flex-end;
   gap:24px;
-  margin-top:2px;
+  margin:0;
 }
 
 .inflation-copy{
@@ -759,7 +762,8 @@ input[type="checkbox"]{
 }
 
 .inflation-field{
-  flex:0 0 220px;
+  flex:0 0 240px;
+  width:240px;
 }
 
 .inflation-field input{
