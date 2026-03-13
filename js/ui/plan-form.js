@@ -201,6 +201,16 @@ export function createPlanForm(
       formatInteger
     );
 
+    planIntegerFieldIds.forEach((fieldId) => {
+      const field = elements[fieldId];
+      if (!field) return;
+
+      const value = parseLooseNumber(field.value);
+      if (Number.isFinite(value)) {
+        field.value = formatInteger(value);
+      }
+    });
+
     syncPerson2State();
   }
 
