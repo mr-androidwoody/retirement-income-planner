@@ -197,32 +197,32 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
     hasAnyShortfall ||
     shortfallRatio >= 0.10;
 
-  let status = 'strong';
-  let label = 'Strong';
-  let message =
-    'The plan remains well funded across the full horizon, with no spending shortfall in the base case.';
-  let guardrailNotice = '';
+let status = 'strong';
+let label = 'Strong';
+let message = 'The plan is highly likely to sustain the target spending level across simulated outcomes.';
+let guardrailNotice = '';
 
-  if (successRate < 0.70 || severeShortfall) {
-    status = 'weak';
-    label = 'Weak';
-    message =
-      'The plan does not reliably sustain the target spending level without material shortfalls.';
+if (successRate < 0.70) {
+  status = 'weak';
+  label = 'Weak';
+  message = 'The plan does not reliably sustain the target spending level across simulations.';
+} else if (successRate < 0.90) {
+  status = 'watch';
+  label = 'Watch';
+  message = 'The plan is broadly viable, but outcomes show some pressure and should be monitored.';
+}
 
-    if (hasAnyShortfall) {
-      guardrailNotice = `
-        <div class="retirement-outlook-warning">
-          <strong>⚠ Spending target not sustainable</strong> — the base case falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
-          Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
-        </div>
-      `;
-    }
-  } else if (successRate < 0.90 || moderateShortfall) {
-    status = 'watch';
-    label = 'Watch';
-    message =
-      'The plan is broadly viable, but spending pressure appears in the base case and should be monitored.';
+if (hasAnyShortfall) {
+  if (successRate >= 0.90) {
+    guardrailNotice = `
+Base-case note — the deterministic path falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}. Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}. Simulated plan success remains ${formatPercent(successRate)}.
+`;
+  } else {
+    guardrailNotice = `
+⚠ Base-case spending pressure — the deterministic path falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}. Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
+`;
   }
+}
 
   const firstShortfallText =
     firstShortfallYear === null
