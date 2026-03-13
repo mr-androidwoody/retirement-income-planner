@@ -730,9 +730,34 @@ input[type="checkbox"]{
   line-height:1.2;
 }
 
+/* Inflation row spans full grid width */
+
 .asset-assumptions-inflation{
-  max-width:220px;
+  grid-column:1 / -1;
   margin-top:14px;
+}
+
+/* Layout for inflation explanation + input */
+
+.inflation-row{
+  display:flex;
+  align-items:flex-end;
+  gap:24px;
+  margin-top:10px;
+}
+
+.inflation-copy{
+  flex:1;
+  margin:0;
+  max-width:none;
+}
+
+.inflation-field{
+  flex:0 0 220px;
+}
+
+.inflation-field input{
+  width:100%;
 }
 
 /* ========================================
