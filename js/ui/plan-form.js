@@ -1,63 +1,119 @@
-export function createPlanForm(elements, { formatInteger, parseLooseNumber, parseLooseInteger } = {}) {
-  const planIntegerFieldIds = [
-    'initialPortfolio',
-    'initialSpending',
-    'statePensionToday',
-    'person1OtherIncomeToday',
-    'person1OtherIncomeYears',
-    'person1WindfallAmount',
-    'person1WindfallYear',
-    'person2OtherIncomeToday',
-    'person2OtherIncomeYears',
-    'person2WindfallAmount',
-    'person2WindfallYear'
-  ];
+import {
+  formatInteger,
+  parseLooseInteger,
+  parseLooseNumber,
+  setFieldValue,
+  unformatNumberString
+} from '../utils/formatters.js';
 
-  const person2FieldIds = [
-    'person2Name',
-    'person2Age',
-    'person2PensionAge',
-    'person2OtherIncomeToday',
-    'person2OtherIncomeYears',
-    'person2WindfallAmount',
-    'person2WindfallYear'
-  ];
+const planIntegerFieldIds = [
+  'initialPortfolio',
+  'initialSpending',
+  'comfortSpending',
+  'minimumSpending',
+  'statePensionToday',
+  'person1OtherIncomeToday',
+  'person1OtherIncomeYears',
+  'person1WindfallAmount',
+  'person1WindfallYear',
+  'person2OtherIncomeToday',
+  'person2OtherIncomeYears',
+  'person2WindfallAmount',
+  'person2WindfallYear'
+];
 
-  function applyDefaults(defaults) {
-    const sharedStatePensionToday = resolveSharedStatePensionToday(defaults);
+function resolveSharedStatePensionToday(defaults) {
+  if (Number.isFinite(defaults.statePensionToday)) return defaults.statePensionToday;
+  if (Number.isFinite(defaults.person1PensionToday)) return defaults.person1PensionToday;
+  if (Number.isFinite(defaults.person2PensionToday)) return defaults.person2PensionToday;
+  return 0;
+}
 
-    setFieldValue('years', defaults.years);
-    setFieldValue('initialPortfolio', defaults.initialPortfolio, true);
-    setFieldValue('initialSpending', defaults.initialSpending, true);
+function resolveGetsFullPension(defaults, personKey) {
+  const explicitFlag = defaults[`${personKey}GetsFullPension`];
+  if (typeof explicitFlag === 'boolean') return explicitFlag;
+  return Number(defaults[`${personKey}PensionToday`] || 0) > 0;
+}
+
+function resolveIncludePerson2(defaults) {
+  if (typeof defaults.includePerson2 === 'boolean') return defaults.includePerson2;
+
+  const hasPerson2Data = [
+    defaults.person2Age,
+    defaults.person2PensionAge,
+    defaults.person2PensionToday,
+    defaults.person2OtherIncomeToday,
+    defaults.person2OtherIncomeYears,
+    defaults.person2WindfallAmount,
+    defaults.person2WindfallYear
+  ].some((value) => Number.isFinite(value) && value !== 0);
+
+  return hasPerson2Data;
+}
+
+export function createPlanForm(elements, defaults) {
+  function syncPerson2State() {
+    const include = Boolean(elements.includePerson2?.checked ?? true);
+
+    if (elements.person2Fields) {
+      elements.person2Fields.classList.toggle('hidden', !include);
+    }
+
+    if (elements.person2Name) elements.person2Name.disabled = !include;
+    if (elements.person2Age) elements.person2Age.disabled = !include;
+    if (elements.person2PensionAge) elements.person2PensionAge.disabled = !include;
+    if (elements.person2GetsFullPension) elements.person2GetsFullPension.disabled = !include;
+    if (elements.person2OtherIncomeToday) elements.person2OtherIncomeToday.disabled = !include;
+    if (elements.person2OtherIncomeYears) elements.person2OtherIncomeYears.disabled = !include;
+    if (elements.person2WindfallAmount) elements.person2WindfallAmount.disabled = !include;
+    if (elements.person2WindfallYear) elements.person2WindfallYear.disabled = !include;
+  }
+
+  function applyDefaults(nextDefaults) {
+    const sharedStatePensionToday = resolveSharedStatePensionToday(nextDefaults);
+
+    setFieldValue('years', nextDefaults.years);
+    setFieldValue('initialPortfolio', nextDefaults.initialPortfolio, true);
+    setFieldValue('initialSpending', nextDefaults.initialSpending, true);
+    setFieldValue(
+      'comfortSpending',
+      nextDefaults.comfortSpending ?? Math.round((nextDefaults.initialSpending ?? 0) * 0.9),
+      true
+    );
+    setFieldValue(
+      'minimumSpending',
+      nextDefaults.minimumSpending ?? Math.round((nextDefaults.initialSpending ?? 0) * 0.75),
+      true
+    );
     setFieldValue('initialWithdrawalRate', '');
-    setFieldValue('equityAllocation', defaults.equityAllocation);
-    setFieldValue('bondAllocation', defaults.bondAllocation);
-    setFieldValue('cashlikeAllocation', defaults.cashlikeAllocation);
-    elements.rebalanceToTarget.checked = defaults.rebalanceToTarget;
+    setFieldValue('equityAllocation', nextDefaults.equityAllocation);
+    setFieldValue('bondAllocation', nextDefaults.bondAllocation);
+    setFieldValue('cashlikeAllocation', nextDefaults.cashlikeAllocation);
+    elements.rebalanceToTarget.checked = nextDefaults.rebalanceToTarget;
 
     setFieldValue('statePensionToday', sharedStatePensionToday, true);
 
     setFieldValue('person1Name', '');
-    setFieldValue('person1Age', defaults.person1Age);
-    setFieldValue('person1PensionAge', defaults.person1PensionAge);
-    elements.person1GetsFullPension.checked = resolveGetsFullPension(defaults, 'person1');
-    setFieldValue('person1OtherIncomeToday', defaults.person1OtherIncomeToday ?? 0, true);
-    setFieldValue('person1OtherIncomeYears', defaults.person1OtherIncomeYears ?? 0, true);
-    setFieldValue('person1WindfallAmount', defaults.person1WindfallAmount ?? 0, true);
-    setFieldValue('person1WindfallYear', defaults.person1WindfallYear ?? 0, true);
+    setFieldValue('person1Age', nextDefaults.person1Age);
+    setFieldValue('person1PensionAge', nextDefaults.person1PensionAge);
+    elements.person1GetsFullPension.checked = resolveGetsFullPension(nextDefaults, 'person1');
+    setFieldValue('person1OtherIncomeToday', nextDefaults.person1OtherIncomeToday ?? 0, true);
+    setFieldValue('person1OtherIncomeYears', nextDefaults.person1OtherIncomeYears ?? 0, true);
+    setFieldValue('person1WindfallAmount', nextDefaults.person1WindfallAmount ?? 0, true);
+    setFieldValue('person1WindfallYear', nextDefaults.person1WindfallYear ?? 0, true);
 
     if (elements.includePerson2) {
-      elements.includePerson2.checked = resolveIncludePerson2(defaults);
+      elements.includePerson2.checked = resolveIncludePerson2(nextDefaults);
     }
 
     setFieldValue('person2Name', '');
-    setFieldValue('person2Age', defaults.person2Age);
-    setFieldValue('person2PensionAge', defaults.person2PensionAge);
-    elements.person2GetsFullPension.checked = resolveGetsFullPension(defaults, 'person2');
-    setFieldValue('person2OtherIncomeToday', defaults.person2OtherIncomeToday ?? 0, true);
-    setFieldValue('person2OtherIncomeYears', defaults.person2OtherIncomeYears ?? 0, true);
-    setFieldValue('person2WindfallAmount', defaults.person2WindfallAmount ?? 0, true);
-    setFieldValue('person2WindfallYear', defaults.person2WindfallYear ?? 0, true);
+    setFieldValue('person2Age', nextDefaults.person2Age);
+    setFieldValue('person2PensionAge', nextDefaults.person2PensionAge);
+    elements.person2GetsFullPension.checked = resolveGetsFullPension(nextDefaults, 'person2');
+    setFieldValue('person2OtherIncomeToday', nextDefaults.person2OtherIncomeToday ?? 0, true);
+    setFieldValue('person2OtherIncomeYears', nextDefaults.person2OtherIncomeYears ?? 0, true);
+    setFieldValue('person2WindfallAmount', nextDefaults.person2WindfallAmount ?? 0, true);
+    setFieldValue('person2WindfallYear', nextDefaults.person2WindfallYear ?? 0, true);
 
     syncPerson2State();
   }
@@ -83,6 +139,21 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     if (elements.includePerson2) {
       elements.includePerson2.addEventListener('change', () => {
         syncPerson2State();
+      });
+    }
+
+    if (elements.initialSpending) {
+      elements.initialSpending.addEventListener('blur', () => {
+        const spending = parseLooseNumber(elements.initialSpending.value);
+        if (!Number.isFinite(spending)) return;
+
+        if (elements.comfortSpending && !elements.comfortSpending.value) {
+          elements.comfortSpending.value = formatInteger(Math.round(spending * 0.9));
+        }
+
+        if (elements.minimumSpending && !elements.minimumSpending.value) {
+          elements.minimumSpending.value = formatInteger(Math.round(spending * 0.75));
+        }
       });
     }
   }
@@ -117,6 +188,8 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
       years: parseLooseInteger(elements.years.value),
       initialPortfolio: parseLooseNumber(elements.initialPortfolio.value),
       initialSpending: parseLooseNumber(elements.initialSpending.value),
+      comfortSpending: parseLooseNumber(elements.comfortSpending?.value),
+      minimumSpending: parseLooseNumber(elements.minimumSpending?.value),
       equityAllocation: parseLooseNumber(elements.equityAllocation.value),
       bondAllocation: parseLooseNumber(elements.bondAllocation.value),
       cashlikeAllocation: parseLooseNumber(elements.cashlikeAllocation.value),
@@ -148,93 +221,16 @@ export function createPlanForm(elements, { formatInteger, parseLooseNumber, pars
     };
   }
 
-  function bindActions({ onRun, onReset } = {}) {
-    if (typeof onRun === 'function') {
-      elements.runSimulationBtn.addEventListener('click', onRun);
-    }
-
-    if (typeof onReset === 'function') {
-      elements.resetDefaultsBtn.addEventListener('click', onReset);
-    }
+  function initialise() {
+    applyDefaults(defaults);
+    attachFormatting();
   }
 
-  function setBusy(isBusy) {
-    elements.runSimulationBtn.disabled = isBusy;
-    elements.resetDefaultsBtn.disabled = isBusy;
-    elements.runSimulationBtn.textContent = isBusy ? 'Running...' : 'Run simulation';
-  }
-
-  function setFieldValue(id, value, formatAsInteger = false) {
-    if (!elements[id]) return;
-    elements[id].value = formatAsInteger ? formatInteger(value) : String(value ?? '');
-  }
-
-  function syncPerson2State() {
-    const includePerson2 = Boolean(elements.includePerson2?.checked ?? true);
-
-    if (elements.person2Panel) {
-      elements.person2Panel.classList.toggle('person-panel-disabled', !includePerson2);
-    }
-
-    person2FieldIds.forEach((fieldId) => {
-      if (!elements[fieldId]) return;
-      elements[fieldId].disabled = !includePerson2;
-    });
-
-    if (elements.person2GetsFullPension) {
-      elements.person2GetsFullPension.disabled = !includePerson2;
-      if (!includePerson2) {
-        elements.person2GetsFullPension.checked = false;
-      }
-    }
-  }
-
-  function resolveSharedStatePensionToday(defaults) {
-    if (Number.isFinite(parseLooseNumber(defaults?.statePensionToday))) {
-      return parseLooseNumber(defaults.statePensionToday);
-    }
-
-    if (Number.isFinite(parseLooseNumber(defaults?.person1PensionToday))) {
-      return parseLooseNumber(defaults.person1PensionToday);
-    }
-
-    if (Number.isFinite(parseLooseNumber(defaults?.person2PensionToday))) {
-      return parseLooseNumber(defaults.person2PensionToday);
-    }
-
-    return 0;
-  }
-
-  function resolveGetsFullPension(defaults, personKey) {
-    const explicit = defaults?.[`${personKey}GetsFullPension`];
-    if (typeof explicit === 'boolean') return explicit;
-
-    const pensionToday = parseLooseNumber(defaults?.[`${personKey}PensionToday`]);
-    return pensionToday > 0;
-  }
-
-  function resolveIncludePerson2(defaults) {
-    if (typeof defaults?.includePerson2 === 'boolean') {
-      return defaults.includePerson2;
-    }
-
-    const hasName = String(defaults?.person2Name ?? '').trim() !== '';
-    const hasPension = parseLooseNumber(defaults?.person2PensionToday) > 0;
-    const hasOtherIncome = parseLooseNumber(defaults?.person2OtherIncomeToday) > 0;
-    const hasWindfall = parseLooseNumber(defaults?.person2WindfallAmount) > 0;
-
-    return hasName || hasPension || hasOtherIncome || hasWindfall;
-  }
-
-  function unformatNumberString(value) {
-    return String(value ?? '').replace(/,/g, '');
-  }
+  initialise();
 
   return {
     applyDefaults,
-    attachFormatting,
     readValues,
-    bindActions,
-    setBusy
+    syncPerson2State
   };
 }
