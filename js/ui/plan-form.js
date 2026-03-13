@@ -88,28 +88,30 @@ export function createPlanForm(
   function applyDefaults(defaults) {
     const sharedStatePensionToday = resolveSharedStatePensionToday(defaults);
 
-    setFieldValue(elements, 'years', defaults.years);
-    setFieldValue(elements, 'initialPortfolio', defaults.initialPortfolio, true, formatInteger);
-    setFieldValue(elements, 'initialSpending', defaults.initialSpending, true, formatInteger);
-    setFieldValue(
-      elements,
-      'comfortSpending',
-      defaults.comfortSpending ?? Math.round((defaults.initialSpending ?? 0) * 0.9),
-      true,
-      formatInteger
-    );
-    setFieldValue(
-      elements,
-      'minimumSpending',
-      defaults.minimumSpending ?? Math.round((defaults.initialSpending ?? 0) * 0.75),
-      true,
-      formatInteger
-    );
+   setFieldValue(elements, 'years', defaults.years);
+   setFieldValue(elements, 'initialPortfolio', defaults.initialPortfolio, true, formatInteger);
+   setFieldValue(elements, 'initialSpending', defaults.initialSpending, true, formatInteger);
 
-    setFieldValue(elements, 'initialWithdrawalRate', '');
-    setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
-    setFieldValue(elements, 'bondAllocation', defaults.bondAllocation);
-    setFieldValue(elements, 'cashlikeAllocation', defaults.cashlikeAllocation);
+   setFieldValue(
+     elements,
+     'comfortSpending',
+     defaults.comfortSpending ?? '',
+     true,
+     formatInteger
+   );
+
+   setFieldValue(
+     elements,
+     'minimumSpending',
+     defaults.minimumSpending ?? '',
+     true,
+     formatInteger
+  );
+
+   setFieldValue(elements, 'initialWithdrawalRate', '');
+   setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
+   setFieldValue(elements, 'bondAllocation', defaults.bondAllocation);
+   setFieldValue(elements, 'cashlikeAllocation', defaults.cashlikeAllocation);
 
     if (elements.rebalanceToTarget) {
       elements.rebalanceToTarget.checked = Boolean(defaults.rebalanceToTarget);
