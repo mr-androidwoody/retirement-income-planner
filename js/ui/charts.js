@@ -85,14 +85,6 @@ console.log('Final verticalMarkers array:', verticalMarkers);
 export function renderSpendingChart(canvas, result, useReal, formatCurrency, cutDiagnostics = {}) {
   if (!result?.baseCase?.rows) return;
 
-  /* =====================================================
-     TEMP DEBUG — WINDFALL INPUT TRACE
-     Purpose: confirm windfalls survive the pipeline
-     Remove once windfall markers verified
-     ===================================================== */
-  console.log('[DEBUG windfalls] result.inputs.windfalls →', result.inputs?.windfalls);
-  /* ================= END TEMP DEBUG =================== */
-
   const rows = result.baseCase.rows;
 
   const targetValues = rows.map((r) =>
