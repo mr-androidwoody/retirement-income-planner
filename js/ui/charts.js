@@ -171,19 +171,19 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
       }
     ],
 
-    verticalMarkers: [
-      cutDiagnostics?.firstCutYear != null
-        ? { index: cutDiagnostics.firstCutYear, color: '#f59e0b', label: 'First cut' }
-        : null,
-      cutDiagnostics?.worstCutYear != null
-        ? { index: cutDiagnostics.worstCutYear, color: '#ef4444', label: 'Worst cut' }
-        : null,
-      cutDiagnostics?.firstShortfallYear != null
-        ? { index: cutDiagnostics.firstShortfallYear, color: '#dc2626', label: 'First shortfall' }
-        : null,
-      cutDiagnostics?.worstShortfallYear != null
-        ? { index: cutDiagnostics.worstShortfallYear, color: '#7f1d1d', label: 'Worst shortfall' }
-        : null
+        verticalMarkers: [
+        cutDiagnostics?.firstCutYear != null
+         ? { index: cutDiagnostics.firstCutYear - 1, color: '#f59e0b', label: 'First cut' }
+         : null,
+        cutDiagnostics?.worstCutYear != null
+          ? { index: cutDiagnostics.worstCutYear - 1, color: '#ef4444', label: 'Worst cut' }
+          : null,
+        cutDiagnostics?.firstShortfallYear != null
+         ? { index: cutDiagnostics.firstShortfallYear - 1, color: '#dc2626', label: 'First shortfall' }
+         : null,
+        cutDiagnostics?.worstShortfallYear != null
+         ? { index: cutDiagnostics.worstShortfallYear - 1, color: '#7f1d1d', label: 'Worst shortfall' }
+         : null
     ].filter(Boolean),
 
     pointHighlights: [
