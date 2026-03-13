@@ -12,23 +12,41 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
   const labels = buildYearLabels(result.inputs.years);
   const verticalMarkers = [];
 
-  const windfalls = result.inputs?.windfalls || [];
+// Person 1 windfall
+  const p1Amount = Number(result.inputs?.person1WindfallAmount);
+  const p1Year = Number(result.inputs?.person1WindfallYear);
 
-  windfalls.forEach((wf) => {
-    const yearIndex = Number(wf.year);
-    const amount = Number(wf.amount);
-    const name = String(wf.name || 'Windfall').trim();
-
-    if (!Number.isFinite(yearIndex)) return;
-    if (yearIndex < 0 || yearIndex > result.inputs.years) return;
-    if (!Number.isFinite(amount) || amount === 0) return;
-
-    verticalMarkers.push({
-      index: yearIndex,
-      color: '#dc2626',
-      label: `${name} £${Math.round(amount).toLocaleString()}`
-    });
+  if (
+    Number.isFinite(p1Amount) &&
+    p1Amount > 0 &&
+    Number.isFinite(p1Year) &&
+    p1Year >= 0 &&
+    p1Year <= result.inputs.years
+  ) {
+  verticalMarkers.push({
+    index: p1Year,
+    color: '#dc2626',
+    label: `${result.inputs?.person1Name || 'Person 1'} windfall £${Math.round(p1Amount).toLocaleString()}`
   });
+}
+
+// Person 2 windfall
+  const p2Amount = Number(result.inputs?.person2WindfallAmount);
+  const p2Year = Number(result.inputs?.person2WindfallYear);
+
+  if (
+    Number.isFinite(p2Amount) &&
+    p2Amount > 0 &&
+    Number.isFinite(p2Year) &&
+    p2Year >= 0 &&
+   p2Year <= result.inputs.years
+  ) {
+  verticalMarkers.push({
+    index: p2Year,
+    color: '#dc2626',
+    label: `${result.inputs?.person2Name || 'Person 2'} windfall £${Math.round(p2Amount).toLocaleString()}`
+  });
+}
 
   const person1YearsToPension =
     Number.isFinite(result.inputs?.person1Age) &&
