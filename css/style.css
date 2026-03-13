@@ -534,6 +534,15 @@ input[type="checkbox"]{
   white-space:normal;
 }
 
+.help-term{
+  font-weight:700;
+  cursor:help;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
 /* ========================================
    People / Income / Pension Inputs
    ======================================== */
