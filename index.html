@@ -426,20 +426,22 @@
     </div>
 
     <div class="asset-assumptions-inflation asset-assumption-card inflation-card">
-      <div class="asset-assumption-title">Inflation</div>
+        <div class="asset-assumption-title">Inflation %</div>
 
-      <div class="inflation-row">
-        <div class="section-subnote inflation-copy">
+        <div class="inflation-row">
+         <div class="section-subnote inflation-copy">
           Used to increase spending and income over time so results can be shown in today's spending power.
         </div>
 
-        <label class="field inflation-field">
-          <span class="field-label">Inflation %</span>
-          <input id="inflation" type="number" min="0" step="0.1" />
-        </label>
-      </div>
+         <input
+            id="inflation"
+            type="number"
+            min="0"
+            step="0.1"
+            class="inflation-input"/>
+        </div>
+        </div>
     </div>
-  </div>
 </section>
 
       <section class="tab-panel" data-tab-panel="results" hidden>
