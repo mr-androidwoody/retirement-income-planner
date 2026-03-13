@@ -17,7 +17,6 @@ const els = {
   bondAllocation: document.getElementById('bondAllocation'),
   cashlikeAllocation: document.getElementById('cashlikeAllocation'),
   rebalanceToTarget: document.getElementById('rebalanceToTarget'),
-};
 
   equityReturn: document.getElementById('equityReturn'),
   equityVolatility: document.getElementById('equityVolatility'),
