@@ -257,16 +257,16 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
   if (hasAnyShortfall) {
     if (successRate >= 0.90) {
       guardrailNotice = `
-        <div class="plan-summary-note">
-          Base-case note — the deterministic path falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
-          Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
-          Simulated plan success remains ${formatPercent(successRate)}.
-        </div>
+       <div class="plan-summary-note">
+         ⓘ Base case path dips below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
+          <br>Worst shortfall: <strong>${formatCurrency(worstShortfall)}</strong> in year ${worstYear}.
+          <br>Monte Carlo success remains <strong>${formatPercent(successRate)}</strong>.
+       </div>
       `;
     } else {
       guardrailNotice = `
         <div class="plan-summary-note plan-summary-note--warning">
-          ⚠ Base-case spending pressure — the deterministic path falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
+          ⚠ Base case spending pressure — the deterministic path falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
           Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
         </div>
       `;
@@ -275,8 +275,8 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
 
   const firstShortfallText =
     firstShortfallYear === null
-      ? 'No base-case shortfall'
-      : `Base-case shortfall begins: year ${firstShortfallYear}`;
+      ? 'No base case shortfall'
+      : `Base case shortfall begins: year ${firstShortfallYear}`;
 
   panel.classList.remove(
     'plan-summary-panel--strong',
@@ -304,7 +304,7 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
     <div class="plan-summary-metrics">
       ${renderSummaryItem('Plan success', formatPercent(successRate))}
       ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-      ${renderSummaryItem('Base-case timing', firstShortfallText)}
+      ${renderSummaryItem('Base case timing', firstShortfallText)}
     </div>
   `;
 }
