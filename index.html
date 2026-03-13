@@ -82,7 +82,7 @@
               <section class="input-group-card">
                 <div class="section-heading">
                   <h3>Core assumptions</h3>
-                  <p>Retirement horizon, portfolio size, starting spend, and allocation mix.</p>
+                  <p>Retirement horizon, total investments, starting spending, and how your investments are split between equities, bonds, and cashlike assets.</p>
                 </div>
 
                 <div class="field-grid field-grid-3">
@@ -92,7 +92,7 @@
                   </label>
 
                   <label class="field">
-                    <span class="field-label">Value of investments and savings</span>
+                    <span class="field-label">Value of investments</span>
                     <input id="initialPortfolio" type="text" inputmode="numeric" data-format="integer" />
                   </label>
 
@@ -158,7 +158,7 @@
 
                 <label class="field field-inline field-inline-wide core-rebalance-field">
                     <span class="field-label with-help field-label-inline">
-                     <span>Rebalance investment allocation annually</span>
+                     <span>Rebalance your investments to the chosen allocations each year</span>
                      <button class="help" type="button">?</button>
                     </span>
                         <input id="rebalanceToTarget" type="checkbox" />
@@ -169,7 +169,7 @@
               <section class="input-group-card people-pensions-card">
                 <div class="section-heading">
                   <h3>Fixed income</h3>
-                  <p>State pension, other income and windfalls that offset portfolio withdrawals.</p>
+                  <p>State pension, other income, and windfalls that reduce how much you need to withdraw from investments.</p>
                 </div>
 
                 <div class="people-panels">
@@ -281,8 +281,8 @@
               <div class="input-column-stack">
                 <section class="input-group-card">
                   <div class="section-heading">
-                    <h3>Withdrawal policy</h3>
-                    <p>Guyton-Klinger guardrails plus the inflation-skip rule used by the simulator.</p>
+                    <h3>Spending adjustment rules</h3>
+                    <p>Spending guardrails and the rule that pauses inflation increases after a negative market year.</p>
                   </div>
 
                   <div class="field-grid field-grid-3">
@@ -338,7 +338,7 @@
                 <section class="input-group-card">
                   <div class="section-heading">
                     <h3>Plan settings</h3>
-                    <p>Control how the planner tests your retirement plan across many possible market outcomes. Increase the number of runs for more stable results, and use the optional random seed if you want the results to repeat exactly.</p>
+                    <p>Control how the planner tests many possible market outcomes. Increase runs for more stable results, or use a random seed to reproduce the same results.</p>
                   </div>
 
                   <div class="field-grid field-grid-3">
