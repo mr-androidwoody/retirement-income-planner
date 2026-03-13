@@ -434,6 +434,32 @@ canvas{
   gap:8px;
 }
 
+/* Core assumptions bottom row fixes */
+
+.core-assumptions-bottom-row{
+  column-gap:18px;
+}
+
+.core-rebalance-field{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.core-rebalance-field .field-label{
+  min-height:0;
+  align-items:center;
+  flex:1 1 auto;
+}
+
+.core-rebalance-field input[type="checkbox"]{
+  margin:0;
+  align-self:center;
+  flex:0 0 auto;
+}
+
 input[type="text"],
 input[type="number"]{
   width:100%;
