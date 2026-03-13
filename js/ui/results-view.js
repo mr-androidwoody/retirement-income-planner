@@ -355,68 +355,82 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   const lifestyleMetrics = getLifestyleResilienceMetrics(result, useReal);
 
   grid.innerHTML = `
-    <div class="plan-summary-heading">Plan health</div>
-    <div class="plan-summary-metrics">
-      ${lifestyleMetrics
-        ? renderSummaryItem('Target spending', formatCurrency(lifestyleMetrics.targetSpending))
-        : ''}
-      ${lifestyleMetrics
-        ? renderSummaryItem('Comfort floor', formatCurrency(lifestyleMetrics.comfortFloor))
-        : ''}
-      ${lifestyleMetrics
-        ? renderSummaryItem('Minimum floor', formatCurrency(lifestyleMetrics.minimumFloor))
-        : ''}
-      ${lifestyleMetrics
-        ? renderSummaryItem(
-            'Worst cut',
-            `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(lifestyleMetrics.worstCutPercent)})`
-          )
-        : ''}
-      ${lifestyleMetrics
-        ? renderSummaryItem(
-            'Years below comfort floor',
-            formatInteger(lifestyleMetrics.yearsBelowComfort)
-          )
-        : ''}
-      ${lifestyleMetrics
-        ? renderSummaryItem(
-            'Years below minimum floor',
-            formatInteger(lifestyleMetrics.yearsBelowMinimum)
-          )
-        : ''}
-      ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
-      ${renderSummaryItem(
-        'Median final withdrawal rate',
-        formatPercent(medianFinalWithdrawalRate)
-      )}
-      ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
+    <div class="plan-summary-section">
+      <div class="plan-summary-heading">Lifestyle resilience</div>
+      <div class="plan-summary-metrics">
+        ${lifestyleMetrics
+          ? renderSummaryItem('Target spending', formatCurrency(lifestyleMetrics.targetSpending))
+          : ''}
+        ${lifestyleMetrics
+          ? renderSummaryItem('Comfort floor', formatCurrency(lifestyleMetrics.comfortFloor))
+          : ''}
+        ${lifestyleMetrics
+          ? renderSummaryItem('Minimum floor', formatCurrency(lifestyleMetrics.minimumFloor))
+          : ''}
+        ${lifestyleMetrics
+          ? renderSummaryItem(
+              'Worst cut',
+              `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(lifestyleMetrics.worstCutPercent)})`
+            )
+          : ''}
+        ${lifestyleMetrics
+          ? renderSummaryItem(
+              'Years below comfort floor',
+              formatInteger(lifestyleMetrics.yearsBelowComfort)
+            )
+          : ''}
+        ${lifestyleMetrics
+          ? renderSummaryItem(
+              'Years below minimum floor',
+              formatInteger(lifestyleMetrics.yearsBelowMinimum)
+            )
+          : ''}
+      </div>
     </div>
 
-    <div class="plan-summary-heading">Plan setup</div>
-    <div class="plan-summary-metrics">
-      ${renderSummaryItem('Simulations run', formatInteger(inputs.monteCarloRuns))}
-      ${renderSummaryItem('Years modelled', formatInteger(inputs.years))}
-      ${renderSummaryItem('Starting portfolio', formatCurrency(inputs.initialPortfolio))}
-      ${renderSummaryItem('Total household spending', formatCurrency(totals.spending))}
+    <div class="plan-summary-section">
+      <div class="plan-summary-heading">Plan health</div>
+      <div class="plan-summary-metrics">
+        ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
+        ${renderSummaryItem(
+          'Median final withdrawal rate',
+          formatPercent(medianFinalWithdrawalRate)
+        )}
+        ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
+      </div>
     </div>
 
-    <div class="plan-summary-heading">Portfolio outcomes</div>
-    <div class="plan-summary-metrics">
-      ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-      ${renderSummaryItem('10th percentile ending', formatCurrency(p10End))}
-      ${renderSummaryItem('90th percentile ending', formatCurrency(p90End))}
-      ${renderSummaryItem('Total withdrawals', formatCurrency(totals.withdrawals))}
+    <div class="plan-summary-section">
+      <div class="plan-summary-heading">Portfolio outcomes</div>
+      <div class="plan-summary-metrics">
+        ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
+        ${renderSummaryItem('10th percentile ending', formatCurrency(p10End))}
+        ${renderSummaryItem('90th percentile ending', formatCurrency(p90End))}
+        ${renderSummaryItem('Total withdrawals', formatCurrency(totals.withdrawals))}
+      </div>
     </div>
 
-    <div class="plan-summary-heading">Plan risks</div>
-    <div class="plan-summary-metrics">
-      ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
-      ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
-      ${renderSummaryItem(
-        'Years with spending shortfall',
-        formatInteger(cutDiagnostics.shortfallYears || 0)
-      )}
-      ${renderSummaryItem('Total state pension income', formatCurrency(totals.pension))}
+    <div class="plan-summary-section">
+      <div class="plan-summary-heading">Plan risks</div>
+      <div class="plan-summary-metrics">
+        ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
+        ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
+        ${renderSummaryItem(
+          'Years with spending shortfall',
+          formatInteger(cutDiagnostics.shortfallYears || 0)
+        )}
+        ${renderSummaryItem('Total state pension income', formatCurrency(totals.pension))}
+      </div>
+    </div>
+
+    <div class="plan-summary-section">
+      <div class="plan-summary-heading">Plan setup</div>
+      <div class="plan-summary-metrics">
+        ${renderSummaryItem('Simulations run', formatInteger(inputs.monteCarloRuns))}
+        ${renderSummaryItem('Years modelled', formatInteger(inputs.years))}
+        ${renderSummaryItem('Starting portfolio', formatCurrency(inputs.initialPortfolio))}
+        ${renderSummaryItem('Total household spending', formatCurrency(totals.spending))}
+      </div>
     </div>
   `;
 }
