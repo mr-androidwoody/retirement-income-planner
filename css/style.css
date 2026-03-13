@@ -74,7 +74,7 @@ canvas{
 
 .intro{
   margin:0;
-  max-width:980px;
+  max-width:none;
   color:var(--muted);
   font-size:1rem;
   line-height:1.6;
