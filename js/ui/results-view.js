@@ -155,7 +155,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
 
   container.innerHTML = `
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">P10</div>
+      <div class="portfolio-horizon-label">10th percentile</div>
       <div class="portfolio-horizon-value">${formatCurrency(p10)}</div>
     </div>
     <div class="portfolio-horizon-item">
@@ -163,7 +163,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
       <div class="portfolio-horizon-value">${formatCurrency(p50)}</div>
     </div>
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">P90</div>
+      <div class="portfolio-horizon-label">90th percentile</div>
       <div class="portfolio-horizon-value">${formatCurrency(p90)}</div>
     </div>
     <div class="portfolio-horizon-item">
