@@ -1852,3 +1852,12 @@ input[type="checkbox"]{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 }
+
+/* small helper text under fields */
+
+.field-help{
+  margin-top:6px;
+  font-size:0.82rem;
+  color:var(--muted);
+  line-height:1.4;
+}
