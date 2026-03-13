@@ -6,13 +6,18 @@ import { createAdvancedForm } from './ui/advanced-form.js';
 
 const els = {
   years: document.getElementById('years'),
+
   initialPortfolio: document.getElementById('initialPortfolio'),
   initialWithdrawalRate: document.getElementById('initialWithdrawalRate'),
   initialSpending: document.getElementById('initialSpending'),
+  comfortSpending: document.getElementById('comfortSpending'),
+  minimumSpending: document.getElementById('minimumSpending'),
+
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
   cashlikeAllocation: document.getElementById('cashlikeAllocation'),
   rebalanceToTarget: document.getElementById('rebalanceToTarget'),
+};
 
   equityReturn: document.getElementById('equityReturn'),
   equityVolatility: document.getElementById('equityVolatility'),
