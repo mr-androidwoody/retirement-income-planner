@@ -22,6 +22,7 @@ const windfalls = result.inputs?.windfalls || [];
 windfalls.forEach((wf) => {
   const yearIndex = Number(wf.year);
   const amount = Number(wf.amount);
+  const name = String(wf.name || 'Windfall').trim();
 
   if (!Number.isFinite(yearIndex)) return;
   if (yearIndex < 0 || yearIndex > result.inputs.years) return;
@@ -30,7 +31,7 @@ windfalls.forEach((wf) => {
   verticalMarkers.push({
     index: yearIndex,
     color: '#dc2626',
-    label: `${wf.name || 'Windfall'} £${Math.round(amount).toLocaleString()}`
+    label: `${name} £${Math.round(amount).toLocaleString()}`
   });
 });
 
@@ -84,6 +85,14 @@ console.log('Final verticalMarkers array:', verticalMarkers);
 export function renderSpendingChart(canvas, result, useReal, formatCurrency, cutDiagnostics = {}) {
   if (!result?.baseCase?.rows) return;
 
+  /* =====================================================
+     TEMP DEBUG — WINDFALL INPUT TRACE
+     Purpose: confirm windfalls survive the pipeline
+     Remove once windfall markers verified
+     ===================================================== */
+  console.log('[DEBUG windfalls] result.inputs.windfalls →', result.inputs?.windfalls);
+  /* ================= END TEMP DEBUG =================== */
+
   const rows = result.baseCase.rows;
 
   const targetValues = rows.map((r) =>
@@ -106,6 +115,7 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
     const spending = useReal ? r.spendingReal : r.spendingNominal;
     return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
   });
+}
 
   const cutYears = rows
     .map((r, i) => ({
