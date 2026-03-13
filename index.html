@@ -357,8 +357,17 @@
                     </label>
 
                     <label class="field">
-                      <span class="field-label">Seed</span>
-                      <input id="seed" type="text" inputmode="numeric" data-format="integer" placeholder="Optional" />
+                      <span class="field-label with-help">
+                        <span>Seed</span>
+                          <button
+                            class="help"
+                            type="button"
+                            tabindex="-1"
+                            aria-label="Seed help"
+                            title="Optional number used to reproduce identical Monte Carlo results. Use the same seed to rerun the exact same scenario. Example: 12345."
+                            >?</button>
+                       </span>
+                        <input id="seed" type="text" inputmode="numeric" data-format="integer" placeholder="Optional" />
                     </label>
                   </div>
                 </section>
