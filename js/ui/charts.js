@@ -10,33 +10,26 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
     : result.baseCase.pathNominal;
 
   const labels = buildYearLabels(result.inputs.years);
+  const verticalMarkers = [];
 
-const verticalMarkers = [];
+  const windfalls = result.inputs?.windfalls || [];
 
-/* existing pension logic remains unchanged */
+  windfalls.forEach((wf) => {
+    const yearIndex = Number(wf.year);
+    const amount = Number(wf.amount);
+    const name = String(wf.name || 'Windfall').trim();
 
-/* ---- Windfall markers ---- */
+    if (!Number.isFinite(yearIndex)) return;
+    if (yearIndex < 0 || yearIndex > result.inputs.years) return;
+    if (!Number.isFinite(amount) || amount === 0) return;
 
-const windfalls = result.inputs?.windfalls || [];
-
-windfalls.forEach((wf) => {
-  const yearIndex = Number(wf.year);
-  const amount = Number(wf.amount);
-  const name = String(wf.name || 'Windfall').trim();
-
-  if (!Number.isFinite(yearIndex)) return;
-  if (yearIndex < 0 || yearIndex > result.inputs.years) return;
-  if (!Number.isFinite(amount) || amount === 0) return;
-
-  verticalMarkers.push({
-    index: yearIndex,
-    color: '#dc2626',
-    label: `${name} £${Math.round(amount).toLocaleString()}`
+    verticalMarkers.push({
+      index: yearIndex,
+      color: '#dc2626',
+      label: `${name} £${Math.round(amount).toLocaleString()}`
+    });
   });
-});
 
-console.log('Final verticalMarkers array:', verticalMarkers);
-    
   const person1YearsToPension =
     Number.isFinite(result.inputs?.person1Age) &&
     Number.isFinite(result.inputs?.person1PensionAge)
@@ -107,7 +100,6 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
     const spending = useReal ? r.spendingReal : r.spendingNominal;
     return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
   });
-}
 
   const cutYears = rows
     .map((r, i) => ({
@@ -164,25 +156,25 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
       }
     ],
 
-        verticalMarkers: [
-        cutDiagnostics?.firstCutYear != null
-         ? { index: cutDiagnostics.firstCutYear - 1, color: '#f59e0b', label: 'First cut' }
-         : null,
-        cutDiagnostics?.worstCutYear != null
-          ? { index: cutDiagnostics.worstCutYear - 1, color: '#ef4444', label: 'Worst cut' }
-          : null,
-        cutDiagnostics?.firstShortfallYear != null
-         ? { index: cutDiagnostics.firstShortfallYear - 1, color: '#dc2626', label: 'First shortfall' }
-         : null,
-        cutDiagnostics?.worstShortfallYear != null
-         ? { index: cutDiagnostics.worstShortfallYear - 1, color: '#7f1d1d', label: 'Worst shortfall' }
-         : null
+    verticalMarkers: [
+      cutDiagnostics?.firstCutYear != null
+        ? { index: cutDiagnostics.firstCutYear - 1, color: '#f59e0b', label: 'First cut' }
+        : null,
+      cutDiagnostics?.worstCutYear != null
+        ? { index: cutDiagnostics.worstCutYear - 1, color: '#ef4444', label: 'Worst cut' }
+        : null,
+      cutDiagnostics?.firstShortfallYear != null
+        ? { index: cutDiagnostics.firstShortfallYear - 1, color: '#dc2626', label: 'First shortfall' }
+        : null,
+      cutDiagnostics?.worstShortfallYear != null
+        ? { index: cutDiagnostics.worstShortfallYear - 1, color: '#7f1d1d', label: 'Worst shortfall' }
+        : null
     ].filter(Boolean),
 
     pointHighlights: [
       cutDiagnostics?.firstShortfallYear != null
         ? {
-            index: cutDiagnostics.firstShortfallYear,
+            index: cutDiagnostics.firstShortfallYear - 1,
             values: targetValues,
             color: '#dc2626',
             label: 'Shortfall begins'
@@ -190,7 +182,7 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
         : null,
       cutDiagnostics?.worstShortfallYear != null
         ? {
-            index: cutDiagnostics.worstShortfallYear,
+            index: cutDiagnostics.worstShortfallYear - 1,
             values: targetValues,
             color: '#7f1d1d',
             label: 'Worst shortfall'
@@ -740,10 +732,14 @@ function drawVerticalMarkers(ctx, markers, geom) {
   if (!markers.length || geom.seriesLength <= 0) return;
 
   ctx.save();
+  ctx.beginPath();
+  ctx.rect(geom.left, geom.top, geom.width, geom.height);
+  ctx.clip();
   ctx.setLineDash([4, 4]);
 
   markers.forEach((marker) => {
-    const x = geom.left + getX(marker.index, geom.seriesLength, geom.width);
+    const safeIndex = Math.max(0, Math.min(marker.index, geom.seriesLength - 1));
+    const x = geom.left + getX(safeIndex, geom.seriesLength, geom.width);
 
     ctx.beginPath();
     ctx.moveTo(x, geom.top);
