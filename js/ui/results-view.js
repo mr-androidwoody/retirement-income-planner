@@ -230,12 +230,10 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
   const medianEnd = percentiles.p50[percentiles.p50.length - 1];
   const successRate = result.monteCarlo.successRate;
 
-  const targetSpending = result.inputs?.initialSpending || 0;
   const shortfallYears = cutDiagnostics.shortfallYears || 0;
   const worstShortfall = cutDiagnostics.worstShortfall || 0;
   const firstShortfallYear = cutDiagnostics.firstShortfallYear;
   const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
-
   const hasAnyShortfall = shortfallYears > 0;
 
   let status = 'strong';
@@ -257,17 +255,17 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
   if (hasAnyShortfall) {
     if (successRate >= 0.90) {
       guardrailNotice = `
-       <div class="plan-summary-note">
-         ⓘ Base case path dips below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
+        <div class="plan-summary-note">
+          ⓘ Base-case path dips below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
           <br>Worst shortfall: <strong>${formatCurrency(worstShortfall)}</strong> in year ${worstYear}.
           <br>Monte Carlo success remains <strong>${formatPercent(successRate)}</strong>.
-       </div>
+        </div>
       `;
     } else {
       guardrailNotice = `
         <div class="plan-summary-note plan-summary-note--warning">
-          ⚠ Base case spending pressure — the deterministic path falls below target in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
-          Worst shortfall: ${formatCurrency(worstShortfall)} in year ${worstYear}.
+          ⚠ Base-case spending pressure in ${shortfallYears} year${shortfallYears === 1 ? '' : 's'}.
+          <br>Worst shortfall: <strong>${formatCurrency(worstShortfall)}</strong> in year ${worstYear}.
         </div>
       `;
     }
@@ -275,8 +273,8 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
 
   const firstShortfallText =
     firstShortfallYear === null
-      ? 'No base case shortfall'
-      : `Base case shortfall begins: year ${firstShortfallYear}`;
+      ? 'No base-case shortfall'
+      : `Base-case shortfall begins: year ${firstShortfallYear}`;
 
   panel.classList.remove(
     'plan-summary-panel--strong',
@@ -304,7 +302,7 @@ function renderRetirementOutlook(result, elements, useReal, formatters, cutDiagn
     <div class="plan-summary-metrics">
       ${renderSummaryItem('Plan success', formatPercent(successRate))}
       ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-      ${renderSummaryItem('Base case timing', firstShortfallText)}
+      ${renderSummaryItem('Base-case timing', firstShortfallText)}
     </div>
   `;
 }
@@ -342,6 +340,7 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   const finalWithdrawal = useReal ? lastRow.withdrawalReal : lastRow.withdrawalNominal;
   const medianFinalWithdrawalRate = medianEnd > 0 ? finalWithdrawal / medianEnd : 0;
 
+  const dependence = totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
   const initialWithdrawalRate =
     inputs.initialPortfolio > 0 ? inputs.initialSpending / inputs.initialPortfolio : 0;
 
@@ -358,15 +357,39 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
   grid.innerHTML = `
     <div class="plan-summary-heading">Plan health</div>
     <div class="plan-summary-metrics">
-      ${lifestyleMetrics ? renderSummaryItem('Target spending', formatCurrency(lifestyleMetrics.targetSpending)) : ''}
-      ${lifestyleMetrics ? renderSummaryItem('Comfort floor', formatCurrency(lifestyleMetrics.comfortFloor)) : ''}
-      ${lifestyleMetrics ? renderSummaryItem('Minimum floor', formatCurrency(lifestyleMetrics.minimumFloor)) : ''}
-      ${lifestyleMetrics ? renderSummaryItem('Worst cut', `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(lifestyleMetrics.worstCutPercent)})`) : ''}
-      ${lifestyleMetrics ? renderSummaryItem('Years below comfort floor', formatInteger(lifestyleMetrics.yearsBelowComfort)) : ''}
-      ${lifestyleMetrics ? renderSummaryItem('Years below minimum floor', formatInteger(lifestyleMetrics.yearsBelowMinimum)) : ''}
+      ${lifestyleMetrics
+        ? renderSummaryItem('Target spending', formatCurrency(lifestyleMetrics.targetSpending))
+        : ''}
+      ${lifestyleMetrics
+        ? renderSummaryItem('Comfort floor', formatCurrency(lifestyleMetrics.comfortFloor))
+        : ''}
+      ${lifestyleMetrics
+        ? renderSummaryItem('Minimum floor', formatCurrency(lifestyleMetrics.minimumFloor))
+        : ''}
+      ${lifestyleMetrics
+        ? renderSummaryItem(
+            'Worst cut',
+            `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(lifestyleMetrics.worstCutPercent)})`
+          )
+        : ''}
+      ${lifestyleMetrics
+        ? renderSummaryItem(
+            'Years below comfort floor',
+            formatInteger(lifestyleMetrics.yearsBelowComfort)
+          )
+        : ''}
+      ${lifestyleMetrics
+        ? renderSummaryItem(
+            'Years below minimum floor',
+            formatInteger(lifestyleMetrics.yearsBelowMinimum)
+          )
+        : ''}
       ${renderSummaryItem('Initial withdrawal rate', formatPercent(initialWithdrawalRate))}
-      ${renderSummaryItem('Median final withdrawal rate', formatPercent(medianFinalWithdrawalRate))}
-      ${renderSummaryItem('Portfolio dependence', formatPercent(totals.spending > 0 ? totals.withdrawals / totals.spending : 0))}
+      ${renderSummaryItem(
+        'Median final withdrawal rate',
+        formatPercent(medianFinalWithdrawalRate)
+      )}
+      ${renderSummaryItem('Portfolio dependence', formatPercent(dependence))}
     </div>
 
     <div class="plan-summary-heading">Plan setup</div>
@@ -389,7 +412,10 @@ function renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagn
     <div class="plan-summary-metrics">
       ${renderSummaryItem('First spending shortfall year', firstShortfallYearLabel)}
       ${renderSummaryItem('Worst spending shortfall', worstShortfallLabel)}
-      ${renderSummaryItem('Years with spending shortfall', formatInteger(cutDiagnostics.shortfallYears || 0))}
+      ${renderSummaryItem(
+        'Years with spending shortfall',
+        formatInteger(cutDiagnostics.shortfallYears || 0)
+      )}
       ${renderSummaryItem('Total state pension income', formatCurrency(totals.pension))}
     </div>
   `;
@@ -453,9 +479,13 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     groups.push(`
       <div class="plan-warning-group">
         <div class="plan-warning-group-title">Input warning</div>
-        ${inputWarnings.map((text) => `
+        ${inputWarnings
+          .map(
+            (text) => `
           <div class="plan-warning">⚠ ${text}</div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     `);
   }
@@ -464,9 +494,13 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     groups.push(`
       <div class="plan-warning-group">
         <div class="plan-warning-group-title">Model risk</div>
-        ${modelWarnings.map((text) => `
+        ${modelWarnings
+          .map(
+            (text) => `
           <div class="plan-warning">⚠ ${text}</div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     `);
   }
@@ -666,7 +700,11 @@ if (glossaryBackdrop && glossaryOverlay) {
 }
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && glossaryOverlay && !glossaryOverlay.classList.contains('hidden')) {
+  if (
+    event.key === 'Escape' &&
+    glossaryOverlay &&
+    !glossaryOverlay.classList.contains('hidden')
+  ) {
     glossaryOverlay.classList.add('hidden');
     document.body.classList.remove('glossary-open');
   }
