@@ -350,8 +350,11 @@ function getInitialWithdrawalSignal(rate) {
   return getThresholdSignal(rate, 0.04, 0.06);
 }
 
-function getFinalWithdrawalSignal(rate) {
-  return getThresholdSignal(rate, 0.06, 0.09);
+function getStatePensionRelianceSignal(rate) {
+  if (!Number.isFinite(rate)) return null;
+  if (rate >= 0.35) return 'green';
+  if (rate >= 0.15) return 'amber';
+  return 'red';
 }
 
 function getPortfolioDependenceSignal(rate) {
@@ -612,7 +615,6 @@ function renderMonteCarloSummary(
   const lastIndex = percentiles.p50.length - 1;
 
   const p10End = percentiles.p10[lastIndex];
-  const p50End = percentiles.p50[lastIndex];
   const p90End = percentiles.p90[lastIndex];
 
   const totals = rows.reduce(
@@ -621,17 +623,18 @@ function renderMonteCarloSummary(
       acc.withdrawals += Number(
         useReal ? row.withdrawalReal : row.withdrawalNominal
       ) || 0;
+      acc.statePension += Number(
+        useReal ? row.statePensionReal : row.statePensionNominal
+      ) || 0;
       return acc;
     },
-    { spending: 0, withdrawals: 0 }
+    { spending: 0, withdrawals: 0, statePension: 0 }
   );
 
-  const lastRow = rows[rows.length - 1];
-  const finalWithdrawal =
-    Number(useReal ? lastRow.withdrawalReal : lastRow.withdrawalNominal) || 0;
-  const medianFinalWithdrawalRate = p50End > 0 ? finalWithdrawal / p50End : 0;
   const dependence =
     totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
+  const statePensionReliance =
+    totals.spending > 0 ? totals.statePension / totals.spending : 0;
   const initialWithdrawalRate =
     inputs.initialPortfolio > 0
       ? inputs.initialSpending / inputs.initialPortfolio
@@ -671,8 +674,8 @@ function renderMonteCarloSummary(
       : null,
 
     initialWithdrawalRate: getInitialWithdrawalSignal(initialWithdrawalRate),
-    medianFinalWithdrawalRate: getFinalWithdrawalSignal(
-      medianFinalWithdrawalRate
+    statePensionReliance: getStatePensionRelianceSignal(
+      statePensionReliance
     ),
     portfolioDependence: getPortfolioDependenceSignal(dependence),
 
@@ -720,9 +723,9 @@ function renderMonteCarloSummary(
         signals.initialWithdrawalRate
       ),
       renderSummaryItem(
-        'Median final withdrawal rate',
-        formatPercent(medianFinalWithdrawalRate),
-        signals.medianFinalWithdrawalRate
+        'State pension reliance',
+        formatPercent(statePensionReliance),
+        signals.statePensionReliance
       ),
       renderSummaryItem(
         'Portfolio dependence',
