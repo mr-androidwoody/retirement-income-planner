@@ -1222,14 +1222,7 @@ input[type="checkbox"]{
 .retirement-outlook-heading-group{
   display:grid;
   gap:4px;
-}
 
-.retirement-outlook-heading{
-  font-size:0.82rem;
-  font-weight:700;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:0.04em;
 }
 
 .retirement-outlook-subheading{
