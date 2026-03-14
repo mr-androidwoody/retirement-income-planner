@@ -864,7 +864,7 @@ function drawLegend(ctx, width, height, layout) {
   const boxX = 24;
   const boxWidth = width - 48;
   const boxHeight = layout.height + boxPaddingY * 2;
-  const boxY = height - boxHeight - 6;
+  const boxY = height - boxHeight + 10;
 
   ctx.save();
   roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
