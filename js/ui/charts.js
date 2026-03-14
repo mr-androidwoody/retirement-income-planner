@@ -286,7 +286,7 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 76 + legendLayout.height,
+    bottom: 86 + legendLayout.height,
     left: 96
   };
 
@@ -859,7 +859,7 @@ function measureLegend(ctx, lines, width) {
 }
 
 function drawLegend(ctx, width, height, layout) {
-  const boxPaddingY = 8;
+  const boxPaddingY = 6;
   const boxRadius = 12;
   const boxX = 24;
   const boxWidth = width - 48;
