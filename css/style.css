@@ -1345,7 +1345,6 @@ input[type="checkbox"]{
 .summary-item--green{
   background:#f0fdf4;
   border-color:#86efac;
-  border-top-color:#22c55e;
 }
 
 .summary-item--amber{
