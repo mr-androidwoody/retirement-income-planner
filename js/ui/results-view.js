@@ -358,6 +358,20 @@ function renderRetirementOutlook(
       ? 'No base-case shortfall'
       : `Base-case shortfall begins: year ${firstShortfallYear}`;
 
+  const statusSubheading =
+    status === 'strong'
+      ? 'Highly resilient under current assumptions'
+      : status === 'watch'
+        ? 'Worth monitoring under weaker outcomes'
+        : 'Material pressure under current assumptions';
+
+  const statusIcon =
+    status === 'strong'
+      ? '✓'
+      : status === 'watch'
+        ? '!'
+        : '×';
+
   panel.classList.remove(
     'plan-summary-panel--strong',
     'plan-summary-panel--watch',
@@ -368,20 +382,34 @@ function renderRetirementOutlook(
   if (!hero) return;
 
   hero.innerHTML = `
-    <div class="plan-summary-hero-header">
-      <div class="plan-summary-kicker">Retirement outlook</div>
-      <h3 class="plan-summary-title">${label}</h3>
-      <p class="plan-summary-description">${message}</p>
-    </div>
+    <div class="retirement-outlook-hero-card">
+      <div class="retirement-outlook-hero-top">
+        <div class="retirement-outlook-kicker">Retirement outlook</div>
 
-    ${guardrailNotice}
+        <div class="retirement-outlook-status-row">
+          <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
+            <span class="retirement-outlook-badge-icon">${statusIcon}</span>
+            <span>${label}</span>
+          </div>
 
-    <div class="plan-summary-outcome">
-      <h4 class="plan-summary-section-title">Outcome summary</h4>
-      <div class="plan-summary-section-grid plan-summary-section-grid--top">
-        ${renderSummaryItem('Plan success', formatPercent(successRate))}
-        ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-        ${renderSummaryItem('Base-case timing', firstShortfallText)}
+          <div class="retirement-outlook-heading-group">
+            <div class="retirement-outlook-heading">Plan status</div>
+            <div class="retirement-outlook-subheading">${statusSubheading}</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="retirement-outlook-description">${message}</p>
+
+      ${guardrailNotice}
+
+      <div class="plan-summary-outcome">
+        <h4 class="plan-summary-section-title">Outcome summary</h4>
+        <div class="plan-summary-section-grid plan-summary-section-grid--top">
+          ${renderSummaryItem('Plan success', formatPercent(successRate))}
+          ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
+          ${renderSummaryItem('Base-case timing', firstShortfallText)}
+        </div>
       </div>
     </div>
   `;
