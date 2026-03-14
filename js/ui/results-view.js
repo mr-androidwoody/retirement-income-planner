@@ -824,4 +824,7 @@ document.addEventListener('keydown', (event) => {
     glossaryOverlay &&
     !glossaryOverlay.classList.contains('hidden')
   ) {
-    glossaryOverlay.classList.add('
+    glossaryOverlay.classList.add('hidden');
+    document.body.classList.remove('glossary-open');
+  }
+});
