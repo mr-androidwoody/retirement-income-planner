@@ -859,12 +859,12 @@ function measureLegend(ctx, lines, width) {
 }
 
 function drawLegend(ctx, width, height, layout) {
-  const boxPaddingY = 14;
-  const boxRadius = 14;
+  const boxPaddingY = 16;
+  const boxRadius = 12;
   const boxX = 24;
   const boxWidth = width - 48;
-  const boxHeight = layout.height + boxPaddingY;
-  const boxY = height - boxHeight;
+  const boxHeight = layout.height + boxPaddingY * 2;
+  const boxY = height - boxHeight - 6;
 
   ctx.save();
   roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
