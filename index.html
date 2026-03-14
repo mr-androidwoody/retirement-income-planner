@@ -103,17 +103,65 @@
 
                   <label class="field">
                     <span class="field-label">Initial household spending (£)</span>
-                    <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
+                    <div class="stepper-input">
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        data-step-target="initialSpending"
+                        data-step-direction="-1"
+                        aria-label="Decrease initial household spending by £1,000"
+                      >−</button>
+                      <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        data-step-target="initialSpending"
+                        data-step-direction="1"
+                        aria-label="Increase initial household spending by £1,000"
+                      >+</button>
+                    </div>
                   </label>
 
                   <label class="field">
                     <span class="field-label">Comfort spending floor (£)</span>
-                    <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" />
+                    <div class="stepper-input">
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        data-step-target="comfortSpending"
+                        data-step-direction="-1"
+                        aria-label="Decrease comfort spending floor by £1,000"
+                      >−</button>
+                      <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" />
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        data-step-target="comfortSpending"
+                        data-step-direction="1"
+                        aria-label="Increase comfort spending floor by £1,000"
+                      >+</button>
+                    </div>
                   </label>
 
                   <label class="field">
                     <span class="field-label">Minimum spending floor (£)</span>
-                    <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" />
+                    <div class="stepper-input">
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        data-step-target="minimumSpending"
+                        data-step-direction="-1"
+                        aria-label="Decrease minimum spending floor by £1,000"
+                      >−</button>
+                      <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" />
+                      <button
+                        type="button"
+                        class="stepper-btn"
+                        data-step-target="minimumSpending"
+                        data-step-direction="1"
+                        aria-label="Increase minimum spending floor by £1,000"
+                      >+</button>
+                    </div>
                   </label>
                 </div>
 
