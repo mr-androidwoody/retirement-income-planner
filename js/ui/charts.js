@@ -286,7 +286,7 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 62 + legendLayout.height,
+    bottom: 86 + legendLayout.height,
     left: 96
   };
 
@@ -862,9 +862,9 @@ function drawLegend(ctx, width, height, layout) {
   const boxPaddingY = 12;
   const boxRadius = 14;
   const boxX = 24;
-  const boxY = height - layout.height;
   const boxWidth = width - 48;
   const boxHeight = layout.height + boxPaddingY * 2;
+  const boxY = height - boxHeight;
 
   ctx.save();
   roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
