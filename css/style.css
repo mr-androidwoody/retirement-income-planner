@@ -1350,13 +1350,11 @@ input[type="checkbox"]{
 .summary-item--amber{
   background:#fffbeb;
   border-color:#fcd34d;
-  border-top-color:#f59e0b;
 }
 
 .summary-item--red{
   background:#fef2f2;
   border-color:#fca5a5;
-  border-top-color:#ef4444;
 }
 
 .summary-item .summary-label{
