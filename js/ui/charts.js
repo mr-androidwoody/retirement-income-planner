@@ -813,16 +813,16 @@ function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
 }
 
 function measureLegend(ctx, lines, width) {
-  const markerSize = 12;
+  const markerSize = 18;
   const markerTextGap = 8;
   const itemGap = 28;
   const rowGap = 12;
   const maxRowWidth = Math.max(200, width - 36);
 
   const items = lines.map((line) => {
-    const textWidth = ctx.measureText(line.label).width;
-    const widthNeeded = markerSize + markerTextGap + textWidth;
-    return { ...line, widthNeeded };
+  const textWidth = ctx.measureText(line.label).width;
+  const widthNeeded = markerSize + markerTextGap + textWidth + 20;
+  return { ...line, widthNeeded };
   });
 
   const rows = [];
@@ -865,31 +865,44 @@ function drawLegend(ctx, width, height, layout) {
     const rowWidth = row.reduce((sum, item) => sum + item.widthNeeded, 0) + (row.length - 1) * layout.itemGap;
     let x = (width - rowWidth) / 2;
 
-    row.forEach((item) => {
-      ctx.save();
+  row.forEach((item) => {
+  const pillPaddingX = 10;
+  const pillHeight = 28;
+  const pillRadius = 14;
+  const pillWidth = item.widthNeeded + pillPaddingX * 2;
+  const pillX = x - pillPaddingX;
+  const pillY = y - pillHeight / 2;
 
-      if (item.dash?.length) {
-        ctx.beginPath();
-        ctx.setLineDash(item.dash);
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + layout.markerSize, y);
-        ctx.strokeStyle = item.color;
-        ctx.lineWidth = item.width || 2.5;
-        ctx.stroke();
-      } else {
-        ctx.fillStyle = item.color;
-        ctx.fillRect(x, y - 6, layout.markerSize, layout.markerSize);
-      }
+  const sampleX = x;
+  const sampleY = y;
+  const sampleWidth = layout.markerSize;
 
-      ctx.restore();
+  ctx.save();
 
-      ctx.fillStyle = '#475569';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(item.label, x + layout.markerSize + layout.markerTextGap, y);
+  roundRect(ctx, pillX, pillY, pillWidth, pillHeight, pillRadius);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.strokeStyle = '#d7deea';
+  ctx.lineWidth = 1;
+  ctx.stroke();
 
-      x += item.widthNeeded + layout.itemGap;
-    });
+  ctx.beginPath();
+  ctx.setLineDash(item.dash || []);
+  ctx.moveTo(sampleX, sampleY);
+  ctx.lineTo(sampleX + sampleWidth, sampleY);
+  ctx.strokeStyle = item.color;
+  ctx.lineWidth = item.width || 2.5;
+  ctx.stroke();
+
+  ctx.restore();
+
+  ctx.fillStyle = '#475569';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(item.label, x + layout.markerSize + layout.markerTextGap, y);
+
+  x += pillWidth + layout.itemGap;
+});
 
     y += layout.rowHeight + layout.rowGap;
   });
