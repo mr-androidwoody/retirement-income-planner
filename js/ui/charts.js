@@ -868,7 +868,7 @@ function drawLegend(ctx, width, height, layout) {
 
   ctx.save();
   roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f8fafc';
   ctx.fill();
   ctx.strokeStyle = '#d7deea';
   ctx.lineWidth = 1;
