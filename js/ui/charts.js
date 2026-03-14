@@ -878,7 +878,11 @@ function drawLegend(ctx, width, height, layout) {
 
   ctx.restore();
 
-  let y = boxY + boxPaddingY + layout.rowHeight / 2;
+  const contentHeight =
+    layout.rows.length * layout.rowHeight +
+    (layout.rows.length - 1) * layout.rowGap;
+
+  let y = boxY + (boxHeight - contentHeight) / 2 + layout.rowHeight / 2;
 
   layout.rows.forEach((row) => {
     const rowWidth =
@@ -911,6 +915,7 @@ function drawLegend(ctx, width, height, layout) {
     y += layout.rowHeight + layout.rowGap;
   });
 }
+
 
 function drawBand(ctx, lower, upper, geom) {
   if (!lower.length || lower.length !== upper.length) return;
