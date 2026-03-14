@@ -759,6 +759,9 @@ input[type="checkbox"]{
   flex:1;
   margin:0;
   max-width:none;
+  color:var(--muted);
+  font-size:0.9rem;
+  line-height:1.45;
 }
 
 .inflation-field{
