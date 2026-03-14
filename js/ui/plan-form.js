@@ -84,6 +84,29 @@ export function createPlanForm(
     }
   }
 
+  function stepIntegerField(fieldId, direction) {
+    const field = elements[fieldId];
+    if (!field) return;
+
+    const currentValue = parseLooseNumber(field.value);
+    const safeCurrent = Number.isFinite(currentValue) ? currentValue : 0;
+    const nextValue = Math.max(0, safeCurrent + direction * 1000);
+
+    field.value = formatInteger(nextValue);
+
+    if (fieldId === 'comfortSpending') {
+      comfortFloorOverridden = true;
+    }
+
+    if (fieldId === 'minimumSpending') {
+      minimumFloorOverridden = true;
+    }
+
+    if (fieldId === 'initialSpending') {
+      syncDefaultSpendingFloors();
+    }
+  }
+
   function syncPerson2State() {
     const include = Boolean(elements.includePerson2?.checked ?? true);
 
@@ -283,6 +306,16 @@ export function createPlanForm(
         syncDefaultSpendingFloors();
       });
     }
+
+    document.querySelectorAll('[data-step-target]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const fieldId = button.dataset.stepTarget;
+        const direction = Number(button.dataset.stepDirection);
+
+        if (!fieldId || !Number.isFinite(direction)) return;
+        stepIntegerField(fieldId, direction);
+      });
+    });
   }
 
   function bindActions({ onRun, onReset } = {}) {
