@@ -870,9 +870,11 @@ function drawLegend(ctx, width, height, layout) {
   roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
   ctx.fillStyle = '#f8fafc';
   ctx.fill();
+
   ctx.strokeStyle = '#d7deea';
   ctx.lineWidth = 1;
   ctx.stroke();
+
   ctx.restore();
 
   let y = boxY + boxPaddingY;
