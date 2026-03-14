@@ -821,7 +821,7 @@ function measureLegend(ctx, lines, width) {
 
   const items = lines.map((line) => {
   const textWidth = ctx.measureText(line.label).width;
-  const widthNeeded = markerSize + markerTextGap + textWidth + 20;
+  const widthNeeded = markerSize + markerTextGap + textWidth;
   return { ...line, widthNeeded };
   });
 
@@ -859,50 +859,51 @@ function measureLegend(ctx, lines, width) {
 }
 
 function drawLegend(ctx, width, height, layout) {
-  let y = height - layout.height + 10;
-
-  layout.rows.forEach((row) => {
-    const rowWidth = row.reduce((sum, item) => sum + item.widthNeeded, 0) + (row.length - 1) * layout.itemGap;
-    let x = (width - rowWidth) / 2;
-
-  row.forEach((item) => {
-  const pillPaddingX = 10;
-  const pillHeight = 28;
-  const pillRadius = 14;
-  const pillWidth = item.widthNeeded + pillPaddingX * 2;
-  const pillX = x - pillPaddingX;
-  const pillY = y - pillHeight / 2;
-
-  const sampleX = x;
-  const sampleY = y;
-  const sampleWidth = layout.markerSize;
+  const boxPaddingY = 12;
+  const boxRadius = 14;
+  const boxX = 24;
+  const boxY = height - layout.height;
+  const boxWidth = width - 48;
+  const boxHeight = layout.height + boxPaddingY * 2;
 
   ctx.save();
-
-  roundRect(ctx, pillX, pillY, pillWidth, pillHeight, pillRadius);
+  roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
   ctx.strokeStyle = '#d7deea';
   ctx.lineWidth = 1;
   ctx.stroke();
-
-  ctx.beginPath();
-  ctx.setLineDash(item.dash || []);
-  ctx.moveTo(sampleX, sampleY);
-  ctx.lineTo(sampleX + sampleWidth, sampleY);
-  ctx.strokeStyle = item.color;
-  ctx.lineWidth = item.width || 2.5;
-  ctx.stroke();
-
   ctx.restore();
 
-  ctx.fillStyle = '#475569';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(item.label, x + layout.markerSize + layout.markerTextGap, y);
+  let y = boxY + boxPaddingY + 8;
 
-  x += pillWidth + layout.itemGap;
-});
+  layout.rows.forEach((row) => {
+    const rowWidth =
+      row.reduce((sum, item) => sum + item.widthNeeded, 0) +
+      (row.length - 1) * layout.itemGap;
+
+    let x = (width - rowWidth) / 2;
+
+    row.forEach((item) => {
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.setLineDash(item.dash || []);
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + layout.markerSize, y);
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = item.width || 2.5;
+      ctx.stroke();
+
+      ctx.restore();
+
+      ctx.fillStyle = '#475569';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(item.label, x + layout.markerSize + layout.markerTextGap, y);
+
+      x += item.widthNeeded + layout.itemGap;
+    });
 
     y += layout.rowHeight + layout.rowGap;
   });
