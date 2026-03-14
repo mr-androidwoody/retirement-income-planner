@@ -320,7 +320,7 @@ canvas{
 
 .input-shell{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:0.9fr 1.1fr;
   gap:24px;
   align-items:start;
 }
