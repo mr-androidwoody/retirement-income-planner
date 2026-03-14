@@ -119,8 +119,11 @@ export function renderResultsView({
     cutDiagnostics
   );
   renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
-  renderPlanWarnings(result, elements, useReal, formatters);
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
+
+  if (elements.planWarningsPanel) {
+    elements.planWarningsPanel.classList.add('hidden');
+  }
 
   if (elements.tableCard) {
     elements.tableCard.classList.toggle('hidden', !showFullTable);
@@ -284,6 +287,50 @@ function getLifestyleResilienceMetrics(result, useReal = false) {
   };
 }
 
+function getPlanWarningsData(result, useReal, formatters) {
+  const { formatPercent } = formatters;
+  const rows = result.baseCase?.rows || [];
+  const inputs = result.inputs || {};
+  const percentiles = useReal
+    ? result.monteCarlo.realPercentiles
+    : result.monteCarlo.nominalPercentiles;
+  const p10 = percentiles.p10 || [];
+  const planYears = inputs.years || 0;
+
+  const inputWarnings = [];
+  const modelWarnings = [];
+
+  const startWithdrawalRate =
+    inputs.initialPortfolio > 0
+      ? inputs.initialSpending / inputs.initialPortfolio
+      : 0;
+
+  if (startWithdrawalRate > 0.055) {
+    inputWarnings.push(
+      `High starting withdrawal rate (${formatPercent(
+        startWithdrawalRate
+      )}), which may reduce resilience if returns are weaker than expected.`
+    );
+  }
+
+  if (rows.length) {
+    for (let i = 0; i < p10.length; i += 1) {
+      if (p10[i] <= 0 && i < planYears * 0.5) {
+        modelWarnings.push(
+          `Weaker simulated outcomes deplete the portfolio by year ${i + 1}.`
+        );
+        break;
+      }
+    }
+  }
+
+  return {
+    inputWarnings,
+    modelWarnings,
+    hasWarnings: inputWarnings.length > 0 || modelWarnings.length > 0
+  };
+}
+
 function renderRetirementOutlook(
   result,
   elements,
@@ -306,6 +353,7 @@ function renderRetirementOutlook(
   const firstShortfallYear = cutDiagnostics.firstShortfallYear;
   const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
   const hasAnyShortfall = shortfallYears > 0;
+  const warningData = getPlanWarningsData(result, useReal, formatters);
 
   let status = 'strong';
   let label = 'Strong';
@@ -372,6 +420,36 @@ function renderRetirementOutlook(
         ? '!'
         : '×';
 
+  const warningReasonsHtml = warningData.hasWarnings
+    ? `
+      <div class="retirement-outlook-reasons">
+        <h4 class="retirement-outlook-reasons-title">Key reasons</h4>
+        <div class="retirement-outlook-reasons-list">
+          ${warningData.inputWarnings
+            .map(
+              (text) => `
+                <div class="retirement-outlook-reason">
+                  <span class="retirement-outlook-reason-icon">⚠</span>
+                  <span class="retirement-outlook-reason-text">${text}</span>
+                </div>
+              `
+            )
+            .join('')}
+          ${warningData.modelWarnings
+            .map(
+              (text) => `
+                <div class="retirement-outlook-reason">
+                  <span class="retirement-outlook-reason-icon">⚠</span>
+                  <span class="retirement-outlook-reason-text">${text}</span>
+                </div>
+              `
+            )
+            .join('')}
+        </div>
+      </div>
+    `
+    : '';
+
   panel.classList.remove(
     'plan-summary-panel--strong',
     'plan-summary-panel--watch',
@@ -399,6 +477,8 @@ function renderRetirementOutlook(
       </div>
 
       <p class="retirement-outlook-description">${message}</p>
+
+      ${warningReasonsHtml}
 
       ${guardrailNotice}
 
@@ -548,90 +628,6 @@ function renderSummaryItem(label, value) {
       <div class="summary-value">${value}</div>
     </div>
   `;
-}
-
-function renderPlanWarnings(result, elements, useReal, formatters) {
-  const container = elements.planWarnings;
-  if (!container) return;
-
-  const rows = result.baseCase?.rows || [];
-  if (!rows.length) return;
-
-  const { formatPercent } = formatters;
-  const inputs = result.inputs;
-  const percentiles = useReal
-    ? result.monteCarlo.realPercentiles
-    : result.monteCarlo.nominalPercentiles;
-  const p10 = percentiles.p10;
-  const planYears = inputs.years;
-
-  const inputWarnings = [];
-  const modelWarnings = [];
-
-  const startWithdrawalRate =
-    inputs.initialPortfolio > 0
-      ? inputs.initialSpending / inputs.initialPortfolio
-      : 0;
-
-  if (startWithdrawalRate > 0.055) {
-    inputWarnings.push(
-      `High starting withdrawal rate (${formatPercent(
-        startWithdrawalRate
-      )}), which may reduce resilience if returns are weaker than expected.`
-    );
-  }
-
-  for (let i = 0; i < p10.length; i += 1) {
-    if (p10[i] <= 0 && i < planYears * 0.5) {
-      modelWarnings.push(
-        `Weaker simulated outcomes deplete the portfolio by year ${i + 1}.`
-      );
-      break;
-    }
-  }
-
-  if (!inputWarnings.length && !modelWarnings.length) {
-    container.innerHTML = `
-      <div class="plan-warning-ok">
-        ✓ No major risks detected in current plan assumptions.
-      </div>
-    `;
-    return;
-  }
-
-  const groups = [];
-
-  if (inputWarnings.length) {
-    groups.push(`
-      <div class="plan-warning-group">
-        <h4 class="plan-warning-group-title">Input warning</h4>
-        ${inputWarnings
-          .map(
-            (text) => `
-              <div class="plan-warning">⚠ ${text}</div>
-            `
-          )
-          .join('')}
-      </div>
-    `);
-  }
-
-  if (modelWarnings.length) {
-    groups.push(`
-      <div class="plan-warning-group">
-        <h4 class="plan-warning-group-title">Model risk</h4>
-        ${modelWarnings
-          .map(
-            (text) => `
-              <div class="plan-warning">⚠ ${text}</div>
-            `
-          )
-          .join('')}
-      </div>
-    `);
-  }
-
-  container.innerHTML = groups.join('');
 }
 
 function renderDeterministicNote(elements) {
@@ -828,7 +824,4 @@ document.addEventListener('keydown', (event) => {
     glossaryOverlay &&
     !glossaryOverlay.classList.contains('hidden')
   ) {
-    glossaryOverlay.classList.add('hidden');
-    document.body.classList.remove('glossary-open');
-  }
-});
+    glossaryOverlay.classList.add('
