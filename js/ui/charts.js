@@ -286,7 +286,7 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 86 + legendLayout.height,
+    bottom: 76 + legendLayout.height,
     left: 96
   };
 
