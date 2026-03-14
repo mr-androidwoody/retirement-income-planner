@@ -393,7 +393,6 @@ function renderRetirementOutlook(
           </div>
 
           <div class="retirement-outlook-heading-group">
-            <div class="retirement-outlook-heading">Plan status</div>
             <div class="retirement-outlook-subheading">${statusSubheading}</div>
           </div>
         </div>
