@@ -123,13 +123,19 @@
 
                 <div class="field-grid field-grid-3">
                   <label class="field">
-                    <span class="field-label">Equity allocation %</span>
-                    <input id="equityAllocation" type="number" min="0" max="100" step="0.1" />
+                    <span class="field-label with-help">
+                         <span>Equity allocation %</span>
+                            <button class="help" type="button" tabindex="-1" aria-label="Equity allocation help" title="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility in the simulation.">?</button>
+                    </span>                    
+                      <input id="equityAllocation" type="number" min="0" max="100" step="0.1" />
                   </label>
 
                   <label class="field">
-                    <span class="field-label">Bond allocation %</span>
-                    <input id="bondAllocation" type="number" min="0" max="100" step="0.1" />
+                        <span class="field-label with-help">
+                            <span>Bond allocation %</span>
+                            <button class="help" type="button" tabindex="-1" aria-label="Bond allocation help" title="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility.">?</button>
+                            </span>                    
+                      <input id="bondAllocation" type="number" min="0" max="100" step="0.1" />
                   </label>
 
                   <label class="field">
