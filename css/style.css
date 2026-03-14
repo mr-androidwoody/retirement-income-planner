@@ -513,16 +513,19 @@ input[type="number"]{
 
 .stepper-btn{
   appearance:none;
-  width:44px;
-  height:44px;
+  width:22px;
+  height:22px;
   border:1px solid var(--line);
-  border-radius:12px;
+  border-radius:6px;
   background:var(--panel);
   color:var(--text);
-  font-size:1.1rem;
+  font-size:0.85rem;
   font-weight:700;
   line-height:1;
   cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   transition:background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
 }
 
