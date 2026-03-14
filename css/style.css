@@ -502,12 +502,16 @@ input[type="number"]{
 
 .stepper-input{
   display:grid;
-  grid-template-columns:44px minmax(0, 1fr) 44px;
+  grid-template-columns:minmax(0, 1fr) 22px;
+  grid-template-rows:22px 22px;
+  column-gap:6px;
+  row-gap:4px;
   align-items:center;
-  gap:8px;
 }
 
 .stepper-input input{
+  grid-column:1;
+  grid-row:1 / span 2;
   min-width:0;
 }
 
@@ -527,6 +531,16 @@ input[type="number"]{
   align-items:center;
   justify-content:center;
   transition:background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+
+.stepper-btn[data-step-direction="1"]{
+  grid-column:2;
+  grid-row:1;
+}
+
+.stepper-btn[data-step-direction="-1"]{
+  grid-column:2;
+  grid-row:2;
 }
 
 .stepper-btn:hover{
