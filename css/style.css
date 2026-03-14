@@ -1145,71 +1145,107 @@ input[type="checkbox"]{
 
 .retirement-outlook-hero{
   margin:0 0 16px;
-  padding:16px;
+}
+
+.retirement-outlook-hero-card{
+  display:grid;
+  gap:16px;
+  padding:20px;
   border:1px solid var(--line);
   border-radius:16px;
-  background:var(--panel-soft);
+  background:linear-gradient(180deg, #f8fbff 0%, #f4f7fc 100%);
 }
 
-.retirement-outlook-status{
+.retirement-outlook-hero-top{
+  display:grid;
+  gap:12px;
+}
+
+.retirement-outlook-kicker{
+  font-size:0.78rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--muted);
+}
+
+.retirement-outlook-status-row{
   display:flex;
-  flex-direction:column;
-  gap:6px;
-  margin:0 0 12px;
-  padding:14px 16px;
-  border:1px solid transparent;
-  border-radius:12px;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
 }
 
-.retirement-outlook-status__title{
-  margin:0;
+.retirement-outlook-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width:132px;
+  min-height:46px;
+  padding:0 16px;
+  border-radius:999px;
   font-size:1rem;
   font-weight:800;
-  line-height:1.3;
+  letter-spacing:-0.01em;
+  border:1px solid transparent;
 }
 
-.retirement-outlook-status__message{
-  margin:0;
-  font-size:0.94rem;
-  line-height:1.5;
-  font-weight:600;
-}
-
-.retirement-outlook-status--strong{
-  background:rgba(16,185,129,0.10);
-  border-color:rgba(16,185,129,0.34);
-  color:#166534;
-}
-
-.retirement-outlook-status--strong .retirement-outlook-status__title{
-  color:#047857;
-}
-
-.retirement-outlook-status--watch{
-  background:rgba(245,158,11,0.12);
-  border-color:rgba(245,158,11,0.34);
-  color:#92400e;
-}
-
-.retirement-outlook-status--watch .retirement-outlook-status__title{
-  color:#b45309;
-}
-
-.retirement-outlook-status--weak{
-  background:rgba(239,68,68,0.08);
-  border-color:rgba(239,68,68,0.34);
-  color:#7f1d1d;
-}
-
-.retirement-outlook-status--weak .retirement-outlook-status__title{
-  color:#b91c1c;
-}
-
-.retirement-outlook-message{
-  margin:0 0 12px;
-  color:var(--text);
+.retirement-outlook-badge-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
   font-size:0.95rem;
-  line-height:1.55;
+  line-height:1;
+}
+
+.retirement-outlook-badge--strong{
+  background:#ecfdf5;
+  color:#065f46;
+  border-color:#6ee7b7;
+}
+
+.retirement-outlook-badge--watch{
+  background:#fff7ed;
+  color:#b45309;
+  border-color:#fdba74;
+}
+
+.retirement-outlook-badge--weak{
+  background:#fff1f2;
+  color:#b91c1c;
+  border-color:#fda4af;
+}
+
+.retirement-outlook-heading-group{
+  display:grid;
+  gap:4px;
+}
+
+.retirement-outlook-heading{
+  font-size:0.82rem;
+  font-weight:700;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+
+.retirement-outlook-subheading{
+  font-size:1.15rem;
+  font-weight:800;
+  line-height:1.25;
+  color:var(--text);
+  letter-spacing:-0.01em;
+}
+
+.retirement-outlook-description{
+  margin:0;
+  max-width:780px;
+  color:var(--muted);
+  font-size:0.95rem;
+  line-height:1.6;
 }
 
 .retirement-outlook-warning{
