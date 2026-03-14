@@ -1338,7 +1338,6 @@ input[type="checkbox"]{
   padding:14px 16px;
   background:#fff;
   border:1px solid var(--line);
-  border-top:4px solid transparent;
   border-radius:12px;
   box-sizing:border-box;
 }
