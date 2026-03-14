@@ -765,8 +765,8 @@ input[type="checkbox"]{
 }
 
 .inflation-field{
-  flex:0 0 240px;
-  width:240px;
+  flex:0 0 180px;
+  width:180px;
 }
 
 .inflation-field input{
