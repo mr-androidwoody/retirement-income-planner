@@ -68,6 +68,22 @@ export function createPlanForm(
   elements,
   { formatInteger, parseLooseNumber, parseLooseInteger } = {}
 ) {
+  let comfortFloorOverridden = false;
+  let minimumFloorOverridden = false;
+
+  function syncDefaultSpendingFloors() {
+    const spending = parseLooseNumber(elements.initialSpending?.value);
+    if (!Number.isFinite(spending)) return;
+
+    if (elements.comfortSpending && !comfortFloorOverridden) {
+      elements.comfortSpending.value = formatInteger(Math.round(spending * 0.9));
+    }
+
+    if (elements.minimumSpending && !minimumFloorOverridden) {
+      elements.minimumSpending.value = formatInteger(Math.round(spending * 0.75));
+    }
+  }
+
   function syncPerson2State() {
     const include = Boolean(elements.includePerson2?.checked ?? true);
 
@@ -88,30 +104,30 @@ export function createPlanForm(
   function applyDefaults(defaults) {
     const sharedStatePensionToday = resolveSharedStatePensionToday(defaults);
 
-   setFieldValue(elements, 'years', defaults.years);
-   setFieldValue(elements, 'initialPortfolio', defaults.initialPortfolio, true, formatInteger);
-   setFieldValue(elements, 'initialSpending', defaults.initialSpending, true, formatInteger);
+    setFieldValue(elements, 'years', defaults.years);
+    setFieldValue(elements, 'initialPortfolio', defaults.initialPortfolio, true, formatInteger);
+    setFieldValue(elements, 'initialSpending', defaults.initialSpending, true, formatInteger);
 
-   setFieldValue(
-     elements,
-     'comfortSpending',
-     defaults.comfortSpending ?? '',
-     true,
-     formatInteger
-   );
+    setFieldValue(
+      elements,
+      'comfortSpending',
+      defaults.comfortSpending ?? '',
+      true,
+      formatInteger
+    );
 
-   setFieldValue(
-     elements,
-     'minimumSpending',
-     defaults.minimumSpending ?? '',
-     true,
-     formatInteger
-  );
+    setFieldValue(
+      elements,
+      'minimumSpending',
+      defaults.minimumSpending ?? '',
+      true,
+      formatInteger
+    );
 
-   setFieldValue(elements, 'initialWithdrawalRate', '');
-   setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
-   setFieldValue(elements, 'bondAllocation', defaults.bondAllocation);
-   setFieldValue(elements, 'cashlikeAllocation', defaults.cashlikeAllocation);
+    setFieldValue(elements, 'initialWithdrawalRate', '');
+    setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
+    setFieldValue(elements, 'bondAllocation', defaults.bondAllocation);
+    setFieldValue(elements, 'cashlikeAllocation', defaults.cashlikeAllocation);
 
     if (elements.rebalanceToTarget) {
       elements.rebalanceToTarget.checked = Boolean(defaults.rebalanceToTarget);
@@ -213,6 +229,10 @@ export function createPlanForm(
       }
     });
 
+    comfortFloorOverridden = false;
+    minimumFloorOverridden = false;
+    syncDefaultSpendingFloors();
+
     syncPerson2State();
   }
 
@@ -242,21 +262,25 @@ export function createPlanForm(
       });
     }
 
+    if (elements.comfortSpending) {
+      elements.comfortSpending.addEventListener('input', () => {
+        comfortFloorOverridden = true;
+      });
+    }
+
+    if (elements.minimumSpending) {
+      elements.minimumSpending.addEventListener('input', () => {
+        minimumFloorOverridden = true;
+      });
+    }
+
     if (elements.initialSpending) {
+      elements.initialSpending.addEventListener('input', () => {
+        syncDefaultSpendingFloors();
+      });
+
       elements.initialSpending.addEventListener('blur', () => {
-        const spending = parseLooseNumber(elements.initialSpending.value);
-        if (!Number.isFinite(spending)) return;
-
-        const comfortInput = elements.comfortSpending;
-        const minimumInput = elements.minimumSpending;
-
-        if (comfortInput && !unformatNumberString(comfortInput.value)) {
-          comfortInput.value = formatInteger(Math.round(spending * 0.9));
-        }
-
-        if (minimumInput && !unformatNumberString(minimumInput.value)) {
-          minimumInput.value = formatInteger(Math.round(spending * 0.75));
-        }
+        syncDefaultSpendingFloors();
       });
     }
   }
