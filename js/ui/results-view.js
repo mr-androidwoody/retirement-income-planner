@@ -325,6 +325,88 @@ function getPlanWarningsData(result, useReal, formatters) {
   };
 }
 
+function getThresholdSignal(value, greenMax, amberMax) {
+  if (!Number.isFinite(value)) return null;
+  if (value <= greenMax) return 'green';
+  if (value <= amberMax) return 'amber';
+  return 'red';
+}
+
+function getYearsSignal(years) {
+  if (!Number.isFinite(years)) return null;
+  if (years === 0) return 'green';
+  if (years <= 5) return 'amber';
+  return 'red';
+}
+
+function getWorstCutSignal(cutPercent) {
+  if (!Number.isFinite(cutPercent)) return null;
+  if (cutPercent < 0.10) return 'green';
+  if (cutPercent <= 0.25) return 'amber';
+  return 'red';
+}
+
+function getInitialWithdrawalSignal(rate) {
+  return getThresholdSignal(rate, 0.04, 0.06);
+}
+
+function getFinalWithdrawalSignal(rate) {
+  return getThresholdSignal(rate, 0.06, 0.09);
+}
+
+function getPortfolioDependenceSignal(rate) {
+  return getThresholdSignal(rate, 0.40, 0.70);
+}
+
+function getWeakCaseDepletionSignal(yearValue) {
+  if (yearValue === 'Not depleted') return 'green';
+
+  const year = Number(yearValue);
+  if (!Number.isFinite(year)) return null;
+  if (year > 25) return 'amber';
+  return 'red';
+}
+
+function getP10EndingSignal(p10End, startingPortfolio) {
+  if (
+    !Number.isFinite(p10End) ||
+    !Number.isFinite(startingPortfolio) ||
+    startingPortfolio <= 0
+  ) {
+    return null;
+  }
+
+  if (p10End <= 0) return 'red';
+
+  const ratio = p10End / startingPortfolio;
+  if (ratio > 0.5) return 'green';
+  return 'amber';
+}
+
+function getP90EndingSignal(p90End, startingPortfolio) {
+  if (
+    !Number.isFinite(p90End) ||
+    !Number.isFinite(startingPortfolio) ||
+    startingPortfolio <= 0
+  ) {
+    return null;
+  }
+
+  const ratio = p90End / startingPortfolio;
+  if (ratio > 2) return 'green';
+  if (ratio >= 1) return 'amber';
+  return 'red';
+}
+
+function getWorstShortfallSignal(amount, targetSpending) {
+  if (!Number.isFinite(amount) || amount <= 0) return 'green';
+  if (!Number.isFinite(targetSpending) || targetSpending <= 0) return null;
+
+  const ratio = amount / targetSpending;
+  if (ratio < 0.10) return 'amber';
+  return 'red';
+}
+
 function renderRetirementOutlook(
   result,
   elements,
@@ -517,15 +599,54 @@ function renderMonteCarloSummary(
       ? 'None'
       : `${formatCurrency(cutDiagnostics.worstShortfall)} in year ${cutDiagnostics.worstShortfallYear}`;
 
+  const startingPortfolio = Number(inputs.initialPortfolio) || 0;
+  const targetSpending =
+    lifestyleMetrics?.targetSpending ||
+    safePositiveNumber(inputs.initialSpending) ||
+    0;
+
+  const signals = {
+    comfortFloor: lifestyleMetrics
+      ? getYearsSignal(lifestyleMetrics.yearsBelowComfort)
+      : null,
+    minimumFloor: lifestyleMetrics
+      ? getYearsSignal(lifestyleMetrics.yearsBelowMinimum)
+      : null,
+    worstCut: lifestyleMetrics
+      ? getWorstCutSignal(lifestyleMetrics.worstCutPercent)
+      : null,
+
+    initialWithdrawalRate: getInitialWithdrawalSignal(initialWithdrawalRate),
+    medianFinalWithdrawalRate: getFinalWithdrawalSignal(
+      medianFinalWithdrawalRate
+    ),
+    portfolioDependence: getPortfolioDependenceSignal(dependence),
+
+    p10Ending: getP10EndingSignal(p10End, startingPortfolio),
+    p90Ending: getP90EndingSignal(p90End, startingPortfolio),
+    weakCaseDepletion: getWeakCaseDepletionSignal(weakCaseDepletionYear),
+
+    worstShortfall: getWorstShortfallSignal(
+      cutDiagnostics.worstShortfall || 0,
+      targetSpending
+    ),
+    shortfallYears: getYearsSignal(cutDiagnostics.shortfallYears || 0),
+    yearsBelowComfort: lifestyleMetrics
+      ? getYearsSignal(lifestyleMetrics.yearsBelowComfort)
+      : null
+  };
+
   grid.innerHTML = `
     ${renderSummarySection('Lifestyle resilience', [
       renderSummaryItem(
         'Comfort floor',
-        lifestyleMetrics ? formatCurrency(lifestyleMetrics.comfortFloor) : '—'
+        lifestyleMetrics ? formatCurrency(lifestyleMetrics.comfortFloor) : '—',
+        signals.comfortFloor
       ),
       renderSummaryItem(
         'Minimum floor',
-        lifestyleMetrics ? formatCurrency(lifestyleMetrics.minimumFloor) : '—'
+        lifestyleMetrics ? formatCurrency(lifestyleMetrics.minimumFloor) : '—',
+        signals.minimumFloor
       ),
       renderSummaryItem(
         'Worst cut',
@@ -533,39 +654,64 @@ function renderMonteCarloSummary(
           ? `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(
               lifestyleMetrics.worstCutPercent
             )})`
-          : '—'
+          : '—',
+        signals.worstCut
       )
     ])}
 
     ${renderSummarySection('Plan health', [
       renderSummaryItem(
         'Initial withdrawal rate',
-        formatPercent(initialWithdrawalRate)
+        formatPercent(initialWithdrawalRate),
+        signals.initialWithdrawalRate
       ),
       renderSummaryItem(
         'Median final withdrawal rate',
-        formatPercent(medianFinalWithdrawalRate)
+        formatPercent(medianFinalWithdrawalRate),
+        signals.medianFinalWithdrawalRate
       ),
-      renderSummaryItem('Portfolio dependence', formatPercent(dependence))
+      renderSummaryItem(
+        'Portfolio dependence',
+        formatPercent(dependence),
+        signals.portfolioDependence
+      )
     ])}
 
     ${renderSummarySection('Portfolio outcomes', [
-      renderSummaryItem('10th percentile ending', formatCurrency(p10End)),
-      renderSummaryItem('90th percentile ending', formatCurrency(p90End)),
-      renderSummaryItem('Weak-case depletion year', weakCaseDepletionYear)
+      renderSummaryItem(
+        '10th percentile ending',
+        formatCurrency(p10End),
+        signals.p10Ending
+      ),
+      renderSummaryItem(
+        '90th percentile ending',
+        formatCurrency(p90End),
+        signals.p90Ending
+      ),
+      renderSummaryItem(
+        'Weak-case depletion year',
+        weakCaseDepletionYear,
+        signals.weakCaseDepletion
+      )
     ])}
 
     ${renderSummarySection('Plan risks', [
-      renderSummaryItem('Worst spending shortfall', worstShortfallLabel),
+      renderSummaryItem(
+        'Worst spending shortfall',
+        worstShortfallLabel,
+        signals.worstShortfall
+      ),
       renderSummaryItem(
         'Years with spending shortfall',
-        formatInteger(cutDiagnostics.shortfallYears || 0)
+        formatInteger(cutDiagnostics.shortfallYears || 0),
+        signals.shortfallYears
       ),
       renderSummaryItem(
         'Years below comfort floor',
         lifestyleMetrics
           ? formatInteger(lifestyleMetrics.yearsBelowComfort)
-          : '—'
+          : '—',
+        signals.yearsBelowComfort
       )
     ])}
   `;
@@ -582,10 +728,16 @@ function renderSummarySection(title, items) {
   `;
 }
 
-function renderSummaryItem(label, value) {
+function renderSummaryItem(label, value, signal = null) {
+  const signalClass = signal ? ` summary-item--${signal}` : '';
+  const dotClass = signal ? ` summary-label-dot--${signal}` : ' summary-label-dot--neutral';
+
   return `
-    <div class="summary-item">
-      <div class="summary-label">${label}</div>
+    <div class="summary-item${signalClass}">
+      <div class="summary-label">
+        <span class="summary-label-dot${dotClass}"></span>
+        <span>${label}</span>
+      </div>
       <div class="summary-value">${value}</div>
     </div>
   `;
