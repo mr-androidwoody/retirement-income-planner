@@ -932,6 +932,15 @@ function drawXAxis(ctx, labels, width, height, padding) {
     const x = padding.left + getX(i, labels.length, plotWidth);
     ctx.fillText(labels[i], x, baseline);
   });
+
+    ctx.save();
+    ctx.fillStyle = '#657086';
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+
+ctx.fillText('Years in retirement', padding.left + plotWidth / 2, baseline + 22);
+
+ctx.restore();
 }
 
 function getX(i, len, width) {
