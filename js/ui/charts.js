@@ -860,10 +860,10 @@ function measureLegend(ctx, lines, width) {
 
 function drawLegend(ctx, width, height, layout) {
   const boxPaddingY = 14;
-  const boxRadius = 12;
+  const boxRadius = 14;
   const boxX = 24;
   const boxWidth = width - 48;
-  const boxHeight = layout.height + boxPaddingY * 2;
+  const boxHeight = layout.height + boxPaddingY;
   const boxY = height - boxHeight;
 
   ctx.save();
@@ -875,7 +875,7 @@ function drawLegend(ctx, width, height, layout) {
   ctx.stroke();
   ctx.restore();
 
-  let y = boxY + boxPaddingY + 8;
+  let y = boxY + boxPaddingY;
 
   layout.rows.forEach((row) => {
     const rowWidth =
