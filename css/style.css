@@ -1296,6 +1296,25 @@ input[type="checkbox"]{
   line-height:1.6;
 }
 
+.plan-outlook-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  margin:8px 0 14px;
+  font-size:0.9rem;
+  color:var(--muted);
+}
+
+.plan-outlook-legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.plan-outlook-legend-item strong{
+  color:var(--text);
+}
+
 .plan-summary-note{
   display:grid;
   gap:4px;
