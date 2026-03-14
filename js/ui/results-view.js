@@ -407,6 +407,41 @@ function getWorstShortfallSignal(amount, targetSpending) {
   return 'red';
 }
 
+function getPlanSuccessSignal(rate) {
+  if (!Number.isFinite(rate)) return null;
+  if (rate >= 0.9) return 'green';
+  if (rate >= 0.75) return 'amber';
+  return 'red';
+}
+
+function getMedianEndingSignal(medianEnd, startingPortfolio) {
+  if (
+    !Number.isFinite(medianEnd) ||
+    !Number.isFinite(startingPortfolio) ||
+    startingPortfolio <= 0
+  ) {
+    return null;
+  }
+
+  const ratio = medianEnd / startingPortfolio;
+  if (ratio >= 1) return 'green';
+  if (ratio >= 0.25) return 'amber';
+  return 'red';
+}
+
+function getBaseCaseTimingSignal(firstShortfallYear) {
+  if (firstShortfallYear === null || firstShortfallYear === undefined) {
+    return 'green';
+  }
+
+  if (!Number.isFinite(Number(firstShortfallYear))) {
+    return null;
+  }
+
+  if (Number(firstShortfallYear) > 20) return 'amber';
+  return 'red';
+}
+
 function renderRetirementOutlook(
   result,
   elements,
@@ -429,6 +464,13 @@ function renderRetirementOutlook(
   const firstShortfallYear = cutDiagnostics.firstShortfallYear;
   const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
   const hasAnyShortfall = shortfallYears > 0;
+  const startingPortfolio = Number(result.inputs?.initialPortfolio) || 0;
+
+  const outcomeSignals = {
+    planSuccess: getPlanSuccessSignal(successRate),
+    medianEnding: getMedianEndingSignal(medianEnd, startingPortfolio),
+    baseCaseTiming: getBaseCaseTimingSignal(firstShortfallYear)
+  };
 
   let status = 'strong';
   let label = 'Strong';
@@ -528,9 +570,21 @@ function renderRetirementOutlook(
       <div class="plan-summary-outcome">
         <h4 class="plan-summary-section-title">Outcome summary</h4>
         <div class="plan-summary-section-grid plan-summary-section-grid--top">
-          ${renderSummaryItem('Plan success', formatPercent(successRate))}
-          ${renderSummaryItem('Median ending portfolio', formatCurrency(medianEnd))}
-          ${renderSummaryItem('Base-case timing', firstShortfallText)}
+          ${renderSummaryItem(
+            'Plan success',
+            formatPercent(successRate),
+            outcomeSignals.planSuccess
+          )}
+          ${renderSummaryItem(
+            'Median ending portfolio',
+            formatCurrency(medianEnd),
+            outcomeSignals.medianEnding
+          )}
+          ${renderSummaryItem(
+            'Base-case timing',
+            firstShortfallText,
+            outcomeSignals.baseCaseTiming
+          )}
         </div>
       </div>
     </div>
@@ -730,7 +784,9 @@ function renderSummarySection(title, items) {
 
 function renderSummaryItem(label, value, signal = null) {
   const signalClass = signal ? ` summary-item--${signal}` : '';
-  const dotClass = signal ? ` summary-label-dot--${signal}` : ' summary-label-dot--neutral';
+  const dotClass = signal
+    ? ` summary-label-dot--${signal}`
+    : ' summary-label-dot--neutral';
 
   return `
     <div class="summary-item${signalClass}">
