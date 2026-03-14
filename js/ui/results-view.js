@@ -118,12 +118,9 @@ export function renderResultsView({
     formatCurrency,
     cutDiagnostics
   );
+  renderPlanWarnings(result, elements, useReal, formatters);
   renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
-
-  if (elements.planWarningsPanel) {
-    elements.planWarningsPanel.classList.add('hidden');
-  }
 
   if (elements.tableCard) {
     elements.tableCard.classList.toggle('hidden', !showFullTable);
@@ -289,7 +286,6 @@ function getLifestyleResilienceMetrics(result, useReal = false) {
 
 function getPlanWarningsData(result, useReal, formatters) {
   const { formatPercent } = formatters;
-  const rows = result.baseCase?.rows || [];
   const inputs = result.inputs || {};
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
@@ -313,14 +309,12 @@ function getPlanWarningsData(result, useReal, formatters) {
     );
   }
 
-  if (rows.length) {
-    for (let i = 0; i < p10.length; i += 1) {
-      if (p10[i] <= 0 && i < planYears * 0.5) {
-        modelWarnings.push(
-          `Weaker simulated outcomes deplete the portfolio by year ${i + 1}.`
-        );
-        break;
-      }
+  for (let i = 0; i < p10.length; i += 1) {
+    if (p10[i] <= 0 && i < planYears * 0.5) {
+      modelWarnings.push(
+        `Weaker simulated outcomes deplete the portfolio by year ${i + 1}.`
+      );
+      break;
     }
   }
 
@@ -353,7 +347,6 @@ function renderRetirementOutlook(
   const firstShortfallYear = cutDiagnostics.firstShortfallYear;
   const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
   const hasAnyShortfall = shortfallYears > 0;
-  const warningData = getPlanWarningsData(result, useReal, formatters);
 
   let status = 'strong';
   let label = 'Strong';
@@ -420,36 +413,6 @@ function renderRetirementOutlook(
         ? '!'
         : '×';
 
-  const warningReasonsHtml = warningData.hasWarnings
-    ? `
-      <div class="retirement-outlook-reasons">
-        <h4 class="retirement-outlook-reasons-title">Key reasons</h4>
-        <div class="retirement-outlook-reasons-list">
-          ${warningData.inputWarnings
-            .map(
-              (text) => `
-                <div class="retirement-outlook-reason">
-                  <span class="retirement-outlook-reason-icon">⚠</span>
-                  <span class="retirement-outlook-reason-text">${text}</span>
-                </div>
-              `
-            )
-            .join('')}
-          ${warningData.modelWarnings
-            .map(
-              (text) => `
-                <div class="retirement-outlook-reason">
-                  <span class="retirement-outlook-reason-icon">⚠</span>
-                  <span class="retirement-outlook-reason-text">${text}</span>
-                </div>
-              `
-            )
-            .join('')}
-        </div>
-      </div>
-    `
-    : '';
-
   panel.classList.remove(
     'plan-summary-panel--strong',
     'plan-summary-panel--watch',
@@ -477,8 +440,6 @@ function renderRetirementOutlook(
       </div>
 
       <p class="retirement-outlook-description">${message}</p>
-
-      ${warningReasonsHtml}
 
       ${guardrailNotice}
 
@@ -628,6 +589,61 @@ function renderSummaryItem(label, value) {
       <div class="summary-value">${value}</div>
     </div>
   `;
+}
+
+function renderPlanWarnings(result, elements, useReal, formatters) {
+  const container = elements.planWarnings;
+  const panel = elements.planWarningsPanel;
+  if (!container) return;
+
+  if (panel) {
+    panel.classList.remove('hidden');
+  }
+
+  const warningData = getPlanWarningsData(result, useReal, formatters);
+
+  if (!warningData.hasWarnings) {
+    container.innerHTML = `
+      <div class="plan-warning-ok">
+        ✓ No major risks detected in current plan assumptions.
+      </div>
+    `;
+    return;
+  }
+
+  const groups = [];
+
+  if (warningData.inputWarnings.length) {
+    groups.push(`
+      <div class="plan-warning-group">
+        <h4 class="plan-warning-group-title">Input warning</h4>
+        ${warningData.inputWarnings
+          .map(
+            (text) => `
+              <div class="plan-warning">⚠ ${text}</div>
+            `
+          )
+          .join('')}
+      </div>
+    `);
+  }
+
+  if (warningData.modelWarnings.length) {
+    groups.push(`
+      <div class="plan-warning-group">
+        <h4 class="plan-warning-group-title">Model risk</h4>
+        ${warningData.modelWarnings
+          .map(
+            (text) => `
+              <div class="plan-warning">⚠ ${text}</div>
+            `
+          )
+          .join('')}
+      </div>
+    `);
+  }
+
+  container.innerHTML = groups.join('');
 }
 
 function renderDeterministicNote(elements) {
