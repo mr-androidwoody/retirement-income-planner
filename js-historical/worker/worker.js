@@ -120,28 +120,26 @@ self.onmessage = async (event) => {
     const firstHistoricalWindow = historicalWindows[0];
     const lastHistoricalWindow = historicalWindows[historicalWindows.length - 1];
 
-    const result = runRetirementSimulation(inputs);
+    const historicalWindows = buildHistoricalReturnWindows(
+     historicalReturnSeries,
+     Number(inputs?.years)
+);
 
+    const scenarioResults = historicalWindows.map((window) => {
+    return runRetirementSimulation({
+    ...inputs,
+    historicalReturns: window.annualReturns
+    });
+});
+      
     self.postMessage({
       ok: true,
-      result,
-      debug: {
-        historicalSeriesRows: series.length,
-        historicalFirstRow: firstRow,
-        historicalLastRow: lastRow,
-        historicalFirstReturns: firstRow?.returns,
-        historicalLastReturns: lastRow?.returns,
-        historicalFirstNormalised: firstHistoricalReturn,
-        historicalLastNormalised: lastHistoricalReturn,
-        historicalWindowCount: historicalWindows.length,
-        historicalFirstWindow: firstHistoricalWindow,
-        historicalLastWindow: lastHistoricalWindow
-      }
+      result: scenarioResults[0]
     });
-  } catch (error) {
-    self.postMessage({
-      ok: false,
-      error: error instanceof Error ? error.message : "Unknown worker error."
-    });
-  }
+    } catch (error) {
+      self.postMessage({
+        ok: false,
+        error: error instanceof Error ? error.message : "Unknown worker error."
+      });
+}
 };
