@@ -48,7 +48,12 @@ self.onmessage = async (event) => {
 
     self.postMessage({
       ok: true,
-      result
+      result,
+      debug: {
+        historicalSeriesRows: series.length,
+        historicalFirstRow: firstRow,
+        historicalLastRow: lastRow
+      }
     });
   } catch (error) {
     self.postMessage({
