@@ -123,17 +123,19 @@ function setupWorker() {
   try {
     worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
 
-    worker.onmessage = (event) => {
-      planForm.setBusy(false);
+  worker.onmessage = (event) => {
+    planForm.setBusy(false);
 
-      if (!event.data?.ok) {
-        showError(event.data?.error || 'Simulation failed.');
-        return;
-      }
+    if (!event.data?.ok) {
+      showError(event.data?.error || 'Simulation failed.');
+      return;
+    }
 
-      latestResult = event.data.result;
-      hideError();
-      showResults();
+    console.log('Historical worker debug', event.data.debug);
+
+    latestResult = event.data.result;
+    hideError();
+    showResults();
     };
 
     worker.onerror = () => {
