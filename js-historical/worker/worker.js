@@ -55,6 +55,37 @@ function normaliseHistoricalSeries(series) {
   });
 }
 
+function buildHistoricalReturnWindows(historicalReturnSeries, years) {
+  const windowSize = Number(years);
+
+  if (!Number.isInteger(windowSize) || windowSize <= 0) {
+    throw new Error("Historical return window size must be a positive integer.");
+  }
+
+  if (historicalReturnSeries.length < windowSize) {
+    throw new Error("Historical series is shorter than the requested plan length.");
+  }
+
+  const windows = [];
+
+  for (let startIndex = 0; startIndex <= historicalReturnSeries.length - windowSize; startIndex += 1) {
+    const slice = historicalReturnSeries.slice(startIndex, startIndex + windowSize);
+
+    windows.push({
+      startYear: slice[0].year,
+      endYear: slice[slice.length - 1].year,
+      annualReturns: slice.map((row) => ({
+        equities: row.equities,
+        bonds: row.bonds,
+        cashlike: row.cashlike,
+        inflation: row.inflation
+      }))
+    });
+  }
+
+  return windows;
+}
+
 self.onmessage = async (event) => {
   const { type, inputs } = event.data || {};
 
@@ -81,6 +112,14 @@ self.onmessage = async (event) => {
     const firstHistoricalReturn = historicalReturnSeries[0];
     const lastHistoricalReturn = historicalReturnSeries[historicalReturnSeries.length - 1];
 
+    const historicalWindows = buildHistoricalReturnWindows(
+      historicalReturnSeries,
+      Number(inputs?.years)
+    );
+
+    const firstHistoricalWindow = historicalWindows[0];
+    const lastHistoricalWindow = historicalWindows[historicalWindows.length - 1];
+
     const result = runRetirementSimulation(inputs);
 
     self.postMessage({
@@ -93,7 +132,10 @@ self.onmessage = async (event) => {
         historicalFirstReturns: firstRow?.returns,
         historicalLastReturns: lastRow?.returns,
         historicalFirstNormalised: firstHistoricalReturn,
-        historicalLastNormalised: lastHistoricalReturn
+        historicalLastNormalised: lastHistoricalReturn,
+        historicalWindowCount: historicalWindows.length,
+        historicalFirstWindow: firstHistoricalWindow,
+        historicalLastWindow: lastHistoricalWindow
       }
     });
   } catch (error) {
