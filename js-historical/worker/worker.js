@@ -17,6 +17,44 @@ function loadHistoricalMarketData() {
   return historicalMarketDataPromise;
 }
 
+function normaliseHistoricalSeries(series) {
+  return series.map((row) => {
+    const year = Number(row?.year);
+    const equities = Number(row?.returns?.equities);
+    const bonds = Number(row?.returns?.bonds);
+    const cashlike = Number(row?.returns?.cashlike);
+    const inflation = Number(row?.inflation);
+
+    if (!Number.isFinite(year)) {
+      throw new Error("Historical series row is missing a valid year.");
+    }
+
+    if (!Number.isFinite(equities)) {
+      throw new Error(`Historical series row ${year} is missing returns.equities.`);
+    }
+
+    if (!Number.isFinite(bonds)) {
+      throw new Error(`Historical series row ${year} is missing returns.bonds.`);
+    }
+
+    if (!Number.isFinite(cashlike)) {
+      throw new Error(`Historical series row ${year} is missing returns.cashlike.`);
+    }
+
+    if (!Number.isFinite(inflation)) {
+      throw new Error(`Historical series row ${year} is missing inflation.`);
+    }
+
+    return {
+      year,
+      equities,
+      bonds,
+      cashlike,
+      inflation
+    };
+  });
+}
+
 self.onmessage = async (event) => {
   const { type, inputs } = event.data || {};
 
@@ -39,20 +77,25 @@ self.onmessage = async (event) => {
       throw new Error("Historical market series has no usable rows.");
     }
 
+    const historicalReturnSeries = normaliseHistoricalSeries(series);
+    const firstHistoricalReturn = historicalReturnSeries[0];
+    const lastHistoricalReturn = historicalReturnSeries[historicalReturnSeries.length - 1];
+
     const result = runRetirementSimulation(inputs);
 
     self.postMessage({
-        ok: true,
-        result,
+      ok: true,
+      result,
       debug: {
-      historicalSeriesRows: series.length,
-      historicalFirstRow: firstRow,
-      historicalLastRow: lastRow,
-      historicalFirstReturns: firstRow?.returns,
-      historicalLastReturns: lastRow?.returns
-    }
-});
-      
+        historicalSeriesRows: series.length,
+        historicalFirstRow: firstRow,
+        historicalLastRow: lastRow,
+        historicalFirstReturns: firstRow?.returns,
+        historicalLastReturns: lastRow?.returns,
+        historicalFirstNormalised: firstHistoricalReturn,
+        historicalLastNormalised: lastHistoricalReturn
+      }
+    });
   } catch (error) {
     self.postMessage({
       ok: false,
