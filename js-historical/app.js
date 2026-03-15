@@ -121,29 +121,40 @@ function initialise() {
 
 function setupWorker() {
   try {
-    worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
+    const workerUrl = new URL('./worker/worker.js', import.meta.url);
+    console.log('Historical worker URL', workerUrl.href);
 
-  worker.onmessage = (event) => {
-    planForm.setBusy(false);
+    worker = new Worker(workerUrl, { type: 'module' });
 
-    if (!event.data?.ok) {
-      showError(event.data?.error || 'Simulation failed.');
-      return;
-    }
+    worker.onmessage = (event) => {
+      console.log('Historical worker onmessage', event.data);
 
-    console.log('Historical worker debug', event.data.debug);
+      planForm.setBusy(false);
 
-    latestResult = event.data.result;
-    hideError();
-    showResults();
+      if (!event.data?.ok) {
+        showError(event.data?.error || 'Simulation failed.');
+        return;
+      }
+
+      console.log('Historical worker debug', event.data.debug);
+
+      latestResult = event.data.result;
+      hideError();
+      showResults();
     };
 
-    worker.onerror = () => {
+    worker.onerror = (error) => {
+      console.error('Historical worker failed to load', error);
       worker = null;
       planForm.setBusy(false);
       showError('Web Worker failed to load. Falling back to main-thread simulation.');
     };
-  } catch {
+
+    worker.onmessageerror = (error) => {
+      console.error('Historical worker message error', error);
+    };
+  } catch (error) {
+    console.error('Historical worker setup failed', error);
     worker = null;
   }
 }
