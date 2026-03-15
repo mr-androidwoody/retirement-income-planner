@@ -202,23 +202,20 @@
                 </div>
 
                 <div class="field-grid field-grid-2 core-assumptions-bottom-row">
-                 <label class="field field-inline field-inline-wide people-pension-inline-field">
+                    <label class="field field-inline field-inline-wide people-pension-inline-field">
                      <span class="field-label with-help field-label-inline">
-                      <span>Full state pension today value</span>
-                      <button class="help" type="button">The annual value of a full UK State Pension in today's money. The planner uses this amount to estimate the amount of future pension income.</button>
-                     </span>
-                        <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
-                 </label>
+                     <span>Full state pension today value</span>
+                     <button class="help" type="button" tabindex="-1" aria-label="Full state pension help" title="The annual value of a full UK State Pension in today's money. The planner uses this amount to estimate future pension income for people marked as receiving the full State Pension.">?</button></span>
+                    <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" />
+                    </label>
 
-                <label class="field field-inline field-inline-wide core-rebalance-field">
-                    <span class="field-label with-help field-label-inline">
-                     <span>Rebalance your investments to the chosen allocations each year</span>
-                     <button class="help" type="button">Rebalances the portfolio back to the chosen equity, bond, and cashlike allocations at then end of each year. 
-</button>
-                    </span>
-                        <input id="rebalanceToTarget" type="checkbox" />
-                 </label>
-                </div>
+                    <label class="field field-inline field-inline-wide core-rebalance-field"> 
+                    <span class="field-label with-help field label-inline">       
+                    <span>Rebalance your investments to the chosen allocations each year</span>
+                    <button class="help" type="button" tabindex="-1" aria-label="Rebalance help" title="Rebalances the portfolio back to the chosen equity, bond, and cashlike allocations at the end of each year. This assumes you periodically adjust holdings to maintain the target asset mix.">?</button></span>
+                    <input id="rebalanceToTarget" type="checkbox" />
+                    </label>
+              </div>
               </section>
 
               <section class="input-group-card people-pensions-card">
