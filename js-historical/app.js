@@ -135,11 +135,7 @@ function setupWorker() {
         showError(event.data?.error || 'Simulation failed.');
         return;
       }
-
-    console.log('Historical first returns', event.data.debug?.historicalFirstReturns);
-    console.log('Historical last returns', event.data.debug?.historicalLastReturns);
-    console.log('Historical worker debug', event.data.debug);
-        
+      
       latestResult = event.data.result;
       hideError();
       showResults();
