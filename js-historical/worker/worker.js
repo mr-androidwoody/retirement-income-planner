@@ -1,4 +1,4 @@
-import { runRetirementSimulation } from "/enhanced-retirement-simulator/js/model/simulator.js";
+import { runRetirementSimulation } from "../../js/model/simulator.js";
 
 let historicalMarketDataPromise = null;
 
