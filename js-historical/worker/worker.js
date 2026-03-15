@@ -42,16 +42,17 @@ self.onmessage = async (event) => {
     const result = runRetirementSimulation(inputs);
 
     self.postMessage({
-      ok: true,
-      result,
+        ok: true,
+        result,
       debug: {
-        historicalSeriesRows: series.length,
-         historicalFirstRow: firstRow,
-        historicalLastRow: lastRow,
-        historicalFirstReturns: firstRow?.returns,
-        historicalLastReturns: lastRow?.returns
+      historicalSeriesRows: series.length,
+      historicalFirstRow: firstRow,
+      historicalLastRow: lastRow,
+      historicalFirstReturns: firstRow?.returns,
+      historicalLastReturns: lastRow?.returns
     }
-    });
+});
+      
   } catch (error) {
     self.postMessage({
       ok: false,
