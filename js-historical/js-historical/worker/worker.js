@@ -9,6 +9,7 @@ function loadHistoricalMarketData() {
         if (!response.ok) {
           throw new Error(`Failed to load historical market data: ${response.status}`);
         }
+
         return response.json();
       });
   }
@@ -27,7 +28,7 @@ self.onmessage = async (event) => {
     const historicalData = await loadHistoricalMarketData();
     const series = historicalData?.composites?.gdpWeighted?.series;
 
-    if (!Array.isArray(series) || !series.length) {
+    if (!Array.isArray(series) || series.length === 0) {
       throw new Error("Historical market data is missing composites.gdpWeighted.series.");
     }
 
@@ -37,12 +38,6 @@ self.onmessage = async (event) => {
     if (!firstRow || typeof firstRow !== "object") {
       throw new Error("Historical market series has no usable rows.");
     }
-
-    console.log("Historical dataset loaded", {
-      rows: series.length,
-      firstRow,
-      lastRow
-    });
 
     const result = runRetirementSimulation(inputs);
 
