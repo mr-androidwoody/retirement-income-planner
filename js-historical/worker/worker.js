@@ -132,14 +132,14 @@ self.onmessage = async (event) => {
     });
 });
       
-    self.postMessage({
-      ok: true,
-      result: scenarioResults[0]
-    });
-    } catch (error) {
-      self.postMessage({
-        ok: false,
-        error: error instanceof Error ? error.message : "Unknown worker error."
-      });
+self.postMessage({
+  ok: true,
+  result: scenarioResults[0]
+});
+} catch (error) {
+  self.postMessage({
+    ok: false,
+    error: error instanceof Error ? error.message : "Unknown worker error."
+  });
 }
 };
