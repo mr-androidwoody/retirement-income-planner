@@ -9,7 +9,6 @@ function loadHistoricalMarketData() {
         if (!response.ok) {
           throw new Error(`Failed to load historical market data: ${response.status}`);
         }
-
         return response.json();
       });
   }
@@ -68,7 +67,7 @@ function buildHistoricalReturnWindows(historicalReturnSeries, years) {
 
   const windows = [];
 
-  for (let startIndex = 0; startIndex <= historicalReturnSeries.length - windowSize; startIndex += 1) {
+  for (let startIndex = 0; startIndex <= historicalReturnSeries.length - windowSize; startIndex++) {
     const slice = historicalReturnSeries.slice(startIndex, startIndex + windowSize);
 
     windows.push({
@@ -101,45 +100,29 @@ self.onmessage = async (event) => {
       throw new Error("Historical market data is missing composites.gdpWeighted.series.");
     }
 
-    const firstRow = series[0];
-    const lastRow = series[series.length - 1];
-
-    if (!firstRow || typeof firstRow !== "object") {
-      throw new Error("Historical market series has no usable rows.");
-    }
-
     const historicalReturnSeries = normaliseHistoricalSeries(series);
-    const firstHistoricalReturn = historicalReturnSeries[0];
-    const lastHistoricalReturn = historicalReturnSeries[historicalReturnSeries.length - 1];
 
     const historicalWindows = buildHistoricalReturnWindows(
       historicalReturnSeries,
       Number(inputs?.years)
     );
 
-    const firstHistoricalWindow = historicalWindows[0];
-    const lastHistoricalWindow = historicalWindows[historicalWindows.length - 1];
-
-    const historicalWindows = buildHistoricalReturnWindows(
-     historicalReturnSeries,
-     Number(inputs?.years)
-);
-
     const scenarioResults = historicalWindows.map((window) => {
-    return runRetirementSimulation({
-    ...inputs,
-    historicalReturns: window.annualReturns
+      return runRetirementSimulation({
+        ...inputs,
+        historicalReturns: window.annualReturns
+      });
     });
-});
-      
-self.postMessage({
-  ok: true,
-  result: scenarioResults[0]
-});
-} catch (error) {
-  self.postMessage({
-    ok: false,
-    error: error instanceof Error ? error.message : "Unknown worker error."
-  });
-}
+
+    self.postMessage({
+      ok: true,
+      result: scenarioResults[0]
+    });
+
+  } catch (error) {
+    self.postMessage({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown worker error."
+    });
+  }
 };
