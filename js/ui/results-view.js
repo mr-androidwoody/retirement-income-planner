@@ -306,7 +306,6 @@ export function renderResultsView({
 
     if (elements.planSummaryGrid) {
       elements.planSummaryGrid.innerHTML = '';
-    }
   }
 } else if (hasMonteCarlo) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
