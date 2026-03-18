@@ -1,30 +1,25 @@
 import { renderPortfolioChart, renderSpendingChart } from './charts.js';
 import { renderYearlyTable } from './yearly-table.js';
 
-function resolveYearlyRows(result, tableView) {
-  if (!result) return [];
-
-  if (result.tableViews && tableView) {
-    return (
-      result.tableViews[tableView]?.rows ||
-      result.tableViews[tableView]?.yearlyRows ||
-      []
-    );
+function resolveActivePath(result, tableView) {
+  if (result?.tableViews && tableView && result.tableViews[tableView]) {
+    return result.tableViews[tableView];
   }
 
-  if (result.selectedPath) {
-    return result.selectedPath.rows || result.selectedPath.yearlyRows || [];
+  if (result?.selectedPath) {
+    return activePath;
   }
 
-  if (result.baseCase?.rows) {
-    return result.baseCase.rows;
+  if (result?.baseCase) {
+    return {
+      rows: activePath.yearlyRows || activePath.rows || [],
+      yearlyRows: activePath.yearlyRows || activePath.rows || [],
+      terminalNominal: activePath.terminalNominal,
+      terminalReal: activePath.terminalReal
+    };
   }
 
-  if (result.baseCase?.yearlyRows) {
-    return result.baseCase.yearlyRows;
-  }
-
-  return [];
+  return null;
 }
 
 export function renderResultsView({
@@ -61,8 +56,9 @@ export function renderResultsView({
   const hasStressSummary = result.summary && result.summary.worstStressName;
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
-  const rows = resolveYearlyRows(result, tableView) || [];
-
+  const activePath = resolveActivePath(result, tableView);
+  const rows = activePath?.yearlyRows || [];
+    
   let firstCutYear = null;
   let worstCutYear = null;
   let worstCut = 0;
@@ -342,7 +338,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
     : result.monteCarlo.nominalPercentiles;
-  const basePath = useReal ? result.baseCase.pathReal : result.baseCase.pathNominal;
+  const basePath = useReal ? activePath.pathReal : activePath.pathNominal;
   const lastIndex = percentiles.p50.length - 1;
 
   const p10 = percentiles.p10[lastIndex];
@@ -802,7 +798,7 @@ function renderMonteCarloSummary(
   const grid = elements.planSummaryGrid;
   if (!grid) return;
 
-  const rows = result.baseCase?.rows || [];
+  const rows = activePath?.rows || [];
   if (!rows.length) return;
 
   const inputs = result.inputs || {};
@@ -1138,7 +1134,7 @@ function renderDeterministicNote(elements, result) {
 
   if (mode === 'historical') {
     note.textContent = result?.selectedPath?.label
-      ? `This table shows the selected historical path: ${result.selectedPath.label}.`
+      ? `This table shows the selected historical path: ${activePath.label}.`
       : 'This table shows the selected historical path.';
   } else if (mode === 'deterministic') {
     note.textContent = 'This table shows the deterministic base case only.';
