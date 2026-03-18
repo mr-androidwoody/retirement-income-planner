@@ -1,3 +1,15 @@
+function formatDelta(value, formatCurrency) {
+  const abs = Math.abs(value);
+  const sign = value >= 0 ? '+' : '−';
+  return `${sign}${formatCurrency(abs)}`;
+}
+
+function formatPercent(value) {
+  const abs = Math.abs(value * 100);
+  const sign = value >= 0 ? '+' : '−';
+  return `${sign}${abs.toFixed(1)}%`;
+}
+
 export function renderYearlyTable(table, rows, useReal, formatCurrency, options = {}) {
   if (!table || !Array.isArray(rows)) return;
 
@@ -33,12 +45,30 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     </tr>
   `;
 
-  tbody.innerHTML = rows.map((row, index) => {
-    const cut = row.spendingCutPercent || 0;
+  let peak = 0;
 
-    const target = useReal ? row.targetSpendingReal : row.targetSpendingNominal;
-    const actual = useReal ? row.spendingReal : row.spendingNominal;
+  tbody.innerHTML = rows.map((row, index) => {
+    const cut = Number(row.spendingCutPercent) || 0;
+
+    const target = Number(useReal ? row.targetSpendingReal : row.targetSpendingNominal) || 0;
+    const actual = Number(useReal ? row.spendingReal : row.spendingNominal) || 0;
     const shortfall = Math.max(0, target - actual);
+
+    const start = Number(useReal ? row.startPortfolioReal : row.startPortfolioNominal) || 0;
+    const end = Number(useReal ? row.endPortfolioReal : row.endPortfolioNominal) || 0;
+
+    if (index === 0) {
+      peak = start;
+    } else {
+      peak = Math.max(peak, start);
+    }
+
+    const drawdown = peak > 0 ? (start - peak) / peak : 0;
+    const delta = end - start;
+    const deltaPct = start > 0 ? delta / start : 0;
+
+    const isUp = delta > 0;
+    const isDown = delta < 0;
 
     let severity = '';
     let cutDot = '';
@@ -85,12 +115,36 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     const cutDisplay = cut > 0 ? `${(cut * 100).toFixed(1)}%` : '—';
     const shortfallDisplay = shortfall > 0 ? formatCurrency(shortfall) : '—';
 
+    const startHtml = `
+      <div class="cell-main">${formatCurrency(start)}</div>
+      <div class="cell-sub ${drawdown < 0 ? 'is-down' : 'is-neutral'}">
+        ${
+          drawdown < 0
+            ? `↓ ${Math.abs(drawdown * 100).toFixed(0)}% from peak`
+            : 'At peak'
+        }
+      </div>
+    `;
+
+    const endHtml = `
+      <div class="cell-main">${formatCurrency(end)}</div>
+      <div class="cell-sub ${isUp ? 'is-up' : isDown ? 'is-down' : 'is-neutral'}">
+        ${
+          isUp
+            ? `↑ ${formatDelta(delta, formatCurrency)} (${formatPercent(deltaPct)})`
+            : isDown
+              ? `↓ ${formatDelta(delta, formatCurrency)} (${formatPercent(deltaPct)})`
+              : '—'
+        }
+      </div>
+    `;
+
     return `
       <tr class="${rowClass}">
         <td class="col-text">${row.year}</td>
         <td class="col-text">${row.age1}</td>
         ${includePerson2 ? `<td class="col-text">${row.age2}</td>` : ''}
-        <td class="col-number">${formatCurrency(useReal ? row.startPortfolioReal : row.startPortfolioNominal)}</td>
+        <td class="col-number">${startHtml}</td>
         <td class="col-number">${formatCurrency(target)}</td>
         <td class="col-number">${formatCurrency(actual)}</td>
         <td class="cut-cell col-number">
@@ -109,7 +163,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         <td class="col-number">${formatCurrency(useReal ? row.otherIncomeReal : row.otherIncomeNominal)}</td>
         <td class="col-number">${formatCurrency(useReal ? row.windfallReal : row.windfallNominal)}</td>
         <td class="col-number">${formatCurrency(useReal ? row.withdrawalReal : row.withdrawalNominal)}</td>
-        <td class="col-number">${formatCurrency(useReal ? row.endPortfolioReal : row.endPortfolioNominal)}</td>
+        <td class="col-number">${endHtml}</td>
       </tr>
     `;
   }).join('');
