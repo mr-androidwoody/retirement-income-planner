@@ -1339,11 +1339,15 @@ if (elements.summarySuccessRateDesc) {
   const baseText =
     'How often your portfolio lasts the full retirement plan across all simulated outcomes.';
 
-  const runsText = runs
-    ? ` Based on ${runs.toLocaleString()} simulated outcomes.`
-    : '';
-
-  elements.summarySuccessRateDesc.textContent = baseText + runsText;
+  if (runs) {
+    elements.summarySuccessRateDesc.innerHTML = `
+      ${baseText}
+      <br>
+      Based on <strong>${runs.toLocaleString()}</strong> simulated outcomes.
+    `;
+  } else {
+    elements.summarySuccessRateDesc.textContent = baseText;
+  }
 }
 
 if (elements.summaryMedianEndLabel) {
@@ -1377,8 +1381,6 @@ if (elements.summaryCashRunwayLabel) {
 if (elements.summaryCashRunwayDesc) {
   elements.summaryCashRunwayDesc.textContent =
     'Years the opening cashlike bucket could fund withdrawals before refill.';
-}
-
 }
 
 function renderSummarySection(title, items) {
