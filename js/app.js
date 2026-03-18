@@ -377,12 +377,22 @@ function runSimulation() {
   }
 
   try {
-    latestResult = runSimulationByMode({
-      mode: effectiveInputs.simulationMode || 'monteCarlo',
-      inputs: effectiveInputs
-    });
-    planForm.setBusy(false);
-    showResults();
+    Promise.resolve(
+      runSimulationByMode({
+        mode: effectiveInputs.simulationMode || 'monteCarlo',
+        inputs: effectiveInputs
+      })
+    )
+     .then((result) => {
+        latestResult = result;
+        planForm.setBusy(false);
+        showResults();
+      })
+      .catch((error) => {
+        planForm.setBusy(false);
+        showError(error instanceof Error ? error.message : 'Simulation failed.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
   } catch (error) {
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
@@ -411,11 +421,20 @@ function rerunResultsWithCurrentOptions() {
   }
 
   try {
-    latestResult = runSimulationByMode({
-      mode: effectiveInputs.simulationMode || 'monteCarlo',
-      inputs: effectiveInputs
-    });
-    renderAll();
+    Promise.resolve(
+      runSimulationByMode({
+        mode: effectiveInputs.simulationMode || 'monteCarlo',
+        inputs: effectiveInputs
+      })
+    )
+      .then((result) => {
+        latestResult = result;
+        renderAll();
+      })
+      .catch((error) => {
+        showError(error instanceof Error ? error.message : 'Simulation failed.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Simulation failed.');
     window.scrollTo({ top: 0, behavior: 'smooth' });
