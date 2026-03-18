@@ -702,25 +702,25 @@ function renderResultsContextAndPathSummary({
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
+  const isDeterministic = mode === 'deterministic';
 
-  // --- Mode label
   const modeLabel =
-    mode === 'historical'
+    isHistorical
       ? 'Historical'
-      : mode === 'deterministic'
+      : isDeterministic
         ? 'Deterministic'
         : 'Monte Carlo';
 
-  // --- Path label
   let pathLabel = 'Median';
   if (tableView === 'p10') pathLabel = 'Downside (P10)';
   if (tableView === 'p90') pathLabel = 'Upside (P90)';
 
   if (isHistorical) {
     pathLabel = activePath?.label || 'Selected scenario';
+  } else if (isDeterministic) {
+    pathLabel = 'Base case';
   }
 
-  // --- Path metrics (safe fallbacks)
   const endValue = useReal
     ? activePath?.terminalReal
     : activePath?.terminalNominal;
@@ -732,54 +732,39 @@ function renderResultsContextAndPathSummary({
 
   const worstShortfall =
     cutDiagnostics.worstShortfall > 0
-      ? `${formatCurrency(cutDiagnostics.worstShortfall)}`
+      ? formatCurrency(cutDiagnostics.worstShortfall)
       : 'None';
 
   const shortfallYears = cutDiagnostics.shortfallYears || 0;
 
   container.innerHTML = `
-    <div class="results-context-bar">
-
+    <div class="results-context-card">
       <div class="results-context-top">
-        <div class="results-context-chip">
-          <span class="label">Mode</span>
-          <span class="value">${modeLabel}</span>
-        </div>
-
-        <div class="results-context-chip">
-          <span class="label">${isHistorical ? 'Scenario' : 'Selected path'}</span>
-          <span class="value">${pathLabel}</span>
-        </div>
+        <div class="results-context-mode">${modeLabel}</div>
+        <div class="results-context-path">${pathLabel}</div>
       </div>
 
-      ${
-        isHistorical
-          ? ''
-          : `
-      <div class="results-path-summary">
-        <div class="summary-item">
-          <span class="label">End value</span>
-          <span class="value">${formatCurrency(endValue ?? 0)}</span>
+      <div class="results-context-metrics">
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">End value</div>
+          <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
         </div>
 
-        <div class="summary-item">
-          <span class="label">First shortfall</span>
-          <span class="value">${firstShortfall}</span>
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">First shortfall</div>
+          <div class="results-context-metric-value">${firstShortfall}</div>
         </div>
 
-        <div class="summary-item">
-          <span class="label">Worst shortfall</span>
-          <span class="value">${worstShortfall}</span>
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">Worst shortfall</div>
+          <div class="results-context-metric-value">${worstShortfall}</div>
         </div>
 
-        <div class="summary-item">
-          <span class="label">Shortfall years</span>
-          <span class="value">${shortfallYears}</span>
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">Shortfall years</div>
+          <div class="results-context-metric-value">${shortfallYears}</div>
         </div>
       </div>
-      `
-      }
-
     </div>
   `;
 }
