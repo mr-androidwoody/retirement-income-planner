@@ -56,7 +56,7 @@ export async function runHistoricalScenario(inputs) {
     }
   ]);
 
-  const rows = adaptHistoricalRows(scenario.yearlyRows);
+  const rows = adaptHistoricalRows(scenario.yearlyRows, inputs);
 
   return {
     inputs,
