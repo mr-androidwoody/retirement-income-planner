@@ -124,6 +124,18 @@ export function createPlanForm(
     if (elements.person2WindfallYear) elements.person2WindfallYear.disabled = !include;
   }
 
+  function syncSimulationModeUI() {
+    const mode = String(elements.simulationMode?.value ?? 'monteCarlo');
+
+    if (elements.monteCarloRunsRow) {
+      elements.monteCarloRunsRow.classList.toggle('hidden', mode !== 'monteCarlo');
+    }
+
+    if (elements.historicalScenarioRow) {
+      elements.historicalScenarioRow.classList.toggle('hidden', mode !== 'historical');
+    }
+  }
+
   function applyDefaults(defaults) {
     const sharedStatePensionToday = resolveSharedStatePensionToday(defaults);
 
@@ -154,6 +166,14 @@ export function createPlanForm(
 
     if (elements.rebalanceToTarget) {
       elements.rebalanceToTarget.checked = Boolean(defaults.rebalanceToTarget);
+    }
+
+    if (elements.simulationMode) {
+      elements.simulationMode.value = defaults.simulationMode ?? 'monteCarlo';
+    }
+
+    if (elements.historicalScenario) {
+      elements.historicalScenario.value = defaults.historicalScenario ?? '1929';
     }
 
     setFieldValue(
@@ -257,6 +277,7 @@ export function createPlanForm(
     syncDefaultSpendingFloors();
 
     syncPerson2State();
+    syncSimulationModeUI();
   }
 
   function attachFormatting() {
@@ -282,6 +303,12 @@ export function createPlanForm(
     if (elements.includePerson2) {
       elements.includePerson2.addEventListener('change', () => {
         syncPerson2State();
+      });
+    }
+
+    if (elements.simulationMode) {
+      elements.simulationMode.addEventListener('change', () => {
+        syncSimulationModeUI();
       });
     }
 
@@ -316,6 +343,8 @@ export function createPlanForm(
         stepIntegerField(fieldId, direction);
       });
     });
+
+    syncSimulationModeUI();
   }
 
   function bindActions({ onRun, onReset } = {}) {
@@ -410,3 +439,13 @@ export function createPlanForm(
       historicalScenario: String(elements.historicalScenario?.value ?? '1929')
     };
   }
+
+  return {
+    applyDefaults,
+    attachFormatting,
+    bindActions,
+    readValues,
+    setBusy,
+    syncPerson2State
+  };
+}
