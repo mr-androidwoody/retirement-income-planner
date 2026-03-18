@@ -381,30 +381,63 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
   if (!container) return;
 
   const { formatCurrency, formatPercent } = formatters;
-
   const rows = activePath?.rows || activePath?.yearlyRows || [];
+
+  const toFiniteNumber = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const firstFinite = (values) => {
+    for (const value of values) {
+      const n = toFiniteNumber(value);
+      if (n !== null) return n;
+    }
+    return null;
+  };
 
   let selectedPathSeries = useReal
     ? (activePath?.pathReal || [])
     : (activePath?.pathNominal || []);
 
-  // Fallback to rebuild from yearly rows if missing or too short
   if (!selectedPathSeries || selectedPathSeries.length <= 1) {
-    selectedPathSeries = rows.map((row) =>
-      useReal ? row.portfolioReal : row.portfolioNominal
-    );
+    selectedPathSeries = rows
+      .map((row) => {
+        return useReal
+          ? firstFinite([
+              row.portfolioReal,
+              row.endPortfolioReal,
+              row.endingPortfolioReal,
+              row.endReal,
+              row.endPortfolio
+            ])
+          : firstFinite([
+              row.portfolioNominal,
+              row.endPortfolioNominal,
+              row.endingPortfolioNominal,
+              row.endPortfolio,
+              row.endNominal
+            ]);
+      })
+      .filter((v) => v !== null);
+  } else {
+    selectedPathSeries = selectedPathSeries
+      .map((value) => toFiniteNumber(value))
+      .filter((v) => v !== null);
   }
 
-  // --- End value
+  const fallbackEndValue = toFiniteNumber(
+    useReal ? activePath?.terminalReal : activePath?.terminalNominal
+  ) ?? 0;
+
   const endValue =
     selectedPathSeries.length > 0
       ? selectedPathSeries[selectedPathSeries.length - 1]
-      : (useReal ? activePath?.terminalReal : activePath?.terminalNominal) ?? 0;
+      : fallbackEndValue;
 
-  // --- Low point
   let lowPoint = Number.POSITIVE_INFINITY;
   for (const value of selectedPathSeries) {
-    if (Number.isFinite(value) && value < lowPoint) {
+    if (value < lowPoint) {
       lowPoint = value;
     }
   }
@@ -412,7 +445,6 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     lowPoint = endValue;
   }
 
-  // --- First shortfall + worst cut
   let firstShortfallYear = null;
   let worstCut = 0;
 
