@@ -129,7 +129,7 @@ const advancedForm = createAdvancedForm(els, parsingHelpers);
 initialise();
 
 function initialise() {
-  setupWorker();
+  // setupWorker();
   applyDefaults();
   attachEvents();
   setResultsViewDefaults();
