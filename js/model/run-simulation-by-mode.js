@@ -1,10 +1,16 @@
 import { runRetirementSimulation } from './simulator.js';
-import { runHistoricalScenario } from './historical-runner.js';
+import { runHistoricalScenario } from './historical/historical-runner.js';
 
 export async function runSimulationByMode({ mode, inputs }) {
-  const normalisedMode = String(mode || 'monteCarlo').toLowerCase();
+  const normalisedMode = String(mode || 'monteCarlo').trim().toLowerCase();
+  const isHistorical = normalisedMode === 'historical';
+  const isDeterministic = normalisedMode === 'deterministic';
+  const isMonteCarlo =
+    normalisedMode === 'montecarlo' ||
+    normalisedMode === 'monte-carlo' ||
+    normalisedMode === 'monte_carlo';
 
-  if (normalisedMode === 'historical') {
+  if (isHistorical) {
     const historicalResult = await runHistoricalScenario(inputs);
 
     return {
@@ -35,7 +41,9 @@ export async function runSimulationByMode({ mode, inputs }) {
       tableViews: null,
       selectedPath: {
         key: `historical-${historicalResult.startYear ?? inputs?.historicalScenario ?? 'scenario'}`,
-        label: historicalResult.label || buildHistoricalLabel(inputs?.historicalScenario),
+        label:
+          historicalResult.label ||
+          buildHistoricalLabel(historicalResult.startYear ?? inputs?.historicalScenario),
         rows: historicalResult.rows || [],
         yearlyRows: historicalResult.yearlyRows || historicalResult.rows || [],
         terminalNominal: historicalResult.terminalNominal ?? 0,
@@ -49,8 +57,8 @@ export async function runSimulationByMode({ mode, inputs }) {
   const baseYearlyRows = result?.baseCase?.yearlyRows || baseRows;
 
   const selectedPath = {
-    key: normalisedMode === 'deterministic' ? 'deterministic-base' : 'monte-carlo-median',
-    label: normalisedMode === 'deterministic' ? 'Base plan' : 'Median',
+    key: isDeterministic ? 'deterministic-base' : 'monte-carlo-median',
+    label: isDeterministic ? 'Base plan' : 'Median',
     rows: baseRows,
     yearlyRows: baseYearlyRows,
     terminalNominal: result?.baseCase?.terminalNominal ?? 0,
@@ -59,8 +67,8 @@ export async function runSimulationByMode({ mode, inputs }) {
 
   return {
     ...result,
-    mode: normalisedMode,
-    tableViews: normalisedMode === 'montecarlo'
+    mode: isDeterministic ? 'deterministic' : 'montecarlo',
+    tableViews: isMonteCarlo
       ? {
           median: selectedPath
         }
