@@ -739,15 +739,20 @@ function renderResultsContextAndPathSummary({
               ? `<div class="results-context-path">Base case</div>`
               : `
                 <div class="results-context-toggle table-view-selector">
-                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
-                    Downside <span>P10</span>
-                  </button>
-                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
-                    Median <span>P50</span>
-                  </button>
-                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
-                    Upside <span>P90</span>
-                  </button>
+                <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}"
+                  title="10th percentile outcome — only 1 in 10 scenarios are worse than this">
+                  Downside
+                </button>
+                
+                <button data-view="median" class="${tableView === 'median' ? 'active' : ''}"
+                  title="50th percentile outcome — the middle scenario (half better, half worse)">
+                  Median
+                </button>
+                
+                <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}"
+                  title="90th percentile outcome — only 1 in 10 scenarios are better than this">
+                  Upside
+                </button>
                 </div>
               `
         }
