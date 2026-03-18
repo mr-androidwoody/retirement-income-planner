@@ -64,6 +64,8 @@ export function renderResultsView({
   const hasStressSummary = result.summary && result.summary.worstStressName;
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
 
   let firstCutYear = null;
   let worstCutYear = null;
