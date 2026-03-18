@@ -1,51 +1,71 @@
-import { runRetirementSimulation } from "./simulator.js";
-import { runHistoricalMode } from "./modes/run-historical.js";
+import { runRetirementSimulation } from './simulator.js';
 
 export function runSimulationByMode({ mode, inputs }) {
-  const normalisedMode = (mode || "monteCarlo").toLowerCase();
+  const normalisedMode = String(mode || 'monteCarlo').toLowerCase();
 
-  if (normalisedMode === "historical") {
-    return runHistoricalSingle(inputs);
+  if (normalisedMode === 'historical') {
+    return buildHistoricalStubResult(inputs);
   }
 
-  // Monte Carlo + deterministic both use existing simulator
-  const baseResult = runRetirementSimulation(inputs);
+  const result = runRetirementSimulation(inputs);
 
   return {
-    ...baseResult,
+    ...result,
     mode: normalisedMode,
     tableViews: null,
     selectedPath: {
-      key: "base",
-      label: "Base plan",
-      yearlyRows: baseResult?.baseCase?.yearlyRows ?? []
+      key: normalisedMode === 'deterministic' ? 'deterministic-base' : 'monte-carlo-base',
+      label: normalisedMode === 'deterministic' ? 'Base plan' : 'Selected yearly path',
+      rows: result?.baseCase?.rows || [],
+      yearlyRows: result?.baseCase?.rows || [],
+      terminalNominal: result?.baseCase?.terminalNominal ?? 0,
+      terminalReal: result?.baseCase?.terminalReal ?? 0
     }
   };
 }
 
-function runHistoricalSingle(inputs) {
-  const result = runHistoricalMode({
-    ...inputs,
-    historicalScope: "single",
-    selectedHistoricalStartYear: Number(inputs.historicalScenario)
-  });
-
-  const scenario = result?.scenarios?.[0];
+function buildHistoricalStubResult(inputs) {
+  const safeInputs = { ...inputs };
 
   return {
-    inputs,
-    summary: result.summary,
-
-    mode: "historical",
+    inputs: safeInputs,
+    summary: {
+      terminalNominal: 0,
+      terminalReal: 0,
+      cashRunwayYears: null
+    },
     monteCarlo: null,
-    baseCase: scenario,
-
+    baseCase: {
+      rows: [],
+      terminalNominal: 0,
+      terminalReal: 0
+    },
+    mode: 'historical',
     tableViews: null,
-
     selectedPath: {
-      key: `historical-${scenario?.startYear}`,
-      label: `${scenario?.startYear} — Historical`,
-      yearlyRows: scenario?.yearlyRows ?? []
+      key: `historical-${safeInputs.historicalScenario || '1929'}`,
+      label: buildHistoricalLabel(safeInputs.historicalScenario),
+      rows: [],
+      yearlyRows: [],
+      terminalNominal: 0,
+      terminalReal: 0
     }
   };
+}
+
+function buildHistoricalLabel(scenario) {
+  switch (String(scenario || '1929')) {
+    case '1929':
+      return '1929 — Great Depression';
+    case '1966':
+      return '1966 — Inflation shock';
+    case '1973':
+      return '1973 — Stagflation';
+    case '2000':
+      return '2000 — Dot-com bubble';
+    case '2008':
+      return '2008 — Global Financial Crisis';
+    default:
+      return `${scenario} — Historical scenario`;
+  }
 }
