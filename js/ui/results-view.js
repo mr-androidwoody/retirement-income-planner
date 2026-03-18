@@ -1,23 +1,65 @@
 import { renderPortfolioChart, renderSpendingChart } from './charts.js';
 import { renderYearlyTable } from './yearly-table.js';
 
+function resolveYearlyRows(result, tableView) {
+  if (!result) return [];
+
+  if (result.tableViews && tableView) {
+    return (
+      result.tableViews[tableView]?.rows ||
+      result.tableViews[tableView]?.yearlyRows ||
+      []
+    );
+  }
+
+  if (result.selectedPath) {
+    return result.selectedPath.rows || result.selectedPath.yearlyRows || [];
+  }
+
+  if (result.baseCase?.rows) {
+    return result.baseCase.rows;
+  }
+
+  if (result.baseCase?.yearlyRows) {
+    return result.baseCase.yearlyRows;
+  }
+
+  return [];
+}
+
 export function renderResultsView({
   result,
   elements,
   useReal,
   showFullTable,
+  tableView,
   formatters
 }) {
   if (!result) return;
 
   const { formatCurrency, formatPercent, formatYears } = formatters;
-  const percentileSeries = useReal
-    ? result.monteCarlo.realPercentiles
-    : result.monteCarlo.nominalPercentiles;
+  const hasMonteCarlo =
+    Boolean(result?.monteCarlo?.realPercentiles) &&
+    Boolean(result?.monteCarlo?.nominalPercentiles);
 
-  const medianEnd = percentileSeries.p50[percentileSeries.p50.length - 1];
+  const percentileSeries = hasMonteCarlo
+    ? (useReal
+        ? result.monteCarlo.realPercentiles
+        : result.monteCarlo.nominalPercentiles)
+    : null;
+
+  const medianEnd = percentileSeries?.p50?.length
+    ? percentileSeries.p50[percentileSeries.p50.length - 1]
+    : (
+        result?.summary?.medianTerminalWealth ??
+        result?.summary?.terminalNominal ??
+        result?.baseCase?.terminalNominal ??
+        result?.selectedPath?.terminalNominal ??
+        0
+      );
+
   const hasStressSummary = result.summary && result.summary.worstStressName;
-  const rows = result.baseCase?.rows || [];
+  const rows = resolveYearlyRows(result, tableView) || [];
 
   let firstCutYear = null;
   let worstCutYear = null;
@@ -71,9 +113,9 @@ export function renderResultsView({
   };
 
   if (elements.summarySuccessRate) {
-    elements.summarySuccessRate.textContent = formatPercent(
-      result.monteCarlo.successRate
-    );
+    elements.summarySuccessRate.textContent = hasMonteCarlo
+    ? formatPercent(result.monteCarlo.successRate)
+    : '—';
   }
 
   if (elements.summaryMedianEnd) {
@@ -103,12 +145,17 @@ export function renderResultsView({
     }
   }
 
-  const runway = result.summary?.cashRunwayYears;
-  if (elements.summaryCashRunway) {
-    elements.summaryCashRunway.textContent =
-      runway === Number.POSITIVE_INFINITY ? 'No draw' : formatYears(runway);
-  }
+    const runway = result.summary?.cashRunwayYears;
+    if (elements.summaryCashRunway) {
+      elements.summaryCashRunway.textContent =
+        runway === Number.POSITIVE_INFINITY
+          ? 'No draw'
+          : Number.isFinite(runway)
+            ? formatYears(runway)
+            : '—';
+    }
 
+if (hasMonteCarlo) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
   renderPortfolioHorizonSummary(result, elements, useReal, formatters);
   renderSpendingChart(
@@ -121,12 +168,13 @@ export function renderResultsView({
   renderPlanWarnings(result, elements, useReal, formatters);
   renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
+}
 
   if (elements.tableCard) {
     elements.tableCard.classList.toggle('hidden', !showFullTable);
   }
 
-  renderDeterministicNote(elements);
+  renderDeterministicNote(elements, result);
   renderStatusLegend(elements, rows);
 
   renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
@@ -857,11 +905,22 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   container.innerHTML = groups.join('');
 }
 
-function renderDeterministicNote(elements) {
+function renderDeterministicNote(elements, result) {
   const note = ensureDeterministicNoteContainer(elements);
   if (!note) return;
 
-  note.textContent = 'This table shows the deterministic base case only.';
+  const mode = String(result?.mode ?? '').toLowerCase();
+
+  if (mode === 'historical') {
+    note.textContent = result?.selectedPath?.label
+      ? `This table shows the selected historical path: ${result.selectedPath.label}.`
+      : 'This table shows the selected historical path.';
+  } else if (mode === 'deterministic') {
+    note.textContent = 'This table shows the deterministic base case only.';
+  } else {
+    note.textContent = 'This table shows the selected yearly path.';
+  }
+
   note.classList.remove('hidden');
 }
 

@@ -404,16 +404,9 @@ export function createPlanForm(
       person2OtherIncomeToday,
       person2OtherIncomeYears,
       person2WindfallAmount,
-      person2WindfallYear
+      person2WindfallYear,
+
+      simulationMode: String(elements.simulationMode?.value ?? 'monteCarlo'),
+      historicalScenario: String(elements.historicalScenario?.value ?? '1929')
     };
   }
-
-  return {
-    applyDefaults,
-    attachFormatting,
-    bindActions,
-    readValues,
-    setBusy,
-    syncPerson2State
-  };
-}
