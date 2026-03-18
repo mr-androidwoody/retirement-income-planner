@@ -67,6 +67,7 @@ const els = {
   guytonKlingerOff: document.getElementById('guytonKlingerOff'),
   showRealValues: document.getElementById('showRealValues'),
   showFullTable: document.getElementById('showFullTable'),
+  showPlanOutlook: document.getElementById('showPlanOutlook'),
 
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
@@ -177,6 +178,7 @@ function setResultsViewDefaults() {
   if (els.chartModeReal) els.chartModeReal.checked = false;
   if (els.showRealValues) els.showRealValues.checked = false;
   if (els.showFullTable) els.showFullTable.checked = true;
+  if (els.showPlanOutlook) els.showPlanOutlook.checked = true;    
   if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
   if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
@@ -212,6 +214,13 @@ function attachEvents() {
       if (latestResult) renderAll();
     }, 100)
   );
+
+  // ✅ ADD HERE (clean, inside function)
+  if (els.showPlanOutlook) {
+    els.showPlanOutlook.addEventListener('change', () => {
+      togglePlanOutlook();
+    });
+  }
 }
 
 function attachWithdrawalRateSync() {
@@ -441,6 +450,7 @@ function renderAll() {
   applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
 
   attachTableViewSelector();
+  togglePlanOutlook();  
 }
 
 function applySuccessRateTone(successRate) {
@@ -530,6 +540,14 @@ function attachTableViewSelector() {
       renderAll();
     });
   });
+}
+
+function togglePlanOutlook() {
+  if (!els.planSummaryPanel) return;
+
+  const show = Boolean(els.showPlanOutlook?.checked);
+
+  els.planSummaryPanel.style.display = show ? '' : 'none';
 }
 
 function debounce(fn, delay) {
