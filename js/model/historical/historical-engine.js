@@ -1,1 +1,145 @@
+export function simulateScenario({ inputs, returnsProvider }) {
+  const toNumber = (value) => (Number.isFinite(Number(value)) ? Number(value) : 0);
 
+  const initialPortfolio = toNumber(
+    inputs.startingPortfolio ?? inputs.initialPortfolio ?? 0
+  );
+
+  const annualSpending = toNumber(inputs.annualSpending ?? 0);
+  const years = toNumber(inputs.simulationYears ?? inputs.years ?? 0);
+
+  const fees = toNumber(inputs.annualFees ?? inputs.fees ?? 0);
+
+  const people = Array.isArray(inputs.people) ? inputs.people : [];
+
+  let portfolio = initialPortfolio;
+  let inflationIndex = 1;
+
+  const yearlyRows = [];
+  const pathNominal = [];
+  const pathReal = [];
+
+  let depleted = false;
+  let depletionYear = null;
+  let minimumWealth = initialPortfolio;
+
+  for (let year = 0; year < years; year += 1) {
+    const returns = returnsProvider.getYearReturns(year);
+
+    const portfolioReturn = toNumber(returns?.portfolioReturn);
+    const inflation = toNumber(returns?.inflation);
+
+    const startPortfolio = portfolio;
+
+    let statePensionPerson1 = 0;
+    let statePensionPerson2 = 0;
+    let otherIncome = 0;
+    let windfall = 0;
+
+    people.forEach((person, index) => {
+      if (!person?.include) return;
+
+      const currentAge = toNumber(person.currentAge) + year;
+      const pensionAge = toNumber(person.statePensionAge);
+
+      const pensionToday = toNumber(inputs.statePensionToday ?? 0);
+      const receivesFull = person.receivesFullStatePension !== false;
+
+      const pensionValue =
+        inputs.includeStatePension && currentAge >= pensionAge
+          ? (receivesFull ? pensionToday : pensionToday * 0.5) * inflationIndex
+          : 0;
+
+      if (index === 0) statePensionPerson1 = pensionValue;
+      if (index === 1) statePensionPerson2 = pensionValue;
+
+      const incomeYears = toNumber(person.incomeYears);
+      if (year < incomeYears) {
+        otherIncome += toNumber(person.otherIncome) * inflationIndex;
+      }
+
+      if (year === toNumber(person.windfallYear)) {
+        windfall += toNumber(person.windfallAmount);
+      }
+    });
+
+    const statePension = statePensionPerson1 + statePensionPerson2;
+
+    const targetSpending = annualSpending * inflationIndex;
+
+    let actualSpending = targetSpending;
+    let cut = 0;
+
+    if (inputs.useGuardrails) {
+      const withdrawalRate = portfolio > 0 ? actualSpending / portfolio : 0;
+
+      if (withdrawalRate > (inputs.guardrailCeiling ?? 0.2)) {
+        actualSpending *= 1 - (inputs.guardrailCut ?? 0.1);
+        cut = inputs.guardrailCut ?? 0;
+      }
+
+      if (withdrawalRate < (inputs.guardrailFloor ?? 0.1)) {
+        actualSpending *= 1 + (inputs.guardrailRaise ?? 0.1);
+      }
+    }
+
+    const nonPortfolioIncome = statePension + otherIncome + windfall;
+
+    let portfolioWithdrawal = Math.max(0, actualSpending - nonPortfolioIncome);
+    let shortfall = 0;
+
+    if (portfolioWithdrawal > portfolio) {
+      shortfall = portfolioWithdrawal - portfolio;
+      portfolioWithdrawal = portfolio;
+    }
+
+    const afterWithdrawal = portfolio - portfolioWithdrawal;
+    const netReturn = portfolioReturn - fees;
+    const endPortfolio = afterWithdrawal * (1 + netReturn);
+
+    portfolio = endPortfolio;
+
+    if (!depleted && portfolio <= 0) {
+      depleted = true;
+      depletionYear = year;
+    }
+
+    minimumWealth = Math.min(minimumWealth, portfolio);
+
+    pathNominal.push(portfolio);
+    pathReal.push(inflationIndex > 0 ? portfolio / inflationIndex : portfolio);
+
+    yearlyRows.push({
+      year,
+      startPortfolio,
+      endPortfolio,
+      portfolioReturn,
+      inflation,
+      targetSpending,
+      actualSpending,
+      cut,
+      statePension,
+      statePensionPerson1,
+      statePensionPerson2,
+      otherIncome,
+      windfall,
+      portfolioWithdrawal,
+      shortfall,
+      depleted: portfolio <= 0
+    });
+
+    inflationIndex *= 1 + inflation;
+  }
+
+  return {
+    type: 'single',
+    yearlyRows,
+    pathNominal,
+    pathReal,
+    terminalNominal: portfolio,
+    terminalReal: pathReal[pathReal.length - 1] ?? 0,
+    minimumWealth,
+    depleted,
+    depletionYear
+  };
+}
