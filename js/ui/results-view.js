@@ -1236,13 +1236,6 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   const isHistorical = mode === 'historical';
   const isDeterministic = mode === 'deterministic';
 
-  const selectedPathLabel =
-    tableView === 'p10'
-      ? 'Downside'
-      : tableView === 'p90'
-        ? 'Upside'
-        : 'Median';
-
   if (isHistorical) {
     if (elements.summarySuccessRateLabel) {
       elements.summarySuccessRateLabel.textContent = 'Historical outcome';
@@ -1323,66 +1316,65 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
     return;
   }
 
-  }
-
   // Monte Carlo (default)
 
-if (elements.summarySuccessRateLabel) {
-  elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
-}
-
-if (elements.summarySuccessRateDesc) {
-  const runs =
-    result?.scenarioCount ??
-    result?.monteCarlo?.scenarioCount ??
-    result?.monteCarlo?.runs ??
-    null;
-
-  const baseText =
-    'How often your portfolio lasts the full retirement plan across all simulated outcomes.';
-
-  if (runs) {
-    elements.summarySuccessRateDesc.innerHTML = `
-      ${baseText}
-      <br>
-      Based on <strong>${runs.toLocaleString()}</strong> simulated outcomes.
-    `;
-  } else {
-    elements.summarySuccessRateDesc.textContent = baseText;
+  if (elements.summarySuccessRateLabel) {
+    elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
   }
-}
 
-if (elements.summaryMedianEndLabel) {
-  elements.summaryMedianEndLabel.textContent = 'Selected path';
-}
+  if (elements.summarySuccessRateDesc) {
+    const runs =
+      result?.scenarioCount ??
+      result?.monteCarlo?.scenarioCount ??
+      result?.monteCarlo?.runs ??
+      null;
 
-if (elements.summaryMedianEndDesc) {
-  const selectedPathDescription =
-    tableView === 'p10'
-      ? 'A weaker simulated outcome showing how the plan holds up under poorer return conditions.'
-      : tableView === 'p90'
-        ? 'A stronger simulated outcome showing how the plan performs under better return conditions.'
-        : 'The middle simulated outcome, showing the central path through the range of Monte Carlo results.';
+    const baseText =
+      'How often your portfolio lasts the full retirement plan across all simulated outcomes.';
 
-  elements.summaryMedianEndDesc.textContent = selectedPathDescription;
-}
+    if (runs) {
+      elements.summarySuccessRateDesc.innerHTML = `
+        ${baseText}
+        <br>
+        Based on <strong>${runs.toLocaleString()}</strong> simulated outcomes.
+      `;
+    } else {
+      elements.summarySuccessRateDesc.textContent = baseText;
+    }
+  }
 
-if (elements.summaryWorstStressLabel) {
-  elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
-}
+  if (elements.summaryMedianEndLabel) {
+    elements.summaryMedianEndLabel.textContent = 'Selected path';
+  }
 
-if (elements.summaryWorstStressDesc) {
-  elements.summaryWorstStressDesc.textContent =
-    'Lowest ending portfolio across the deterministic stress paths.';
-}
+  if (elements.summaryMedianEndDesc) {
+    const selectedPathDescription =
+      tableView === 'p10'
+        ? 'A weaker simulated outcome showing how the plan holds up under poorer return conditions.'
+        : tableView === 'p90'
+          ? 'A stronger simulated outcome showing how the plan performs under better return conditions.'
+          : 'The middle simulated outcome, showing the central path through the range of Monte Carlo results.';
 
-if (elements.summaryCashRunwayLabel) {
-  elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
-}
+    elements.summaryMedianEndDesc.textContent = selectedPathDescription;
+  }
 
-if (elements.summaryCashRunwayDesc) {
-  elements.summaryCashRunwayDesc.textContent =
-    'Years the opening cashlike bucket could fund withdrawals before refill.';
+  if (elements.summaryWorstStressLabel) {
+    elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+  }
+
+  if (elements.summaryWorstStressDesc) {
+    elements.summaryWorstStressDesc.textContent =
+      'Lowest ending portfolio across the deterministic stress paths.';
+  }
+
+  if (elements.summaryCashRunwayLabel) {
+    elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+  }
+
+  if (elements.summaryCashRunwayDesc) {
+    elements.summaryCashRunwayDesc.textContent =
+      'Years the opening cashlike bucket could fund withdrawals before refill.';
+  }
 }
 
 function renderSummarySection(title, items) {
