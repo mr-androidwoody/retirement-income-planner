@@ -59,6 +59,8 @@ export function renderResultsView({
       );
 
   const hasStressSummary = result.summary && result.summary.worstStressName;
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
   const rows = resolveYearlyRows(result, tableView) || [];
 
   let firstCutYear = null;
@@ -112,50 +114,197 @@ export function renderResultsView({
     shortfallYears
   };
 
-  if (elements.summarySuccessRate) {
-    elements.summarySuccessRate.textContent = hasMonteCarlo
-    ? formatPercent(result.monteCarlo.successRate)
-    : '—';
-  }
-
-  if (elements.summaryMedianEnd) {
-    elements.summaryMedianEnd.textContent = formatCurrency(medianEnd);
-  }
-
-  if (hasStressSummary) {
-    if (elements.summaryWorstStress) {
-      elements.summaryWorstStress.textContent = result.summary.worstStressName;
-    }
-
-    if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent = `Lowest ending portfolio across the deterministic stress paths: ${formatCurrency(
-        useReal
-          ? result.summary.worstStressTerminalReal
-          : result.summary.worstStressTerminalNominal
-      )}.`;
-    }
+if (elements.summarySuccessRate) {
+  if (isHistorical) {
+    elements.summarySuccessRate.textContent = result?.summary?.depleted
+      ? 'Depleted'
+      : 'Sustained';
   } else {
-    if (elements.summaryWorstStress) {
-      elements.summaryWorstStress.textContent = 'Removed';
-    }
+    elements.summarySuccessRate.textContent = hasMonteCarlo
+      ? formatPercent(result.monteCarlo.successRate)
+      : '—';
+  }
+}
 
-    if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent =
-        'Deterministic stress scenarios are no longer shown in the UI.';
-    }
+if (elements.summaryMedianEnd) {
+  elements.summaryMedianEnd.textContent = isHistorical
+    ? formatCurrency(
+        useReal
+          ? (result?.summary?.terminalReal ?? 0)
+          : (result?.summary?.terminalNominal ?? 0)
+      )
+    : formatCurrency(medianEnd);
+}
+
+if (isHistorical) {
+  if (elements.summaryWorstStress) {
+    elements.summaryWorstStress.textContent = result?.summary?.depleted
+      ? `Year ${result?.summary?.depletionYear ?? '—'}`
+      : 'Not depleted';
   }
 
-    const runway = result.summary?.cashRunwayYears;
-    if (elements.summaryCashRunway) {
-      elements.summaryCashRunway.textContent =
-        runway === Number.POSITIVE_INFINITY
-          ? 'No draw'
-          : Number.isFinite(runway)
-            ? formatYears(runway)
-            : '—';
-    }
+  if (elements.summaryWorstStressDesc) {
+    elements.summaryWorstStressDesc.textContent = `Minimum portfolio reached during this historical path: ${formatCurrency(
+      result?.summary?.minimumWealth ?? 0
+    )}.`;
+  }
+} else if (hasStressSummary) {
+  if (elements.summaryWorstStress) {
+    elements.summaryWorstStress.textContent = result.summary.worstStressName;
+  }
 
-if (hasMonteCarlo) {
+  if (elements.summaryWorstStressDesc) {
+    elements.summaryWorstStressDesc.textContent = `Lowest ending portfolio across the deterministic stress paths: ${formatCurrency(
+      useReal
+        ? result.summary.worstStressTerminalReal
+        : result.summary.worstStressTerminalNominal
+    )}.`;
+  }
+} else {
+  if (elements.summaryWorstStress) {
+    elements.summaryWorstStress.textContent = 'Removed';
+  }
+
+  if (elements.summaryWorstStressDesc) {
+    elements.summaryWorstStressDesc.textContent =
+      'Deterministic stress scenarios are no longer shown in the UI.';
+  }
+}
+
+const runway = result.summary?.cashRunwayYears;
+if (elements.summaryCashRunway) {
+  if (isHistorical) {
+    elements.summaryCashRunway.textContent = result?.selectedPath?.label || 'Selected path';
+  } else {
+    elements.summaryCashRunway.textContent =
+      runway === Number.POSITIVE_INFINITY
+        ? 'No draw'
+        : Number.isFinite(runway)
+          ? formatYears(runway)
+          : '—';
+  }
+}
+
+if (isHistorical) {
+  if (elements.portfolioChart) {
+    elements.portfolioChart.innerHTML = `
+      <div class="chart-empty-state">
+        Historical mode is using a selected yearly path.
+        Chart fallback not wired yet.
+      </div>
+    `;
+  }
+
+  if (elements.portfolioHorizonSummary) {
+    elements.portfolioHorizonSummary.innerHTML = `
+      <div class="portfolio-horizon-item">
+        <div class="portfolio-horizon-label">Historical scenario</div>
+        <div class="portfolio-horizon-value">
+          ${result?.selectedPath?.label || 'Selected path'}
+        </div>
+      </div>
+      <div class="portfolio-horizon-item">
+        <div class="portfolio-horizon-label">Ending portfolio</div>
+        <div class="portfolio-horizon-value">
+          ${formatCurrency(
+            useReal
+              ? (result?.selectedPath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
+              : (result?.selectedPath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
+          )}
+        </div>
+      </div>
+      <div class="portfolio-horizon-item">
+        <div class="portfolio-horizon-label">Minimum wealth</div>
+        <div class="portfolio-horizon-value">
+          ${formatCurrency(result?.summary?.minimumWealth ?? 0)}
+        </div>
+      </div>
+      <div class="portfolio-horizon-item">
+        <div class="portfolio-horizon-label">Depletion year</div>
+        <div class="portfolio-horizon-value">
+          ${result?.summary?.depleted
+            ? `Year ${result?.summary?.depletionYear ?? '—'}`
+            : 'Not depleted'}
+        </div>
+      </div>
+    `;
+  }
+
+  if (elements.spendingChart) {
+    elements.spendingChart.innerHTML = `
+      <div class="chart-empty-state">
+        Historical mode is using the selected yearly table path.
+        Spending chart fallback not wired yet.
+      </div>
+    `;
+  }
+
+  if (elements.planWarnings) {
+    elements.planWarnings.innerHTML = `
+      <div class="plan-warning-ok">
+        Historical mode is showing one selected sequence, not Monte Carlo risk ranges.
+      </div>
+    `;
+  }
+
+  if (elements.retirementOutlookHero) {
+    elements.retirementOutlookHero.innerHTML = `
+      <div class="retirement-outlook-hero-card">
+        <div class="retirement-outlook-hero-top">
+          <div class="retirement-outlook-kicker">Historical scenario</div>
+          <div class="retirement-outlook-status-row">
+            <div class="retirement-outlook-badge retirement-outlook-badge--${
+              result?.summary?.depleted ? 'weak' : 'strong'
+            }">
+              <span class="retirement-outlook-badge-icon">${
+                result?.summary?.depleted ? '×' : '✓'
+              }</span>
+              <span>${result?.summary?.depleted ? 'Depleted' : 'Sustained'}</span>
+            </div>
+
+            <div class="retirement-outlook-heading-group">
+              <div class="retirement-outlook-subheading">
+                ${result?.selectedPath?.label || 'Selected historical path'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="retirement-outlook-description">
+          This result shows one selected historical return sequence rather than Monte Carlo ranges.
+        </p>
+
+        <div class="plan-summary-outcome">
+          <h4 class="plan-summary-section-title">Outcome summary</h4>
+          <div class="plan-summary-section-grid plan-summary-section-grid--top">
+            ${renderSummaryItem(
+              'Ending portfolio',
+              formatCurrency(
+                useReal
+                  ? (result?.summary?.terminalReal ?? 0)
+                  : (result?.summary?.terminalNominal ?? 0)
+              )
+            )}
+            ${renderSummaryItem(
+              'Minimum wealth',
+              formatCurrency(result?.summary?.minimumWealth ?? 0)
+            )}
+            ${renderSummaryItem(
+              'Depletion year',
+              result?.summary?.depleted
+                ? `Year ${result?.summary?.depletionYear ?? '—'}`
+                : 'Not depleted'
+            )}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (elements.planSummaryGrid) {
+    elements.planSummaryGrid.innerHTML = '';
+  }
+} else if (hasMonteCarlo) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
   renderPortfolioHorizonSummary(result, elements, useReal, formatters);
   renderSpendingChart(
@@ -170,19 +319,19 @@ if (hasMonteCarlo) {
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
 }
 
-  if (elements.tableCard) {
-    elements.tableCard.classList.toggle('hidden', !showFullTable);
-  }
+if (elements.tableCard) {
+  elements.tableCard.classList.toggle('hidden', !showFullTable);
+}
 
-  renderDeterministicNote(elements, result);
-  renderStatusLegend(elements, rows);
+renderDeterministicNote(elements, result);
+renderStatusLegend(elements, rows);
 
-  renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
-    person1Name: result.inputs?.person1Name,
-    person2Name: result.inputs?.person2Name,
-    includePerson2: result.inputs?.includePerson2,
-    cutDiagnostics
-  });
+renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
+  person1Name: result.inputs?.person1Name,
+  person2Name: result.inputs?.person2Name,
+  includePerson2: result.inputs?.includePerson2,
+  cutDiagnostics
+});
 }
 
 function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
@@ -820,6 +969,82 @@ function renderMonteCarloSummary(
       )
     ])}
   `;
+}
+
+function renderSummaryCardLabels(elements, result) {
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  if (isHistorical) {
+    if (elements.summarySuccessRateLabel) {
+      elements.summarySuccessRateLabel.textContent = 'Historical outcome';
+    }
+
+    if (elements.summarySuccessRateDesc) {
+      elements.summarySuccessRateDesc.textContent =
+        'Whether this selected historical sequence sustains the plan.';
+    }
+
+    if (elements.summaryMedianEndLabel) {
+      elements.summaryMedianEndLabel.textContent = 'Ending portfolio';
+    }
+
+    if (elements.summaryMedianEndDesc) {
+      elements.summaryMedianEndDesc.textContent =
+        'Portfolio value at the end of this selected historical path.';
+    }
+
+    if (elements.summaryWorstStressLabel) {
+      elements.summaryWorstStressLabel.textContent = 'Depletion year';
+    }
+
+    if (elements.summaryWorstStressDesc) {
+      elements.summaryWorstStressDesc.textContent =
+        'Earliest year the portfolio reaches zero on this historical path, or not depleted.';
+    }
+
+    if (elements.summaryCashRunwayLabel) {
+      elements.summaryCashRunwayLabel.textContent = 'Historical scenario';
+    }
+
+    if (elements.summaryCashRunwayDesc) {
+      elements.summaryCashRunwayDesc.textContent =
+        'The selected start year and date range for this historical run.';
+    }
+
+    return;
+  }
+
+  if (elements.summarySuccessRateLabel) {
+    elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
+  }
+
+  if (elements.summarySuccessRateDesc) {
+    elements.summarySuccessRateDesc.textContent =
+      'Share of simulated paths that avoid depletion across the full plan.';
+  }
+
+  if (elements.summaryMedianEndLabel) {
+    elements.summaryMedianEndLabel.textContent = 'Median end portfolio';
+  }
+
+  if (elements.summaryMedianEndDesc) {
+    elements.summaryMedianEndDesc.textContent =
+      'Middle simulated outcome at the end of the retirement horizon.';
+  }
+
+  if (elements.summaryWorstStressLabel) {
+    elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+  }
+
+  if (elements.summaryCashRunwayLabel) {
+    elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+  }
+
+  if (elements.summaryCashRunwayDesc) {
+    elements.summaryCashRunwayDesc.textContent =
+      'Years the opening cashlike bucket could fund withdrawals before refill.';
+  }
 }
 
 function renderSummarySection(title, items) {
