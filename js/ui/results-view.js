@@ -1323,6 +1323,8 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
     return;
   }
 
+  // Monte Carlo (default)
+
   if (elements.summarySuccessRateLabel) {
     elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
   }
@@ -1337,8 +1339,14 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   }
 
   if (elements.summaryMedianEndDesc) {
-    elements.summaryMedianEndDesc.textContent =
-      `${selectedPathLabel} path currently selected for the results context, charts, plan outlook, and yearly table.`;
+    const selectedPathDescription =
+      tableView === 'p10'
+        ? 'A weaker simulated outcome showing how the plan holds up under poorer return conditions.'
+        : tableView === 'p90'
+          ? 'A stronger simulated outcome showing how the plan performs under better return conditions.'
+          : 'The middle simulated outcome, showing the central path through the range of Monte Carlo results.';
+
+    elements.summaryMedianEndDesc.textContent = selectedPathDescription;
   }
 
   if (elements.summaryWorstStressLabel) {
