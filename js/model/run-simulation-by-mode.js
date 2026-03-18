@@ -65,16 +65,55 @@ export async function runSimulationByMode({ mode, inputs }) {
     terminalReal: result?.baseCase?.terminalReal ?? 0
   };
 
-  return {
-    ...result,
-    mode: isDeterministic ? 'deterministic' : 'montecarlo',
-    tableViews: isMonteCarlo
+    const mcPaths = result?.monteCarlo?.representativePaths;
+    
+    const p10 = mcPaths?.p10
       ? {
-          median: selectedPath
+          key: 'monte-carlo-p10',
+          label: 'P10 (downside)',
+          rows: mcPaths.p10.rows,
+          yearlyRows: mcPaths.p10.rows,
+          terminalNominal: mcPaths.p10.pathNominal.at(-1),
+          terminalReal: mcPaths.p10.pathReal.at(-1)
         }
-      : null,
-    selectedPath
-  };
+      : null;
+    
+    const median = mcPaths?.p50
+      ? {
+          key: 'monte-carlo-median',
+          label: 'Median',
+          rows: mcPaths.p50.rows,
+          yearlyRows: mcPaths.p50.rows,
+          terminalNominal: mcPaths.p50.pathNominal.at(-1),
+          terminalReal: mcPaths.p50.pathReal.at(-1)
+        }
+      : selectedPath;
+    
+    const p90 = mcPaths?.p90
+      ? {
+          key: 'monte-carlo-p90',
+          label: 'P90 (upside)',
+          rows: mcPaths.p90.rows,
+          yearlyRows: mcPaths.p90.rows,
+          terminalNominal: mcPaths.p90.pathNominal.at(-1),
+          terminalReal: mcPaths.p90.pathReal.at(-1)
+        }
+      : null;
+    
+    return {
+      ...result,
+      mode: isDeterministic ? 'deterministic' : 'montecarlo',
+    
+      tableViews: isMonteCarlo
+        ? {
+            p10,
+            median,
+            p90
+          }
+        : null,
+    
+      selectedPath: median
+    };
 }
 
 function buildHistoricalLabel(scenario) {

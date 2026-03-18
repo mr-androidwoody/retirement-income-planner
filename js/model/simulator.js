@@ -254,6 +254,7 @@ function runMonteCarlo(inputs) {
   const rng = createRng(inputs.seed ?? 123456789);
   const nominalPaths = [];
   const realPaths = [];
+  const scenarioPaths = [];   // ← ADD
   let successCount = 0;
 
   for (let run = 0; run < inputs.monteCarloRuns; run += 1) {
@@ -290,6 +291,9 @@ function runMonteCarlo(inputs) {
     }
 
     const path = simulatePath(inputs, annualReturns);
+
+    scenarioPaths.push(path);   // ← ADD THIS LINE
+
     nominalPaths.push(path.pathNominal);
     realPaths.push(path.pathReal);
 
@@ -298,11 +302,39 @@ function runMonteCarlo(inputs) {
     }
   }
 
-  return {
-    successRate: inputs.monteCarloRuns > 0 ? successCount / inputs.monteCarloRuns : 0,
-    nominalPercentiles: buildPercentileSeries(nominalPaths),
-    realPercentiles: buildPercentileSeries(realPaths)
-  };
+// --- Representative paths (P10 / P50 / P90) ---
+
+const sorted = scenarioPaths.length
+  ? scenarioPaths
+      .map(p => ({
+        path: p,
+        terminal: p.pathNominal[p.pathNominal.length - 1]
+      }))
+      .sort((a, b) => a.terminal - b.terminal)
+  : [];
+    
+    function pickPercentile(sorted, p) {
+      if (!sorted.length) return null;
+      const index = Math.floor((sorted.length - 1) * p);
+      return sorted[index].path;
+    }
+    
+    const p10Path = pickPercentile(sorted, 0.10);
+    const p50Path = pickPercentile(sorted, 0.50);
+    const p90Path = pickPercentile(sorted, 0.90); 
+    
+    return {
+      successRate: inputs.monteCarloRuns > 0 ? successCount / inputs.monteCarloRuns : 0,
+      nominalPercentiles: buildPercentileSeries(nominalPaths),
+      realPercentiles: buildPercentileSeries(realPaths),
+    
+      representativePaths: {
+        p10: p10Path,
+        p50: p50Path,
+        p90: p90Path
+      }
+    };
+    
 }
 
 function runStressScenarios(inputs) {
