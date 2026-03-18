@@ -100,26 +100,38 @@ export async function runSimulationByMode({ mode, inputs }) {
         }
       : null;
     
-    return {
-      ...result,
-      scenarioCount:
-        result?.scenarioCount ??
-        result?.monteCarlo?.scenarioCount ??
-        result?.monteCarlo?.runs ??
-        null,
-    
-      mode: isDeterministic ? 'deterministic' : 'montecarlo',
-    
-      tableViews: isMonteCarlo
-        ? {
-            p10,
-            median,
-            p90
-          }
-        : null,
-    
-      selectedPath: median
-    };
+return {
+  ...result,
+
+  scenarioCount:
+    result?.scenarioCount ??
+    result?.monteCarlo?.scenarioCount ??
+    result?.monteCarlo?.runs ??
+    null,
+
+  monteCarlo: result?.monteCarlo
+    ? {
+        ...result.monteCarlo,
+        scenarioCount:
+          result?.monteCarlo?.scenarioCount ??
+          result?.scenarioCount ??
+          result?.monteCarlo?.runs ??
+          null
+      }
+    : result?.monteCarlo,
+
+  mode: isDeterministic ? 'deterministic' : 'montecarlo',
+
+  tableViews: isMonteCarlo
+    ? {
+        p10,
+        median,
+        p90
+      }
+    : null,
+
+  selectedPath: median
+};
 }
 
 function buildHistoricalLabel(scenario) {
