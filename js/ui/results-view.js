@@ -380,36 +380,77 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
   const container = elements.portfolioHorizonSummary;
   if (!container) return;
 
-  const { formatCurrency } = formatters;
-  const percentiles = useReal
-    ? result.monteCarlo.realPercentiles
-    : result.monteCarlo.nominalPercentiles;
+  const { formatCurrency, formatPercent } = formatters;
+
+  const rows = activePath?.rows || activePath?.yearlyRows || [];
+
   const selectedPathSeries = useReal
     ? (activePath?.pathReal || [])
     : (activePath?.pathNominal || []);
-  const lastIndex = percentiles.p50.length - 1;
 
-  const p10 = percentiles.p10[lastIndex];
-  const p50 = percentiles.p50[lastIndex];
-  const p90 = percentiles.p90[lastIndex];
-  const selected = selectedPathSeries[lastIndex];
+  // --- End value
+  const endValue =
+    selectedPathSeries.length > 0
+      ? selectedPathSeries[selectedPathSeries.length - 1]
+      : (useReal ? activePath?.terminalReal : activePath?.terminalNominal) ?? 0;
+
+  // --- Low point
+  let lowPoint = Number.POSITIVE_INFINITY;
+  for (const value of selectedPathSeries) {
+    if (Number.isFinite(value) && value < lowPoint) {
+      lowPoint = value;
+    }
+  }
+  if (!Number.isFinite(lowPoint)) {
+    lowPoint = endValue;
+  }
+
+  // --- First shortfall + worst cut
+  let firstShortfallYear = null;
+  let worstCut = 0;
+
+  rows.forEach((row, index) => {
+    const planYear = getRowPlanYear(row, index);
+
+    const shortfall = getRowShortfall(
+      row,
+      useReal,
+      result?.inputs?.initialSpending || 0
+    );
+
+    if (shortfall > 0 && firstShortfallYear === null) {
+      firstShortfallYear = planYear;
+    }
+
+    const cut = Number(row.spendingCutPercent) || 0;
+    if (cut > worstCut) {
+      worstCut = cut;
+    }
+  });
 
   container.innerHTML = `
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">10th percentile</div>
-      <div class="portfolio-horizon-value">${formatCurrency(p10)}</div>
+      <div class="portfolio-horizon-label">End value</div>
+      <div class="portfolio-horizon-value">${formatCurrency(endValue)}</div>
     </div>
+
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">Median</div>
-      <div class="portfolio-horizon-value">${formatCurrency(p50)}</div>
+      <div class="portfolio-horizon-label">Low point</div>
+      <div class="portfolio-horizon-value">${formatCurrency(lowPoint)}</div>
     </div>
+
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">90th percentile</div>
-      <div class="portfolio-horizon-value">${formatCurrency(p90)}</div>
+      <div class="portfolio-horizon-label">First shortfall year</div>
+      <div class="portfolio-horizon-value">
+        ${firstShortfallYear ? `Year ${firstShortfallYear}` : 'None'}
+      </div>
     </div>
+
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">Selected path</div>
-      <div class="portfolio-horizon-value">${formatCurrency(selected ?? 0)}</div>
+      <div class="portfolio-horizon-label">Worst spending cut</div>
+      <div class="portfolio-horizon-value">
+        ${worstCut > 0 ? formatPercent(worstCut) : 'None'}
+      </div>
     </div>
   `;
 }
