@@ -1379,6 +1379,8 @@ if (elements.summaryCashRunwayDesc) {
     'Years the opening cashlike bucket could fund withdrawals before refill.';
 }
 
+}
+
 function renderSummarySection(title, items) {
   return `
     <section class="plan-summary-section">
