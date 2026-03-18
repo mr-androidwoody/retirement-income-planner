@@ -74,10 +74,20 @@ const els = {
 
   summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
   summarySuccessRate: document.getElementById('summarySuccessRate'),
+  summarySuccessRateLabel: document.getElementById('summarySuccessRateLabel'),
+  summarySuccessRateDesc: document.getElementById('summarySuccessRateDesc'),
+
   summaryMedianEnd: document.getElementById('summaryMedianEnd'),
+  summaryMedianEndLabel: document.getElementById('summaryMedianEndLabel'),
+  summaryMedianEndDesc: document.getElementById('summaryMedianEndDesc'),
+
   summaryWorstStress: document.getElementById('summaryWorstStress'),
+  summaryWorstStressLabel: document.getElementById('summaryWorstStressLabel'),
   summaryWorstStressDesc: document.getElementById('summaryWorstStressDesc'),
+
   summaryCashRunway: document.getElementById('summaryCashRunway'),
+  summaryCashRunwayLabel: document.getElementById('summaryCashRunwayLabel'),
+  summaryCashRunwayDesc: document.getElementById('summaryCashRunwayDesc'),
 
   portfolioChart: document.getElementById('portfolioChart'),
   portfolioHorizonSummary: document.getElementById('portfolioHorizonSummary'),
