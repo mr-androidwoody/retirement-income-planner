@@ -1325,47 +1325,58 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
 
   // Monte Carlo (default)
 
-  if (elements.summarySuccessRateLabel) {
-    elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
-  }
+if (elements.summarySuccessRateLabel) {
+  elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
+}
 
-  if (elements.summarySuccessRateDesc) {
-    elements.summarySuccessRateDesc.textContent =
-      'Share of simulated paths that avoid depletion across the full plan.';
-  }
+if (elements.summarySuccessRateDesc) {
+  const runs =
+    result?.scenarioCount ??
+    result?.monteCarlo?.scenarioCount ??
+    result?.monteCarlo?.runs ??
+    null;
 
-  if (elements.summaryMedianEndLabel) {
-    elements.summaryMedianEndLabel.textContent = 'Selected path';
-  }
+  const baseText =
+    'How often your portfolio lasts the full retirement plan across all simulated outcomes.';
 
-  if (elements.summaryMedianEndDesc) {
-    const selectedPathDescription =
-      tableView === 'p10'
-        ? 'A weaker simulated outcome showing how the plan holds up under poorer return conditions.'
-        : tableView === 'p90'
-          ? 'A stronger simulated outcome showing how the plan performs under better return conditions.'
-          : 'The middle simulated outcome, showing the central path through the range of Monte Carlo results.';
+  const runsText = runs
+    ? ` Based on ${runs.toLocaleString()} simulated outcomes.`
+    : '';
 
-    elements.summaryMedianEndDesc.textContent = selectedPathDescription;
-  }
+  elements.summarySuccessRateDesc.textContent = baseText + runsText;
+}
 
-  if (elements.summaryWorstStressLabel) {
-    elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
-  }
+if (elements.summaryMedianEndLabel) {
+  elements.summaryMedianEndLabel.textContent = 'Selected path';
+}
 
-  if (elements.summaryWorstStressDesc) {
-    elements.summaryWorstStressDesc.textContent =
-      'Lowest ending portfolio across the deterministic stress paths.';
-  }
+if (elements.summaryMedianEndDesc) {
+  const selectedPathDescription =
+    tableView === 'p10'
+      ? 'A weaker simulated outcome showing how the plan holds up under poorer return conditions.'
+      : tableView === 'p90'
+        ? 'A stronger simulated outcome showing how the plan performs under better return conditions.'
+        : 'The middle simulated outcome, showing the central path through the range of Monte Carlo results.';
 
-  if (elements.summaryCashRunwayLabel) {
-    elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
-  }
+  elements.summaryMedianEndDesc.textContent = selectedPathDescription;
+}
 
-  if (elements.summaryCashRunwayDesc) {
-    elements.summaryCashRunwayDesc.textContent =
-      'Years the opening cashlike bucket could fund withdrawals before refill.';
-  }
+if (elements.summaryWorstStressLabel) {
+  elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+}
+
+if (elements.summaryWorstStressDesc) {
+  elements.summaryWorstStressDesc.textContent =
+    'Lowest ending portfolio across the deterministic stress paths.';
+}
+
+if (elements.summaryCashRunwayLabel) {
+  elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+}
+
+if (elements.summaryCashRunwayDesc) {
+  elements.summaryCashRunwayDesc.textContent =
+    'Years the opening cashlike bucket could fund withdrawals before refill.';
 }
 
 function renderSummarySection(title, items) {
