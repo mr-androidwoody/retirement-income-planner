@@ -325,6 +325,8 @@ const sorted = scenarioPaths.length
     
     return {
       successRate: inputs.monteCarloRuns > 0 ? successCount / inputs.monteCarloRuns : 0,
+      scenarioCount: inputs.monteCarloRuns,
+    
       nominalPercentiles: buildPercentileSeries(nominalPaths),
       realPercentiles: buildPercentileSeries(realPaths),
     
