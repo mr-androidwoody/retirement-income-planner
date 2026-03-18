@@ -438,6 +438,8 @@ function renderAll() {
   });
 
   applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+
+  attachTableViewSelector();
 }
 
 function applySuccessRateTone(successRate) {
@@ -510,6 +512,23 @@ function formatPercent(value) {
 function formatYears(value) {
   if (!Number.isFinite(value)) return '—';
   return `${value.toFixed(1)} years`;
+}
+
+function attachTableViewSelector() {
+  const buttons = document.querySelectorAll('.table-view-selector button');
+
+  if (!buttons.length) return;
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentTableView = btn.dataset.view;
+
+      buttons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      renderAll();
+    });
+  });
 }
 
 function debounce(fn, delay) {
