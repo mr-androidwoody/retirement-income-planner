@@ -127,7 +127,7 @@ export function renderResultsView({
 });
 
   // --- ensure summary labels reflect mode + selected path
-  renderSummaryCardLabels(elements, result, activePath);
+  renderSummaryCardLabels(elements, result, activePath, tableView);
 
   if (elements.summarySuccessRate) {
     if (isHistorical) {
@@ -142,13 +142,8 @@ export function renderResultsView({
   }
 
   if (elements.summaryMedianEnd) {
-    elements.summaryMedianEnd.textContent = isHistorical
-      ? formatCurrency(
-          useReal
-            ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
-            : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
-        )
-      : formatCurrency(medianEnd);
+    const selectedPathValue = getSelectedPathEndValue(activePath, rows, useReal);
+    elements.summaryMedianEnd.textContent = formatCurrency(selectedPathValue);
   }
 
   if (isHistorical) {
@@ -335,10 +330,10 @@ export function renderResultsView({
 }
 
 if (elements.tableCard && showFullTable) {
-  const existingHeader = elements.tableCard.querySelector('.results-header-row');
+  let header = elements.tableCard.querySelector('.results-header-row');
 
-  if (!existingHeader) {
-    const header = document.createElement('div');
+  if (!header) {
+    header = document.createElement('div');
     header.className = 'results-header-row';
 
     header.innerHTML = `
@@ -351,18 +346,21 @@ if (elements.tableCard && showFullTable) {
       </div>
 
       <div class="table-view-selector">
-        <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
-        <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
-        <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+        <button data-view="median">Median</button>
+        <button data-view="p10">Downside</button>
+        <button data-view="p90">Upside</button>
       </div>
     `;
 
     elements.tableCard.prepend(header);
   }
-}   
 
-if (elements.tableCard) {
-  elements.tableCard.classList.toggle('hidden', !showFullTable);
+  const selectorButtons = header.querySelectorAll('.table-view-selector button');
+
+  selectorButtons.forEach((button) => {
+    const isActive = button.dataset.view === tableView;
+    button.classList.toggle('active', isActive);
+  });
 }
 
 renderDeterministicNote(elements, result, activePath);
@@ -376,13 +374,7 @@ renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
 });
 }
 
-function renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath) {
-  const container = elements.portfolioHorizonSummary;
-  if (!container) return;
-
-  const { formatCurrency, formatPercent } = formatters;
-  const rows = activePath?.rows || activePath?.yearlyRows || [];
-
+function getSelectedPathEndValue(activePath, rows, useReal) {
   const toFiniteNumber = (value) => {
     const n = Number(value);
     return Number.isFinite(n) ? n : null;
@@ -401,7 +393,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     : (activePath?.pathNominal || []);
 
   if (!selectedPathSeries || selectedPathSeries.length <= 1) {
-    selectedPathSeries = rows
+    selectedPathSeries = (rows || [])
       .map((row) => {
         return useReal
           ? firstFinite([
@@ -430,10 +422,49 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     useReal ? activePath?.terminalReal : activePath?.terminalNominal
   ) ?? 0;
 
-  const endValue =
-    selectedPathSeries.length > 0
-      ? selectedPathSeries[selectedPathSeries.length - 1]
-      : fallbackEndValue;
+  return selectedPathSeries.length > 0
+    ? selectedPathSeries[selectedPathSeries.length - 1]
+    : fallbackEndValue;
+}
+
+function renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath) {
+  const container = elements.portfolioHorizonSummary;
+  if (!container) return;
+
+  const { formatCurrency, formatPercent } = formatters;
+  const rows = activePath?.rows || activePath?.yearlyRows || [];
+
+  const endValue = getSelectedPathEndValue(activePath, rows, useReal);
+
+  let selectedPathSeries = useReal
+    ? (activePath?.pathReal || [])
+    : (activePath?.pathNominal || []);
+
+  if (!selectedPathSeries || selectedPathSeries.length <= 1) {
+    selectedPathSeries = rows
+      .map((row) => {
+        const value = useReal
+          ? Number(
+              row.endPortfolioReal ??
+              row.endingPortfolioReal ??
+              row.endReal ??
+              row.endPortfolio
+            )
+          : Number(
+              row.endPortfolioNominal ??
+              row.endingPortfolioNominal ??
+              row.endPortfolio ??
+              row.endNominal
+            );
+
+        return Number.isFinite(value) ? value : null;
+      })
+      .filter((v) => v !== null);
+  } else {
+    selectedPathSeries = selectedPathSeries
+      .map((value) => Number(value))
+      .filter((v) => Number.isFinite(v));
+  }
 
   let lowPoint = Number.POSITIVE_INFINITY;
   for (const value of selectedPathSeries) {
@@ -441,6 +472,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
       lowPoint = value;
     }
   }
+
   if (!Number.isFinite(lowPoint)) {
     lowPoint = endValue;
   }
@@ -791,9 +823,9 @@ function renderResultsContextAndPathSummary({
         ? 'Deterministic'
         : 'Monte Carlo';
 
-  const endValue = useReal
-    ? activePath?.terminalReal
-    : activePath?.terminalNominal;
+  const rows = activePath?.rows || activePath?.yearlyRows || [];
+
+  const endValue = getSelectedPathEndValue(activePath, rows, useReal);
 
   const firstShortfall =
     cutDiagnostics.firstShortfallYear != null
@@ -1199,9 +1231,17 @@ function renderMonteCarloSummary(
   `;
 }
 
-function renderSummaryCardLabels(elements, result, activePath) {
+function renderSummaryCardLabels(elements, result, activePath, tableView) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
+  const isDeterministic = mode === 'deterministic';
+
+  const selectedPathLabel =
+    tableView === 'p10'
+      ? 'Downside'
+      : tableView === 'p90'
+        ? 'Upside'
+        : 'Median';
 
   if (isHistorical) {
     if (elements.summarySuccessRateLabel) {
@@ -1214,12 +1254,12 @@ function renderSummaryCardLabels(elements, result, activePath) {
     }
 
     if (elements.summaryMedianEndLabel) {
-      elements.summaryMedianEndLabel.textContent = 'Ending portfolio';
+      elements.summaryMedianEndLabel.textContent = 'Selected path';
     }
 
     if (elements.summaryMedianEndDesc) {
       elements.summaryMedianEndDesc.textContent =
-        'Portfolio value at the end of this selected historical path.';
+        'This matches the selected historical scenario used in the charts, plan outlook, and yearly table.';
     }
 
     if (elements.summaryWorstStressLabel) {
@@ -1232,12 +1272,52 @@ function renderSummaryCardLabels(elements, result, activePath) {
     }
 
     if (elements.summaryCashRunwayLabel) {
-      elements.summaryCashRunwayLabel.textContent = 'Historical scenario';
+      elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
     }
 
     if (elements.summaryCashRunwayDesc) {
       elements.summaryCashRunwayDesc.textContent =
-        'The selected start year and date range for this historical run.';
+        'Years the opening cashlike bucket could fund withdrawals before refill.';
+    }
+
+    return;
+  }
+
+  if (isDeterministic) {
+    if (elements.summarySuccessRateLabel) {
+      elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
+    }
+
+    if (elements.summarySuccessRateDesc) {
+      elements.summarySuccessRateDesc.textContent =
+        'Not used in deterministic mode.';
+    }
+
+    if (elements.summaryMedianEndLabel) {
+      elements.summaryMedianEndLabel.textContent = 'Selected path';
+    }
+
+    if (elements.summaryMedianEndDesc) {
+      elements.summaryMedianEndDesc.textContent =
+        'Base case used for the current charts, plan outlook, and yearly table.';
+    }
+
+    if (elements.summaryWorstStressLabel) {
+      elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+    }
+
+    if (elements.summaryWorstStressDesc) {
+      elements.summaryWorstStressDesc.textContent =
+        'Lowest ending portfolio across the deterministic stress paths.';
+    }
+
+    if (elements.summaryCashRunwayLabel) {
+      elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+    }
+
+    if (elements.summaryCashRunwayDesc) {
+      elements.summaryCashRunwayDesc.textContent =
+        'Years the opening cashlike bucket could fund withdrawals before refill.';
     }
 
     return;
@@ -1253,16 +1333,21 @@ function renderSummaryCardLabels(elements, result, activePath) {
   }
 
   if (elements.summaryMedianEndLabel) {
-    elements.summaryMedianEndLabel.textContent = 'Median end portfolio';
+    elements.summaryMedianEndLabel.textContent = 'Selected path';
   }
 
   if (elements.summaryMedianEndDesc) {
     elements.summaryMedianEndDesc.textContent =
-      'Middle simulated outcome at the end of the retirement horizon.';
+      `${selectedPathLabel} path currently selected for the results context, charts, plan outlook, and yearly table.`;
   }
 
   if (elements.summaryWorstStressLabel) {
     elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+  }
+
+  if (elements.summaryWorstStressDesc) {
+    elements.summaryWorstStressDesc.textContent =
+      'Lowest ending portfolio across the deterministic stress paths.';
   }
 
   if (elements.summaryCashRunwayLabel) {
