@@ -7,15 +7,17 @@ function resolveActivePath(result, tableView) {
   }
 
   if (result?.selectedPath) {
-    return activePath;
+    return result.selectedPath;
   }
 
   if (result?.baseCase) {
     return {
-      rows: activePath.yearlyRows || activePath.rows || [],
-      yearlyRows: activePath.yearlyRows || activePath.rows || [],
-      terminalNominal: activePath.terminalNominal,
-      terminalReal: activePath.terminalReal
+      rows: result.baseCase.yearlyRows || result.baseCase.rows || [],
+      yearlyRows: result.baseCase.yearlyRows || result.baseCase.rows || [],
+      terminalNominal: result.baseCase.terminalNominal,
+      terminalReal: result.baseCase.terminalReal,
+      pathNominal: result.baseCase.pathNominal || [],
+      pathReal: result.baseCase.pathReal || []
     };
   }
 
@@ -33,6 +35,10 @@ export function renderResultsView({
   if (!result) return;
 
   const { formatCurrency, formatPercent, formatYears } = formatters;
+
+  const activePath = resolveActivePath(result, tableView);
+  const rows = activePath?.yearlyRows || [];
+
   const hasMonteCarlo =
     Boolean(result?.monteCarlo?.realPercentiles) &&
     Boolean(result?.monteCarlo?.nominalPercentiles);
@@ -46,19 +52,17 @@ export function renderResultsView({
   const medianEnd = percentileSeries?.p50?.length
     ? percentileSeries.p50[percentileSeries.p50.length - 1]
     : (
+        (useReal ? activePath?.terminalReal : activePath?.terminalNominal) ??
         result?.summary?.medianTerminalWealth ??
         result?.summary?.terminalNominal ??
         result?.baseCase?.terminalNominal ??
-        result?.selectedPath?.terminalNominal ??
         0
       );
 
   const hasStressSummary = result.summary && result.summary.worstStressName;
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
-  const activePath = resolveActivePath(result, tableView);
-  const rows = activePath?.yearlyRows || [];
-    
+
   let firstCutYear = null;
   let worstCutYear = null;
   let worstCut = 0;
@@ -110,199 +114,203 @@ export function renderResultsView({
     shortfallYears
   };
 
-if (elements.summarySuccessRate) {
-  if (isHistorical) {
-    elements.summarySuccessRate.textContent = result?.summary?.depleted
-      ? 'Depleted'
-      : 'Sustained';
-  } else {
-    elements.summarySuccessRate.textContent = hasMonteCarlo
-      ? formatPercent(result.monteCarlo.successRate)
-      : '—';
-  }
-}
+  // --- ensure summary labels reflect mode + selected path
+  renderSummaryCardLabels(elements, result, activePath);
 
-if (elements.summaryMedianEnd) {
-  elements.summaryMedianEnd.textContent = isHistorical
-    ? formatCurrency(
+  if (elements.summarySuccessRate) {
+    if (isHistorical) {
+      elements.summarySuccessRate.textContent = result?.summary?.depleted
+        ? 'Depleted'
+        : 'Sustained';
+    } else {
+      elements.summarySuccessRate.textContent = hasMonteCarlo
+        ? formatPercent(result.monteCarlo.successRate)
+        : '—';
+    }
+  }
+
+  if (elements.summaryMedianEnd) {
+    elements.summaryMedianEnd.textContent = isHistorical
+      ? formatCurrency(
+          useReal
+            ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
+            : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
+        )
+      : formatCurrency(medianEnd);
+  }
+
+  if (isHistorical) {
+    if (elements.summaryWorstStress) {
+      elements.summaryWorstStress.textContent = result?.summary?.depleted
+        ? `Year ${result?.summary?.depletionYear ?? '—'}`
+        : 'Not depleted';
+    }
+
+    if (elements.summaryWorstStressDesc) {
+      elements.summaryWorstStressDesc.textContent = `Minimum portfolio reached during this historical path: ${formatCurrency(
+        result?.summary?.minimumWealth ?? 0
+      )}.`;
+    }
+  } else if (hasStressSummary) {
+    if (elements.summaryWorstStress) {
+      elements.summaryWorstStress.textContent = result.summary.worstStressName;
+    }
+
+    if (elements.summaryWorstStressDesc) {
+      elements.summaryWorstStressDesc.textContent = `Lowest ending portfolio across the deterministic stress paths: ${formatCurrency(
         useReal
-          ? (result?.summary?.terminalReal ?? 0)
-          : (result?.summary?.terminalNominal ?? 0)
-      )
-    : formatCurrency(medianEnd);
-}
-
-if (isHistorical) {
-  if (elements.summaryWorstStress) {
-    elements.summaryWorstStress.textContent = result?.summary?.depleted
-      ? `Year ${result?.summary?.depletionYear ?? '—'}`
-      : 'Not depleted';
-  }
-
-  if (elements.summaryWorstStressDesc) {
-    elements.summaryWorstStressDesc.textContent = `Minimum portfolio reached during this historical path: ${formatCurrency(
-      result?.summary?.minimumWealth ?? 0
-    )}.`;
-  }
-} else if (hasStressSummary) {
-  if (elements.summaryWorstStress) {
-    elements.summaryWorstStress.textContent = result.summary.worstStressName;
-  }
-
-  if (elements.summaryWorstStressDesc) {
-    elements.summaryWorstStressDesc.textContent = `Lowest ending portfolio across the deterministic stress paths: ${formatCurrency(
-      useReal
-        ? result.summary.worstStressTerminalReal
-        : result.summary.worstStressTerminalNominal
-    )}.`;
-  }
-} else {
-  if (elements.summaryWorstStress) {
-    elements.summaryWorstStress.textContent = 'Removed';
-  }
-
-  if (elements.summaryWorstStressDesc) {
-    elements.summaryWorstStressDesc.textContent =
-      'Deterministic stress scenarios are no longer shown in the UI.';
-  }
-}
-
-const runway = result.summary?.cashRunwayYears;
-if (elements.summaryCashRunway) {
-  if (isHistorical) {
-    elements.summaryCashRunway.textContent = result?.selectedPath?.label || 'Selected path';
+          ? result.summary.worstStressTerminalReal
+          : result.summary.worstStressTerminalNominal
+      )}.`;
+    }
   } else {
-    elements.summaryCashRunway.textContent =
-      runway === Number.POSITIVE_INFINITY
-        ? 'No draw'
-        : Number.isFinite(runway)
-          ? formatYears(runway)
-          : '—';
-  }
-}
+    if (elements.summaryWorstStress) {
+      elements.summaryWorstStress.textContent = 'Removed';
+    }
 
-if (isHistorical) {
-  if (elements.portfolioChart) {
-    elements.portfolioChart.innerHTML = `
-      <div class="chart-empty-state">
-        Historical mode is using a selected yearly path.
-        Chart fallback not wired yet.
-      </div>
-    `;
+    if (elements.summaryWorstStressDesc) {
+      elements.summaryWorstStressDesc.textContent =
+        'Deterministic stress scenarios are no longer shown in the UI.';
+    }
   }
 
-  if (elements.portfolioHorizonSummary) {
-    elements.portfolioHorizonSummary.innerHTML = `
-      <div class="portfolio-horizon-item">
-        <div class="portfolio-horizon-label">Historical scenario</div>
-        <div class="portfolio-horizon-value">
-          ${result?.selectedPath?.label || 'Selected path'}
+  const runway = result.summary?.cashRunwayYears;
+  if (elements.summaryCashRunway) {
+    if (isHistorical) {
+      elements.summaryCashRunway.textContent = activePath?.label || 'Selected path';
+    } else {
+      elements.summaryCashRunway.textContent =
+        runway === Number.POSITIVE_INFINITY
+          ? 'No draw'
+          : Number.isFinite(runway)
+            ? formatYears(runway)
+            : '—';
+    }
+  }
+
+  if (isHistorical) {
+    if (elements.portfolioChart) {
+      elements.portfolioChart.innerHTML = `
+        <div class="chart-empty-state">
+          Historical mode is using a selected yearly path.
+          Chart fallback not wired yet.
         </div>
-      </div>
-      <div class="portfolio-horizon-item">
-        <div class="portfolio-horizon-label">Ending portfolio</div>
-        <div class="portfolio-horizon-value">
-          ${formatCurrency(
-            useReal
-              ? (result?.selectedPath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
-              : (result?.selectedPath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
-          )}
+      `;
+    }
+
+    if (elements.portfolioHorizonSummary) {
+      elements.portfolioHorizonSummary.innerHTML = `
+        <div class="portfolio-horizon-item">
+          <div class="portfolio-horizon-label">Historical scenario</div>
+          <div class="portfolio-horizon-value">
+            ${activePath?.label || 'Selected path'}
+          </div>
         </div>
-      </div>
-      <div class="portfolio-horizon-item">
-        <div class="portfolio-horizon-label">Minimum wealth</div>
-        <div class="portfolio-horizon-value">
-          ${formatCurrency(result?.summary?.minimumWealth ?? 0)}
+        <div class="portfolio-horizon-item">
+          <div class="portfolio-horizon-label">Ending portfolio</div>
+          <div class="portfolio-horizon-value">
+            ${formatCurrency(
+              useReal
+                ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
+                : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
+            )}
+          </div>
         </div>
-      </div>
-      <div class="portfolio-horizon-item">
-        <div class="portfolio-horizon-label">Depletion year</div>
-        <div class="portfolio-horizon-value">
-          ${result?.summary?.depleted
-            ? `Year ${result?.summary?.depletionYear ?? '—'}`
-            : 'Not depleted'}
+        <div class="portfolio-horizon-item">
+          <div class="portfolio-horizon-label">Minimum wealth</div>
+          <div class="portfolio-horizon-value">
+            ${formatCurrency(result?.summary?.minimumWealth ?? 0)}
+          </div>
         </div>
-      </div>
-    `;
-  }
+        <div class="portfolio-horizon-item">
+          <div class="portfolio-horizon-label">Depletion year</div>
+          <div class="portfolio-horizon-value">
+            ${result?.summary?.depleted
+              ? `Year ${result?.summary?.depletionYear ?? '—'}`
+              : 'Not depleted'}
+          </div>
+        </div>
+      `;
+    }
 
-  if (elements.spendingChart) {
-    elements.spendingChart.innerHTML = `
-      <div class="chart-empty-state">
-        Historical mode is using the selected yearly table path.
-        Spending chart fallback not wired yet.
-      </div>
-    `;
-  }
+    if (elements.spendingChart) {
+      elements.spendingChart.innerHTML = `
+        <div class="chart-empty-state">
+          Historical mode is using the selected yearly table path.
+          Spending chart fallback not wired yet.
+        </div>
+      `;
+    }
 
-  if (elements.planWarnings) {
-    elements.planWarnings.innerHTML = `
-      <div class="plan-warning-ok">
-        Historical mode is showing one selected sequence, not Monte Carlo risk ranges.
-      </div>
-    `;
-  }
+    if (elements.planWarnings) {
+      elements.planWarnings.innerHTML = `
+        <div class="plan-warning-ok">
+          Historical mode is showing one selected sequence, not Monte Carlo risk ranges.
+        </div>
+      `;
+    }
 
-  if (elements.retirementOutlookHero) {
-    elements.retirementOutlookHero.innerHTML = `
-      <div class="retirement-outlook-hero-card">
-        <div class="retirement-outlook-hero-top">
-          <div class="retirement-outlook-kicker">Historical scenario</div>
-          <div class="retirement-outlook-status-row">
-            <div class="retirement-outlook-badge retirement-outlook-badge--${
-              result?.summary?.depleted ? 'weak' : 'strong'
-            }">
-              <span class="retirement-outlook-badge-icon">${
-                result?.summary?.depleted ? '×' : '✓'
-              }</span>
-              <span>${result?.summary?.depleted ? 'Depleted' : 'Sustained'}</span>
-            </div>
+    if (elements.retirementOutlookHero) {
+      elements.retirementOutlookHero.innerHTML = `
+        <div class="retirement-outlook-hero-card">
+          <div class="retirement-outlook-hero-top">
+            <div class="retirement-outlook-kicker">Historical scenario</div>
+            <div class="retirement-outlook-status-row">
+              <div class="retirement-outlook-badge retirement-outlook-badge--${
+                result?.summary?.depleted ? 'weak' : 'strong'
+              }">
+                <span class="retirement-outlook-badge-icon">${
+                  result?.summary?.depleted ? '×' : '✓'
+                }</span>
+                <span>${result?.summary?.depleted ? 'Depleted' : 'Sustained'}</span>
+              </div>
 
-            <div class="retirement-outlook-heading-group">
-              <div class="retirement-outlook-subheading">
-                ${result?.selectedPath?.label || 'Selected historical path'}
+              <div class="retirement-outlook-heading-group">
+                <div class="retirement-outlook-subheading">
+                  ${activePath?.label || 'Selected historical path'}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <p class="retirement-outlook-description">
-          This result shows one selected historical return sequence rather than Monte Carlo ranges.
-        </p>
+          <p class="retirement-outlook-description">
+            This result shows one selected historical return sequence rather than Monte Carlo ranges.
+          </p>
 
-        <div class="plan-summary-outcome">
-          <h4 class="plan-summary-section-title">Outcome summary</h4>
-          <div class="plan-summary-section-grid plan-summary-section-grid--top">
-            ${renderSummaryItem(
-              'Ending portfolio',
-              formatCurrency(
-                useReal
-                  ? (result?.summary?.terminalReal ?? 0)
-                  : (result?.summary?.terminalNominal ?? 0)
-              )
-            )}
-            ${renderSummaryItem(
-              'Minimum wealth',
-              formatCurrency(result?.summary?.minimumWealth ?? 0)
-            )}
-            ${renderSummaryItem(
-              'Depletion year',
-              result?.summary?.depleted
-                ? `Year ${result?.summary?.depletionYear ?? '—'}`
-                : 'Not depleted'
-            )}
+          <div class="plan-summary-outcome">
+            <h4 class="plan-summary-section-title">Outcome summary</h4>
+            <div class="plan-summary-section-grid plan-summary-section-grid--top">
+              ${renderSummaryItem(
+                'Ending portfolio',
+                formatCurrency(
+                  useReal
+                    ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
+                    : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
+                )
+              )}
+              ${renderSummaryItem(
+                'Minimum wealth',
+                formatCurrency(result?.summary?.minimumWealth ?? 0)
+              )}
+              ${renderSummaryItem(
+                'Depletion year',
+                result?.summary?.depleted
+                  ? `Year ${result?.summary?.depletionYear ?? '—'}`
+                  : 'Not depleted'
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  }
+      `;
+    }
 
-  if (elements.planSummaryGrid) {
-    elements.planSummaryGrid.innerHTML = '';
+    if (elements.planSummaryGrid) {
+      elements.planSummaryGrid.innerHTML = '';
+    }
   }
 } else if (hasMonteCarlo) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-  renderPortfolioHorizonSummary(result, elements, useReal, formatters);
+  renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath);
   renderSpendingChart(
     elements.spendingChart,
     result,
@@ -310,16 +318,16 @@ if (isHistorical) {
     formatCurrency,
     cutDiagnostics
   );
-  renderPlanWarnings(result, elements, useReal, formatters);
+  renderPlanWarnings(result, elements, useReal, formatters, activePath);
   renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
-  renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics);
+  renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics, activePath);
 }
 
 if (elements.tableCard) {
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 }
 
-renderDeterministicNote(elements, result);
+renderDeterministicNote(elements, result, activePath);
 renderStatusLegend(elements, rows);
 
 renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
@@ -330,7 +338,7 @@ renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
 });
 }
 
-function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
+function renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath) {
   const container = elements.portfolioHorizonSummary;
   if (!container) return;
 
@@ -338,13 +346,15 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
   const percentiles = useReal
     ? result.monteCarlo.realPercentiles
     : result.monteCarlo.nominalPercentiles;
-  const basePath = useReal ? activePath.pathReal : activePath.pathNominal;
+  const selectedPathSeries = useReal
+    ? (activePath?.pathReal || [])
+    : (activePath?.pathNominal || []);
   const lastIndex = percentiles.p50.length - 1;
 
   const p10 = percentiles.p10[lastIndex];
   const p50 = percentiles.p50[lastIndex];
   const p90 = percentiles.p90[lastIndex];
-  const base = basePath[lastIndex];
+  const selected = selectedPathSeries[lastIndex];
 
   container.innerHTML = `
     <div class="portfolio-horizon-item">
@@ -360,8 +370,8 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters) {
       <div class="portfolio-horizon-value">${formatCurrency(p90)}</div>
     </div>
     <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">Base case</div>
-      <div class="portfolio-horizon-value">${formatCurrency(base)}</div>
+      <div class="portfolio-horizon-label">Selected path</div>
+      <div class="portfolio-horizon-value">${formatCurrency(selected ?? 0)}</div>
     </div>
   `;
 }
@@ -427,9 +437,9 @@ function getRowPlanYear(row, index) {
   return index + 1;
 }
 
-function getLifestyleResilienceMetrics(result, useReal = false) {
+function getLifestyleResilienceMetrics(result, useReal = false, activePath = null) {
   const inputs = result?.inputs || {};
-  const rows = result?.baseCase?.rows || [];
+  const rows = activePath?.rows || activePath?.yearlyRows || result?.baseCase?.rows || [];
   const { targetSpending, comfortFloor, minimumFloor } =
     getResolvedSpendingFloors(inputs);
 
@@ -477,7 +487,7 @@ function getLifestyleResilienceMetrics(result, useReal = false) {
   };
 }
 
-function getPlanWarningsData(result, useReal, formatters) {
+function getPlanWarningsData(result, useReal, formatters, activePath) {
   const { formatPercent } = formatters;
   const inputs = result.inputs || {};
   const percentiles = useReal
@@ -792,13 +802,14 @@ function renderMonteCarloSummary(
   elements,
   useReal,
   formatters,
-  cutDiagnostics = {}
+  cutDiagnostics = {},
+  activePath
 ) {
   const { formatCurrency, formatPercent } = formatters;
   const grid = elements.planSummaryGrid;
   if (!grid) return;
 
-  const rows = activePath?.rows || [];
+  const rows = activePath?.rows || activePath?.yearlyRows || [];
   if (!rows.length) return;
 
   const inputs = result.inputs || {};
@@ -833,7 +844,7 @@ function renderMonteCarloSummary(
       ? inputs.initialSpending / inputs.initialPortfolio
       : 0;
 
-  const lifestyleMetrics = getLifestyleResilienceMetrics(result, useReal);
+  const lifestyleMetrics = getLifestyleResilienceMetrics(result, useReal, activePath);
 
   let weakCaseDepletionYear = 'Not depleted';
   for (let i = 0; i < percentiles.p10.length; i += 1) {
@@ -967,7 +978,7 @@ function renderMonteCarloSummary(
   `;
 }
 
-function renderSummaryCardLabels(elements, result) {
+function renderSummaryCardLabels(elements, result, activePath) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
 
@@ -1071,7 +1082,7 @@ function renderSummaryItem(label, value, signal = null) {
   `;
 }
 
-function renderPlanWarnings(result, elements, useReal, formatters) {
+function renderPlanWarnings(result, elements, useReal, formatters, activePath) {
   const container = elements.planWarnings;
   const panel = elements.planWarningsPanel;
   if (!container) return;
@@ -1080,7 +1091,7 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
     panel.classList.remove('hidden');
   }
 
-  const warningData = getPlanWarningsData(result, useReal, formatters);
+  const warningData = getPlanWarningsData(result, useReal, formatters, activePath);
 
   if (!warningData.hasWarnings) {
     container.innerHTML = `
@@ -1126,14 +1137,14 @@ function renderPlanWarnings(result, elements, useReal, formatters) {
   container.innerHTML = groups.join('');
 }
 
-function renderDeterministicNote(elements, result) {
+function renderDeterministicNote(elements, result, activePath) {
   const note = ensureDeterministicNoteContainer(elements);
   if (!note) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
 
   if (mode === 'historical') {
-    note.textContent = result?.selectedPath?.label
+    note.textContent = activePath?.label
       ? `This table shows the selected historical path: ${activePath.label}.`
       : 'This table shows the selected historical path.';
   } else if (mode === 'deterministic') {
