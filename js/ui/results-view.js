@@ -384,9 +384,16 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
 
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
-  const selectedPathSeries = useReal
+  let selectedPathSeries = useReal
     ? (activePath?.pathReal || [])
     : (activePath?.pathNominal || []);
+
+  // Fallback to rebuild from yearly rows if missing or too short
+  if (!selectedPathSeries || selectedPathSeries.length <= 1) {
+    selectedPathSeries = rows.map((row) =>
+      useReal ? row.portfolioReal : row.portfolioNominal
+    );
+  }
 
   // --- End value
   const endValue =
