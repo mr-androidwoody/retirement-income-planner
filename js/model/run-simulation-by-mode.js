@@ -1,76 +1,86 @@
 import { runRetirementSimulation } from './simulator.js';
+import { runHistoricalScenario } from './historical-runner.js';
 
-export function runSimulationByMode({ mode, inputs }) {
+export async function runSimulationByMode({ mode, inputs }) {
   const normalisedMode = String(mode || 'monteCarlo').toLowerCase();
 
   if (normalisedMode === 'historical') {
-    return buildHistoricalStubResult(inputs);
+    const historicalResult = await runHistoricalScenario(inputs);
+
+    return {
+      inputs: { ...inputs },
+      summary: {
+        terminalNominal: historicalResult.terminalNominal ?? 0,
+        terminalReal: historicalResult.terminalReal ?? 0,
+        cashRunwayYears: null,
+        worstStressName: null,
+        worstStressTerminalNominal: null,
+        worstStressTerminalReal: null,
+        historicalStartYear: historicalResult.startYear ?? null,
+        historicalEndYear: historicalResult.endYear ?? null,
+        depleted: Boolean(historicalResult.summary?.depleted),
+        depletionYear: historicalResult.summary?.depletionYear ?? null,
+        minimumWealth: historicalResult.summary?.minimumWealth ?? 0
+      },
+      monteCarlo: null,
+      baseCase: {
+        rows: historicalResult.rows || [],
+        yearlyRows: historicalResult.yearlyRows || historicalResult.rows || [],
+        pathNominal: historicalResult.pathNominal || [],
+        pathReal: historicalResult.pathReal || [],
+        terminalNominal: historicalResult.terminalNominal ?? 0,
+        terminalReal: historicalResult.terminalReal ?? 0
+      },
+      mode: 'historical',
+      tableViews: null,
+      selectedPath: {
+        key: `historical-${historicalResult.startYear ?? inputs?.historicalScenario ?? 'scenario'}`,
+        label: historicalResult.label || buildHistoricalLabel(inputs?.historicalScenario),
+        rows: historicalResult.rows || [],
+        yearlyRows: historicalResult.yearlyRows || historicalResult.rows || [],
+        terminalNominal: historicalResult.terminalNominal ?? 0,
+        terminalReal: historicalResult.terminalReal ?? 0
+      }
+    };
   }
 
   const result = runRetirementSimulation(inputs);
+  const baseRows = result?.baseCase?.rows || [];
+  const baseYearlyRows = result?.baseCase?.yearlyRows || baseRows;
+
+  const selectedPath = {
+    key: normalisedMode === 'deterministic' ? 'deterministic-base' : 'monte-carlo-median',
+    label: normalisedMode === 'deterministic' ? 'Base plan' : 'Median',
+    rows: baseRows,
+    yearlyRows: baseYearlyRows,
+    terminalNominal: result?.baseCase?.terminalNominal ?? 0,
+    terminalReal: result?.baseCase?.terminalReal ?? 0
+  };
 
   return {
     ...result,
     mode: normalisedMode,
-    tableViews: null,
-    selectedPath: {
-      key: normalisedMode === 'deterministic' ? 'deterministic-base' : 'monte-carlo-base',
-      label: normalisedMode === 'deterministic' ? 'Base plan' : 'Selected yearly path',
-      rows: result?.baseCase?.rows || [],
-      yearlyRows: result?.baseCase?.rows || [],
-      terminalNominal: result?.baseCase?.terminalNominal ?? 0,
-      terminalReal: result?.baseCase?.terminalReal ?? 0
-    }
-  };
-}
-
-function buildHistoricalStubResult(inputs) {
-  const safeInputs = { ...inputs };
-
-  return {
-    inputs: safeInputs,
-    summary: {
-      terminalNominal: 0,
-      terminalReal: 0,
-      cashRunwayYears: null,
-      worstStressName: null,
-      worstStressTerminalNominal: null,
-      worstStressTerminalReal: null
-    },
-    monteCarlo: null,
-    baseCase: {
-      rows: [],
-      yearlyRows: [],
-      pathNominal: [],
-      pathReal: [],
-      terminalNominal: 0,
-      terminalReal: 0
-    },
-    mode: 'historical',
-    tableViews: null,
-    selectedPath: {
-      key: `historical-${safeInputs.historicalScenario || '1929'}`,
-      label: buildHistoricalLabel(safeInputs.historicalScenario),
-      rows: [],
-      yearlyRows: [],
-      terminalNominal: 0,
-      terminalReal: 0
-    }
+    tableViews: normalisedMode === 'montecarlo'
+      ? {
+          median: selectedPath
+        }
+      : null,
+    selectedPath
   };
 }
 
 function buildHistoricalLabel(scenario) {
   switch (String(scenario || '1929')) {
     case '1929':
-      return '1929 — Severe crash (Great Depression)';
+      return '1929 — Great Depression';
     case '2008':
-      return '2008 — Severe crash (GFC)';
+      return '2008 — Global Financial Crisis';
     case '2000':
-      return '2000 — Crash + stagnation (Dot-com)';
+      return '2000 — Dot-com bubble';
     case '1966':
       return '1966 — Inflation shock';
     case '1973':
-      return '1973 — Stagflation shock';
+      return '1973 — Stagflation';
     case '1979':
       return '1979 — High inflation peak';
     case '1914':
