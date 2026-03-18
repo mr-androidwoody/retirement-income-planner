@@ -1335,7 +1335,6 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
     if (runs) {
       elements.summarySuccessRateDesc.innerHTML = `
         ${baseText}
-        <br>
         Based on <strong>${runs.toLocaleString()}</strong> simulated outcomes.
       `;
     } else {
