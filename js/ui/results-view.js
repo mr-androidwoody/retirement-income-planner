@@ -1323,6 +1323,8 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
     return;
   }
 
+  }
+
   // Monte Carlo (default)
 
 if (elements.summarySuccessRateLabel) {
