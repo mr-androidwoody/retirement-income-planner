@@ -44,9 +44,11 @@ export function renderResultsView({
     Boolean(result?.monteCarlo?.nominalPercentiles);
 
   const percentileSeries = hasMonteCarlo
-    ? (useReal
-        ? result.monteCarlo.realPercentiles
-        : result.monteCarlo.nominalPercentiles)
+    ? (
+        useReal
+          ? result.monteCarlo.realPercentiles
+          : result.monteCarlo.nominalPercentiles
+      )
     : null;
 
   const medianEnd = percentileSeries?.p50?.length
@@ -113,6 +115,16 @@ export function renderResultsView({
     worstShortfall,
     shortfallYears
   };
+
+  renderResultsContextAndPathSummary({
+  result,
+  elements,
+  tableView,
+  activePath,
+  cutDiagnostics,
+  useReal,
+  formatters
+});
 
   // --- ensure summary labels reflect mode + selected path
   renderSummaryCardLabels(elements, result, activePath);
@@ -672,6 +684,104 @@ function getBaseCaseTimingSignal(firstShortfallYear) {
 
   if (Number(firstShortfallYear) > 20) return 'amber';
   return 'red';
+}
+
+function renderResultsContextAndPathSummary({
+  result,
+  elements,
+  tableView,
+  activePath,
+  cutDiagnostics,
+  useReal,
+  formatters
+}) {
+  const container = elements.resultsContextBar;
+  if (!container) return;
+
+  const { formatCurrency } = formatters;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  // --- Mode label
+  const modeLabel =
+    mode === 'historical'
+      ? 'Historical'
+      : mode === 'deterministic'
+        ? 'Deterministic'
+        : 'Monte Carlo';
+
+  // --- Path label
+  let pathLabel = 'Median';
+  if (tableView === 'p10') pathLabel = 'Downside (P10)';
+  if (tableView === 'p90') pathLabel = 'Upside (P90)';
+
+  if (isHistorical) {
+    pathLabel = activePath?.label || 'Selected scenario';
+  }
+
+  // --- Path metrics (safe fallbacks)
+  const endValue = useReal
+    ? activePath?.terminalReal
+    : activePath?.terminalNominal;
+
+  const firstShortfall =
+    cutDiagnostics.firstShortfallYear != null
+      ? `Year ${cutDiagnostics.firstShortfallYear}`
+      : 'None';
+
+  const worstShortfall =
+    cutDiagnostics.worstShortfall > 0
+      ? `${formatCurrency(cutDiagnostics.worstShortfall)}`
+      : 'None';
+
+  const shortfallYears = cutDiagnostics.shortfallYears || 0;
+
+  container.innerHTML = `
+    <div class="results-context-bar">
+
+      <div class="results-context-top">
+        <div class="results-context-chip">
+          <span class="label">Mode</span>
+          <span class="value">${modeLabel}</span>
+        </div>
+
+        <div class="results-context-chip">
+          <span class="label">${isHistorical ? 'Scenario' : 'Selected path'}</span>
+          <span class="value">${pathLabel}</span>
+        </div>
+      </div>
+
+      ${
+        isHistorical
+          ? ''
+          : `
+      <div class="results-path-summary">
+        <div class="summary-item">
+          <span class="label">End value</span>
+          <span class="value">${formatCurrency(endValue ?? 0)}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="label">First shortfall</span>
+          <span class="value">${firstShortfall}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="label">Worst shortfall</span>
+          <span class="value">${worstShortfall}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="label">Shortfall years</span>
+          <span class="value">${shortfallYears}</span>
+        </div>
+      </div>
+      `
+      }
+
+    </div>
+  `;
 }
 
 function renderRetirementOutlook(
