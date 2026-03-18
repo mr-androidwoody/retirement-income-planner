@@ -322,6 +322,33 @@ export function renderResultsView({
   renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics, activePath);
 }
 
+if (elements.tableCard && showFullTable) {
+  const existingHeader = elements.tableCard.querySelector('.results-header-row');
+
+  if (!existingHeader) {
+    const header = document.createElement('div');
+    header.className = 'results-header-row';
+
+    header.innerHTML = `
+      <div class="results-header-text">
+        <h3>Yearly results</h3>
+        <p>
+          Shows the year-by-year base-case path including spending, pension income,
+          withdrawals and portfolio value.
+        </p>
+      </div>
+
+      <div class="table-view-selector">
+        <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
+        <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
+        <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+      </div>
+    `;
+
+    elements.tableCard.prepend(header);
+  }
+}   
+
 if (elements.tableCard) {
   elements.tableCard.classList.toggle('hidden', !showFullTable);
 }
