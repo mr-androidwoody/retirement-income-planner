@@ -91,6 +91,7 @@ const els = {
 
   portfolioChart: document.getElementById('portfolioChart'),
   portfolioHorizonSummary: document.getElementById('portfolioHorizonSummary'),
+  resultsContextBar: document.getElementById('resultsContextBar'),
   planWarnings: document.getElementById('planWarnings'),
   planSummaryPanel: document.getElementById('planSummaryPanel'),
   retirementOutlookHero: document.getElementById('retirementOutlookHero'),
