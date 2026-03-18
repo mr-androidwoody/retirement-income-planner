@@ -32,11 +32,17 @@ function buildHistoricalStubResult(inputs) {
     summary: {
       terminalNominal: 0,
       terminalReal: 0,
-      cashRunwayYears: null
+      cashRunwayYears: null,
+      worstStressName: null,
+      worstStressTerminalNominal: null,
+      worstStressTerminalReal: null
     },
     monteCarlo: null,
     baseCase: {
       rows: [],
+      yearlyRows: [],
+      pathNominal: [],
+      pathReal: [],
       terminalNominal: 0,
       terminalReal: 0
     },
@@ -56,15 +62,33 @@ function buildHistoricalStubResult(inputs) {
 function buildHistoricalLabel(scenario) {
   switch (String(scenario || '1929')) {
     case '1929':
-      return '1929 — Great Depression';
+      return '1929 — Severe crash (Great Depression)';
+    case '2008':
+      return '2008 — Severe crash (GFC)';
+    case '2000':
+      return '2000 — Crash + stagnation (Dot-com)';
     case '1966':
       return '1966 — Inflation shock';
     case '1973':
-      return '1973 — Stagflation';
-    case '2000':
-      return '2000 — Dot-com bubble';
-    case '2008':
-      return '2008 — Global Financial Crisis';
+      return '1973 — Stagflation shock';
+    case '1979':
+      return '1979 — High inflation peak';
+    case '1914':
+      return '1914 — War disruption (WWI)';
+    case '1939':
+      return '1939 — War disruption (WWII)';
+    case '1906':
+      return '1906 — Early instability';
+    case '1965':
+      return '1965 — Pre-inflation peak';
+    case '2001':
+      return '2001 — Post dot-com stagnation';
+    case '1982':
+      return '1982 — Strong bull market start';
+    case '1991':
+      return '1991 — Long expansion';
+    case '2010':
+      return '2010 — Recovery bull market';
     default:
       return `${scenario} — Historical scenario`;
   }
