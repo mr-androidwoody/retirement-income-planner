@@ -102,6 +102,12 @@ export async function runSimulationByMode({ mode, inputs }) {
     
     return {
       ...result,
+      scenarioCount:
+        result?.scenarioCount ??
+        result?.monteCarlo?.scenarioCount ??
+        result?.monteCarlo?.runs ??
+        null,
+    
       mode: isDeterministic ? 'deterministic' : 'montecarlo',
     
       tableViews: isMonteCarlo
