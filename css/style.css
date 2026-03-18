@@ -2090,3 +2090,57 @@ input[type="checkbox"]{
   color:var(--muted);
   line-height:1.4;
 }
+
+/* ========================================
+   Table view selector (NEW)
+   ======================================== */
+
+.results-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.results-header-text {
+  max-width: 70%;
+}
+
+.results-header-text h3 {
+  margin: 0 0 4px;
+}
+
+.results-header-text p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.table-view-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.table-view-selector button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.table-view-selector button:hover {
+  border-color: var(--accent);
+}
+
+.table-view-selector button.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
