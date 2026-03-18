@@ -711,16 +711,6 @@ function renderResultsContextAndPathSummary({
         ? 'Deterministic'
         : 'Monte Carlo';
 
-  let pathLabel = 'Median';
-  if (tableView === 'p10') pathLabel = 'Downside (P10)';
-  if (tableView === 'p90') pathLabel = 'Upside (P90)';
-
-  if (isHistorical) {
-    pathLabel = activePath?.label || 'Selected scenario';
-  } else if (isDeterministic) {
-    pathLabel = 'Base case';
-  }
-
   const endValue = useReal
     ? activePath?.terminalReal
     : activePath?.terminalNominal;
@@ -741,30 +731,55 @@ function renderResultsContextAndPathSummary({
     <div class="results-context-card">
       <div class="results-context-top">
         <div class="results-context-mode">${modeLabel}</div>
-        <div class="results-context-path">${pathLabel}</div>
+
+        ${
+          isHistorical
+            ? `<div class="results-context-path">${activePath?.label || 'Selected scenario'}</div>`
+            : isDeterministic
+              ? `<div class="results-context-path">Base case</div>`
+              : `
+                <div class="results-context-toggle table-view-selector">
+                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
+                    Downside <span>P10</span>
+                  </button>
+                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
+                    Median <span>P50</span>
+                  </button>
+                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
+                    Upside <span>P90</span>
+                  </button>
+                </div>
+              `
+        }
       </div>
 
-      <div class="results-context-metrics">
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">End value</div>
-          <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
-        </div>
+      ${
+        isHistorical
+          ? ''
+          : `
+            <div class="results-context-metrics">
+              <div class="results-context-metric">
+                <div class="results-context-metric-label">End value</div>
+                <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+              </div>
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">First shortfall</div>
-          <div class="results-context-metric-value">${firstShortfall}</div>
-        </div>
+              <div class="results-context-metric">
+                <div class="results-context-metric-label">First shortfall</div>
+                <div class="results-context-metric-value">${firstShortfall}</div>
+              </div>
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">Worst shortfall</div>
-          <div class="results-context-metric-value">${worstShortfall}</div>
-        </div>
+              <div class="results-context-metric">
+                <div class="results-context-metric-label">Worst shortfall</div>
+                <div class="results-context-metric-value">${worstShortfall}</div>
+              </div>
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">Shortfall years</div>
-          <div class="results-context-metric-value">${shortfallYears}</div>
-        </div>
-      </div>
+              <div class="results-context-metric">
+                <div class="results-context-metric-label">Shortfall years</div>
+                <div class="results-context-metric-value">${shortfallYears}</div>
+              </div>
+            </div>
+          `
+      }
     </div>
   `;
 }
