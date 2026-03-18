@@ -87,10 +87,10 @@ function mapInputs(inputs) {
 
     useGuardrails: inputs.enableGuardrails,
 
-    guardrailFloor: inputs.lowerGuardrail,
-    guardrailCeiling: inputs.upperGuardrail,
-    guardrailCut: inputs.adjustmentSize,
-    guardrailRaise: inputs.adjustmentSize,
+    guardrailFloor: toDecimalPercent(inputs.lowerGuardrail),
+    guardrailCeiling: toDecimalPercent(inputs.upperGuardrail),
+    guardrailCut: toDecimalPercent(inputs.adjustmentSize),
+    guardrailRaise: toDecimalPercent(inputs.adjustmentSize),
 
     includeStatePension: true,
     statePensionToday: inputs.statePensionToday,
@@ -118,4 +118,9 @@ function mapInputs(inputs) {
       }
     ]
   };
+}
+
+function toDecimalPercent(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number / 100 : 0;
 }
