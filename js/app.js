@@ -1,4 +1,5 @@
-import { DEFAULT_INPUTS, runRetirementSimulation, validateInputs } from './model/simulator.js';
+import { DEFAULT_INPUTS, validateInputs } from './model/simulator.js';
+import { runSimulationByMode } from './model/run-simulation-by-mode.js';
 import { initialiseTabs } from './ui/tabs.js';
 import { renderResultsView } from './ui/results-view.js';
 import { createPlanForm } from './ui/plan-form.js';
@@ -52,6 +53,10 @@ const els = {
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
   adjustmentSize: document.getElementById('adjustmentSize'),
+  simulationMode: document.getElementById('simulationMode'),
+  historicalScenario: document.getElementById('historicalScenario'),
+  monteCarloRunsRow: document.getElementById('monteCarloRunsRow'),
+  historicalScenarioRow: document.getElementById('historicalScenarioRow'),
   monteCarloRuns: document.getElementById('monteCarloRuns'),
   seed: document.getElementById('seed'),
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
@@ -91,6 +96,7 @@ let latestResult = null;
 let latestBaseInputs = null;
 let worker = null;
 let withdrawalInputMode = 'amount';
+let currentTableView = 'median';
 
 const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 
@@ -151,6 +157,7 @@ function applyDefaults() {
   advancedForm.applyDefaults(DEFAULT_INPUTS);
   latestBaseInputs = null;
   withdrawalInputMode = 'amount';
+  currentTableView = 'median';
   syncInitialWithdrawalRateFromAmount();
 }
 
@@ -339,6 +346,7 @@ function runSimulation() {
 
   hideError();
   latestBaseInputs = mergedInputs;
+  currentTableView = 'median';
   planForm.setBusy(true);
 
   const effectiveInputs = getResultsOverrideInputs(mergedInputs);
@@ -349,7 +357,10 @@ function runSimulation() {
   }
 
   try {
-    latestResult = runRetirementSimulation(effectiveInputs);
+    latestResult = runSimulationByMode({
+      mode: effectiveInputs.simulationMode || 'monteCarlo',
+      inputs: effectiveInputs
+    });
     planForm.setBusy(false);
     showResults();
   } catch (error) {
@@ -380,7 +391,10 @@ function rerunResultsWithCurrentOptions() {
   }
 
   try {
-    latestResult = runRetirementSimulation(effectiveInputs);
+    latestResult = runSimulationByMode({
+      mode: effectiveInputs.simulationMode || 'monteCarlo',
+      inputs: effectiveInputs
+    });
     renderAll();
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Simulation failed.');
@@ -405,6 +419,7 @@ function renderAll() {
     elements: els,
     useReal: Boolean(els.showRealValues?.checked),
     showFullTable: Boolean(els.showFullTable?.checked),
+    tableView: currentTableView,
     formatters: {
       formatCurrency,
       formatPercent,
