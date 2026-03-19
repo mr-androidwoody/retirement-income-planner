@@ -870,6 +870,7 @@ function renderResultsContextAndPathSummary({
 
   const endValue = getSelectedPathEndValue(activePath, rows, useReal);
   const endValueForChange = getSelectedPathEndValue(activePath, rows, true);
+  const endValueLabel = useReal ? 'Real end value' : 'Nominal end value';
 
   const initialPortfolio =
     Number(result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio ?? 0);
@@ -969,11 +970,11 @@ function renderResultsContextAndPathSummary({
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let shortfallYearsDisplay = '0.0% of years below spending floor';
+  let shortfallYearsDisplay = '0.0% of years below minimum spending floor';
   let shortfallYearsClass = 'portfolio-horizon-signal-value--green';
 
   if (yearsBelowMinimumFloor > 0) {
-    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of years below spending floor`;
+    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of years below minimum spending floor`;
     shortfallYearsClass = 'portfolio-horizon-signal-value--red';
   }
 
@@ -1009,7 +1010,7 @@ function renderResultsContextAndPathSummary({
           : `
             <div class="results-context-metrics">
               <div class="results-context-metric">
-                <div class="results-context-metric-label">End value</div>
+                <div class="results-context-metric-label">${endValueLabel}</div>
                 <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
                 ${
                   endValueChangeDisplay
