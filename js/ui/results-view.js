@@ -853,7 +853,7 @@ function renderResultsContextAndPathSummary({
   const container = elements.resultsContextBar;
   if (!container) return;
 
-  const { formatCurrency, formatPercent } = formatters;
+  const { formatCurrency } = formatters;
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
@@ -885,11 +885,17 @@ function renderResultsContextAndPathSummary({
   const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
 
   let worstActualSpending = Number.POSITIVE_INFINITY;
+  let yearsBelowMinimumFloor = 0;
 
   rows.forEach((row) => {
     const actual = getRowActualSpending(row, true);
+
     if (actual > 0 && actual < worstActualSpending) {
       worstActualSpending = actual;
+    }
+
+    if (actual > 0 && actual < minimumFloor) {
+      yearsBelowMinimumFloor += 1;
     }
   });
 
@@ -914,6 +920,18 @@ function renderResultsContextAndPathSummary({
       floorHeadroomPct >= 0
         ? 'portfolio-horizon-signal-value--green'
         : 'portfolio-horizon-signal-value--red';
+  }
+
+  const totalYears = rows.length || 0;
+  const yearsBelowFloorPct =
+    totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
+
+  let shortfallYearsDisplay = '0.0% of plan below floor';
+  let shortfallYearsClass = 'portfolio-horizon-signal-value--green';
+
+  if (yearsBelowMinimumFloor > 0) {
+    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of plan below floor`;
+    shortfallYearsClass = 'portfolio-horizon-signal-value--red';
   }
 
   container.innerHTML = `
@@ -968,6 +986,9 @@ function renderResultsContextAndPathSummary({
               <div class="results-context-metric">
                 <div class="results-context-metric-label">Shortfall years</div>
                 <div class="results-context-metric-value">${shortfallYears}</div>
+                <div class="results-context-metric-subvalue ${shortfallYearsClass}">
+                  ${shortfallYearsDisplay}
+                </div>
               </div>
             </div>
           `
