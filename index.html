@@ -123,14 +123,14 @@
                   </label>
 
                   <label class="field">
-                    <span class="field-label">Comfort spending floor (£)</span>
+                    <span class="field-label">Comfort spending level (£)</span>
                     <div class="stepper-input">
                       <button
                         type="button"
                         class="stepper-btn"
                         data-step-target="comfortSpending"
                         data-step-direction="-1"
-                        aria-label="Decrease comfort spending floor by £1,000"
+                        aria-label="Decrease comfort spending level by £1,000"
                       >−</button>
                       <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" />
                       <button
@@ -138,20 +138,20 @@
                         class="stepper-btn"
                         data-step-target="comfortSpending"
                         data-step-direction="1"
-                        aria-label="Increase comfort spending floor by £1,000"
+                        aria-label="Increase comfort spending level by £1,000"
                       >+</button>
                     </div>
                   </label>
 
                   <label class="field">
-                    <span class="field-label">Minimum spending floor (£)</span>
+                    <span class="field-label">Minimum spending level (£)</span>
                     <div class="stepper-input">
                       <button
                         type="button"
                         class="stepper-btn"
                         data-step-target="minimumSpending"
                         data-step-direction="-1"
-                        aria-label="Decrease minimum spending floor by £1,000"
+                        aria-label="Decrease minimum spending level by £1,000"
                       >−</button>
                       <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" />
                       <button
@@ -159,14 +159,14 @@
                         class="stepper-btn"
                         data-step-target="minimumSpending"
                         data-step-direction="1"
-                        aria-label="Increase minimum spending floor by £1,000"
+                        aria-label="Increase minimum spending level by £1,000"
                       >+</button>
                     </div>
                   </label>
                 </div>
 
                 <div class="section-subnote">
-                  Enter either how much you plan to spend each year or the withdrawal rate you want to start with. Comfort and minimum spending floors default to <strong>90%</strong> and <strong>75%</strong> of household spending unless you override them.
+                  Enter either how much you plan to spend each year or the withdrawal rate you want to start with. Comfort and minimum spending levels default to <strong>90%</strong> and <strong>75%</strong> of household spending unless you override them.
                 </div>
 
                 <div class="field-grid field-grid-3">
@@ -613,9 +613,8 @@
             </div>
 
             <div class="results-explainer">
-              <p>Nominal shows the future pound amounts you would actually see at the time.</p>
-              <p>Real removes inflation so everything is shown in today’s spending power.</p>
-              <p>For retirement income planning, real view is usually the better guide because the guardrails adjust spending using inflation.</p>
+              <p><strong>Nominal</strong> shows the future pound amounts you would actually see at the time.</p>
+              <p>Use the <strong>Real</strong> view to judge sustainability: it strips out inflation so you can see whether your spending power stays above your comfort and minimum spending levels.</p>
             </div>
 
               <div id="resultsContextBar"></div>
@@ -757,7 +756,7 @@
 
     <div class="outlook-glossary-item">
       <div class="outlook-glossary-term-row">
-        <div class="outlook-glossary-term">Comfort floor</div>
+        <div class="outlook-glossary-term">Comfort level</div>
       </div>
       <div class="outlook-glossary-definition">
         The annual spending level the plan treats as a comfortable lifestyle target. Spending below this level suggests a meaningful reduction in lifestyle.
@@ -766,7 +765,7 @@
 
     <div class="outlook-glossary-item">
       <div class="outlook-glossary-term-row">
-        <div class="outlook-glossary-term">Minimum floor</div>
+        <div class="outlook-glossary-term">Minimum level</div>
       </div>
       <div class="outlook-glossary-definition">
         The minimum annual spending level the plan treats as acceptable for essential living costs.
@@ -869,10 +868,10 @@
 
     <div class="outlook-glossary-item">
       <div class="outlook-glossary-term-row">
-        <div class="outlook-glossary-term">Years below comfort floor</div>
+        <div class="outlook-glossary-term">Years below comfort spending level</div>
       </div>
       <div class="outlook-glossary-definition">
-        Number of years where actual spending falls below the comfort floor level.
+        Number of years where actual spending falls below the comfort spending level.
       </div>
     </div>
   </section>
