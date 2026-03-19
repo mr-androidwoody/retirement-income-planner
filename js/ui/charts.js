@@ -1,6 +1,4 @@
 export function renderSpendingChart(canvas, result, useReal, formatCurrency, cutDiagnostics = {}) {
-
-export function renderSpendingChart(canvas, result, useReal, formatCurrency, cutDiagnostics = {}) {
   if (!result?.baseCase?.rows) return;
 
   const rows = result.baseCase.rows;
