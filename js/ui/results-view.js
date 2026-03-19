@@ -687,12 +687,20 @@ function renderResultsContextAndPathSummary({
   const isHistorical = mode === 'historical';
   const isDeterministic = mode === 'deterministic';
 
-  const modeLabel =
-    isHistorical
-      ? 'Historical'
-      : isDeterministic
-        ? 'Deterministic'
-        : 'Monte Carlo';
+  let modeLabel;
+
+  if (isHistorical) {
+    modeLabel = 'Historical';
+  } else if (isDeterministic) {
+    modeLabel = 'Base case';
+  } else {
+    const runsLabel =
+    simulationCount > 0
+      ? ` (${simulationCount.toLocaleString()} runs)`
+      : '';
+
+    modeLabel = `Simulated outcomes${runsLabel}`;
+  }
 
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
@@ -862,7 +870,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">First spending level breach</div>
+          <div class="results-context-metric-label">First drop below spending level</div>
           <div class="results-context-metric-value">
             ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'None'}
           </div>
@@ -876,7 +884,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Worst spending level gap</div>
+          <div class="results-context-metric-label">Largest shortfall vs minimum</div>
           <div class="results-context-metric-value">
             ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
           </div>
@@ -886,7 +894,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Spending level breach years</div>
+          <div class="results-context-metric-label">Years below minimum</div>
           <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
           <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
             ${floorBreachYearsDisplay}
@@ -1274,12 +1282,12 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
 
   if (isDeterministic) {
     if (elements.summarySuccessRateLabel) {
-      elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
+      elements.summarySuccessRateLabel.textContent = 'Success rate';
     }
 
     if (elements.summarySuccessRateDesc) {
       elements.summarySuccessRateDesc.textContent =
-        'Not used in deterministic mode.';
+        'Only applies to simulated outcomes.';
     }
 
     if (elements.summaryMedianEndLabel) {
@@ -1315,7 +1323,7 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   // Monte Carlo (default)
 
   if (elements.summarySuccessRateLabel) {
-    elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
+    elements.summarySuccessRateLabel.textContent = 'Success rate';
   }
 
   if (elements.summarySuccessRateDesc) {
