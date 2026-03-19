@@ -927,7 +927,7 @@ const contextBody = isDepleted
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">First drop below comfort level</div>
+          <div class="results-context-metric-label">First spending cut</div>
           <div class="results-context-metric-body">
             <div class="results-context-metric-value">
               ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
@@ -943,7 +943,7 @@ const contextBody = isDepleted
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Largest shortfall vs minimum level</div>
+          <div class="results-context-metric-label">Worst spending shortfall</div>
           <div class="results-context-metric-body">
             <div class="results-context-metric-value">
               ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
@@ -955,7 +955,7 @@ const contextBody = isDepleted
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Years below minimum level</div>
+          <div class="results-context-metric-label">Years of reduced spending</div>
           <div class="results-context-metric-body">
             <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
             <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
