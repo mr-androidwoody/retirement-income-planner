@@ -693,7 +693,11 @@ function renderResultsContextAndPathSummary({
     result?.monteCarlo?.runs ??
     0;
 
-  const historicalLabel = activePath?.label || '';
+  const historicalLabel =
+    result?.inputs?.historicalScenarioLabel ||
+    result?.inputs?.historicalScenarioName ||
+    activePath?.label ||
+    '';
 
   let modeLabel;
 
@@ -714,7 +718,7 @@ function renderResultsContextAndPathSummary({
   } else if (isDeterministic) {
     modeLabel = 'Base case';
   } else {
-   const runsLabel =
+    const runsLabel =
       simulationCount > 0
         ? ` (${simulationCount.toLocaleString()} simulations)`
         : '';
