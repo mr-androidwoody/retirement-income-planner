@@ -2286,3 +2286,53 @@ input[type="checkbox"]{
     border-bottom: 1px solid var(--line);
   }
 }
+
+/* ========================================
+   Results context alert (DEPLETION STATE)
+   ======================================== */
+
+.results-context-card--warning {
+  border-color: #f3c37a;
+  background: #fff8eb;
+}
+
+.results-context-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #f3c37a;
+  border-radius: 12px;
+  background: #fff3d6;
+}
+
+.results-context-alert-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex: 0 0 22px;
+}
+
+.results-context-alert-body {
+  min-width: 0;
+}
+
+.results-context-alert-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #8a4b00;
+  margin-bottom: 2px;
+}
+
+.results-context-alert-text {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #6b4a1f;
+}
