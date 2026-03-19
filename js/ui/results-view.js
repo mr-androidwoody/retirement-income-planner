@@ -567,7 +567,6 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
       </div>
     </div>
   `;
-  `;
 }
 
 function safePositiveNumber(value) {
