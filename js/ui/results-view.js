@@ -797,8 +797,7 @@ function renderResultsContextAndPathSummary({
   let firstFloorBreachClass = '';
 
   if (firstComfortBreachYear != null) {
-    firstFloorBreachSub =
-      `First breach of spending level: Year ${firstComfortBreachYear}`;
+    firstFloorBreachSub = `Year ${firstComfortBreachYear}`;
     firstFloorBreachClass = 'results-context-metric-subvalue--blue';
   }
 
@@ -841,17 +840,122 @@ function renderResultsContextAndPathSummary({
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let floorBreachYearsDisplay = '0.0% of years below minimum spending level';
+  let floorBreachYearsDisplay = '0.0% of years below minimum level';
   let floorBreachYearsClass = 'results-context-metric-subvalue--green';
 
   if (yearsBelowMinimumFloor > 0) {
     floorBreachYearsDisplay =
-      `${yearsBelowFloorPct.toFixed(1)}% of years below minimum spending level`;
+      `${yearsBelowFloorPct.toFixed(1)}% of years below minimum level`;
     floorBreachYearsClass = 'results-context-metric-subvalue--red';
   }
 
+  const depletionYearFromSummary =
+    result?.summary?.depletionYear ??
+    result?.depletionYear ??
+    activePath?.depletionYear ??
+    null;
+
+  let depletionYear = Number.isFinite(Number(depletionYearFromSummary))
+    ? Number(depletionYearFromSummary)
+    : null;
+
+  if (depletionYear === null) {
+    const depletedRow = rows.find((row, index) => {
+      const planYear = getRowPlanYear(row, index);
+
+      const endPortfolioValue = Number(
+        useReal
+          ? (
+              row?.endPortfolioReal ??
+              row?.endingPortfolioReal ??
+              row?.portfolioReal ??
+              row?.endPortfolio ??
+              row?.portfolio ??
+              NaN
+            )
+          : (
+              row?.endPortfolioNominal ??
+              row?.endingPortfolioNominal ??
+              row?.portfolioNominal ??
+              row?.endPortfolio ??
+              row?.portfolio ??
+              NaN
+            )
+      );
+
+      return Number.isFinite(endPortfolioValue) && endPortfolioValue <= 0 && planYear != null;
+    });
+
+    if (depletedRow) {
+      depletionYear = getRowPlanYear(depletedRow, rows.indexOf(depletedRow));
+    }
+  }
+
+  const isDepleted = depletionYear !== null;
+
+  const contextBody = isDepleted
+    ? `
+      <div class="results-context-alert results-context-alert--warning">
+        <div class="results-context-alert-icon" aria-hidden="true">!</div>
+        <div class="results-context-alert-body">
+          <div class="results-context-alert-title">
+            Plan warning: portfolio depleted in Year ${depletionYear}</div>
+          <div class="results-context-alert-text">
+            After depletion, spending is limited to guaranteed income only (for example, State Pension).
+          </div>
+        </div>
+      </div>
+    `
+    : `
+      <div class="results-context-metrics">
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">${endValueLabel}</div>
+          <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+          ${
+            endValueChangeDisplay
+              ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                   ${endValueChangeDisplay}
+                 </div>`
+              : ''
+          }
+        </div>
+
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">First drop below comfort level</div>
+          <div class="results-context-metric-value">
+            ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+          </div>
+          ${
+            firstFloorBreachSub
+              ? `<div class="results-context-metric-subvalue ${firstFloorBreachClass}">
+                   ${firstFloorBreachSub}
+                 </div>`
+              : ''
+          }
+        </div>
+
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">Largest shortfall vs minimum level</div>
+          <div class="results-context-metric-value">
+            ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
+          </div>
+          <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+            ${floorHeadroomDisplay} from minimum level
+          </div>
+        </div>
+
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">Years below minimum level</div>
+          <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+          <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+            ${floorBreachYearsDisplay}
+          </div>
+        </div>
+      </div>
+    `;
+
   container.innerHTML = `
-    <div class="results-context-card">
+    <div class="results-context-card${isDepleted ? ' results-context-card--warning' : ''}">
       <div class="results-context-top">
         <div class="results-context-mode">${modeLabel}</div>
 
@@ -876,51 +980,7 @@ function renderResultsContextAndPathSummary({
         }
       </div>
 
-      <div class="results-context-metrics">
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">${endValueLabel}</div>
-          <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
-          ${
-            endValueChangeDisplay
-              ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                   ${endValueChangeDisplay}
-                 </div>`
-              : ''
-          }
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">First drop below spending level</div>
-          <div class="results-context-metric-value">
-            ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'None'}
-          </div>
-          ${
-            firstFloorBreachSub
-              ? `<div class="results-context-metric-subvalue ${firstFloorBreachClass}">
-                   ${firstFloorBreachSub}
-                 </div>`
-              : ''
-          }
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">Largest shortfall vs minimum</div>
-          <div class="results-context-metric-value">
-            ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
-          </div>
-          <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-            ${floorHeadroomDisplay} from minimum spending floor
-          </div>
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">Years below minimum spending level</div>
-          <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-          <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-            ${floorBreachYearsDisplay}
-          </div>
-        </div>
-      </div>
+      ${contextBody}
     </div>
   `;
 }
