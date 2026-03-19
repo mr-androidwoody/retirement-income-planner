@@ -732,31 +732,34 @@ function renderResultsContextAndPathSummary({
   rows.forEach((row, index) => {
     const planYear = getRowPlanYear(row, index);
     const inflationIndex = Number(row.inflationIndex ?? 1);
-    const actual = getRowActualSpending(row, useReal);
 
-    const minimumFloorForYear = useReal
-      ? minimumFloor
-      : minimumFloor * inflationIndex;
+    const actualNominal = Number(row.spendingNominal ?? 0);
+    const minimumFloorNominalForYear = minimumFloor * inflationIndex;
+    const comfortFloorNominalForYear = comfortFloor * inflationIndex;
 
-    const comfortFloorForYear = useReal
-      ? comfortFloor
-      : comfortFloor * inflationIndex;
-
-    if (minimumFloorForYear > 0 && actual > 0 && actual < worstActualSpending) {
-      worstActualSpending = actual;
-      worstMinimumFloorForYear = minimumFloorForYear;
+    if (
+      minimumFloorNominalForYear > 0 &&
+      actualNominal > 0 &&
+      actualNominal < worstActualSpending
+    ) {
+      worstActualSpending = actualNominal;
+      worstMinimumFloorForYear = minimumFloorNominalForYear;
     }
 
     if (
-      comfortFloorForYear > 0 &&
-      actual > 0 &&
-      actual < comfortFloorForYear &&
+      comfortFloorNominalForYear > 0 &&
+      actualNominal > 0 &&
+      actualNominal < comfortFloorNominalForYear &&
       firstComfortBreachYear === null
     ) {
       firstComfortBreachYear = planYear;
     }
 
-    if (minimumFloorForYear > 0 && actual > 0 && actual < minimumFloorForYear) {
+    if (
+     minimumFloorNominalForYear > 0 &&
+      actualNominal > 0 &&
+      actualNominal < minimumFloorNominalForYear
+    ) {
       yearsBelowMinimumFloor += 1;
     }
   });
@@ -794,12 +797,17 @@ function renderResultsContextAndPathSummary({
         : 'results-context-metric-subvalue--red';
   }
 
-  const worstFloorGap =
+  const worstFloorGapNominal =
     worstMinimumFloorForYear > 0 &&
     worstActualSpending > 0 &&
     worstActualSpending < worstMinimumFloorForYear
       ? worstMinimumFloorForYear - worstActualSpending
       : 0;
+
+  const worstFloorGap =
+    useReal && worstFloorGapNominal > 0 && minimumFloor > 0
+      ? worstFloorGapNominal / (worstMinimumFloorForYear / minimumFloor)
+      : worstFloorGapNominal;
 
   const totalYears = rows.length || 0;
   const yearsBelowFloorPct =
