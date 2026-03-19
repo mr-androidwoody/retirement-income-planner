@@ -1,3 +1,162 @@
+export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
+  if (!canvas || !result?.inputs) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  const hasMonteCarlo =
+    Boolean(result?.monteCarlo?.realPercentiles) &&
+    Boolean(result?.monteCarlo?.nominalPercentiles);
+
+  const historicalRows =
+    result?.selectedPath?.yearlyRows ||
+    result?.selectedPath?.rows ||
+    [];
+
+  const historicalPath = historicalRows.map((row) =>
+    Number(
+      useReal
+        ? (
+            row?.endPortfolioReal ??
+            row?.portfolioReal ??
+            row?.endingPortfolioReal ??
+            row?.endPortfolio ??
+            row?.portfolio ??
+            0
+          )
+        : (
+            row?.endPortfolioNominal ??
+            row?.portfolioNominal ??
+            row?.endingPortfolioNominal ??
+            row?.endPortfolio ??
+            row?.portfolio ??
+            0
+          )
+    )
+  );
+
+  const basePath = isHistorical
+    ? historicalPath
+    : (
+        useReal
+          ? (result?.baseCase?.pathReal || [])
+          : (result?.baseCase?.pathNominal || [])
+      );
+
+  if (!basePath.length) return;
+
+  const labels = buildYearLabels(basePath.length - 1);
+  const verticalMarkers = [];
+
+  const p1Amount = Number(result.inputs?.person1WindfallAmount);
+  const p1Year = Number(result.inputs?.person1WindfallYear);
+
+  if (
+    Number.isFinite(p1Amount) &&
+    p1Amount > 0 &&
+    Number.isFinite(p1Year) &&
+    p1Year >= 0 &&
+    p1Year <= result.inputs.years
+  ) {
+    verticalMarkers.push({
+      index: p1Year,
+      color: '#dc2626',
+      label: `${result.inputs?.person1Name || 'Person 1'} windfall £${Math.round(p1Amount).toLocaleString()}`
+    });
+  }
+
+  const p2Amount = Number(result.inputs?.person2WindfallAmount);
+  const p2Year = Number(result.inputs?.person2WindfallYear);
+
+  if (
+    Number.isFinite(p2Amount) &&
+    p2Amount > 0 &&
+    Number.isFinite(p2Year) &&
+    p2Year >= 0 &&
+    p2Year <= result.inputs.years
+  ) {
+    verticalMarkers.push({
+      index: p2Year,
+      color: '#dc2626',
+      label: `${result.inputs?.person2Name || 'Person 2'} windfall £${Math.round(p2Amount).toLocaleString()}`
+    });
+  }
+
+  const person1YearsToPension =
+    Number.isFinite(result.inputs?.person1Age) &&
+    Number.isFinite(result.inputs?.person1PensionAge)
+      ? Math.max(0, result.inputs.person1PensionAge - result.inputs.person1Age)
+      : null;
+
+  const person2YearsToPension =
+    result.inputs?.includePerson2 &&
+    Number.isFinite(result.inputs?.person2Age) &&
+    Number.isFinite(result.inputs?.person2PensionAge)
+      ? Math.max(0, result.inputs.person2PensionAge - result.inputs.person2Age)
+      : null;
+
+  if (person1YearsToPension != null && person1YearsToPension <= result.inputs.years) {
+    verticalMarkers.push({
+      index: person1YearsToPension,
+      color: '#0f766e',
+      label: `${result.inputs?.person1Name || 'Person 1'} state pension`
+    });
+  }
+
+  if (person2YearsToPension != null && person2YearsToPension <= result.inputs.years) {
+    verticalMarkers.push({
+      index: person2YearsToPension,
+      color: '#7c3aed',
+      label: `${result.inputs?.person2Name || 'Person 2'} state pension`
+    });
+  }
+
+  const chartConfig = {
+    labels,
+    lines: isHistorical || !hasMonteCarlo
+      ? [
+          {
+            label: isHistorical ? 'Selected historical path' : 'Portfolio path',
+            values: basePath,
+            color: '#2d5bff',
+            width: 3
+          }
+        ]
+      : [
+          {
+            label: 'Median simulation',
+            values: useReal
+              ? result.monteCarlo.realPercentiles.p50
+              : result.monteCarlo.nominalPercentiles.p50,
+            color: '#2d5bff',
+            width: 3
+          },
+          {
+            label: 'Base case',
+            values: basePath,
+            color: '#0f766e',
+            width: 2.5
+          }
+        ],
+    verticalMarkers,
+    yFormatter: formatCurrency
+  };
+
+  if (!isHistorical && hasMonteCarlo) {
+    chartConfig.band = {
+      lower: useReal
+        ? result.monteCarlo.realPercentiles.p10
+        : result.monteCarlo.nominalPercentiles.p10,
+      upper: useReal
+        ? result.monteCarlo.realPercentiles.p90
+        : result.monteCarlo.nominalPercentiles.p90,
+      fillStyle: 'rgba(45, 91, 255, 0.15)'
+    };
+  }
+
+  drawLineChart(canvas, chartConfig);
+}
+
 export function renderSpendingChart(canvas, result, useReal, formatCurrency, cutDiagnostics = {}) {
   if (!result?.baseCase?.rows) return;
 
