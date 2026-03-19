@@ -2205,9 +2205,9 @@ input[type="checkbox"]{
 }
 
 .results-context-path {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 0.85rem;
+  color: #64748b;        
+  margin-right: 12px;     
 }
 
 .results-context-metrics {
