@@ -687,6 +687,12 @@ function renderResultsContextAndPathSummary({
   const isHistorical = mode === 'historical';
   const isDeterministic = mode === 'deterministic';
 
+  const simulationCount =
+    result?.scenarioCount ??
+    result?.monteCarlo?.scenarioCount ??
+    result?.monteCarlo?.runs ??
+    0;
+
   let modeLabel;
 
   if (isHistorical) {
@@ -695,9 +701,9 @@ function renderResultsContextAndPathSummary({
     modeLabel = 'Base case';
   } else {
     const runsLabel =
-    simulationCount > 0
-      ? ` (${simulationCount.toLocaleString()} runs)`
-      : '';
+      simulationCount > 0
+        ? ` (${simulationCount.toLocaleString()} simulations)`
+        : '';
 
     modeLabel = `Simulated outcomes${runsLabel}`;
   }
