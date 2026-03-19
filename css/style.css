@@ -2251,7 +2251,7 @@ input[type="checkbox"]{
 .results-context-metric-subvalue {
   position: absolute;
   right: 12px;
-  top: 50%;
+  top: 65%;
   transform: translateY(-50%);
   font-size: 0.78rem;
   font-weight: 500;
