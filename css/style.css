@@ -2051,13 +2051,6 @@ input[type="checkbox"]{
   margin-top:14px;
 }
 
-.portfolio-horizon-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-}
-
 .portfolio-horizon-item{
   padding:10px 12px;
   border:1px solid var(--line);
@@ -2083,14 +2076,11 @@ input[type="checkbox"]{
   overflow-wrap:anywhere;
 }
 
-.portfolio-horizon-item--signal{
+.portfolio-horizon-row{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-}
-
-.portfolio-horizon-item-main{
+  gap:8px;
   min-width:0;
 }
 
@@ -2222,7 +2212,7 @@ input[type="checkbox"]{
 
 .results-context-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -2252,6 +2242,14 @@ input[type="checkbox"]{
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--text);
+}
+
+.results-context-metric-value.portfolio-horizon-signal-value--green{
+  color:#16b981;
+}
+
+.results-context-metric-value.portfolio-horizon-signal-value--red{
+  color:#ef4444;
 }
 
 @media (max-width: 900px) {
