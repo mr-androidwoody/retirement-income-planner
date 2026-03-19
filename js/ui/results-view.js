@@ -558,17 +558,15 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     </div>
 
     <div class="portfolio-horizon-item portfolio-horizon-item--signal">
-      <div class="portfolio-horizon-item-main">
-        <div class="portfolio-horizon-label">Floor headroom</div>
+      <div class="portfolio-horizon-label">Floor headroom</div>
+      <div class="portfolio-horizon-row">
         <div class="portfolio-horizon-value ${floorHeadroomClass}">
           ${floorHeadroomDisplay}
         </div>
-      </div>
-
-      <div class="portfolio-horizon-side-note">
-        vs minimum floor
+        <div class="portfolio-horizon-side-note">vs minimum floor</div>
       </div>
     </div>
+  `;
   `;
 }
 
