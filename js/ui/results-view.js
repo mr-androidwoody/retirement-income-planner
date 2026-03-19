@@ -870,6 +870,28 @@ function renderResultsContextAndPathSummary({
 
   const endValue = getSelectedPathEndValue(activePath, rows, useReal);
 
+  const initialPortfolio =
+    Number(result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio ?? 0);
+
+  let endValueChangePct = null;
+  let endValueChangeDisplay = '';
+  let endValueChangeClass = '';
+
+  if (initialPortfolio > 0 && Number.isFinite(endValue)) {
+    endValueChangePct = (endValue - initialPortfolio) / initialPortfolio;
+
+    const sign =
+      endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
+
+    endValueChangeDisplay =
+      `${sign}${Math.abs(endValueChangePct * 100).toFixed(1)}% from initial investments`;
+
+    endValueChangeClass =
+      endValueChangePct >= 0
+        ? 'portfolio-horizon-signal-value--green'
+        : 'portfolio-horizon-signal-value--red';
+  }
+
   const firstShortfall =
     cutDiagnostics.firstShortfallYear != null
       ? `Year ${cutDiagnostics.firstShortfallYear}`
@@ -913,9 +935,10 @@ function renderResultsContextAndPathSummary({
   let firstShortfallSub = '';
   let firstShortfallClass = '';
 
-if (firstComfortBreachYear != null) {
-  firstShortfallSub = `First breach of comfort<br>spending floor in Year ${firstComfortBreachYear}`;
-  firstShortfallClass = 'portfolio-horizon-signal-value--blue';
+  if (firstComfortBreachYear != null) {
+    firstShortfallSub =
+      `First breach of comfort<br>spending floor in Year ${firstComfortBreachYear}`;
+    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
   }
 
   if (!Number.isFinite(worstActualSpending)) {
@@ -987,6 +1010,13 @@ if (firstComfortBreachYear != null) {
               <div class="results-context-metric">
                 <div class="results-context-metric-label">End value</div>
                 <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+                ${
+                  endValueChangeDisplay
+                    ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                         ${endValueChangeDisplay}
+                       </div>`
+                    : ''
+                }
               </div>
 
               <div class="results-context-metric">
