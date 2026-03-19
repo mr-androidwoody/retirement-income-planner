@@ -2212,7 +2212,7 @@ input[type="checkbox"]{
 
 .results-context-metrics {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -2223,6 +2223,9 @@ input[type="checkbox"]{
 .results-context-metric {
   padding: 12px 14px;
   border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .results-context-metric:last-child {
@@ -2244,11 +2247,21 @@ input[type="checkbox"]{
   color: var(--text);
 }
 
-.results-context-metric-value.portfolio-horizon-signal-value--green{
+.results-context-metric-subvalue{
+  margin-top:6px;
+  font-size:0.75rem;
+  font-weight:700;
+  text-align:right;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+}
+
+.results-context-metric-subvalue.portfolio-horizon-signal-value--green{
   color:#16b981;
 }
 
-.results-context-metric-value.portfolio-horizon-signal-value--red{
+.results-context-metric-subvalue.portfolio-horizon-signal-value--red{
   color:#ef4444;
 }
 
