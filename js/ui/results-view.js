@@ -693,14 +693,28 @@ function renderResultsContextAndPathSummary({
     result?.monteCarlo?.runs ??
     0;
 
+  const historicalLabel = activePath?.label || '';
+
   let modeLabel;
 
   if (isHistorical) {
-    modeLabel = 'Historical';
+    const parts = historicalLabel
+      .split('—')
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    if (parts.length >= 2) {
+      const [year, ...rest] = parts;
+      modeLabel = `Historical scenario — ${year} (${rest.join(' — ')})`;
+    } else if (historicalLabel) {
+      modeLabel = `Historical scenario — ${historicalLabel}`;
+    } else {
+      modeLabel = 'Historical scenario';
+    }
   } else if (isDeterministic) {
     modeLabel = 'Base case';
   } else {
-    const runsLabel =
+   const runsLabel =
       simulationCount > 0
         ? ` (${simulationCount.toLocaleString()} simulations)`
         : '';
