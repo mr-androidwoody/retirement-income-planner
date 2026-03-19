@@ -2256,7 +2256,8 @@ input[type="checkbox"]{
   font-size: 0.68rem;
   font-weight: 500;
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.2;
   opacity: 0.9;
 }
 
