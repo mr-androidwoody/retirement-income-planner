@@ -499,6 +499,39 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     }
   });
 
+  const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
+
+  let worstActualSpending = Number.POSITIVE_INFINITY;
+
+  rows.forEach((row) => {
+    const actual = getRowActualSpending(row, useReal);
+
+    if (actual > 0 && actual < worstActualSpending) {
+      worstActualSpending = actual;
+    }
+  });
+
+  if (!Number.isFinite(worstActualSpending)) {
+    worstActualSpending = 0;
+  }
+
+  let floorHeadroomPct = null;
+
+  if (minimumFloor > 0) {
+    floorHeadroomPct = (worstActualSpending - minimumFloor) / minimumFloor;
+  }
+
+  let floorHeadroomDisplay = '—';
+  let floorHeadroomClass = '';
+
+  if (floorHeadroomPct !== null) {
+    floorHeadroomDisplay = formatPercent(floorHeadroomPct);
+    floorHeadroomClass =
+      floorHeadroomPct >= 0
+        ? 'portfolio-horizon-signal-value--green'
+        : 'portfolio-horizon-signal-value--red';
+  }
+
   container.innerHTML = `
     <div class="portfolio-horizon-item">
       <div class="portfolio-horizon-label">End value</div>
@@ -521,6 +554,19 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
       <div class="portfolio-horizon-label">Worst spending cut</div>
       <div class="portfolio-horizon-value">
         ${worstCut > 0 ? formatPercent(worstCut) : 'None'}
+      </div>
+    </div>
+
+    <div class="portfolio-horizon-item portfolio-horizon-item--signal">
+      <div class="portfolio-horizon-item-main">
+        <div class="portfolio-horizon-label">Floor headroom</div>
+        <div class="portfolio-horizon-value ${floorHeadroomClass}">
+          ${floorHeadroomDisplay}
+        </div>
+      </div>
+
+      <div class="portfolio-horizon-side-note">
+        vs minimum floor
       </div>
     </div>
   `;
