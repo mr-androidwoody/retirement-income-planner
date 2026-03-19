@@ -875,14 +875,6 @@ function renderResultsContextAndPathSummary({
       ? `Year ${cutDiagnostics.firstShortfallYear}`
       : 'None';
 
-  let firstShortfallSub = '';
-  let firstShortfallClass = '';
-
-  if (cutDiagnostics.firstShortfallYear != null) {
-    firstShortfallSub = 'Onset of shortfall';
-    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
-  }
-
   const worstShortfall =
     cutDiagnostics.worstShortfall > 0
       ? formatCurrency(cutDiagnostics.worstShortfall)
@@ -890,22 +882,41 @@ function renderResultsContextAndPathSummary({
 
   const shortfallYears = cutDiagnostics.shortfallYears || 0;
 
-  const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
+  const { comfortFloor, minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
 
+  let firstComfortBreachYear = null;
   let worstActualSpending = Number.POSITIVE_INFINITY;
   let yearsBelowMinimumFloor = 0;
 
-  rows.forEach((row) => {
+  rows.forEach((row, index) => {
+    const planYear = getRowPlanYear(row, index);
     const actual = getRowActualSpending(row, true);
 
     if (actual > 0 && actual < worstActualSpending) {
       worstActualSpending = actual;
     }
 
-    if (actual > 0 && actual < minimumFloor) {
+    if (
+      comfortFloor > 0 &&
+      actual > 0 &&
+      actual < comfortFloor &&
+      firstComfortBreachYear === null
+    ) {
+      firstComfortBreachYear = planYear;
+    }
+
+    if (minimumFloor > 0 && actual > 0 && actual < minimumFloor) {
       yearsBelowMinimumFloor += 1;
     }
   });
+
+  let firstShortfallSub = '';
+  let firstShortfallClass = '';
+
+  if (firstComfortBreachYear != null) {
+    firstShortfallSub = `First breach of comfort spending floor in Year ${firstComfortBreachYear}`;
+    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
+  }
 
   if (!Number.isFinite(worstActualSpending)) {
     worstActualSpending = 0;
