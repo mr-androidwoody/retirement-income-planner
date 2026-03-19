@@ -769,7 +769,7 @@ function renderResultsContextAndPathSummary({
 
   if (firstComfortBreachYear != null) {
     firstFloorBreachSub =
-      `First breach of comfort<br>spending level in Year ${firstComfortBreachYear}`;
+      `First breach of spending level: Year ${firstComfortBreachYear}`;
     firstFloorBreachClass = 'results-context-metric-subvalue--blue';
   }
 
