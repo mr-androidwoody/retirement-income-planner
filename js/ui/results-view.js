@@ -926,11 +926,11 @@ function renderResultsContextAndPathSummary({
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let shortfallYearsDisplay = '0.0% of plan below floor';
+  let shortfallYearsDisplay = '0.0% of plan below spending floor';
   let shortfallYearsClass = 'portfolio-horizon-signal-value--green';
 
   if (yearsBelowMinimumFloor > 0) {
-    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of plan below floor`;
+    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of plan below spending floor`;
     shortfallYearsClass = 'portfolio-horizon-signal-value--red';
   }
 
