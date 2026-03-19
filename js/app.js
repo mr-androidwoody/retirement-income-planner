@@ -343,6 +343,14 @@ function gatherInputs() {
     }
   }
 
+  if (els.historicalScenario) {
+    const selectedIndex = els.historicalScenario.selectedIndex;
+    const selectedOption =
+      selectedIndex >= 0 ? els.historicalScenario.options[selectedIndex] : null;
+
+    inputs.historicalScenarioLabel = selectedOption?.text?.trim() || '';
+  }
+
   return inputs;
 }
 
