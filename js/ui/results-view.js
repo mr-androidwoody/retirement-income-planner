@@ -900,7 +900,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Years below minimum</div>
+          <div class="results-context-metric-label">Years below minimum spending level</div>
           <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
           <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
             ${floorBreachYearsDisplay}
