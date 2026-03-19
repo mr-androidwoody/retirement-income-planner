@@ -841,6 +841,12 @@ function renderResultsContextAndPathSummary({
     floorBreachYearsClass = 'results-context-metric-subvalue--red';
   }
 
+  const summarySaysDepleted = Boolean(
+    result?.summary?.depleted ??
+    result?.depleted ??
+    activePath?.depleted
+  );
+
   const depletionYearFromSummary =
     result?.summary?.depletionYear ??
     result?.depletionYear ??
@@ -851,7 +857,7 @@ function renderResultsContextAndPathSummary({
     ? Number(depletionYearFromSummary)
     : null;
 
-  if (depletionYear === null) {
+  if (summarySaysDepleted && depletionYear === null) {
     const depletedRow = rows.find((row, index) => {
       const planYear = getRowPlanYear(row, index);
 
@@ -875,7 +881,12 @@ function renderResultsContextAndPathSummary({
             )
       );
 
-      return Number.isFinite(endPortfolioValue) && endPortfolioValue <= 0 && planYear != null;
+      return (
+        Number.isFinite(endPortfolioValue) &&
+        endPortfolioValue <= 0 &&
+        planYear != null &&
+        planYear > 0
+      );
     });
 
     if (depletedRow) {
@@ -883,7 +894,7 @@ function renderResultsContextAndPathSummary({
     }
   }
 
-  const isDepleted = depletionYear !== null;
+  const isDepleted = summarySaysDepleted;
 
   const contextBody = isDepleted
     ? `
