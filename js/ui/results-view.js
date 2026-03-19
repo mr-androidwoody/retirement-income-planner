@@ -785,12 +785,35 @@ function renderResultsContextAndPathSummary({
     }
   });
 
-  let firstFloorBreachSub = '';
-  let firstFloorBreachClass = '';
+  let firstCutAmount = 0;
+  let firstCutPct = 0;
+  let firstCutDisplay = '';
+  let firstCutClass = '';
 
   if (firstComfortBreachYear != null) {
-    firstFloorBreachSub = `Year ${firstComfortBreachYear}`;
-    firstFloorBreachClass = 'results-context-metric-subvalue--blue';
+    const firstCutRow = rows.find((row, index) => {
+      return getRowPlanYear(row, index) === firstComfortBreachYear;
+    });
+
+    if (firstCutRow) {
+      const target = getRowTargetSpending(
+        firstCutRow,
+        useReal,
+        result?.inputs?.initialSpending || 0
+      );
+      const actual = getRowActualSpending(firstCutRow, useReal);
+
+      if (target > 0 && actual < target) {
+        firstCutAmount = target - actual;
+        firstCutPct = firstCutAmount / target;
+      }
+    }
+  }
+
+  if (firstCutAmount > 0) {
+    firstCutDisplay =
+      `↓ ${formatCurrency(firstCutAmount)} (−${(firstCutPct * 100).toFixed(1)}%)`;
+    firstCutClass = 'results-context-metric-subvalue--red';
   }
 
   if (!Number.isFinite(worstActualSpending)) {
@@ -932,13 +955,13 @@ const contextBody = isDepleted
             <div class="results-context-metric-value">
               ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
             </div>
-            ${
-              firstFloorBreachSub
-                ? `<div class="results-context-metric-subvalue ${firstFloorBreachClass}">
-                     ${firstFloorBreachSub}
-                   </div>`
-                : ''
-            }
+              ${
+                firstCutDisplay
+                  ? `<div class="results-context-metric-subvalue ${firstCutClass}">
+                       ${firstCutDisplay}
+                     </div>`
+                  : ''
+              }
           </div>
         </div>
 
