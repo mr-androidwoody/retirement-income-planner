@@ -853,7 +853,7 @@ function renderResultsContextAndPathSummary({
   const container = elements.resultsContextBar;
   if (!container) return;
 
-  const { formatCurrency } = formatters;
+  const { formatCurrency, formatPercent } = formatters;
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
@@ -880,7 +880,38 @@ function renderResultsContextAndPathSummary({
       ? formatCurrency(cutDiagnostics.worstShortfall)
       : 'None';
 
-  const shortfallYears = cutDiagnostics.shortfallYears || 0;
+  // --- NEW: floor headroom calculation
+  const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
+
+  let worstActualSpending = Number.POSITIVE_INFINITY;
+
+  rows.forEach((row) => {
+    const actual = getRowActualSpending(row, useReal);
+    if (actual > 0 && actual < worstActualSpending) {
+      worstActualSpending = actual;
+    }
+  });
+
+  if (!Number.isFinite(worstActualSpending)) {
+    worstActualSpending = 0;
+  }
+
+  let floorHeadroomPct = null;
+
+  if (minimumFloor > 0) {
+    floorHeadroomPct = (worstActualSpending - minimumFloor) / minimumFloor;
+  }
+
+  let floorHeadroomDisplay = '—';
+  let floorHeadroomClass = '';
+
+  if (floorHeadroomPct !== null) {
+    floorHeadroomDisplay = formatPercent(floorHeadroomPct);
+    floorHeadroomClass =
+      floorHeadroomPct >= 0
+        ? 'portfolio-horizon-signal-value--green'
+        : 'portfolio-horizon-signal-value--red';
+  }
 
   container.innerHTML = `
     <div class="results-context-card">
@@ -894,20 +925,15 @@ function renderResultsContextAndPathSummary({
               ? `<div class="results-context-path">Base case</div>`
               : `
                 <div class="results-context-toggle table-view-selector">
-                <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}"
-                  title="10th percentile outcome — only 1 in 10 scenarios are worse than this">
-                  Downside
-                </button>
-                
-                <button data-view="median" class="${tableView === 'median' ? 'active' : ''}"
-                  title="50th percentile outcome — the middle scenario (half better, half worse)">
-                  Median
-                </button>
-                
-                <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}"
-                  title="90th percentile outcome — only 1 in 10 scenarios are better than this">
-                  Upside
-                </button>
+                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
+                    Downside
+                  </button>
+                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
+                    Median
+                  </button>
+                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
+                    Upside
+                  </button>
                 </div>
               `
         }
@@ -934,8 +960,10 @@ function renderResultsContextAndPathSummary({
               </div>
 
               <div class="results-context-metric">
-                <div class="results-context-metric-label">Shortfall years</div>
-                <div class="results-context-metric-value">${shortfallYears}</div>
+                <div class="results-context-metric-label">Floor headroom</div>
+                <div class="results-context-metric-value ${floorHeadroomClass}">
+                  ${floorHeadroomDisplay}
+                </div>
               </div>
             </div>
           `
