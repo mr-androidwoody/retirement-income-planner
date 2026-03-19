@@ -2221,6 +2221,7 @@ input[type="checkbox"]{
 }
 
 .results-context-metric {
+  position: relative;
   padding: 12px 14px;
   border-right: 1px solid var(--line);
   display: flex;
@@ -2247,14 +2248,16 @@ input[type="checkbox"]{
   color: var(--text);
 }
 
-.results-context-metric-subvalue{
-  margin-top:6px;
-  font-size:0.75rem;
-  font-weight:700;
-  text-align:right;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
+.results-context-metric-subvalue {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  opacity: 0.9;
 }
 
 .results-context-metric-subvalue.portfolio-horizon-signal-value--green{
