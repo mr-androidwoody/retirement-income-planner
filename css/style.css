@@ -2261,16 +2261,16 @@ input[type="checkbox"]{
   opacity: 0.9;
 }
 
-.results-context-metric-subvalue.portfolio-horizon-signal-value--green{
-  color:#16b981;
+.results-context-metric-subvalue--green {
+  color: #1a7f37;
 }
 
-.results-context-metric-subvalue.portfolio-horizon-signal-value--red{
-  color:#ef4444;
+.results-context-metric-subvalue--red {
+  color: #b42318;
 }
 
-.portfolio-horizon-signal-value--blue {
-  color: #3b82f6;
+.results-context-metric-subvalue--blue {
+  color: #175cd3;
 }
 
 @media (max-width: 900px) {
