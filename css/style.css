@@ -2268,6 +2268,10 @@ input[type="checkbox"]{
   color:#ef4444;
 }
 
+.portfolio-horizon-signal-value--blue {
+  color: #3b82f6;
+}
+
 @media (max-width: 900px) {
   .results-context-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
