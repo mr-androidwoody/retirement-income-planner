@@ -887,7 +887,7 @@ function renderResultsContextAndPathSummary({
   let worstActualSpending = Number.POSITIVE_INFINITY;
 
   rows.forEach((row) => {
-    const actual = getRowActualSpending(row, useReal);
+    const actual = getRowActualSpending(row, true);
     if (actual > 0 && actual < worstActualSpending) {
       worstActualSpending = actual;
     }
