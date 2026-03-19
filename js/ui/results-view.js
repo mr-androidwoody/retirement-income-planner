@@ -116,12 +116,11 @@ export function renderResultsView({
     shortfallYears
   };
 
-  renderResultsContextAndPathSummary({
+renderResultsContextAndPathSummary({
   result,
   elements,
   tableView,
   activePath,
-  cutDiagnostics,
   useReal,
   formatters
 });
@@ -205,41 +204,6 @@ export function renderResultsView({
       `;
     }
 
-    if (elements.portfolioHorizonSummary) {
-      elements.portfolioHorizonSummary.innerHTML = `
-        <div class="portfolio-horizon-item">
-          <div class="portfolio-horizon-label">Historical scenario</div>
-          <div class="portfolio-horizon-value">
-            ${activePath?.label || 'Selected path'}
-          </div>
-        </div>
-        <div class="portfolio-horizon-item">
-          <div class="portfolio-horizon-label">Ending portfolio</div>
-          <div class="portfolio-horizon-value">
-            ${formatCurrency(
-              useReal
-                ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
-                : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
-            )}
-          </div>
-        </div>
-        <div class="portfolio-horizon-item">
-          <div class="portfolio-horizon-label">Minimum wealth</div>
-          <div class="portfolio-horizon-value">
-            ${formatCurrency(result?.summary?.minimumWealth ?? 0)}
-          </div>
-        </div>
-        <div class="portfolio-horizon-item">
-          <div class="portfolio-horizon-label">Depletion year</div>
-          <div class="portfolio-horizon-value">
-            ${result?.summary?.depleted
-              ? `Year ${result?.summary?.depletionYear ?? '—'}`
-              : 'Not depleted'}
-          </div>
-        </div>
-      `;
-    }
-
     if (elements.spendingChart) {
       elements.spendingChart.innerHTML = `
         <div class="chart-empty-state">
@@ -313,26 +277,28 @@ export function renderResultsView({
 
     if (elements.planSummaryGrid) {
       elements.planSummaryGrid.innerHTML = '';
-  }
-} else if (hasMonteCarlo) {
-  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+    }
+  } else if (hasMonteCarlo) {
+    renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
-  if (elements.portfolioHorizonSummary) {
-    elements.portfolioHorizonSummary.innerHTML = '';
-    elements.portfolioHorizonSummary.classList.add('hidden');
+    renderSpendingChart(
+      elements.spendingChart,
+      result,
+      useReal,
+      formatCurrency,
+      cutDiagnostics
+    );
+    renderPlanWarnings(result, elements, useReal, formatters, activePath);
+    renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
+    renderMonteCarloSummary(
+      result,
+      elements,
+      useReal,
+      formatters,
+      cutDiagnostics,
+      activePath
+    );
   }
-
-  renderSpendingChart(
-    elements.spendingChart,
-    result,
-    useReal,
-    formatCurrency,
-    cutDiagnostics
-  );
-  renderPlanWarnings(result, elements, useReal, formatters, activePath);
-  renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
-  renderMonteCarloSummary(result, elements, useReal, formatters, cutDiagnostics, activePath);
-}
 
 if (elements.tableCard && showFullTable) {
   let header = elements.tableCard.querySelector('.results-header-row');
@@ -430,148 +396,6 @@ function getSelectedPathEndValue(activePath, rows, useReal) {
   return selectedPathSeries.length > 0
     ? selectedPathSeries[selectedPathSeries.length - 1]
     : fallbackEndValue;
-}
-
-function renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath) {
-  const container = elements.portfolioHorizonSummary;
-  if (!container) return;
-
-  const { formatCurrency, formatPercent } = formatters;
-  const rows = activePath?.rows || activePath?.yearlyRows || [];
-
-  const endValue = getSelectedPathEndValue(activePath, rows, useReal);
-
-  let selectedPathSeries = useReal
-    ? (activePath?.pathReal || [])
-    : (activePath?.pathNominal || []);
-
-  if (!selectedPathSeries || selectedPathSeries.length <= 1) {
-    selectedPathSeries = rows
-      .map((row) => {
-        const value = useReal
-          ? Number(
-              row.endPortfolioReal ??
-              row.endingPortfolioReal ??
-              row.endReal ??
-              row.endPortfolio
-            )
-          : Number(
-              row.endPortfolioNominal ??
-              row.endingPortfolioNominal ??
-              row.endPortfolio ??
-              row.endNominal
-            );
-
-        return Number.isFinite(value) ? value : null;
-      })
-      .filter((v) => v !== null);
-  } else {
-    selectedPathSeries = selectedPathSeries
-      .map((value) => Number(value))
-      .filter((v) => Number.isFinite(v));
-  }
-
-  let lowPoint = Number.POSITIVE_INFINITY;
-  for (const value of selectedPathSeries) {
-    if (value < lowPoint) {
-      lowPoint = value;
-    }
-  }
-
-  if (!Number.isFinite(lowPoint)) {
-    lowPoint = endValue;
-  }
-
-  let firstShortfallYear = null;
-  let worstCut = 0;
-
-  rows.forEach((row, index) => {
-    const planYear = getRowPlanYear(row, index);
-
-    const shortfall = getRowShortfall(
-      row,
-      useReal,
-      result?.inputs?.initialSpending || 0
-    );
-
-    if (shortfall > 0 && firstShortfallYear === null) {
-      firstShortfallYear = planYear;
-    }
-
-    const cut = Number(row.spendingCutPercent) || 0;
-    if (cut > worstCut) {
-      worstCut = cut;
-    }
-  });
-
-  const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
-
-  let worstActualSpending = Number.POSITIVE_INFINITY;
-
-  rows.forEach((row) => {
-    const actual = getRowActualSpending(row, useReal);
-
-    if (actual > 0 && actual < worstActualSpending) {
-      worstActualSpending = actual;
-    }
-  });
-
-  if (!Number.isFinite(worstActualSpending)) {
-    worstActualSpending = 0;
-  }
-
-  let floorHeadroomPct = null;
-
-  if (minimumFloor > 0) {
-    floorHeadroomPct = (worstActualSpending - minimumFloor) / minimumFloor;
-  }
-
-  let floorHeadroomDisplay = '—';
-  let floorHeadroomClass = '';
-
-  if (floorHeadroomPct !== null) {
-    floorHeadroomDisplay = formatPercent(floorHeadroomPct);
-    floorHeadroomClass =
-      floorHeadroomPct >= 0
-        ? 'portfolio-horizon-signal-value--green'
-        : 'portfolio-horizon-signal-value--red';
-  }
-
-  container.innerHTML = `
-    <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">End value</div>
-      <div class="portfolio-horizon-value">${formatCurrency(endValue)}</div>
-    </div>
-
-    <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">Low point</div>
-      <div class="portfolio-horizon-value">${formatCurrency(lowPoint)}</div>
-    </div>
-
-    <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">First shortfall year</div>
-      <div class="portfolio-horizon-value">
-        ${firstShortfallYear ? `Year ${firstShortfallYear}` : 'None'}
-      </div>
-    </div>
-
-    <div class="portfolio-horizon-item">
-      <div class="portfolio-horizon-label">Worst spending cut</div>
-      <div class="portfolio-horizon-value">
-        ${worstCut > 0 ? formatPercent(worstCut) : 'None'}
-      </div>
-    </div>
-
-    <div class="portfolio-horizon-item portfolio-horizon-item--signal">
-      <div class="portfolio-horizon-label">Floor headroom</div>
-      <div class="portfolio-horizon-row">
-        <div class="portfolio-horizon-value ${floorHeadroomClass}">
-          ${floorHeadroomDisplay}
-        </div>
-        <div class="portfolio-horizon-side-note">vs minimum floor</div>
-      </div>
-    </div>
-  `;
 }
 
 function safePositiveNumber(value) {
@@ -851,7 +675,6 @@ function renderResultsContextAndPathSummary({
   elements,
   tableView,
   activePath,
-  cutDiagnostics,
   useReal,
   formatters
 }) {
@@ -874,7 +697,7 @@ function renderResultsContextAndPathSummary({
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
   const endValue = getSelectedPathEndValue(activePath, rows, useReal);
-  const endValueForChange = getSelectedPathEndValue(activePath, rows, true);
+  const endValueForChange = endValue;
   const endValueLabel = useReal ? 'Real end value' : 'Nominal end value';
 
   const initialPortfolio =
@@ -895,57 +718,56 @@ function renderResultsContextAndPathSummary({
 
     endValueChangeClass =
       endValueChangePct >= 0
-        ? 'portfolio-horizon-signal-value--green'
-        : 'portfolio-horizon-signal-value--red';
+        ? 'results-context-metric-subvalue--green'
+        : 'results-context-metric-subvalue--red';
   }
-
-  const firstShortfall =
-    cutDiagnostics.firstShortfallYear != null
-      ? `Year ${cutDiagnostics.firstShortfallYear}`
-      : 'None';
-
-  const worstShortfall =
-    cutDiagnostics.worstShortfall > 0
-      ? formatCurrency(cutDiagnostics.worstShortfall)
-      : 'None';
-
-  const shortfallYears = cutDiagnostics.shortfallYears || 0;
 
   const { comfortFloor, minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
 
   let firstComfortBreachYear = null;
   let worstActualSpending = Number.POSITIVE_INFINITY;
+  let worstMinimumFloorForYear = 0;
   let yearsBelowMinimumFloor = 0;
 
   rows.forEach((row, index) => {
     const planYear = getRowPlanYear(row, index);
-    const actual = getRowActualSpending(row, true);
+    const inflationIndex = Number(row.inflationIndex ?? 1);
+    const actual = getRowActualSpending(row, useReal);
 
-    if (actual > 0 && actual < worstActualSpending) {
+    const minimumFloorForYear = useReal
+      ? minimumFloor
+      : minimumFloor * inflationIndex;
+
+    const comfortFloorForYear = useReal
+      ? comfortFloor
+      : comfortFloor * inflationIndex;
+
+    if (minimumFloorForYear > 0 && actual > 0 && actual < worstActualSpending) {
       worstActualSpending = actual;
+      worstMinimumFloorForYear = minimumFloorForYear;
     }
 
     if (
-      comfortFloor > 0 &&
+      comfortFloorForYear > 0 &&
       actual > 0 &&
-      actual < comfortFloor &&
+      actual < comfortFloorForYear &&
       firstComfortBreachYear === null
     ) {
       firstComfortBreachYear = planYear;
     }
 
-    if (minimumFloor > 0 && actual > 0 && actual < minimumFloor) {
+    if (minimumFloorForYear > 0 && actual > 0 && actual < minimumFloorForYear) {
       yearsBelowMinimumFloor += 1;
     }
   });
 
-  let firstShortfallSub = '';
-  let firstShortfallClass = '';
+  let firstFloorBreachSub = '';
+  let firstFloorBreachClass = '';
 
   if (firstComfortBreachYear != null) {
-    firstShortfallSub =
+    firstFloorBreachSub =
       `First breach of comfort<br>spending floor in Year ${firstComfortBreachYear}`;
-    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
+    firstFloorBreachClass = 'results-context-metric-subvalue--blue';
   }
 
   if (!Number.isFinite(worstActualSpending)) {
@@ -954,8 +776,9 @@ function renderResultsContextAndPathSummary({
 
   let floorHeadroomPct = null;
 
-  if (minimumFloor > 0) {
-    floorHeadroomPct = (worstActualSpending - minimumFloor) / minimumFloor;
+  if (worstMinimumFloorForYear > 0 && worstActualSpending > 0) {
+    floorHeadroomPct =
+      (worstActualSpending - worstMinimumFloorForYear) / worstMinimumFloorForYear;
   }
 
   let floorHeadroomDisplay = '—';
@@ -967,20 +790,28 @@ function renderResultsContextAndPathSummary({
 
     floorHeadroomClass =
       floorHeadroomPct >= 0
-        ? 'portfolio-horizon-signal-value--green'
-        : 'portfolio-horizon-signal-value--red';
+        ? 'results-context-metric-subvalue--green'
+        : 'results-context-metric-subvalue--red';
   }
+
+  const worstFloorGap =
+    worstMinimumFloorForYear > 0 &&
+    worstActualSpending > 0 &&
+    worstActualSpending < worstMinimumFloorForYear
+      ? worstMinimumFloorForYear - worstActualSpending
+      : 0;
 
   const totalYears = rows.length || 0;
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let shortfallYearsDisplay = '0.0% of years below minimum spending floor';
-  let shortfallYearsClass = 'portfolio-horizon-signal-value--green';
+  let floorBreachYearsDisplay = '0.0% of years breached minimum spending floor';
+  let floorBreachYearsClass = 'results-context-metric-subvalue--green';
 
   if (yearsBelowMinimumFloor > 0) {
-    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of years below minimum spending floor`;
-    shortfallYearsClass = 'portfolio-horizon-signal-value--red';
+    floorBreachYearsDisplay =
+      `${yearsBelowFloorPct.toFixed(1)}% of years breached minimum spending floor`;
+    floorBreachYearsClass = 'results-context-metric-subvalue--red';
   }
 
   container.innerHTML = `
@@ -1009,53 +840,51 @@ function renderResultsContextAndPathSummary({
         }
       </div>
 
-      ${
-        isHistorical
-          ? ''
-          : `
-            <div class="results-context-metrics">
-              <div class="results-context-metric">
-                <div class="results-context-metric-label">${endValueLabel}</div>
-                <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
-                ${
-                  endValueChangeDisplay
-                    ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                         ${endValueChangeDisplay}
-                       </div>`
-                    : ''
-                }
-              </div>
+      <div class="results-context-metrics">
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">${endValueLabel}</div>
+          <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+          ${
+            endValueChangeDisplay
+              ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                   ${endValueChangeDisplay}
+                 </div>`
+              : ''
+          }
+        </div>
 
-              <div class="results-context-metric">
-                <div class="results-context-metric-label">First shortfall</div>
-                <div class="results-context-metric-value">${firstShortfall}</div>
-                ${
-                  firstShortfallSub
-                    ? `<div class="results-context-metric-subvalue ${firstShortfallClass}">
-                         ${firstShortfallSub}
-                       </div>`
-                    : ''
-                }
-              </div>
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">First floor breach</div>
+          <div class="results-context-metric-value">
+            ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'None'}
+          </div>
+          ${
+            firstFloorBreachSub
+              ? `<div class="results-context-metric-subvalue ${firstFloorBreachClass}">
+                   ${firstFloorBreachSub}
+                 </div>`
+              : ''
+          }
+        </div>
 
-              <div class="results-context-metric">
-                <div class="results-context-metric-label">Worst shortfall</div>
-                <div class="results-context-metric-value">${worstShortfall}</div>
-                <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-                  ${floorHeadroomDisplay} from minimum spending floor
-                </div>
-              </div>
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">Worst floor gap</div>
+          <div class="results-context-metric-value">
+            ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
+          </div>
+          <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+            ${floorHeadroomDisplay} from minimum spending floor
+          </div>
+        </div>
 
-              <div class="results-context-metric">
-                <div class="results-context-metric-label">Shortfall years</div>
-                <div class="results-context-metric-value">${shortfallYears}</div>
-                <div class="results-context-metric-subvalue ${shortfallYearsClass}">
-                  ${shortfallYearsDisplay}
-                </div>
-              </div>
-            </div>
-          `
-      }
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">Floor breach years</div>
+          <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+          <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+            ${floorBreachYearsDisplay}
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
