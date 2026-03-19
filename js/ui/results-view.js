@@ -875,6 +875,14 @@ function renderResultsContextAndPathSummary({
       ? `Year ${cutDiagnostics.firstShortfallYear}`
       : 'None';
 
+  let firstShortfallSub = '';
+  let firstShortfallClass = '';
+
+  if (cutDiagnostics.firstShortfallYear != null) {
+    firstShortfallSub = 'Onset of shortfall';
+    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
+  }
+
   const worstShortfall =
     cutDiagnostics.worstShortfall > 0
       ? formatCurrency(cutDiagnostics.worstShortfall)
@@ -973,6 +981,13 @@ function renderResultsContextAndPathSummary({
               <div class="results-context-metric">
                 <div class="results-context-metric-label">First shortfall</div>
                 <div class="results-context-metric-value">${firstShortfall}</div>
+                ${
+                  firstShortfallSub
+                    ? `<div class="results-context-metric-subvalue ${firstShortfallClass}">
+                         ${firstShortfallSub}
+                       </div>`
+                    : ''
+                }
               </div>
 
               <div class="results-context-metric">
@@ -1718,7 +1733,7 @@ function getLegendFlags(rows) {
 
 function getRowShortfall(row, useReal, fallbackTarget = 0) {
   const target = getRowTargetSpending(row, useReal, fallbackTarget);
-  const actual = getRowActualSpending(row, useReal);
+  const actual = getRowActualSpending(row, true);
   return Math.max(0, target - actual);
 }
 
