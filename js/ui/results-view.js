@@ -771,7 +771,6 @@ function renderResultsContextAndPathSummary({
 
     if (
       minimumFloorNominalForYear > 0 &&
-      actualNominal > 0 &&
       actualNominal < worstActualSpending
     ) {
       worstActualSpending = actualNominal;
@@ -780,7 +779,6 @@ function renderResultsContextAndPathSummary({
 
     if (
       comfortFloorNominalForYear > 0 &&
-      actualNominal > 0 &&
       actualNominal < comfortFloorNominalForYear &&
       firstComfortBreachYear === null
     ) {
@@ -788,8 +786,7 @@ function renderResultsContextAndPathSummary({
     }
 
     if (
-     minimumFloorNominalForYear > 0 &&
-      actualNominal > 0 &&
+      minimumFloorNominalForYear > 0 &&
       actualNominal < minimumFloorNominalForYear
     ) {
       yearsBelowMinimumFloor += 1;
@@ -811,7 +808,7 @@ function renderResultsContextAndPathSummary({
 
   let floorHeadroomPct = null;
 
-  if (worstMinimumFloorForYear > 0 && worstActualSpending > 0) {
+  if (worstMinimumFloorForYear > 0) {
     floorHeadroomPct =
       (worstActualSpending - worstMinimumFloorForYear) / worstMinimumFloorForYear;
   }
@@ -831,7 +828,6 @@ function renderResultsContextAndPathSummary({
 
   const worstFloorGapNominal =
     worstMinimumFloorForYear > 0 &&
-    worstActualSpending > 0 &&
     worstActualSpending < worstMinimumFloorForYear
       ? worstMinimumFloorForYear - worstActualSpending
       : 0;
@@ -845,12 +841,12 @@ function renderResultsContextAndPathSummary({
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let floorBreachYearsDisplay = '0.0% of years breached minimum spending level';
+  let floorBreachYearsDisplay = '0.0% of years below minimum spending level';
   let floorBreachYearsClass = 'results-context-metric-subvalue--green';
 
   if (yearsBelowMinimumFloor > 0) {
     floorBreachYearsDisplay =
-      `${yearsBelowFloorPct.toFixed(1)}% of years breached minimum spending level`;
+      `${yearsBelowFloorPct.toFixed(1)}% of years below minimum spending level`;
     floorBreachYearsClass = 'results-context-metric-subvalue--red';
   }
 
