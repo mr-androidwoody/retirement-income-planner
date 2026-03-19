@@ -907,7 +907,9 @@ function renderResultsContextAndPathSummary({
   let floorHeadroomClass = '';
 
   if (floorHeadroomPct !== null) {
-    floorHeadroomDisplay = formatPercent(floorHeadroomPct);
+    const sign = floorHeadroomPct > 0 ? '+' : floorHeadroomPct < 0 ? '−' : '';
+    floorHeadroomDisplay = `${sign}${Math.abs(floorHeadroomPct * 100).toFixed(1)}%`;
+
     floorHeadroomClass =
       floorHeadroomPct >= 0
         ? 'portfolio-horizon-signal-value--green'
@@ -959,7 +961,7 @@ function renderResultsContextAndPathSummary({
                 <div class="results-context-metric-label">Worst shortfall</div>
                 <div class="results-context-metric-value">${worstShortfall}</div>
                 <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-                  ${floorHeadroomDisplay} from spending floor
+                  ${floorHeadroomDisplay} from minimum spending floor
                 </div>
               </div>
 
