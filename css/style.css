@@ -2259,7 +2259,7 @@ input[type="checkbox"]{
 }
 
 .results-context-metric-subvalue {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
   line-height: 1.2;
