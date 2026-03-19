@@ -769,7 +769,7 @@ function renderResultsContextAndPathSummary({
 
   if (firstComfortBreachYear != null) {
     firstFloorBreachSub =
-      `First breach of comfort<br>spending floor in Year ${firstComfortBreachYear}`;
+      `First breach of comfort<br>spending level in Year ${firstComfortBreachYear}`;
     firstFloorBreachClass = 'results-context-metric-subvalue--blue';
   }
 
@@ -813,12 +813,12 @@ function renderResultsContextAndPathSummary({
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let floorBreachYearsDisplay = '0.0% of years breached minimum spending floor';
+  let floorBreachYearsDisplay = '0.0% of years breached minimum spending level';
   let floorBreachYearsClass = 'results-context-metric-subvalue--green';
 
   if (yearsBelowMinimumFloor > 0) {
     floorBreachYearsDisplay =
-      `${yearsBelowFloorPct.toFixed(1)}% of years breached minimum spending floor`;
+      `${yearsBelowFloorPct.toFixed(1)}% of years breached minimum spending level`;
     floorBreachYearsClass = 'results-context-metric-subvalue--red';
   }
 
@@ -862,7 +862,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">First floor breach</div>
+          <div class="results-context-metric-label">First spending level breach</div>
           <div class="results-context-metric-value">
             ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'None'}
           </div>
@@ -876,7 +876,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Worst floor gap</div>
+          <div class="results-context-metric-label">Worst spending level gap</div>
           <div class="results-context-metric-value">
             ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
           </div>
@@ -886,7 +886,7 @@ function renderResultsContextAndPathSummary({
         </div>
 
         <div class="results-context-metric">
-          <div class="results-context-metric-label">Floor breach years</div>
+          <div class="results-context-metric-label">Spending level breach years</div>
           <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
           <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
             ${floorBreachYearsDisplay}
@@ -1149,12 +1149,12 @@ function renderMonteCarloSummary(
   grid.innerHTML = `
     ${renderSummarySection('Lifestyle resilience', [
       renderSummaryItem(
-        'Comfort floor',
+        'Comfort spending level',
         lifestyleMetrics ? formatCurrency(lifestyleMetrics.comfortFloor) : '—',
         signals.comfortFloor
       ),
       renderSummaryItem(
-        'Minimum floor',
+        'Minimum spending level',
         lifestyleMetrics ? formatCurrency(lifestyleMetrics.minimumFloor) : '—',
         signals.minimumFloor
       ),
@@ -1217,7 +1217,7 @@ function renderMonteCarloSummary(
         signals.shortfallYears
       ),
       renderSummaryItem(
-        'Years below comfort floor',
+        'Years below comfort spending level',
         lifestyleMetrics
           ? formatInteger(lifestyleMetrics.yearsBelowComfort)
           : '—',
