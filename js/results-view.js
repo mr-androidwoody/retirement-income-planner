@@ -127,7 +127,7 @@ export function renderResultsView({
 });
 
   // --- ensure summary labels reflect mode + selected path
-  renderSummaryCardLabels(elements, result, activePath);
+  renderSummaryCardLabels(elements, result, activePath, tableView);
 
   if (elements.summarySuccessRate) {
     if (isHistorical) {
@@ -142,22 +142,9 @@ export function renderResultsView({
   }
 
   if (elements.summaryMedianEnd) {
-    const selectedPathValue = useReal
-      ? (
-          activePath?.terminalReal ??
-          result?.summary?.terminalReal ??
-          result?.baseCase?.terminalReal ??
-          0
-        )
-      : (
-          activePath?.terminalNominal ??
-          result?.summary?.terminalNominal ??
-          result?.baseCase?.terminalNominal ??
-          0
-        );
-
-  elements.summaryMedianEnd.textContent = formatCurrency(selectedPathValue);
-}
+    const selectedPathValue = getSelectedPathEndValue(activePath, rows, useReal);
+    elements.summaryMedianEnd.textContent = formatCurrency(selectedPathValue);
+  }
 
   if (isHistorical) {
     if (elements.summaryWorstStress) {
@@ -329,7 +316,7 @@ export function renderResultsView({
   }
 } else if (hasMonteCarlo) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-  renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath);
+  // renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath);
   renderSpendingChart(
     elements.spendingChart,
     result,
@@ -343,10 +330,10 @@ export function renderResultsView({
 }
 
 if (elements.tableCard && showFullTable) {
-  const existingHeader = elements.tableCard.querySelector('.results-header-row');
+  let header = elements.tableCard.querySelector('.results-header-row');
 
-  if (!existingHeader) {
-    const header = document.createElement('div');
+  if (!header) {
+    header = document.createElement('div');
     header.className = 'results-header-row';
 
     header.innerHTML = `
@@ -359,18 +346,21 @@ if (elements.tableCard && showFullTable) {
       </div>
 
       <div class="table-view-selector">
-        <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
-        <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
-        <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+        <button data-view="median">Median</button>
+        <button data-view="p10">Downside</button>
+        <button data-view="p90">Upside</button>
       </div>
     `;
 
     elements.tableCard.prepend(header);
   }
-}   
 
-if (elements.tableCard) {
-  elements.tableCard.classList.toggle('hidden', !showFullTable);
+  const selectorButtons = header.querySelectorAll('.table-view-selector button');
+
+  selectorButtons.forEach((button) => {
+    const isActive = button.dataset.view === tableView;
+    button.classList.toggle('active', isActive);
+  });
 }
 
 renderDeterministicNote(elements, result, activePath);
@@ -384,13 +374,7 @@ renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
 });
 }
 
-function renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath) {
-  const container = elements.portfolioHorizonSummary;
-  if (!container) return;
-
-  const { formatCurrency, formatPercent } = formatters;
-  const rows = activePath?.rows || activePath?.yearlyRows || [];
-
+function getSelectedPathEndValue(activePath, rows, useReal) {
   const toFiniteNumber = (value) => {
     const n = Number(value);
     return Number.isFinite(n) ? n : null;
@@ -409,7 +393,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     : (activePath?.pathNominal || []);
 
   if (!selectedPathSeries || selectedPathSeries.length <= 1) {
-    selectedPathSeries = rows
+    selectedPathSeries = (rows || [])
       .map((row) => {
         return useReal
           ? firstFinite([
@@ -438,10 +422,49 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     useReal ? activePath?.terminalReal : activePath?.terminalNominal
   ) ?? 0;
 
-  const endValue =
-    selectedPathSeries.length > 0
-      ? selectedPathSeries[selectedPathSeries.length - 1]
-      : fallbackEndValue;
+  return selectedPathSeries.length > 0
+    ? selectedPathSeries[selectedPathSeries.length - 1]
+    : fallbackEndValue;
+}
+
+function renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath) {
+  const container = elements.portfolioHorizonSummary;
+  if (!container) return;
+
+  const { formatCurrency, formatPercent } = formatters;
+  const rows = activePath?.rows || activePath?.yearlyRows || [];
+
+  const endValue = getSelectedPathEndValue(activePath, rows, useReal);
+
+  let selectedPathSeries = useReal
+    ? (activePath?.pathReal || [])
+    : (activePath?.pathNominal || []);
+
+  if (!selectedPathSeries || selectedPathSeries.length <= 1) {
+    selectedPathSeries = rows
+      .map((row) => {
+        const value = useReal
+          ? Number(
+              row.endPortfolioReal ??
+              row.endingPortfolioReal ??
+              row.endReal ??
+              row.endPortfolio
+            )
+          : Number(
+              row.endPortfolioNominal ??
+              row.endingPortfolioNominal ??
+              row.endPortfolio ??
+              row.endNominal
+            );
+
+        return Number.isFinite(value) ? value : null;
+      })
+      .filter((v) => v !== null);
+  } else {
+    selectedPathSeries = selectedPathSeries
+      .map((value) => Number(value))
+      .filter((v) => Number.isFinite(v));
+  }
 
   let lowPoint = Number.POSITIVE_INFINITY;
   for (const value of selectedPathSeries) {
@@ -449,6 +472,7 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
       lowPoint = value;
     }
   }
+
   if (!Number.isFinite(lowPoint)) {
     lowPoint = endValue;
   }
@@ -475,6 +499,39 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
     }
   });
 
+  const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
+
+  let worstActualSpending = Number.POSITIVE_INFINITY;
+
+  rows.forEach((row) => {
+    const actual = getRowActualSpending(row, useReal);
+
+    if (actual > 0 && actual < worstActualSpending) {
+      worstActualSpending = actual;
+    }
+  });
+
+  if (!Number.isFinite(worstActualSpending)) {
+    worstActualSpending = 0;
+  }
+
+  let floorHeadroomPct = null;
+
+  if (minimumFloor > 0) {
+    floorHeadroomPct = (worstActualSpending - minimumFloor) / minimumFloor;
+  }
+
+  let floorHeadroomDisplay = '—';
+  let floorHeadroomClass = '';
+
+  if (floorHeadroomPct !== null) {
+    floorHeadroomDisplay = formatPercent(floorHeadroomPct);
+    floorHeadroomClass =
+      floorHeadroomPct >= 0
+        ? 'portfolio-horizon-signal-value--green'
+        : 'portfolio-horizon-signal-value--red';
+  }
+
   container.innerHTML = `
     <div class="portfolio-horizon-item">
       <div class="portfolio-horizon-label">End value</div>
@@ -497,6 +554,16 @@ function renderPortfolioHorizonSummary(result, elements, useReal, formatters, ac
       <div class="portfolio-horizon-label">Worst spending cut</div>
       <div class="portfolio-horizon-value">
         ${worstCut > 0 ? formatPercent(worstCut) : 'None'}
+      </div>
+    </div>
+
+    <div class="portfolio-horizon-item portfolio-horizon-item--signal">
+      <div class="portfolio-horizon-label">Floor headroom</div>
+      <div class="portfolio-horizon-row">
+        <div class="portfolio-horizon-value ${floorHeadroomClass}">
+          ${floorHeadroomDisplay}
+        </div>
+        <div class="portfolio-horizon-side-note">vs minimum floor</div>
       </div>
     </div>
   `;
@@ -799,9 +866,33 @@ function renderResultsContextAndPathSummary({
         ? 'Deterministic'
         : 'Monte Carlo';
 
-  const endValue = useReal
-    ? activePath?.terminalReal
-    : activePath?.terminalNominal;
+  const rows = activePath?.rows || activePath?.yearlyRows || [];
+
+  const endValue = getSelectedPathEndValue(activePath, rows, useReal);
+  const endValueForChange = getSelectedPathEndValue(activePath, rows, true);
+  const endValueLabel = useReal ? 'Real end value' : 'Nominal end value';
+
+  const initialPortfolio =
+    Number(result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio ?? 0);
+
+  let endValueChangePct = null;
+  let endValueChangeDisplay = '';
+  let endValueChangeClass = '';
+
+  if (initialPortfolio > 0 && Number.isFinite(endValueForChange)) {
+    endValueChangePct = (endValueForChange - initialPortfolio) / initialPortfolio;
+
+    const sign =
+      endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
+
+    endValueChangeDisplay =
+      `${sign}${Math.abs(endValueChangePct * 100).toFixed(1)}% from initial investments`;
+
+    endValueChangeClass =
+      endValueChangePct >= 0
+        ? 'portfolio-horizon-signal-value--green'
+        : 'portfolio-horizon-signal-value--red';
+  }
 
   const firstShortfall =
     cutDiagnostics.firstShortfallYear != null
@@ -815,6 +906,78 @@ function renderResultsContextAndPathSummary({
 
   const shortfallYears = cutDiagnostics.shortfallYears || 0;
 
+  const { comfortFloor, minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
+
+  let firstComfortBreachYear = null;
+  let worstActualSpending = Number.POSITIVE_INFINITY;
+  let yearsBelowMinimumFloor = 0;
+
+  rows.forEach((row, index) => {
+    const planYear = getRowPlanYear(row, index);
+    const actual = getRowActualSpending(row, true);
+
+    if (actual > 0 && actual < worstActualSpending) {
+      worstActualSpending = actual;
+    }
+
+    if (
+      comfortFloor > 0 &&
+      actual > 0 &&
+      actual < comfortFloor &&
+      firstComfortBreachYear === null
+    ) {
+      firstComfortBreachYear = planYear;
+    }
+
+    if (minimumFloor > 0 && actual > 0 && actual < minimumFloor) {
+      yearsBelowMinimumFloor += 1;
+    }
+  });
+
+  let firstShortfallSub = '';
+  let firstShortfallClass = '';
+
+  if (firstComfortBreachYear != null) {
+    firstShortfallSub =
+      `First breach of comfort<br>spending floor in Year ${firstComfortBreachYear}`;
+    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
+  }
+
+  if (!Number.isFinite(worstActualSpending)) {
+    worstActualSpending = 0;
+  }
+
+  let floorHeadroomPct = null;
+
+  if (minimumFloor > 0) {
+    floorHeadroomPct = (worstActualSpending - minimumFloor) / minimumFloor;
+  }
+
+  let floorHeadroomDisplay = '—';
+  let floorHeadroomClass = '';
+
+  if (floorHeadroomPct !== null) {
+    const sign = floorHeadroomPct > 0 ? '+' : floorHeadroomPct < 0 ? '−' : '';
+    floorHeadroomDisplay = `${sign}${Math.abs(floorHeadroomPct * 100).toFixed(1)}%`;
+
+    floorHeadroomClass =
+      floorHeadroomPct >= 0
+        ? 'portfolio-horizon-signal-value--green'
+        : 'portfolio-horizon-signal-value--red';
+  }
+
+  const totalYears = rows.length || 0;
+  const yearsBelowFloorPct =
+    totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
+
+  let shortfallYearsDisplay = '0.0% of years below minimum spending floor';
+  let shortfallYearsClass = 'portfolio-horizon-signal-value--green';
+
+  if (yearsBelowMinimumFloor > 0) {
+    shortfallYearsDisplay = `${yearsBelowFloorPct.toFixed(1)}% of years below minimum spending floor`;
+    shortfallYearsClass = 'portfolio-horizon-signal-value--red';
+  }
+
   container.innerHTML = `
     <div class="results-context-card">
       <div class="results-context-top">
@@ -827,20 +990,15 @@ function renderResultsContextAndPathSummary({
               ? `<div class="results-context-path">Base case</div>`
               : `
                 <div class="results-context-toggle table-view-selector">
-                <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}"
-                  title="10th percentile outcome — only 1 in 10 scenarios are worse than this">
-                  Downside
-                </button>
-                
-                <button data-view="median" class="${tableView === 'median' ? 'active' : ''}"
-                  title="50th percentile outcome — the middle scenario (half better, half worse)">
-                  Median
-                </button>
-                
-                <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}"
-                  title="90th percentile outcome — only 1 in 10 scenarios are better than this">
-                  Upside
-                </button>
+                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
+                    Downside
+                  </button>
+                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
+                    Median
+                  </button>
+                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
+                    Upside
+                  </button>
                 </div>
               `
         }
@@ -852,23 +1010,43 @@ function renderResultsContextAndPathSummary({
           : `
             <div class="results-context-metrics">
               <div class="results-context-metric">
-                <div class="results-context-metric-label">End value</div>
+                <div class="results-context-metric-label">${endValueLabel}</div>
                 <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+                ${
+                  endValueChangeDisplay
+                    ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                         ${endValueChangeDisplay}
+                       </div>`
+                    : ''
+                }
               </div>
 
               <div class="results-context-metric">
                 <div class="results-context-metric-label">First shortfall</div>
                 <div class="results-context-metric-value">${firstShortfall}</div>
+                ${
+                  firstShortfallSub
+                    ? `<div class="results-context-metric-subvalue ${firstShortfallClass}">
+                         ${firstShortfallSub}
+                       </div>`
+                    : ''
+                }
               </div>
 
               <div class="results-context-metric">
                 <div class="results-context-metric-label">Worst shortfall</div>
                 <div class="results-context-metric-value">${worstShortfall}</div>
+                <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+                  ${floorHeadroomDisplay} from minimum spending floor
+                </div>
               </div>
 
               <div class="results-context-metric">
                 <div class="results-context-metric-label">Shortfall years</div>
                 <div class="results-context-metric-value">${shortfallYears}</div>
+                <div class="results-context-metric-subvalue ${shortfallYearsClass}">
+                  ${shortfallYearsDisplay}
+                </div>
               </div>
             </div>
           `
@@ -1212,13 +1390,6 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   const isHistorical = mode === 'historical';
   const isDeterministic = mode === 'deterministic';
 
-  const selectedPathLabel =
-    tableView === 'p10'
-      ? 'Downside'
-      : tableView === 'p90'
-        ? 'Upside'
-        : 'Median';
-
   if (isHistorical) {
     if (elements.summarySuccessRateLabel) {
       elements.summarySuccessRateLabel.textContent = 'Historical outcome';
@@ -1299,13 +1470,30 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
     return;
   }
 
+  // Monte Carlo (default)
+
   if (elements.summarySuccessRateLabel) {
     elements.summarySuccessRateLabel.textContent = 'Monte Carlo success rate';
   }
 
   if (elements.summarySuccessRateDesc) {
-    elements.summarySuccessRateDesc.textContent =
-      'Share of simulated paths that avoid depletion across the full plan.';
+    const runs =
+      result?.scenarioCount ??
+      result?.monteCarlo?.scenarioCount ??
+      result?.monteCarlo?.runs ??
+      null;
+
+    const baseText =
+      'How often your portfolio lasts the full retirement plan across all simulated outcomes.';
+
+    if (runs) {
+      elements.summarySuccessRateDesc.innerHTML = `
+        ${baseText}
+        Based on <strong>${runs.toLocaleString()}</strong> simulations.
+      `;
+    } else {
+      elements.summarySuccessRateDesc.textContent = baseText;
+    }
   }
 
   if (elements.summaryMedianEndLabel) {
@@ -1313,8 +1501,14 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   }
 
   if (elements.summaryMedianEndDesc) {
-    elements.summaryMedianEndDesc.textContent =
-      `${selectedPathLabel} path currently selected for the results context, charts, plan outlook, and yearly table.`;
+    const selectedPathDescription =
+      tableView === 'p10'
+        ? 'A weaker simulated outcome showing how the plan holds up under poorer return conditions.'
+        : tableView === 'p90'
+          ? 'A stronger simulated outcome showing how the plan performs under better return conditions.'
+          : 'The middle simulated outcome, showing the central path through the range of Monte Carlo results.';
+
+    elements.summaryMedianEndDesc.textContent = selectedPathDescription;
   }
 
   if (elements.summaryWorstStressLabel) {
