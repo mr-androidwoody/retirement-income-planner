@@ -880,7 +880,8 @@ function renderResultsContextAndPathSummary({
       ? formatCurrency(cutDiagnostics.worstShortfall)
       : 'None';
 
-  // --- NEW: floor headroom calculation
+  const shortfallYears = cutDiagnostics.shortfallYears || 0;
+
   const { minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
 
   let worstActualSpending = Number.POSITIVE_INFINITY;
@@ -957,13 +958,14 @@ function renderResultsContextAndPathSummary({
               <div class="results-context-metric">
                 <div class="results-context-metric-label">Worst shortfall</div>
                 <div class="results-context-metric-value">${worstShortfall}</div>
+                <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+                  ${floorHeadroomDisplay} from spending floor
+                </div>
               </div>
 
               <div class="results-context-metric">
-                <div class="results-context-metric-label">Floor headroom</div>
-                <div class="results-context-metric-value ${floorHeadroomClass}">
-                  ${floorHeadroomDisplay}
-                </div>
+                <div class="results-context-metric-label">Shortfall years</div>
+                <div class="results-context-metric-value">${shortfallYears}</div>
               </div>
             </div>
           `
