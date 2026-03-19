@@ -1733,7 +1733,7 @@ function getLegendFlags(rows) {
 
 function getRowShortfall(row, useReal, fallbackTarget = 0) {
   const target = getRowTargetSpending(row, useReal, fallbackTarget);
-  const actual = getRowActualSpending(row, true);
+  const actual = getRowActualSpending(row, useReal);
   return Math.max(0, target - actual);
 }
 
