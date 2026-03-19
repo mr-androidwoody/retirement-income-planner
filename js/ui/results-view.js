@@ -832,7 +832,7 @@ function renderResultsContextAndPathSummary({
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let floorBreachYearsDisplay = '0.0% of years below minimum level';
+  let floorBreachYearsDisplay = '0% of years below minimum level';
   let floorBreachYearsClass = 'results-context-metric-subvalue--green';
 
   if (yearsBelowMinimumFloor > 0) {
