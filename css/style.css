@@ -2223,6 +2223,7 @@ input[type="checkbox"]{
 .results-context-metric {
   position: relative;
   padding: 12px 14px;
+  min-height: 96px;
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
