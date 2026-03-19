@@ -316,7 +316,12 @@ export function renderResultsView({
   }
 } else if (hasMonteCarlo) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-  renderPortfolioHorizonSummary(result, elements, useReal, formatters, activePath);
+
+  if (elements.portfolioHorizonSummary) {
+    elements.portfolioHorizonSummary.innerHTML = '';
+    elements.portfolioHorizonSummary.classList.add('hidden');
+  }
+
   renderSpendingChart(
     elements.spendingChart,
     result,
