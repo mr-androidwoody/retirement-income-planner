@@ -964,7 +964,7 @@ function renderResultsContextAndPathSummary({
 
         ${
           isHistorical
-            ? `<div class="results-context-path">${activePath?.label || 'Selected scenario'}</div>`
+            ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
             : isDeterministic
               ? `<div class="results-context-path">Base case</div>`
               : `
