@@ -709,9 +709,9 @@ function renderResultsContextAndPathSummary({
 
     if (parts.length >= 2) {
       const [year, ...rest] = parts;
-      modeLabel = `Historical scenario — ${year} (${rest.join(' — ')})`;
+      modeLabel = `Historical scenario: ${year} (${rest.join(' : ')})`;
     } else if (historicalLabel) {
-      modeLabel = `Historical scenario — ${historicalLabel}`;
+      modeLabel = `Historical scenario: ${historicalLabel}`;
     } else {
       modeLabel = 'Historical scenario';
     }
