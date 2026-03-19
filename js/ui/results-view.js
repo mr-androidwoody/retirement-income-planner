@@ -896,96 +896,105 @@ function renderResultsContextAndPathSummary({
 
   const isDepleted = summarySaysDepleted;
 
-  const contextBody = isDepleted
-    ? `
+const contextBody = isDepleted
+  ? `
       <div class="results-context-alert results-context-alert--warning">
         <div class="results-context-alert-icon" aria-hidden="true">!</div>
         <div class="results-context-alert-body">
           <div class="results-context-alert-title">
-            Plan warning: portfolio depleted in Year ${depletionYear}</div>
+            Plan warning: portfolio depleted in Year ${depletionYear}
+          </div>
           <div class="results-context-alert-text">
             After depletion, spending is limited to guaranteed income only (for example, State Pension).
           </div>
         </div>
       </div>
     `
-    : `
+  : `
       <div class="results-context-metrics">
         <div class="results-context-metric">
           <div class="results-context-metric-label">${endValueLabel}</div>
-          <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
-          ${
-            endValueChangeDisplay
-              ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                   ${endValueChangeDisplay}
-                 </div>`
-              : ''
-          }
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+            ${
+              endValueChangeDisplay
+                ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                     ${endValueChangeDisplay}
+                   </div>`
+                : ''
+            }
+          </div>
         </div>
 
         <div class="results-context-metric">
           <div class="results-context-metric-label">First drop below comfort level</div>
-          <div class="results-context-metric-value">
-            ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">
+              ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+            </div>
+            ${
+              firstFloorBreachSub
+                ? `<div class="results-context-metric-subvalue ${firstFloorBreachClass}">
+                     ${firstFloorBreachSub}
+                   </div>`
+                : ''
+            }
           </div>
-          ${
-            firstFloorBreachSub
-              ? `<div class="results-context-metric-subvalue ${firstFloorBreachClass}">
-                   ${firstFloorBreachSub}
-                 </div>`
-              : ''
-          }
         </div>
 
         <div class="results-context-metric">
           <div class="results-context-metric-label">Largest shortfall vs minimum level</div>
-          <div class="results-context-metric-value">
-            ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
-          </div>
-          <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-            ${floorHeadroomDisplay} from minimum level
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">
+              ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
+            </div>
+            <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+              ${floorHeadroomDisplay} from minimum level
+            </div>
           </div>
         </div>
 
         <div class="results-context-metric">
           <div class="results-context-metric-label">Years below minimum level</div>
-          <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-          <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-            ${floorBreachYearsDisplay}
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+            <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+              ${floorBreachYearsDisplay}
+            </div>
           </div>
         </div>
       </div>
     `;
 
-  container.innerHTML = `
-    <div class="results-context-card${isDepleted ? ' results-context-card--warning' : ''}">
-      <div class="results-context-top">
-        <div class="results-context-mode">${modeLabel}</div>
+container.innerHTML = `
+  <div class="results-context-card${isDepleted ? ' results-context-card--warning' : ''}">
+    <div class="results-context-top">
+      <div class="results-context-mode">${modeLabel}</div>
 
-        ${
-          isHistorical
-            ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
-            : isDeterministic
-              ? `<div class="results-context-path">Base case</div>`
-              : `
-                <div class="results-context-toggle table-view-selector">
-                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
-                    Downside
-                  </button>
-                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
-                    Median
-                  </button>
-                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
-                    Upside
-                  </button>
-                </div>
-              `
-        }
-      </div>
-
-      ${contextBody}
+      ${
+        isHistorical
+          ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
+          : isDeterministic
+            ? `<div class="results-context-path">Base case</div>`
+            : `
+              <div class="results-context-toggle table-view-selector">
+                <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
+                  Downside
+                </button>
+                <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
+                  Median
+                </button>
+                <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
+                  Upside
+                </button>
+              </div>
+            `
+      }
     </div>
-  `;
+
+    ${contextBody}
+  </div>
+`;
 }
 
 function renderRetirementOutlook(
