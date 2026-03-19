@@ -913,9 +913,9 @@ function renderResultsContextAndPathSummary({
   let firstShortfallSub = '';
   let firstShortfallClass = '';
 
-  if (firstComfortBreachYear != null) {
-    firstShortfallSub = `First breach of comfort spending floor in Year ${firstComfortBreachYear}`;
-    firstShortfallClass = 'portfolio-horizon-signal-value--blue';
+if (firstComfortBreachYear != null) {
+  firstShortfallSub = `First breach of comfort<br>spending floor in Year ${firstComfortBreachYear}`;
+  firstShortfallClass = 'portfolio-horizon-signal-value--blue';
   }
 
   if (!Number.isFinite(worstActualSpending)) {
