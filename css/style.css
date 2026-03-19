@@ -2221,13 +2221,11 @@ input[type="checkbox"]{
 }
 
 .results-context-metric {
-  position: relative;
   min-height: 116px;
-  padding: 14px 14px;
+  padding: 14px;
   border-right: 1px solid var(--line);
   display: grid;
   grid-template-rows: auto 1fr;
-  align-items: stretch;
 }
 
 .results-context-metric:last-child {
@@ -2244,11 +2242,15 @@ input[type="checkbox"]{
   align-self: start;
 }
 
-.results-context-metric-value {
+.results-context-metric-body {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
   min-height: 100%;
-  padding-right: 118px;
+}
+
+.results-context-metric-value {
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--text);
@@ -2256,16 +2258,8 @@ input[type="checkbox"]{
 }
 
 .results-context-metric-subvalue {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   font-size: 0.68rem;
   font-weight: 500;
-  text-align: right;
   white-space: nowrap;
   line-height: 1.2;
   opacity: 0.9;
