@@ -869,6 +869,7 @@ function renderResultsContextAndPathSummary({
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
   const endValue = getSelectedPathEndValue(activePath, rows, useReal);
+  const endValueForChange = getSelectedPathEndValue(activePath, rows, true);
 
   const initialPortfolio =
     Number(result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio ?? 0);
@@ -877,8 +878,8 @@ function renderResultsContextAndPathSummary({
   let endValueChangeDisplay = '';
   let endValueChangeClass = '';
 
-  if (initialPortfolio > 0 && Number.isFinite(endValue)) {
-    endValueChangePct = (endValue - initialPortfolio) / initialPortfolio;
+  if (initialPortfolio > 0 && Number.isFinite(endValueForChange)) {
+    endValueChangePct = (endValueForChange - initialPortfolio) / initialPortfolio;
 
     const sign =
       endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
