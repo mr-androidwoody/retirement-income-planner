@@ -194,111 +194,103 @@ renderResultsContextAndPathSummary({
     }
   }
 
-  if (isHistorical) {
-    if (elements.portfolioChart) {
-      elements.portfolioChart.innerHTML = `
-        <div class="chart-empty-state">
-          Historical mode is using a selected yearly path.
-          Chart fallback not wired yet.
-        </div>
-      `;
-    }
+if (isHistorical) {
+  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
-    if (elements.spendingChart) {
-      elements.spendingChart.innerHTML = `
-        <div class="chart-empty-state">
-          Historical mode is using the selected yearly table path.
-          Spending chart fallback not wired yet.
-        </div>
-      `;
-    }
+  renderSpendingChart(
+    elements.spendingChart,
+    result,
+    useReal,
+    formatCurrency,
+    cutDiagnostics
+  );
 
-    if (elements.planWarnings) {
-      elements.planWarnings.innerHTML = `
-        <div class="plan-warning-ok">
-          Historical mode is showing one selected sequence, not Monte Carlo risk ranges.
-        </div>
-      `;
-    }
-
-    if (elements.retirementOutlookHero) {
-      elements.retirementOutlookHero.innerHTML = `
-        <div class="retirement-outlook-hero-card">
-          <div class="retirement-outlook-hero-top">
-            <div class="retirement-outlook-kicker">Historical scenario</div>
-            <div class="retirement-outlook-status-row">
-              <div class="retirement-outlook-badge retirement-outlook-badge--${
-                result?.summary?.depleted ? 'weak' : 'strong'
-              }">
-                <span class="retirement-outlook-badge-icon">${
-                  result?.summary?.depleted ? '×' : '✓'
-                }</span>
-                <span>${result?.summary?.depleted ? 'Depleted' : 'Sustained'}</span>
-              </div>
-
-              <div class="retirement-outlook-heading-group">
-                <div class="retirement-outlook-subheading">
-                  ${activePath?.label || 'Selected historical path'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p class="retirement-outlook-description">
-            This result shows one selected historical return sequence rather than Monte Carlo ranges.
-          </p>
-
-          <div class="plan-summary-outcome">
-            <h4 class="plan-summary-section-title">Outcome summary</h4>
-            <div class="plan-summary-section-grid plan-summary-section-grid--top">
-              ${renderSummaryItem(
-                'Ending portfolio',
-                formatCurrency(
-                  useReal
-                    ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
-                    : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
-                )
-              )}
-              ${renderSummaryItem(
-                'Minimum wealth',
-                formatCurrency(result?.summary?.minimumWealth ?? 0)
-              )}
-              ${renderSummaryItem(
-                'Depletion year',
-                result?.summary?.depleted
-                  ? `Year ${result?.summary?.depletionYear ?? '—'}`
-                  : 'Not depleted'
-              )}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    if (elements.planSummaryGrid) {
-      elements.planSummaryGrid.innerHTML = '';
-    }
-  } else if (hasMonteCarlo) {
-    renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-
-    renderSpendingChart(
-      elements.spendingChart,
-      result,
-      useReal,
-      formatCurrency,
-      cutDiagnostics
-    );
-    renderPlanWarnings(result, elements, useReal, formatters, activePath);
-    renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
-    renderMonteCarloSummary(
-      result,
-      elements,
-      useReal,
-      formatters,
-      cutDiagnostics,
-      activePath
-    );
+  if (elements.planWarnings) {
+    elements.planWarnings.innerHTML = `
+      <div class="plan-warning-ok">
+        Historical mode is showing one selected sequence, not Monte Carlo risk ranges.
+      </div>
+    `;
   }
+
+  if (elements.retirementOutlookHero) {
+    elements.retirementOutlookHero.innerHTML = `
+      <div class="retirement-outlook-hero-card">
+        <div class="retirement-outlook-hero-top">
+          <div class="retirement-outlook-kicker">Historical scenario</div>
+          <div class="retirement-outlook-status-row">
+            <div class="retirement-outlook-badge retirement-outlook-badge--${
+              result?.summary?.depleted ? 'weak' : 'strong'
+            }">
+              <span class="retirement-outlook-badge-icon">${
+                result?.summary?.depleted ? '×' : '✓'
+              }</span>
+              <span>${result?.summary?.depleted ? 'Depleted' : 'Sustained'}</span>
+            </div>
+
+            <div class="retirement-outlook-heading-group">
+              <div class="retirement-outlook-subheading">
+                ${activePath?.label || 'Selected historical path'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="retirement-outlook-description">
+          This result shows one selected historical return sequence rather than Monte Carlo ranges.
+        </p>
+
+        <div class="plan-summary-outcome">
+          <h4 class="plan-summary-section-title">Outcome summary</h4>
+          <div class="plan-summary-section-grid plan-summary-section-grid--top">
+            ${renderSummaryItem(
+              'Ending portfolio',
+              formatCurrency(
+                useReal
+                  ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
+                  : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
+              )
+            )}
+            ${renderSummaryItem(
+              'Minimum wealth',
+              formatCurrency(result?.summary?.minimumWealth ?? 0)
+            )}
+            ${renderSummaryItem(
+              'Depletion year',
+              result?.summary?.depleted
+                ? `Year ${result?.summary?.depletionYear ?? '—'}`
+                : 'Not depleted'
+            )}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (elements.planSummaryGrid) {
+    elements.planSummaryGrid.innerHTML = '';
+  }
+} else if (hasMonteCarlo) {
+  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+
+  renderSpendingChart(
+    elements.spendingChart,
+    result,
+    useReal,
+    formatCurrency,
+    cutDiagnostics
+  );
+  renderPlanWarnings(result, elements, useReal, formatters, activePath);
+  renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
+  renderMonteCarloSummary(
+    result,
+    elements,
+    useReal,
+    formatters,
+    cutDiagnostics,
+    activePath
+  );
+}
 
 if (elements.tableCard && showFullTable) {
   let header = elements.tableCard.querySelector('.results-header-row');
