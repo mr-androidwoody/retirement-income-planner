@@ -84,15 +84,28 @@ export function createPlanForm(
     }
   }
 
-  function stepIntegerField(fieldId, direction) {
+  function stepIntegerField(fieldId, direction, stepSize = 1000) {
     const field = elements[fieldId];
     if (!field) return;
 
     const currentValue = parseLooseNumber(field.value);
     const safeCurrent = Number.isFinite(currentValue) ? currentValue : 0;
-    const nextValue = Math.max(0, safeCurrent + direction * 1000);
+    const nextValue = Math.max(0, safeCurrent + direction * stepSize);
 
     field.value = formatInteger(nextValue);
+
+    if (fieldId === 'comfortSpending') {
+      comfortFloorOverridden = true;
+    }
+
+    if (fieldId === 'minimumSpending') {
+    minimumFloorOverridden = true;
+    }
+
+    if (fieldId === 'initialSpending') {
+      syncDefaultSpendingFloors();
+    }
+  }
 
     if (fieldId === 'comfortSpending') {
       comfortFloorOverridden = true;
@@ -334,15 +347,16 @@ export function createPlanForm(
       });
     }
 
-    document.querySelectorAll('[data-step-target]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const fieldId = button.dataset.stepTarget;
-        const direction = Number(button.dataset.stepDirection);
+  document.querySelectorAll('[data-step-target]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const fieldId = button.dataset.stepTarget;
+      const direction = Number(button.dataset.stepDirection);
+      const stepSize = Number(button.dataset.stepSize || 1000);
 
-        if (!fieldId || !Number.isFinite(direction)) return;
-        stepIntegerField(fieldId, direction);
-      });
+      if (!fieldId || !Number.isFinite(direction)) return;
+      stepIntegerField(fieldId, direction, stepSize);
     });
+  });
 
     syncSimulationModeUI();
   }
