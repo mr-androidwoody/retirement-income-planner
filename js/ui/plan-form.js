@@ -99,19 +99,6 @@ export function createPlanForm(
     }
 
     if (fieldId === 'minimumSpending') {
-    minimumFloorOverridden = true;
-    }
-
-    if (fieldId === 'initialSpending') {
-      syncDefaultSpendingFloors();
-    }
-  }
-
-    if (fieldId === 'comfortSpending') {
-      comfortFloorOverridden = true;
-    }
-
-    if (fieldId === 'minimumSpending') {
       minimumFloorOverridden = true;
     }
 
@@ -347,16 +334,16 @@ export function createPlanForm(
       });
     }
 
-  document.querySelectorAll('[data-step-target]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const fieldId = button.dataset.stepTarget;
-      const direction = Number(button.dataset.stepDirection);
-      const stepSize = Number(button.dataset.stepSize || 1000);
+    document.querySelectorAll('[data-step-target]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const fieldId = button.dataset.stepTarget;
+        const direction = Number(button.dataset.stepDirection);
+        const stepSize = Number(button.dataset.stepSize || 1000);
 
-      if (!fieldId || !Number.isFinite(direction)) return;
-      stepIntegerField(fieldId, direction, stepSize);
+        if (!fieldId || !Number.isFinite(direction)) return;
+        stepIntegerField(fieldId, direction, stepSize);
+      });
     });
-  });
 
     syncSimulationModeUI();
   }
