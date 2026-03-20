@@ -92,7 +92,13 @@ export function createPlanForm(
     const safeCurrent = Number.isFinite(currentValue) ? currentValue : 0;
     const nextValue = Math.max(0, safeCurrent + direction * stepSize);
 
-    field.value = formatInteger(nextValue);
+    const isDecimal = stepSize < 1;
+
+    if (isDecimal) {
+      field.value = Number(nextValue.toFixed(2));
+    } else {
+      field.value = formatInteger(nextValue);
+    }
 
     if (fieldId === 'comfortSpending') {
       comfortFloorOverridden = true;
@@ -103,7 +109,7 @@ export function createPlanForm(
     }
 
     if (fieldId === 'initialSpending') {
-      syncDefaultSpendingFloors();
+    syncDefaultSpendingFloors();
     }
   }
 
