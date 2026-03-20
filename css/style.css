@@ -79,11 +79,11 @@ textarea{
   right:0;
   z-index:100;
   padding:18px 28px 14px;
-  background:#eef2f8;
-  border-bottom:1px solid #d7deea;
-  backdrop-filter:none;
-  -webkit-backdrop-filter:none;
-  box-shadow:none;
+  background:rgba(238, 242, 248, 0.78);
+  border-bottom:1px solid rgba(215, 222, 234, 0.7);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 6px 18px rgba(18, 30, 52, 0.06);
   overflow:visible;
 }
 
@@ -122,7 +122,7 @@ textarea{
 .page-content{
   max-width:1600px;
   margin:0 auto;
-  padding:186px 28px 56px;
+  padding:210px 28px 56px;
 }
 
 /* ========================================
