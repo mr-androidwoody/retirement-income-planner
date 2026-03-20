@@ -675,10 +675,11 @@ input::placeholder{
 
 .stepper-input{
   display:grid;
-  grid-template-columns:minmax(0, 1fr) 22px;
+  grid-template-columns:minmax(0, 1fr) 18px;
   grid-template-rows:20px 20px;
   gap:0;
   align-items:stretch;
+  width:100%;
 }
 
 .stepper-input input{
@@ -697,22 +698,22 @@ input::placeholder{
 
 .stepper-btn{
   appearance:none;
-  width:22px;
+  width:18px;
   height:20px;
   padding:0;
   margin:0;
-  border:1px solid #b7c4d8;
+  border:1px solid #94a8c7;
   background:#eef2f7;
   color:#2e3b55;
-  font-size:0.78rem;
+  font-size:0.62rem;
   font-weight:700;
   line-height:1;
   cursor:pointer;
   display:flex;
   align-items:center;
   justify-content:center;
-  box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  transition:background 160ms ease, border-color 160ms ease, transform 160ms ease;
+  box-shadow:none;
+  transition:background 140ms ease, border-color 140ms ease;
 }
 
 .stepper-btn[data-step-direction="1"]{
