@@ -125,7 +125,34 @@
                 
                         <label class="field">
                           <span class="field-label">Value of investments</span>
-                          <input id="initialPortfolio" type="text" inputmode="numeric" data-format="integer" value="1,000,000" />
+                        
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="initialPortfolio"
+                              data-step-direction="-1"
+                              data-step-size="5000"
+                              aria-label="Decrease value of investments by £5,000"
+                            >−</button>
+                        
+                            <input
+                              id="initialPortfolio"
+                              type="text"
+                              inputmode="numeric"
+                              data-format="integer"
+                              value="1,000,000"
+                            />
+                        
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="initialPortfolio"
+                              data-step-direction="1"
+                              data-step-size="5000"
+                              aria-label="Increase value of investments by £5,000"
+                            >+</button>
+                          </div>
                         </label>
                 
                         <label class="field">
