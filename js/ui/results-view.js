@@ -24,6 +24,31 @@ function resolveActivePath(result, tableView) {
   return null;
 }
 
+/* ADD THIS BLOCK */
+
+function escapeHtmlAttribute(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function renderMetricHeading(label, tooltip) {
+  return `
+    <span
+      class="metric-heading-with-tooltip"
+      tabindex="0"
+      aria-label="${escapeHtmlAttribute(`${label}: ${tooltip}`)}"
+      data-tooltip="${escapeHtmlAttribute(tooltip)}"
+    >
+      ${label}
+    </span>
+  `;
+}
+
+/* END BLOCK */
+
 export function renderResultsView({
   result,
   elements,
@@ -751,6 +776,7 @@ function renderResultsContextAndPathSummary({
   let firstComfortBreachYear = null;
   let worstActualSpending = Number.POSITIVE_INFINITY;
   let worstMinimumFloorForYear = 0;
+  let worstFloorYear = null;
   let yearsBelowMinimumFloor = 0;
 
   rows.forEach((row, index) => {
@@ -767,6 +793,7 @@ function renderResultsContextAndPathSummary({
     ) {
       worstActualSpending = actualNominal;
       worstMinimumFloorForYear = minimumFloorNominalForYear;
+      worstFloorYear = planYear;
     }
 
     if (
@@ -919,42 +946,58 @@ function renderResultsContextAndPathSummary({
 
   const isDepleted = summarySaysDepleted;
 
-const contextBody = isDepleted
-  ? `
-      <div class="results-context-alert results-context-alert--warning">
-        <div class="results-context-alert-icon" aria-hidden="true">!</div>
-        <div class="results-context-alert-body">
-          <div class="results-context-alert-title">
-            Plan warning: portfolio depleted in Year ${depletionYear}
-          </div>
-          <div class="results-context-alert-text">
-            After depletion, spending is limited to guaranteed income only (for example, State Pension).
-          </div>
-        </div>
-      </div>
-    `
-  : `
-      <div class="results-context-metrics">
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">${endValueLabel}</div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
-            ${
-              endValueChangeDisplay
-                ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                     ${endValueChangeDisplay}
-                   </div>`
-                : ''
-            }
-          </div>
-        </div>
+  const endValueTooltip =
+    'Portfolio value at the end of the selected path.';
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">First spending cut</div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">
-              ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+  const firstCutTooltip =
+    'The first year when actual spending falls below planned target spending. This is a cut versus target spending, not versus your minimum level.';
+
+  const worstShortfallTooltip =
+    'The largest gap in any year between actual spending and your minimum acceptable spending level. This only applies when spending falls below the minimum.';
+
+  const yearsReducedTooltip =
+    'Number of years when actual spending falls below your minimum spending level.';
+
+  const contextBody = isDepleted
+    ? `
+        <div class="results-context-alert results-context-alert--warning">
+          <div class="results-context-alert-icon" aria-hidden="true">!</div>
+          <div class="results-context-alert-body">
+            <div class="results-context-alert-title">
+              Plan warning: portfolio depleted in Year ${depletionYear}
             </div>
+            <div class="results-context-alert-text">
+              After depletion, spending is limited to guaranteed income only (for example, State Pension).
+            </div>
+          </div>
+        </div>
+      `
+    : `
+        <div class="results-context-metrics">
+          <div class="results-context-metric">
+            <div class="results-context-metric-label">
+              ${renderMetricHeading(endValueLabel, endValueTooltip)}
+            </div>
+            <div class="results-context-metric-body">
+              <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
+              ${
+                endValueChangeDisplay
+                  ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                       ${endValueChangeDisplay}
+                     </div>`
+                  : ''
+              }
+            </div>
+          </div>
+
+          <div class="results-context-metric">
+            <div class="results-context-metric-label">
+              ${renderMetricHeading('First spending cut', firstCutTooltip)}
+            </div>
+            <div class="results-context-metric-body">
+              <div class="results-context-metric-value">
+                ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+              </div>
               ${
                 firstCutDisplay
                   ? `<div class="results-context-metric-subvalue ${firstCutClass}">
@@ -962,62 +1005,70 @@ const contextBody = isDepleted
                      </div>`
                   : ''
               }
-          </div>
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">Worst spending shortfall</div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">
-              ${worstFloorGap > 0 ? formatCurrency(worstFloorGap) : 'None'}
-            </div>
-            <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-              ${floorHeadroomDisplay} from minimum level
             </div>
           </div>
-        </div>
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">Years of reduced spending</div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-            <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-              ${floorBreachYearsDisplay}
+          <div class="results-context-metric">
+            <div class="results-context-metric-label">
+              ${renderMetricHeading('Worst shortfall vs minimum', worstShortfallTooltip)}
             </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-container.innerHTML = `
-  <div class="results-context-card${isDepleted ? ' results-context-card--warning' : ''}">
-    <div class="results-context-top">
-      <div class="results-context-mode">${modeLabel}</div>
-
-      ${
-        isHistorical
-          ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
-          : isDeterministic
-            ? `<div class="results-context-path">Base case</div>`
-            : `
-              <div class="results-context-toggle table-view-selector">
-                <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
-                  Downside
-                </button>
-                <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
-                  Median
-                </button>
-                <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
-                  Upside
-                </button>
+            <div class="results-context-metric-body">
+              <div class="results-context-metric-value">
+                ${
+                  worstFloorGap > 0
+                    ? `${formatCurrency(worstFloorGap)}${worstFloorYear ? ` (Year ${worstFloorYear})` : ''}`
+                    : 'None'
+                }
               </div>
-            `
-      }
-    </div>
+              <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+                ${floorHeadroomDisplay} vs minimum spending level
+              </div>
+            </div>
+          </div>
 
-    ${contextBody}
-  </div>
-`;
+          <div class="results-context-metric">
+            <div class="results-context-metric-label">
+              ${renderMetricHeading('Years below minimum', yearsReducedTooltip)}
+            </div>
+            <div class="results-context-metric-body">
+              <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+              <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+                ${floorBreachYearsDisplay}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+  container.innerHTML = `
+    <div class="results-context-card${isDepleted ? ' results-context-card--warning' : ''}">
+      <div class="results-context-top">
+        <div class="results-context-mode">${modeLabel}</div>
+
+        ${
+          isHistorical
+            ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
+            : isDeterministic
+              ? `<div class="results-context-path">Base case</div>`
+              : `
+                <div class="results-context-toggle table-view-selector">
+                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
+                    Downside
+                  </button>
+                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
+                    Median
+                  </button>
+                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
+                    Upside
+                  </button>
+                </div>
+              `
+        }
+      </div>
+
+      ${contextBody}
+    </div>
+  `;
 }
 
 function renderRetirementOutlook(
