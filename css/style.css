@@ -632,6 +632,77 @@ input[type="checkbox"]{
   text-underline-offset: 3px;
 }
 
+.metric-heading-with-tooltip{
+  position:relative;
+  display:inline-block;
+  border-bottom:1px dotted currentColor;
+  cursor:help;
+  line-height:1.2;
+}
+
+.metric-heading-with-tooltip::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  left:0;
+  top:calc(100% + 8px);
+  z-index:30;
+  min-width:220px;
+  max-width:320px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#111827;
+  color:#ffffff;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.45;
+  letter-spacing:0;
+  text-transform:none;
+  white-space:normal;
+  box-shadow:0 10px 30px rgba(15, 23, 42, 0.22);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(4px);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    visibility 140ms ease;
+  pointer-events:none;
+}
+
+.metric-heading-with-tooltip::before{
+  content:'';
+  position:absolute;
+  left:14px;
+  top:calc(100% + 2px);
+  z-index:31;
+  width:10px;
+  height:10px;
+  background:#111827;
+  transform:rotate(45deg);
+  opacity:0;
+  visibility:hidden;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    visibility 140ms ease;
+  pointer-events:none;
+}
+
+.metric-heading-with-tooltip:hover::after,
+.metric-heading-with-tooltip:hover::before,
+.metric-heading-with-tooltip:focus-visible::after,
+.metric-heading-with-tooltip:focus-visible::before{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+
+.metric-heading-with-tooltip:focus-visible{
+  outline:2px solid rgba(37, 99, 235, 0.35);
+  outline-offset:2px;
+  border-radius:2px;
+}
+
 /* ========================================
    People / Income / Pension Inputs
    ======================================== */
