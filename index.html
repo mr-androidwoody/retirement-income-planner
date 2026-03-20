@@ -157,7 +157,34 @@
                 
                         <label class="field">
                           <span class="field-label">Initial withdrawal rate (%)</span>
-                          <input id="initialWithdrawalRate" type="number" min="0" step="0.1" value="4" />
+                        
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="initialWithdrawalRate"
+                              data-step-direction="-1"
+                              data-step-size="0.1"
+                              aria-label="Decrease initial withdrawal rate by 0.1%"
+                            >−</button>
+                        
+                            <input
+                              id="initialWithdrawalRate"
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value="4"
+                            />
+                        
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="initialWithdrawalRate"
+                              data-step-direction="1"
+                              data-step-size="0.1"
+                              aria-label="Increase initial withdrawal rate by 0.1%"
+                            >+</button>
+                          </div>
                         </label>
                 
                         <label class="field">
