@@ -120,7 +120,25 @@
                       <div class="field-grid field-grid-3">
                         <label class="field">
                           <span class="field-label">Retirement years</span>
-                          <input id="years" type="number" min="1" max="80" step="1" value="30" />
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="years"
+                              data-step-direction="-1"
+                              data-step-size="1"
+                              aria-label="Decrease retirement years by 1"
+                            >−</button>
+                            <input id="years" type="number" min="1" max="80" step="1" value="30" />
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="years"
+                              data-step-direction="1"
+                              data-step-size="1"
+                              aria-label="Increase retirement years by 1"
+                            >+</button>
+                          </div>
                         </label>
                 
                         <label class="field">
@@ -264,7 +282,25 @@
                               data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
                             >Equity allocation %</span>
                           </span>
-                          <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" />
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="equityAllocation"
+                              data-step-direction="-1"
+                              data-step-size="1"
+                              aria-label="Decrease equity allocation by 1 percentage point"
+                            >−</button>
+                            <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" />
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="equityAllocation"
+                              data-step-direction="1"
+                              data-step-size="1"
+                              aria-label="Increase equity allocation by 1 percentage point"
+                            >+</button>
+                          </div>
                         </label>
                 
                         <label class="field">
@@ -275,7 +311,25 @@
                               data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
                             >Bond allocation %</span>
                           </span>
-                          <input id="bondAllocation" type="number" min="0" max="100" step="1" value="20" />
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="bondAllocation"
+                              data-step-direction="-1"
+                              data-step-size="1"
+                              aria-label="Decrease bond allocation by 1 percentage point"
+                            >−</button>
+                            <input id="bondAllocation" type="number" min="0" max="100" step="1" value="20" />
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="bondAllocation"
+                              data-step-direction="1"
+                              data-step-size="1"
+                              aria-label="Increase bond allocation by 1 percentage point"
+                            >+</button>
+                          </div>
                         </label>
                 
                         <label class="field">
@@ -286,7 +340,25 @@
                               data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
                             >Cashlike %</span>
                           </span>
-                          <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="20" />
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="cashlikeAllocation"
+                              data-step-direction="-1"
+                              data-step-size="1"
+                              aria-label="Decrease cashlike allocation by 1 percentage point"
+                            >−</button>
+                            <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="20" />
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="cashlikeAllocation"
+                              data-step-direction="1"
+                              data-step-size="1"
+                              aria-label="Increase cashlike allocation by 1 percentage point"
+                            >+</button>
+                          </div>
                         </label>
                       </div>
                 
@@ -299,7 +371,25 @@
                               data-tooltip="The annual value of a full UK State Pension in today&#x27;s money. The planner uses this amount to estimate future pension income for people marked as receiving the full State Pension."
                             >Full state pension today value</span>
                           </span>
-                          <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" value="12,547" />
+                          <div class="stepper-input">
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="statePensionToday"
+                              data-step-direction="-1"
+                              data-step-size="1000"
+                              aria-label="Decrease full state pension today value by £1,000"
+                            >−</button>
+                            <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" value="12,547" />
+                            <button
+                              type="button"
+                              class="stepper-btn"
+                              data-step-target="statePensionToday"
+                              data-step-direction="1"
+                              data-step-size="1000"
+                              aria-label="Increase full state pension today value by £1,000"
+                            >+</button>
+                          </div>
                         </label>
                 
                         <label class="field field-inline field-inline-wide core-rebalance-field inline-switch">
@@ -339,12 +429,48 @@
                 
                               <label class="field person-age-field">
                                 <span class="field-label">Current age</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1Age"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 1 current age by 1"
+                                >−</button>
                                 <input id="person1Age" type="number" min="18" max="100" step="1" value="57" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1Age"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 1 current age by 1"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field person-pension-age-field">
                                 <span class="field-label">State pension age</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1PensionAge"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 1 state pension age by 1"
+                                >−</button>
                                 <input id="person1PensionAge" type="number" min="18" max="100" step="1" value="67" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1PensionAge"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 1 state pension age by 1"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                 
@@ -359,22 +485,94 @@
                             <div class="field-grid field-grid-2">
                               <label class="field">
                                 <span class="field-label">Other income</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeToday"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 1 other income by £1,000"
+                                >−</button>
                                 <input id="person1OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeToday"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 1 other income by £1,000"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field">
                                 <span class="field-label">Number of years</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeYears"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 1 other income years by 1"
+                                >−</button>
                                 <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeYears"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 1 other income years by 1"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field">
                                 <span class="field-label">Windfall amount</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallAmount"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 1 windfall amount by £1,000"
+                                >−</button>
                                 <input id="person1WindfallAmount" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallAmount"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 1 windfall amount by £1,000"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field">
                                 <span class="field-label">In which year</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallYear"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 1 windfall year by 1"
+                                >−</button>
                                 <input id="person1WindfallYear" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallYear"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 1 windfall year by 1"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                           </div>
@@ -402,12 +600,48 @@
                 
                               <label class="field person-age-field">
                                 <span class="field-label">Current age</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2Age"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 2 current age by 1"
+                                >−</button>
                                 <input id="person2Age" type="number" min="18" max="100" step="1" value="58" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2Age"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 2 current age by 1"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field person-pension-age-field">
                                 <span class="field-label">State pension age</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2PensionAge"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 2 state pension age by 1"
+                                >−</button>
                                 <input id="person2PensionAge" type="number" min="18" max="100" step="1" value="67" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2PensionAge"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 2 state pension age by 1"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                 
@@ -422,22 +656,94 @@
                             <div class="field-grid field-grid-2">
                               <label class="field">
                                 <span class="field-label">Other income</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeToday"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 2 other income by £1,000"
+                                >−</button>
                                 <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeToday"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 2 other income by £1,000"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field">
                                 <span class="field-label">Number of years</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeYears"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 2 other income years by 1"
+                                >−</button>
                                 <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeYears"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 2 other income years by 1"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field">
                                 <span class="field-label">Windfall amount</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallAmount"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 2 windfall amount by £1,000"
+                                >−</button>
                                 <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallAmount"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 2 windfall amount by £1,000"
+                                >+</button>
+                              </div>
                               </label>
                 
                               <label class="field">
                                 <span class="field-label">In which year</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallYear"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 2 windfall year by 1"
+                                >−</button>
                                 <input id="person2WindfallYear" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallYear"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 2 windfall year by 1"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                           </div>
@@ -540,7 +846,25 @@
                               data-tooltip="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size."
                             >Upper guardrail %</span>
                           </span>
-                          <input id="upperGuardrail" type="number" min="0" step="1" value="20" />
+                          <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="upperGuardrail"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease upper guardrail by 1 percentage point"
+                                >−</button>
+                                <input id="upperGuardrail" type="number" min="0" step="1" value="20" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="upperGuardrail"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase upper guardrail by 1 percentage point"
+                                >+</button>
+                              </div>
                         </label>
                 
                         <label class="field">
@@ -551,7 +875,25 @@
                               data-tooltip="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size."
                             >Lower guardrail %</span>
                           </span>
-                          <input id="lowerGuardrail" type="number" min="0" step="1" value="20" />
+                          <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="lowerGuardrail"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease lower guardrail by 1 percentage point"
+                                >−</button>
+                                <input id="lowerGuardrail" type="number" min="0" step="1" value="20" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="lowerGuardrail"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase lower guardrail by 1 percentage point"
+                                >+</button>
+                              </div>
                         </label>
                 
                         <label class="field">
@@ -562,7 +904,25 @@
                               data-tooltip="The percentage change applied to spending when a guardrail is breached."
                             >Adjustment size %</span>
                           </span>
-                          <input id="adjustmentSize" type="number" min="0" step="1" value="10" />
+                          <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="adjustmentSize"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease adjustment size by 1 percentage point"
+                                >−</button>
+                                <input id="adjustmentSize" type="number" min="0" step="1" value="10" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="adjustmentSize"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase adjustment size by 1 percentage point"
+                                >+</button>
+                              </div>
                         </label>
                       </div>
                 
@@ -593,12 +953,48 @@
                             <div class="field-grid">
                               <label class="field">
                                 <span class="field-label">Return</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="equityReturn"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease equity return by 1 percentage point"
+                                >−</button>
                                 <input id="equityReturn" type="number" step="1" value="7" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="equityReturn"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase equity return by 1 percentage point"
+                                >+</button>
+                              </div>
                               </label>
                     
                               <label class="field">
                                 <span class="field-label">Volatility</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="equityVolatility"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease equity volatility by 1 percentage point"
+                                >−</button>
                                 <input id="equityVolatility" type="number" min="0" step="1" value="16" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="equityVolatility"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase equity volatility by 1 percentage point"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                           </section>
@@ -609,12 +1005,48 @@
                             <div class="field-grid">
                               <label class="field">
                                 <span class="field-label">Return</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="bondReturn"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease bond return by 1 percentage point"
+                                >−</button>
                                 <input id="bondReturn" type="number" step="1" value="3" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="bondReturn"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase bond return by 1 percentage point"
+                                >+</button>
+                              </div>
                               </label>
                     
                               <label class="field">
                                 <span class="field-label">Volatility</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="bondVolatility"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease bond volatility by 1 percentage point"
+                                >−</button>
                                 <input id="bondVolatility" type="number" min="0" step="1" value="7" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="bondVolatility"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase bond volatility by 1 percentage point"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                           </section>
@@ -625,12 +1057,48 @@
                             <div class="field-grid">
                               <label class="field">
                                 <span class="field-label">Return</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="cashlikeReturn"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease cashlike return by 1 percentage point"
+                                >−</button>
                                 <input id="cashlikeReturn" type="number" step="1" value="4" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="cashlikeReturn"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase cashlike return by 1 percentage point"
+                                >+</button>
+                              </div>
                               </label>
                     
                               <label class="field">
                                 <span class="field-label">Volatility</span>
+                                <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="cashlikeVolatility"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease cashlike volatility by 1 percentage point"
+                                >−</button>
                                 <input id="cashlikeVolatility" type="number" min="0" step="1" value="1" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="cashlikeVolatility"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase cashlike volatility by 1 percentage point"
+                                >+</button>
+                              </div>
                               </label>
                             </div>
                           </section>
@@ -641,7 +1109,25 @@
                     
                           <div class="inflation-panel__row">
                             <div class="inflation-panel__field">
-                              <input id="inflation" type="number" min="0" step="0.1" value="2.5" />
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="inflation"
+                                  data-step-direction="-1"
+                                  data-step-size="0.1"
+                                  aria-label="Decrease inflation by 0.1 percentage points"
+                                >−</button>
+                                <input id="inflation" type="number" min="0" step="0.1" value="2.5" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="inflation"
+                                  data-step-direction="1"
+                                  data-step-size="0.1"
+                                  aria-label="Increase inflation by 0.1 percentage points"
+                                >+</button>
+                              </div>
                             </div>
                     
                             <p class="inflation-panel__text">
