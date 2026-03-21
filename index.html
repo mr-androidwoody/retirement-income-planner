@@ -111,303 +111,306 @@
 
                 <div class="input-shell">
                   <div class="input-grid-top">
-                    <section class="input-group-card card-block">
-                      <div class="section-heading">
-                        <h3>Core assumptions</h3>
-                        <p>Retirement horizon, total investments, starting spending, and how your investments are split between equities, bonds, and cashlike assets.</p>
-                      </div>
-                
-                      <div class="field-grid field-grid-3">
-                        <label class="field">
-                          <span class="field-label">Retirement years</span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="years"
-                              data-step-direction="-1"
-                              data-step-size="1"
-                              aria-label="Decrease retirement years by 1"
-                            >−</button>
-                            <input id="years" type="number" min="1" max="80" step="1" value="30" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="years"
-                              data-step-direction="1"
-                              data-step-size="1"
-                              aria-label="Increase retirement years by 1"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">Value of investments</span>
-                        
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="initialPortfolio"
-                              data-step-direction="-1"
-                              data-step-size="5000"
-                              aria-label="Decrease value of investments by £5,000"
-                            >−</button>
-                        
-                            <input
-                              id="initialPortfolio"
-                              type="text"
-                              inputmode="numeric"
-                              data-format="integer"
-                              value="1,000,000"
-                            />
-                        
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="initialPortfolio"
-                              data-step-direction="1"
-                              data-step-size="5000"
-                              aria-label="Increase value of investments by £5,000"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">Initial withdrawal rate (%)</span>
-                        
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="initialWithdrawalRate"
-                              data-step-direction="-1"
-                              data-step-size="0.1"
-                              aria-label="Decrease initial withdrawal rate by 0.1%"
-                            >−</button>
-                        
-                            <input
-                              id="initialWithdrawalRate"
-                              type="number"
-                              min="0"
-                              step="0.1"
-                              value="4"
-                            />
-                        
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="initialWithdrawalRate"
-                              data-step-direction="1"
-                              data-step-size="0.1"
-                              aria-label="Increase initial withdrawal rate by 0.1%"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">Initial household spending (£)</span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="initialSpending"
-                              data-step-direction="-1"
-                              aria-label="Decrease initial household spending by £1,000"
-                            >−</button>
-                            <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="initialSpending"
-                              data-step-direction="1"
-                              aria-label="Increase initial household spending by £1,000"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">Comfort spending level (£)</span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="comfortSpending"
-                              data-step-direction="-1"
-                              aria-label="Decrease comfort spending level by £1,000"
-                            >−</button>
-                            <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" value="36,000" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="comfortSpending"
-                              data-step-direction="1"
-                              aria-label="Increase comfort spending level by £1,000"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">Minimum spending level (£)</span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="minimumSpending"
-                              data-step-direction="-1"
-                              aria-label="Decrease minimum spending level by £1,000"
-                            >−</button>
-                            <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="minimumSpending"
-                              data-step-direction="1"
-                              aria-label="Increase minimum spending level by £1,000"
-                            >+</button>
-                          </div>
-                        </label>
-                      </div>
-                
-                      <div class="section-subnote">
-                        Enter either how much you plan to spend each year or the withdrawal rate you want to start with. Comfort and minimum spending levels default to <strong>90%</strong> and <strong>75%</strong> of household spending unless you override them.
-                      </div>
-                
-                      <div class="field-grid field-grid-3">
-                        <label class="field">
-                          <span class="field-label">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
-                            >Equity allocation %</span>
-                          </span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="equityAllocation"
-                              data-step-direction="-1"
-                              data-step-size="1"
-                              aria-label="Decrease equity allocation by 1 percentage point"
-                            >−</button>
-                            <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="equityAllocation"
-                              data-step-direction="1"
-                              data-step-size="1"
-                              aria-label="Increase equity allocation by 1 percentage point"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
-                            >Bond allocation %</span>
-                          </span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="bondAllocation"
-                              data-step-direction="-1"
-                              data-step-size="1"
-                              aria-label="Decrease bond allocation by 1 percentage point"
-                            >−</button>
-                            <input id="bondAllocation" type="number" min="0" max="100" step="1" value="20" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="bondAllocation"
-                              data-step-direction="1"
-                              data-step-size="1"
-                              aria-label="Increase bond allocation by 1 percentage point"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
-                            >Cashlike %</span>
-                          </span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="cashlikeAllocation"
-                              data-step-direction="-1"
-                              data-step-size="1"
-                              aria-label="Decrease cashlike allocation by 1 percentage point"
-                            >−</button>
-                            <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="20" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="cashlikeAllocation"
-                              data-step-direction="1"
-                              data-step-size="1"
-                              aria-label="Increase cashlike allocation by 1 percentage point"
-                            >+</button>
-                          </div>
-                        </label>
-                      </div>
-                
-                      <div class="field-grid field-grid-2 core-assumptions-bottom-row">
-                        <label class="field field-inline field-inline-wide people-pension-inline-field">
-                          <span class="field-label field-label-inline">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="The annual value of a full UK State Pension in today&#x27;s money. The planner uses this amount to estimate future pension income for people marked as receiving the full State Pension."
-                            >Full state pension today value</span>
-                          </span>
-                          <div class="stepper-input">
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="statePensionToday"
-                              data-step-direction="-1"
-                              data-step-size="1000"
-                              aria-label="Decrease full state pension today value by £1,000"
-                            >−</button>
-                            <input id="statePensionToday" type="text" inputmode="numeric" data-format="integer" value="12,547" />
-                            <button
-                              type="button"
-                              class="stepper-btn"
-                              data-step-target="statePensionToday"
-                              data-step-direction="1"
-                              data-step-size="1000"
-                              aria-label="Increase full state pension today value by £1,000"
-                            >+</button>
-                          </div>
-                        </label>
-                
-                        <label class="field field-inline field-inline-wide core-rebalance-field inline-switch">
-                          <span class="field-label field-label-inline">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="Rebalances the portfolio back to the chosen equity, bond, and cashlike allocations at the end of each year. This assumes you periodically adjust holdings to maintain the target asset mix."
-                            >Rebalance your investments to the chosen allocations each year</span>
-                          </span>
-                          <span class="switch-control">
-                            <input id="rebalanceToTarget" type="checkbox" checked />
-                            <span class="switch-slider" aria-hidden="true"></span>
-                          </span>
-                        </label>
-                      </div>
-                    </section>
-                
+        <section class="input-group-card card-block">
+          <div class="section-heading">
+            <h3>Core assumptions</h3>
+            <p>To see how your income adapts over time, enter your Retirement Timeline and current Portfolio Value. Define your Spending Targets by setting an Initial ideal budget, a Comfort level for tighter years, and a Minimum essential floor.</p><p> Finally, provide your Asset Mix of equities, bonds, and cash.</p>
+          </div>
+        
+          <div class="field-grid field-grid-3">
+            <label class="field">
+              <span class="field-label">Retirement years</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="years"
+                  data-step-direction="-1"
+                  data-step-size="1"
+                  aria-label="Decrease retirement years by 1"
+                >−</button>
+                <input id="years" type="number" min="1" max="80" step="1" value="30" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="years"
+                  data-step-direction="1"
+                  data-step-size="1"
+                  aria-label="Increase retirement years by 1"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">Value of investments</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="initialPortfolio"
+                  data-step-direction="-1"
+                  data-step-size="5000"
+                  aria-label="Decrease value of investments by £5,000"
+                >−</button>
+                <input
+                  id="initialPortfolio"
+                  type="text"
+                  inputmode="numeric"
+                  data-format="integer"
+                  value="1,000,000"
+                />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="initialPortfolio"
+                  data-step-direction="1"
+                  data-step-size="5000"
+                  aria-label="Increase value of investments by £5,000"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">Initial withdrawal rate (%)</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="initialWithdrawalRate"
+                  data-step-direction="-1"
+                  data-step-size="0.1"
+                  aria-label="Decrease initial withdrawal rate by 0.1%"
+                >−</button>
+                <input
+                  id="initialWithdrawalRate"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value="4"
+                />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="initialWithdrawalRate"
+                  data-step-direction="1"
+                  data-step-size="0.1"
+                  aria-label="Increase initial withdrawal rate by 0.1%"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">Initial household spending (£)</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="initialSpending"
+                  data-step-direction="-1"
+                  aria-label="Decrease initial household spending by £1,000"
+                >−</button>
+                <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="initialSpending"
+                  data-step-direction="1"
+                  aria-label="Increase initial household spending by £1,000"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">Comfort spending level (£)</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="comfortSpending"
+                  data-step-direction="-1"
+                  aria-label="Decrease comfort spending level by £1,000"
+                >−</button>
+                <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" value="36,000" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="comfortSpending"
+                  data-step-direction="1"
+                  aria-label="Increase comfort spending level by £1,000"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">Minimum spending level (£)</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="minimumSpending"
+                  data-step-direction="-1"
+                  aria-label="Decrease minimum spending level by £1,000"
+                >−</button>
+                <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="minimumSpending"
+                  data-step-direction="1"
+                  aria-label="Increase minimum spending level by £1,000"
+                >+</button>
+              </div>
+            </label>
+          </div>
+        
+          <div class="section-subnote">
+            Enter either how much you plan to spend each year or the withdrawal rate you want to start with. Comfort and minimum spending levels default to <strong>90%</strong> and <strong>75%</strong> of household spending unless you override them.
+          </div>
+        
+          <div class="field-grid field-grid-3">
+            <label class="field">
+              <span class="field-label">
+                <span
+                  class="metric-heading-with-tooltip"
+                  tabindex="0"
+                  data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
+                >Equity allocation %</span>
+              </span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="equityAllocation"
+                  data-step-direction="-1"
+                  data-step-size="1"
+                  aria-label="Decrease equity allocation by 1 percentage point"
+                >−</button>
+                <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="equityAllocation"
+                  data-step-direction="1"
+                  data-step-size="1"
+                  aria-label="Increase equity allocation by 1 percentage point"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">
+                <span
+                  class="metric-heading-with-tooltip"
+                  tabindex="0"
+                  data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
+                >Bond allocation %</span>
+              </span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="bondAllocation"
+                  data-step-direction="-1"
+                  data-step-size="1"
+                  aria-label="Decrease bond allocation by 1 percentage point"
+                >−</button>
+                <input id="bondAllocation" type="number" min="0" max="100" step="1" value="20" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="bondAllocation"
+                  data-step-direction="1"
+                  data-step-size="1"
+                  aria-label="Increase bond allocation by 1 percentage point"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field">
+              <span class="field-label">
+                <span
+                  class="metric-heading-with-tooltip"
+                  tabindex="0"
+                  data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
+                >Cashlike %</span>
+              </span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="cashlikeAllocation"
+                  data-step-direction="-1"
+                  data-step-size="1"
+                  aria-label="Decrease cashlike allocation by 1 percentage point"
+                >−</button>
+                <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="20" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="cashlikeAllocation"
+                  data-step-direction="1"
+                  data-step-size="1"
+                  aria-label="Increase cashlike allocation by 1 percentage point"
+                >+</button>
+              </div>
+            </label>
+          </div>
+        
+          <div
+            id="allocationStatus"
+            class="allocation-status allocation-status--balanced"
+            role="status"
+            aria-live="polite"
+          >
+            <div class="allocation-status__row">
+              <span class="allocation-status__label">Allocation total</span>
+              <span id="allocationStatusTotal" class="allocation-status__total">100%</span>
+            </div>
+            <div class="allocation-status__message-row">
+              <span class="allocation-status__dot" aria-hidden="true"></span>
+              <span id="allocationStatusMessage" class="allocation-status__message">Balanced</span>
+            </div>
+          </div>
+        
+          <div class="core-assumptions-bottom-row">
+            <label class="field people-pension-inline-field">
+              <span class="field-label">Full state pension today value</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="statePensionToday"
+                  data-step-direction="-1"
+                  data-step-size="500"
+                  aria-label="Decrease full state pension today value by £500"
+                >−</button>
+                <input
+                  id="statePensionToday"
+                  type="text"
+                  inputmode="numeric"
+                  data-format="integer"
+                  value="12,547"
+                />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="statePensionToday"
+                  data-step-direction="1"
+                  data-step-size="500"
+                  aria-label="Increase full state pension today value by £500"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field field-inline field-inline-wide core-rebalance-field">
+              <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
+              <label class="switch-control" aria-label="Toggle yearly rebalancing">
+                <input id="rebalanceToTarget" type="checkbox" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </label>
+          </div>
+        </section>               
                     <section class="input-group-card people-pensions-card card-block">
                       <div class="section-heading">
                         <h3>Fixed income</h3>
