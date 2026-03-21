@@ -1898,7 +1898,7 @@ input[type="checkbox"]{
 }
 
 .retirement-outlook-hero{
-  margin:12px 0 14px;
+  margin:10px 0 12px;
 }
 
 .plan-status-card{
@@ -2197,7 +2197,7 @@ input[type="checkbox"]{
    ======================================== */
 
 .plan-outlook-warnings{
-  margin-top:14px;
+  margin:12px 0 0;
 }
 
 .plan-outlook-warnings-grid{
@@ -2880,6 +2880,10 @@ input[type="checkbox"]{
   border-radius:14px;
   overflow:hidden;
   background:#fff;
+}
+
+.results-context-metrics{
+  margin:0 0 10px;
 }
 
 .results-context-metric{
