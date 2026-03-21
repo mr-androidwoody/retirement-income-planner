@@ -1456,8 +1456,7 @@ input[type="checkbox"]{
 
 .results-toolbar{
   display:flex;
-  flex-wrap:wrap;
-  align-items:flex-end;
+  align-items:flex-start;
   gap:18px;
   margin-top:8px;
   padding-top:10px;
@@ -1549,7 +1548,9 @@ input[type="checkbox"]{
    ======================================== */
 
 .results-explainer{
-  margin-top:14px;
+  flex:1 1 520px;
+  min-width:280px;
+  margin-top:0;
   padding:12px 14px;
   background:#f4f7fc;
   border:1px solid var(--line);
