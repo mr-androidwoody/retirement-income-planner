@@ -50,6 +50,31 @@ function renderMetricHeading(label, tooltip) {
   `;
 }
 
+function getTableViewSelectorHtml(tableView) {
+  return `
+    <button type="button" data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
+    <button type="button" data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
+    <button type="button" data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+  `;
+}
+
+function renderTableViewSelector(elements, result, tableView) {
+  const selector = elements?.tableViewSelector;
+  if (!selector) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  if (isHistorical) {
+    selector.innerHTML = '';
+    selector.classList.add('hidden');
+    return;
+  }
+
+  selector.innerHTML = getTableViewSelectorHtml(tableView);
+  selector.classList.remove('hidden');
+}
+
 export function renderResultsView({
   result,
   elements,
@@ -132,6 +157,8 @@ export function renderResultsView({
     useReal,
     formatters
   });
+
+  renderTableViewSelector(elements, result, tableView);
 
   renderSummaryCardLabels(elements, result, activePath, tableView);
 
@@ -223,58 +250,8 @@ export function renderResultsView({
     );
   }
 
-renderResultsTableNote(elements, result, activePath);
-
-if (elements.tableCard && showFullTable) {
-  const tableWrap = elements.tableCard.querySelector('.table-wrap');
-
-  let legend = elements.tableCard.querySelector('.results-table-legend');
-
-  if (!legend) {
-    legend = document.createElement('div');
-    legend.className = 'results-table-legend';
-  }
-
-  legend.innerHTML = `
-    <div class="results-table-legend-group">
-      <span class="results-table-legend-title">Portfolio change</span>
-      <span class="results-table-legend-item">
-        <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
-        Increase
-      </span>
-      <span class="results-table-legend-item">
-        <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
-        Decrease
-      </span>
-    </div>
-
-    <div class="results-table-legend-group">
-      <span class="results-table-legend-title">Spending pressure</span>
-      <span class="results-table-legend-item">
-        <span class="status-dot cut-mild"></span>
-        Mild cut
-      </span>
-      <span class="results-table-legend-item">
-        <span class="status-dot cut-moderate"></span>
-        Moderate cut
-      </span>
-      <span class="results-table-legend-item">
-        <span class="status-dot cut-severe"></span>
-        Severe cut
-      </span>
-      <span class="results-table-legend-item">
-        <span class="status-dot shortfall-dot"></span>
-        Shortfall
-      </span>
-    </div>
-  `;
-
-  if (tableWrap) {
-    elements.tableCard.insertBefore(legend, tableWrap);
-  } else if (!legend.parentNode) {
-    elements.tableCard.appendChild(legend);
-  }
-}
+  renderResultsTableNote(elements, result, activePath);
+  renderResultsTableLegend(elements, result);
 
   renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
     person1Name: result.inputs?.person1Name,
@@ -898,9 +875,7 @@ const detailMetricsHtml = `
     ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
     : `
       <div class="results-context-toggle table-view-selector">
-        <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
-        <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
-        <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+        ${getTableViewSelectorHtml(tableView)}
       </div>
     `;
 
@@ -1049,7 +1024,7 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
 }
 
 function renderResultsTableNote(elements, result, activePath) {
-  const note = ensureResultsTableNoteContainer(elements);
+  const note = elements?.resultsTableNote;
   if (!note) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
@@ -1065,34 +1040,53 @@ function renderResultsTableNote(elements, result, activePath) {
   }
 }
 
-function ensureResultsTableNoteContainer(elements) {
-  if (elements.resultsTableNote) {
-    return elements.resultsTableNote;
+function renderResultsTableLegend(elements, result) {
+  const legend = elements?.resultsTableLegend;
+  if (!legend) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+
+  if (mode === 'historical') {
+    legend.innerHTML = '';
+    legend.classList.add('hidden');
+    return;
   }
 
-  const table = elements.resultsTable;
-  const tableCard = elements.tableCard;
-  if (!table || !tableCard) {
-    return null;
-  }
+  legend.innerHTML = `
+    <div class="results-table-legend-group">
+      <span class="results-table-legend-title">Portfolio change</span>
+      <span class="results-table-legend-item">
+        <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
+        Increase
+      </span>
+      <span class="results-table-legend-item">
+        <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
+        Decrease
+      </span>
+    </div>
 
-  let note = tableCard.querySelector('#resultsTableNote');
+    <div class="results-table-legend-group">
+      <span class="results-table-legend-title">Spending pressure</span>
+      <span class="results-table-legend-item">
+        <span class="status-dot cut-mild"></span>
+        Mild cut
+      </span>
+      <span class="results-table-legend-item">
+        <span class="status-dot cut-moderate"></span>
+        Moderate cut
+      </span>
+      <span class="results-table-legend-item">
+        <span class="status-dot cut-severe"></span>
+        Severe cut
+      </span>
+      <span class="results-table-legend-item">
+        <span class="status-dot shortfall-dot"></span>
+        Shortfall
+      </span>
+    </div>
+  `;
 
-  if (!note) {
-    note = document.createElement('p');
-    note.id = 'resultsTableNote';
-    note.className = 'results-table-note hidden';
-
-    const tableWrap = table.closest('.table-wrap');
-    if (tableWrap && tableWrap.parentNode) {
-      tableWrap.parentNode.insertBefore(note, tableWrap);
-    } else {
-      tableCard.insertBefore(note, tableCard.firstChild);
-    }
-  }
-
-  elements.resultsTableNote = note;
-  return note;
+  legend.classList.remove('hidden');
 }
 
 function getRowShortfall(row, useReal, fallbackTarget = 0) {
