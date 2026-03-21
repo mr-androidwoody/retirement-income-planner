@@ -944,9 +944,9 @@ function renderResultsContextAndPathSummary({
         </div>
       </div>
 
-      ${warningsHtml}
-
       ${detailMetricsHtml}
+
+      ${warningsHtml}
     </div>
   `;
 }
