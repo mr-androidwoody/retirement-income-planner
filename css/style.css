@@ -466,6 +466,31 @@ textarea{
   align-items:stretch;
 }
 
+.plan-settings-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:16px;
+  align-items:start;
+}
+
+.plan-settings-dynamic-field{
+  min-width:0;
+}
+
+.monte-carlo-runs-control{
+  display:grid;
+  grid-template-columns:minmax(150px, 0.9fr) minmax(0, 1.1fr);
+  gap:12px;
+  align-items:stretch;
+}
+
+.field-help-text{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:0.75rem;
+  line-height:1.35;
+}
+
 .section-heading{
   display:grid;
   gap:4px;
@@ -696,6 +721,34 @@ select{
     box-shadow 160ms ease,
     background-color 160ms ease;
   box-sizing:border-box;
+}
+
+select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  padding-right:40px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #41526f 50%),
+    linear-gradient(135deg, #41526f 50%, transparent 50%);
+  background-position:
+    calc(100% - 17px) calc(50% - 3px),
+    calc(100% - 11px) calc(50% - 3px);
+  background-size:6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+  cursor:pointer;
+}
+
+select option{
+  color:var(--text);
+  background:#ffffff;
+}
+
+select optgroup{
+  color:#4d5f7c;
+  background:#f5f8fc;
+  font-style:normal;
+  font-weight:700;
 }
 
 input::placeholder{
@@ -2374,10 +2427,6 @@ input[type="checkbox"]{
    Responsive
    ======================================== */
 
-/* ========================================
-   Responsive
-   ======================================== */
-
 @media (max-width: 1300px){
   .summary-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -2465,6 +2514,16 @@ input[type="checkbox"]{
   }
 
   .outlook-glossary-sections{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 760px){
+  .plan-settings-grid{
+    grid-template-columns:1fr;
+  }
+
+  .monte-carlo-runs-control{
     grid-template-columns:1fr;
   }
 }
