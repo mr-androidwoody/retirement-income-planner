@@ -2838,6 +2838,52 @@ input[type="checkbox"]{
   box-shadow:0 4px 10px rgba(22, 32, 51, 0.12);
 }
 
+.results-table-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  padding:10px 14px;
+  margin:0 0 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#f8fafc;
+  font-size:0.82rem;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+.results-table-legend-group{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.results-table-legend-title{
+  font-weight:700;
+  color:var(--text);
+  margin-right:4px;
+}
+
+.results-table-legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
+.results-table-legend-arrow{
+  font-weight:700;
+  line-height:1;
+}
+
+.results-table-legend-arrow--up{
+  color:#16a34a;
+}
+
+.results-table-legend-arrow--down{
+  color:#dc2626;
+}
+
 /* ========================================
    Results context + path summary (NEW)
    ======================================== */
