@@ -141,6 +141,64 @@ function initialise() {
   tabs.setActiveTab('inputs');
 }
 
+function resetResultsHeader() {
+  if (els.summarySuccessRateLabel) {
+    els.summarySuccessRateLabel.textContent = 'Plan success rate';
+  }
+
+  if (els.summarySuccessRate) {
+    els.summarySuccessRate.textContent = '—';
+  }
+
+  if (els.summarySuccessRateDesc) {
+    els.summarySuccessRateDesc.textContent =
+      'Share of simulated paths that avoid depletion across the full plan.';
+  }
+
+  if (els.summaryMedianEndLabel) {
+    els.summaryMedianEndLabel.textContent = 'Median end portfolio';
+  }
+
+  if (els.summaryMedianEnd) {
+    els.summaryMedianEnd.textContent = '—';
+  }
+
+  if (els.summaryMedianEndDesc) {
+    els.summaryMedianEndDesc.textContent =
+      'Middle simulated outcome at the end of the retirement horizon.';
+  }
+
+  if (els.summaryWorstStressLabel) {
+    els.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+  }
+
+  if (els.summaryWorstStress) {
+    els.summaryWorstStress.textContent = '—';
+  }
+
+  if (els.summaryWorstStressDesc) {
+    els.summaryWorstStressDesc.textContent =
+      'Lowest ending portfolio across the deterministic stress paths.';
+  }
+
+  if (els.summaryCashRunwayLabel) {
+    els.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+  }
+
+  if (els.summaryCashRunway) {
+    els.summaryCashRunway.textContent = '—';
+  }
+
+  if (els.summaryCashRunwayDesc) {
+    els.summaryCashRunwayDesc.textContent =
+      'Years the opening cashlike bucket could fund net withdrawals before refill.';
+  }
+
+  if (els.summarySuccessRateCard) {
+    els.summarySuccessRateCard.classList.remove('summary-card--green');
+  }
+}
+
 function setupWorker() {
   try {
     worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
@@ -197,6 +255,13 @@ function attachEvents() {
       applyDefaults();
       setResultsViewDefaults();
       updateAllocationStatus();
+
+      latestResult = null;
+      latestBaseInputs = null;
+      currentTableView = 'median';
+
+      resetResultsHeader();
+
       hideError();
       tabs.setActiveTab('inputs');
       window.scrollTo({ top: 0, behavior: 'smooth' });
