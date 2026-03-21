@@ -230,13 +230,13 @@ if (isHistorical) {
     cutDiagnostics
   );
 
-  if (elements.planWarnings) {
-    elements.planWarnings.innerHTML = `
-      <div class="plan-warning-ok">
-        Historical mode is showing one selected sequence, not Monte Carlo risk ranges.
-      </div>
-    `;
-  }
+if (elements.planWarnings) {
+  elements.planWarnings.innerHTML = `
+    <div class="plan-warning-ok">
+      Historical mode is showing one selected return sequence rather than Monte Carlo risk ranges.
+    </div>
+  `;
+}
 
   if (elements.retirementOutlookHero) {
     elements.retirementOutlookHero.innerHTML = `
@@ -1576,12 +1576,7 @@ function renderSummaryItem(label, value, signal = null) {
 
 function renderPlanWarnings(result, elements, useReal, formatters, activePath) {
   const container = elements.planWarnings;
-  const panel = elements.planWarningsPanel;
   if (!container) return;
-
-  if (panel) {
-    panel.classList.remove('hidden');
-  }
 
   const warningData = getPlanWarningsData(result, useReal, formatters, activePath);
 
@@ -1599,7 +1594,7 @@ function renderPlanWarnings(result, elements, useReal, formatters, activePath) {
   if (warningData.inputWarnings.length) {
     groups.push(`
       <div class="plan-warning-group">
-        <h4 class="plan-warning-group-title">Input warning</h4>
+        <h4 class="plan-warning-group-title">Input risk</h4>
         ${warningData.inputWarnings
           .map(
             (text) => `
@@ -1626,7 +1621,11 @@ function renderPlanWarnings(result, elements, useReal, formatters, activePath) {
     `);
   }
 
-  container.innerHTML = groups.join('');
+  container.innerHTML = `
+    <div class="plan-outlook-warnings-grid">
+      ${groups.join('')}
+    </div>
+  `;
 }
 
 function renderDeterministicNote(elements, result, activePath) {
