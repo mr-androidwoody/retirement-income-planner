@@ -34,7 +34,7 @@ html,
 body{
   margin:0;
   padding:0;
-  background:var(--bg);
+  background:#D1D9ED;
   color:var(--text);
   font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
