@@ -2854,7 +2854,8 @@ input[type="checkbox"]{
 }
 
 .results-table-legend-arrow{
-  font-weight:700;
+  font-weight:800;
+  font-size:0.9rem;
   line-height:1;
 }
 
