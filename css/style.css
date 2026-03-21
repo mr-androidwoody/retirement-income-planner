@@ -16,7 +16,8 @@
   --radius:16px;
   --radius-sm:10px;
 
-  --header-height:212px;
+  /* NEW — header offset control */
+  --header-height:164px;
 }
 
 /* ========================================
@@ -132,7 +133,7 @@ textarea{
    ======================================== */
 
 .summary-band{
-  margin:0 0 22px;
+  margin:0;
   padding:20px;
   background:linear-gradient(180deg, #12264a 0%, #1a315b 100%);
   border-radius:28px;
@@ -203,6 +204,12 @@ textarea{
   display:flex;
   align-items:center;
   gap:12px;
+}
+
+.tab-layout.single-column{
+  display:grid;
+  gap:16px;
+  align-items:start;
 }
 
 .tab-button{
@@ -2422,7 +2429,7 @@ input[type="checkbox"]{
   font-size:0.95rem;
 }
 
-/* ========================================
+//* ========================================
    Responsive
    ======================================== */
 
@@ -2442,15 +2449,6 @@ input[type="checkbox"]{
 }
 
 @media (max-width: 1024px){
-  :root{
-    --header-height:276px;
-  }
-
-  .top-header__inner{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
   .top-header__controls{
     flex-direction:column;
     align-items:stretch;
@@ -2465,14 +2463,8 @@ input[type="checkbox"]{
   }
 
   .page-content{
-    padding-top:calc(var(--header-height) + 24px);
+    padding-top:232px;
   }
-
-@media (max-width: 720px){
-  :root{
-    --header-height:320px;
-  }
-}    
 
   .input-grid-top,
   .input-grid-bottom{
