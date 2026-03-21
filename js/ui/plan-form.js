@@ -3,6 +3,7 @@ const planIntegerFieldIds = [
   'initialSpending',
   'comfortSpending',
   'minimumSpending',
+  'monteCarloRuns',
   'statePensionToday',
   'person1OtherIncomeToday',
   'person1OtherIncomeYears',
@@ -71,6 +72,35 @@ export function createPlanForm(
   let comfortFloorOverridden = false;
   let minimumFloorOverridden = false;
 
+  const MONTE_CARLO_PRESET_VALUES = [1000, 5000, 10000, 20000];
+  const MONTE_CARLO_RUNS_MIN = 1;
+  const MONTE_CARLO_RUNS_MAX = 100000;
+
+  function clampMonteCarloRuns(value) {
+    const parsed = parseLooseInteger(value);
+    if (!Number.isFinite(parsed)) return NaN;
+
+    return Math.min(
+      MONTE_CARLO_RUNS_MAX,
+      Math.max(MONTE_CARLO_RUNS_MIN, parsed)
+    );
+  }
+
+  function syncMonteCarloRunsPreset() {
+    if (!elements.monteCarloRunsPreset || !elements.monteCarloRuns) return;
+
+    const runs = clampMonteCarloRuns(elements.monteCarloRuns.value);
+
+    if (!Number.isFinite(runs)) {
+      elements.monteCarloRunsPreset.value = 'custom';
+      return;
+    }
+
+    elements.monteCarloRunsPreset.value = MONTE_CARLO_PRESET_VALUES.includes(runs)
+      ? String(runs)
+      : 'custom';
+  }
+
   function syncDefaultSpendingFloors() {
     const spending = parseLooseNumber(elements.initialSpending?.value);
     if (!Number.isFinite(spending)) return;
@@ -90,7 +120,14 @@ export function createPlanForm(
 
     const currentValue = parseLooseNumber(field.value);
     const safeCurrent = Number.isFinite(currentValue) ? currentValue : 0;
-    const nextValue = Math.max(0, safeCurrent + direction * stepSize);
+    let nextValue = Math.max(0, safeCurrent + direction * stepSize);
+
+    if (fieldId === 'monteCarloRuns') {
+      nextValue = Math.min(
+        MONTE_CARLO_RUNS_MAX,
+        Math.max(MONTE_CARLO_RUNS_MIN, nextValue)
+      );
+    }
 
     const isDecimal = stepSize < 1;
 
@@ -109,7 +146,11 @@ export function createPlanForm(
     }
 
     if (fieldId === 'initialSpending') {
-    syncDefaultSpendingFloors();
+      syncDefaultSpendingFloors();
+    }
+
+    if (fieldId === 'monteCarloRuns') {
+      syncMonteCarloRunsPreset();
     }
   }
 
@@ -161,6 +202,14 @@ export function createPlanForm(
       elements,
       'minimumSpending',
       defaults.minimumSpending ?? '',
+      true,
+      formatInteger
+    );
+
+    setFieldValue(
+      elements,
+      'monteCarloRuns',
+      defaults.monteCarloRuns ?? 1000,
       true,
       formatInteger
     );
@@ -281,7 +330,7 @@ export function createPlanForm(
     comfortFloorOverridden = false;
     minimumFloorOverridden = false;
     syncDefaultSpendingFloors();
-
+    syncMonteCarloRunsPreset();
     syncPerson2State();
     syncSimulationModeUI();
   }
@@ -301,8 +350,17 @@ export function createPlanForm(
             ? parseLooseInteger
             : parseLooseNumber;
 
-        const value = parser(input.value);
+        let value = parser(input.value);
+
+        if (fieldId === 'monteCarloRuns') {
+          value = clampMonteCarloRuns(value);
+        }
+
         input.value = Number.isFinite(value) ? formatInteger(value) : '';
+
+        if (fieldId === 'monteCarloRuns') {
+          syncMonteCarloRunsPreset();
+        }
       });
     });
 
@@ -315,6 +373,24 @@ export function createPlanForm(
     if (elements.simulationMode) {
       elements.simulationMode.addEventListener('change', () => {
         syncSimulationModeUI();
+      });
+    }
+
+    if (elements.monteCarloRunsPreset) {
+      elements.monteCarloRunsPreset.addEventListener('change', () => {
+        const presetValue = elements.monteCarloRunsPreset.value;
+
+        if (presetValue !== 'custom' && elements.monteCarloRuns) {
+          elements.monteCarloRuns.value = formatInteger(Number(presetValue));
+        }
+
+        syncMonteCarloRunsPreset();
+      });
+    }
+
+    if (elements.monteCarloRuns) {
+      elements.monteCarloRuns.addEventListener('input', () => {
+        syncMonteCarloRunsPreset();
       });
     }
 
@@ -351,6 +427,7 @@ export function createPlanForm(
       });
     });
 
+    syncMonteCarloRunsPreset();
     syncSimulationModeUI();
   }
 
@@ -407,6 +484,8 @@ export function createPlanForm(
       ? parseLooseInteger(elements.person2WindfallYear?.value)
       : 0;
 
+    const monteCarloRuns = clampMonteCarloRuns(elements.monteCarloRuns?.value);
+
     return {
       years: parseLooseInteger(elements.years?.value),
       initialPortfolio: parseLooseNumber(elements.initialPortfolio?.value),
@@ -443,6 +522,7 @@ export function createPlanForm(
       person2WindfallYear,
 
       simulationMode: String(elements.simulationMode?.value ?? 'monteCarlo'),
+      monteCarloRuns: Number.isFinite(monteCarloRuns) ? monteCarloRuns : 1000,
       historicalScenario: String(elements.historicalScenario?.value ?? '1929')
     };
   }
