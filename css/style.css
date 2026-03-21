@@ -1805,9 +1805,10 @@ input[type="checkbox"]{
    ======================================== */
 
 #resultsTable .status-dot,
+.results-table-legend .status-dot,
 .results-legend .status-dot{
-  width:8px;
-  height:8px;
+  width:10px;
+  height:10px;
   border-radius:50%;
   display:inline-block;
   flex:0 0 auto;
