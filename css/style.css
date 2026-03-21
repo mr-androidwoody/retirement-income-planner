@@ -2916,11 +2916,8 @@ input[type="checkbox"]{
   gap:0;
   border:1px solid var(--line);
   border-radius:14px;
-  overflow:hidden;
+  overflow:visible;
   background:#fff;
-}
-
-.results-context-metrics{
   margin:0 0 10px;
 }
 
