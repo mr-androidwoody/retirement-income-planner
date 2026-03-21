@@ -1144,101 +1144,106 @@
           </div>
         </section>
 
-        <section class="tab-panel" data-tab-panel="results" hidden>
-          <div class="tab-layout single-column">
-            <section class="panel results-meta-panel">
-              <div class="panel-header results-meta-header">
-                <div>
-                  <h2>Results</h2>
-                  <p>Charts and yearly outputs from the current deterministic base case and Monte Carlo engine, including the effect of Guyton-Klinger guardrails.</p>
-                </div>
-              </div>
+<section class="tab-panel" data-tab-panel="results" hidden>
+  <div class="tab-layout single-column">
+    <section class="panel results-meta-panel">
+      <div class="panel-header results-meta-header">
+        <div>
+          <h2>Results</h2>
+        </div>
+      </div>
 
-              <div class="results-toolbar">
-                <div class="chart-mode-group" role="group" aria-label="Chart mode">
-                  <div class="chart-mode-label">Chart mode</div>
-                  <div class="mode-switch">
-                    <label class="mode-option">
-                      <input id="chartModeNominal" type="radio" name="chartMode" checked />
-                      <span>Nominal</span>
-                    </label>
-                    <label class="mode-option">
-                      <input id="chartModeReal" type="radio" name="chartMode" />
-                      <span>Real</span>
-                    </label>
-                  </div>
-                  <input id="showRealValues" type="checkbox" hidden />
-                </div>
+      <div class="results-toolbar">
+        <div class="chart-mode-group" role="group" aria-label="Chart mode">
+          <div class="chart-mode-label">Chart mode</div>
+          <div class="mode-switch">
+            <label class="mode-option">
+              <input id="chartModeNominal" type="radio" name="chartMode" checked />
+              <span>Nominal</span>
+            </label>
+            <label class="mode-option">
+              <input id="chartModeReal" type="radio" name="chartMode" />
+              <span>Real</span>
+            </label>
+          </div>
+          <input id="showRealValues" type="checkbox" hidden />
+        </div>
 
-                <div class="chart-mode-group" role="group" aria-label="Guardrails mode">
-                  <div class="chart-mode-label">Guardrails</div>
-                  <div class="mode-switch">
-                    <label class="mode-option">
-                      <input id="guytonKlingerOn" type="radio" name="guytonKlingerMode" checked />
-                      <span>On</span>
-                    </label>
-                    <label class="mode-option">
-                      <input id="guytonKlingerOff" type="radio" name="guytonKlingerMode" />
-                      <span>Off</span>
-                    </label>
-                  </div>
-                </div>
+        <div class="chart-mode-group" role="group" aria-label="Guardrails mode">
+          <div class="chart-mode-label">Guardrails</div>
+          <div class="mode-switch">
+            <label class="mode-option">
+              <input id="guytonKlingerOn" type="radio" name="guytonKlingerMode" checked />
+              <span>On</span>
+            </label>
+            <label class="mode-option">
+              <input id="guytonKlingerOff" type="radio" name="guytonKlingerMode" />
+              <span>Off</span>
+            </label>
+          </div>
+        </div>
+      </div>
 
-                <label class="toggle-chip" for="showFullTable">
-                  <input id="showFullTable" type="checkbox" checked />
-                  <span>Show full yearly table</span>
-                </label>
-                <label class="toggle-chip" for="showPlanOutlook">
-                  <input id="showPlanOutlook" type="checkbox" checked />
-                  <span>Show plan outlook</span>
-                </label>
-              </div>
+      <div class="results-explainer">
+        <p><strong>Nominal</strong> shows the future pound amounts you would actually see at the time.</p>
+        <p>Use the <strong>Real</strong> view to judge sustainability: it strips out inflation so you can see whether your spending power stays above your comfort and minimum spending levels.</p>
+      </div>
 
-              <div class="results-explainer">
-                <p><strong>Nominal</strong> shows the future pound amounts you would actually see at the time.</p>
-                <p>Use the <strong>Real</strong> view to judge sustainability: it strips out inflation so you can see whether your spending power stays above your comfort and minimum spending levels.</p>
-              </div>
+      <div id="resultsContextBar"></div>
+    </section>
 
-              <div id="resultsContextBar"></div>
-            </section>
-
-            <div class="results-chart-grid">
-              <section class="chart-card panel">
-                <div class="card-header chart-card-header">
-                  <div class="card-title-block">
-                    <h2>Investment projection</h2>
-                    <p>Shows the central outcome, the likely range of outcomes, and the base-case path.</p>
-                  </div>
-                </div>
-                <div class="chart-canvas-wrap">
-                  <canvas id="portfolioChart" height="260"></canvas>
-                  <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
-                </div>
-              </section>
-
-              <section class="chart-card panel">
-                <div class="card-header chart-card-header">
-                  <div class="card-title-block">
-                    <h2>Spending path</h2>
-                    <p>Shows spending, pension income, and investment withdrawals.</p>
-                  </div>
-                </div>
-                <div class="chart-canvas-wrap">
-                  <canvas id="spendingChart" height="260"></canvas>
-                </div>
-              </section>
+    <section class="panel results-charts-panel">
+      <div class="panel-header results-section-header">
+        <div>
+          <h2>Charts</h2>
+        </div>
+      </div>
+    
+      <div class="results-chart-grid">
+        <section class="chart-card">
+          <div class="card-header chart-card-header">
+            <div class="card-title-block">
+              <h2>Investment projection</h2>
+              <p>Shows the central outcome, the likely range of outcomes, and the base-case path.</p>
             </div>
-
-            <section class="table-card panel" id="tableCard">
-              <div class="table-wrap">
-                <table id="resultsTable">
-                  <thead></thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </section>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="portfolioChart" height="260"></canvas>
+            <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
           </div>
         </section>
+    
+        <section class="chart-card">
+          <div class="card-header chart-card-header">
+            <div class="card-title-block">
+              <h2>Spending path</h2>
+              <p>Shows spending, pension income, and investment withdrawals.</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="spendingChart" height="260"></canvas>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="table-card" id="tableCard">
+        <div class="panel-header results-section-header">
+            <div>
+              <h2>Yearly results</h2>
+            </div>
+          </div>
+    
+          <div class="table-wrap">
+            <table id="resultsTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
       </div>
     </main>
   </div>
