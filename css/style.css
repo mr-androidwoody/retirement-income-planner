@@ -483,7 +483,7 @@ textarea{
   color:var(--muted);
   font-size:0.82rem;
   line-height:1.34;
-  max-width:58ch;
+  max-width:98ch;
 }
 
 /* Core assumptions intro (NEW — scoped, no conflicts) */
@@ -1034,6 +1034,101 @@ input[type="checkbox"]{
   column-gap:16px;
   row-gap:16px;
   align-items:center;
+}
+
+.allocation-status{
+  margin-top:10px;
+  margin-bottom:14px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#ffffff;
+}
+
+.allocation-status__row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.allocation-status__label{
+  font-size:0.76rem;
+  font-weight:700;
+  line-height:1.2;
+  color:#50627f;
+  text-transform:none;
+}
+
+.allocation-status__total{
+  font-size:0.92rem;
+  font-weight:800;
+  line-height:1.2;
+  color:var(--text);
+}
+
+.allocation-status__message-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+}
+
+.allocation-status__dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  flex:0 0 auto;
+  background:#16a34a;
+}
+
+.allocation-status__message{
+  font-size:0.8rem;
+  font-weight:600;
+  line-height:1.3;
+  color:#166534;
+}
+
+.allocation-status--balanced{
+  background:#f0fdf4;
+  border-color:#86efac;
+}
+
+.allocation-status--balanced .allocation-status__dot{
+  background:#16a34a;
+}
+
+.allocation-status--balanced .allocation-status__message,
+.allocation-status--balanced .allocation-status__total{
+  color:#166534;
+}
+
+.allocation-status--under{
+  background:#fffbeb;
+  border-color:#fcd34d;
+}
+
+.allocation-status--under .allocation-status__dot{
+  background:#f59e0b;
+}
+
+.allocation-status--under .allocation-status__message,
+.allocation-status--under .allocation-status__total{
+  color:#92400e;
+}
+
+.allocation-status--over{
+  background:#fef2f2;
+  border-color:#fca5a5;
+}
+
+.allocation-status--over .allocation-status__dot{
+  background:#ef4444;
+}
+
+.allocation-status--over .allocation-status__message,
+.allocation-status--over .allocation-status__total{
+  color:#b91c1c;
 }
 
 /* pension field should match one allocation column */
