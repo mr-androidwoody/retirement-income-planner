@@ -899,7 +899,7 @@ function renderResultsContextAndPathSummary({
     `
     : '';
 
-  container.innerHTML = `
+    container.innerHTML = `
     <div class="results-context-card results-context-card--merged${summarySaysDepleted ? ' results-context-card--warning' : ''}">
       <div class="results-context-panel-header">
         <div class="card-title-block">
@@ -911,6 +911,12 @@ function renderResultsContextAndPathSummary({
           ${headerControls}
         </div>
       </div>
+
+      ${isHistorical ? `
+        <div class="results-context-inline-note">
+          Historical mode shows a single return sequence rather than simulated ranges.
+        </div>
+      ` : ''}
 
       ${detailMetricsHtml}
 
