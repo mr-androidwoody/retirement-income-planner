@@ -2808,10 +2808,6 @@ input[type="checkbox"]{
    Results context + path summary (NEW)
    ======================================== */
 
-/* ========================================
-   Results context + path summary (NEW)
-   ======================================== */
-
 #resultsContextBar {
   margin-top:12px;
 }
@@ -2832,6 +2828,25 @@ input[type="checkbox"]{
   justify-content:space-between;
   gap:10px;
   flex-wrap:wrap;
+}
+
+.results-context-panel-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.results-context-header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.results-context-card--merged{
+  gap:16px;
 }
 
 .results-context-mode {
