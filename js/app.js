@@ -395,6 +395,10 @@ function syncInitialSpendingFromRate() {
 
   const spending = portfolio * (rate / 100);
   els.initialSpending.value = formatInteger(Math.round(spending));
+
+  if (typeof planForm.syncDefaultSpendingFloors === 'function') {
+    planForm.syncDefaultSpendingFloors();
+  }
 }
 
 function gatherInputs() {
