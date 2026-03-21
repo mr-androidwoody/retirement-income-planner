@@ -332,6 +332,24 @@ function attachWithdrawalRateSync() {
       }
     });
   }
+
+  document.querySelectorAll('[data-step-target="initialWithdrawalRate"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      withdrawalInputMode = 'rate';
+      requestAnimationFrame(() => {
+        syncInitialSpendingFromRate();
+      });
+    });
+  });
+
+  document.querySelectorAll('[data-step-target="initialSpending"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      withdrawalInputMode = 'amount';
+      requestAnimationFrame(() => {
+        syncInitialWithdrawalRateFromAmount();
+      });
+    });
+  });
 }
 
 function attachChartModeEvents() {
