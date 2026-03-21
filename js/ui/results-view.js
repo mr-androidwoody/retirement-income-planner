@@ -219,6 +219,16 @@ renderResultsContextAndPathSummary({
     }
   }
 
+  const shouldShowPlanOutlook = isHistorical || hasMonteCarlo;
+
+  setPlanOutlookPanelVisibility(elements, shouldShowPlanOutlook);
+
+  if (!shouldShowPlanOutlook) {
+    resetPlanOutlookContent(elements);
+  }
+
+if (isHistorical) {
+
 if (isHistorical) {
   renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
@@ -1071,6 +1081,33 @@ function renderResultsContextAndPathSummary({
   `;
 }
 
+function setPlanOutlookPanelVisibility(elements, isVisible) {
+  const panel = elements.planSummaryPanel;
+  if (!panel) return;
+
+  panel.classList.toggle('hidden', !isVisible);
+
+  if (isVisible) {
+    panel.removeAttribute('hidden');
+  } else {
+    panel.setAttribute('hidden', 'hidden');
+  }
+}
+
+function resetPlanOutlookContent(elements) {
+  if (elements.retirementOutlookHero) {
+    elements.retirementOutlookHero.innerHTML = '';
+  }
+
+  if (elements.planWarnings) {
+    elements.planWarnings.innerHTML = '';
+  }
+
+  if (elements.planSummaryGrid) {
+    elements.planSummaryGrid.innerHTML = '';
+  }
+}
+
 function renderRetirementOutlook(
   result,
   elements,
@@ -1080,7 +1117,10 @@ function renderRetirementOutlook(
 ) {
   const hero = elements.retirementOutlookHero;
   const panel = elements.planSummaryPanel;
-  if (!panel) return;
+  if (!panel || !hero) return;
+
+  panel.classList.remove('hidden');
+  panel.removeAttribute('hidden');
 
   const { formatCurrency, formatPercent } = formatters;
   const percentiles = useReal
@@ -1172,8 +1212,6 @@ function renderRetirementOutlook(
     'plan-summary-panel--weak'
   );
   panel.classList.add(`plan-summary-panel--${status}`);
-
-  if (!hero) return;
 
   hero.innerHTML = `
     <div class="retirement-outlook-hero-card">
@@ -1576,7 +1614,14 @@ function renderSummaryItem(label, value, signal = null) {
 
 function renderPlanWarnings(result, elements, useReal, formatters, activePath) {
   const container = elements.planWarnings;
+  const panel = elements.planSummaryPanel;
+
   if (!container) return;
+
+  if (panel) {
+    panel.classList.remove('hidden');
+    panel.removeAttribute('hidden');
+  }
 
   const warningData = getPlanWarningsData(result, useReal, formatters, activePath);
 
