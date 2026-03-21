@@ -1847,7 +1847,6 @@ input[type="checkbox"]{
 }
 
 /* ========================================
-  /* ========================================
    Retirement Outlook Summary
    ======================================== */
 
@@ -1902,7 +1901,9 @@ input[type="checkbox"]{
 }
 
 .plan-status-card{
-  padding:12px 14px;
+  display:grid;
+  gap:8px;
+  padding:14px 16px;
   border-radius:12px;
   border:1px solid;
   background:#ffffff;
@@ -1910,9 +1911,36 @@ input[type="checkbox"]{
 }
 
 .plan-status-inline{
-  font-size:0.88rem;
-  font-weight:700;
-  line-height:1.4;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  font-size:0.94rem;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.plan-status-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  flex:0 0 22px;
+  font-size:0.82rem;
+  font-weight:900;
+  line-height:1;
+}
+
+.plan-status-label{
+  min-width:0;
+  line-height:1.35;
+}
+
+.plan-status-copy{
+  font-size:0.85rem;
+  line-height:1.45;
 }
 
 .plan-status-card--strong{
@@ -1921,16 +1949,31 @@ input[type="checkbox"]{
   color:#065f46;
 }
 
+.plan-status-card--strong .plan-status-icon{
+  background:#10b981;
+  color:#ffffff;
+}
+
 .plan-status-card--watch{
   background:#fffbeb;
   border-color:#fcd34d;
   color:#92400e;
 }
 
+.plan-status-card--watch .plan-status-icon{
+  background:#f59e0b;
+  color:#ffffff;
+}
+
 .plan-status-card--weak{
   background:#fef2f2;
   border-color:#fca5a5;
   color:#991b1b;
+}
+
+.plan-status-card--weak .plan-status-icon{
+  background:#dc2626;
+  color:#ffffff;
 }
 
 .plan-outlook-legend{
@@ -2139,7 +2182,6 @@ input[type="checkbox"]{
 }
 
 .plan-warning,
-.plan-warning-ok,
 .plan-warning-group{
   padding:12px 14px;
   border-radius:12px;
@@ -2156,13 +2198,6 @@ input[type="checkbox"]{
 
 .plan-warning{
   font-weight:600;
-}
-
-.plan-warning-ok{
-  background:#ecfdf5;
-  color:#065f46;
-  border:1px solid #6ee7b7;
-  font-weight:700;
 }
 
 .plan-warning-group{
@@ -2212,10 +2247,6 @@ input[type="checkbox"]{
   padding:10px 12px;
   background:#fffaf3;
   border:1px solid #f3c37a;
-}
-
-.plan-outlook-warnings .plan-warning-ok{
-  margin:0;
 }
 
 .plan-warning-group-title{
