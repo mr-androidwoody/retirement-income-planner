@@ -226,32 +226,24 @@ export function renderResultsView({
 renderResultsTableNote(elements, result, activePath);
 
 if (elements.tableCard && showFullTable) {
-  let header = elements.tableCard.querySelector('.results-header-row');
+  const panelHeader = elements.tableCard.querySelector('.panel-header');
+  const tableWrap = elements.tableCard.querySelector('.table-wrap');
 
-  if (!header) {
-    header = document.createElement('div');
-    header.className = 'results-header-row';
-    elements.tableCard.prepend(header);
+  let selector = elements.tableCard.querySelector('.table-view-selector');
+
+  if (!selector && panelHeader) {
+    selector = document.createElement('div');
+    selector.className = 'table-view-selector';
+    panelHeader.appendChild(selector);
   }
 
-  header.innerHTML = `
-    <div class="results-header-text">
-      <h3>Yearly results</h3>
-      <p>
-        A year-by-year view of your plan showing how spending, income, and withdrawals
-        interact with your portfolio over time.
-        <br />
-        Focus on <strong>cuts</strong>, <strong>shortfalls</strong>, and <strong>portfolio changes</strong>
-        to understand where pressure builds.
-      </p>
-    </div>
-
-    <div class="table-view-selector">
+  if (selector) {
+    selector.innerHTML = `
       <button data-view="median">Median</button>
       <button data-view="p10">Downside</button>
       <button data-view="p90">Upside</button>
-    </div>
-  `;
+    `;
+  }
 
   let legend = elements.tableCard.querySelector('.results-table-legend');
 
@@ -294,22 +286,13 @@ if (elements.tableCard && showFullTable) {
     </div>
   `;
 
-  const note = elements.tableCard.querySelector('#resultsTableNote');
-  const tableWrap = elements.tableCard.querySelector('.table-wrap');
-
-  if (note) {
-    if (legend.previousElementSibling !== note) {
-      note.insertAdjacentElement('afterend', legend);
-    }
-  } else if (tableWrap) {
-    if (legend.nextElementSibling !== tableWrap) {
-      elements.tableCard.insertBefore(legend, tableWrap);
-    }
+  if (tableWrap) {
+    elements.tableCard.insertBefore(legend, tableWrap);
   } else if (!legend.parentNode) {
     elements.tableCard.appendChild(legend);
   }
 
-  const selectorButtons = header.querySelectorAll('.table-view-selector button');
+  const selectorButtons = elements.tableCard.querySelectorAll('.table-view-selector button');
 
   selectorButtons.forEach((button) => {
     const isActive = button.dataset.view === tableView;
