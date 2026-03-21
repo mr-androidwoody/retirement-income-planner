@@ -226,24 +226,7 @@ export function renderResultsView({
 renderResultsTableNote(elements, result, activePath);
 
 if (elements.tableCard && showFullTable) {
-  const panelHeader = elements.tableCard.querySelector('.panel-header');
   const tableWrap = elements.tableCard.querySelector('.table-wrap');
-
-  let selector = elements.tableCard.querySelector('.table-view-selector');
-
-  if (!selector && panelHeader) {
-    selector = document.createElement('div');
-    selector.className = 'table-view-selector';
-    panelHeader.appendChild(selector);
-  }
-
-  if (selector) {
-    selector.innerHTML = `
-      <button data-view="median">Median</button>
-      <button data-view="p10">Downside</button>
-      <button data-view="p90">Upside</button>
-    `;
-  }
 
   let legend = elements.tableCard.querySelector('.results-table-legend');
 
@@ -291,13 +274,6 @@ if (elements.tableCard && showFullTable) {
   } else if (!legend.parentNode) {
     elements.tableCard.appendChild(legend);
   }
-
-  const selectorButtons = elements.tableCard.querySelectorAll('.table-view-selector button');
-
-  selectorButtons.forEach((button) => {
-    const isActive = button.dataset.view === tableView;
-    button.classList.toggle('active', isActive);
-  });
 }
 
   renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
@@ -1080,14 +1056,13 @@ function renderResultsTableNote(elements, result, activePath) {
 
   if (mode === 'historical') {
     note.textContent = activePath?.label
-      ? `This table shows the selected historical path: ${activePath.label}.`
-      : 'This table shows the selected historical path.';
+      ? `Historical path: ${activePath.label}.`
+      : 'Historical path selected.';
+    note.classList.remove('hidden');
   } else {
-    note.textContent =
-      'Each row shows how your spending, income, and withdrawals interact with your portfolio over time.';
+    note.textContent = '';
+    note.classList.add('hidden');
   }
-
-  note.classList.remove('hidden');
 }
 
 function ensureResultsTableNoteContainer(elements) {
