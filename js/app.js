@@ -60,6 +60,7 @@ const els = {
   historicalScenario: document.getElementById('historicalScenario'),
   monteCarloRunsRow: document.getElementById('monteCarloRunsRow'),
   historicalScenarioRow: document.getElementById('historicalScenarioRow'),
+  monteCarloRunsPreset: document.getElementById('monteCarloRunsPreset'),
   monteCarloRuns: document.getElementById('monteCarloRuns'),
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
 
