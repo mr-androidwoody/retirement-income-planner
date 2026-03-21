@@ -414,7 +414,7 @@
                     <section class="input-group-card people-pensions-card card-block">
                       <div class="section-heading">
                         <h3>Fixed income</h3>
-                        <p>State pension, other income, and windfalls that reduce how much you need to withdraw from investments.</p>
+                        <p>Incorporate guaranteed income, like your State Pension, earnings, or windfalls, to see how these additional sources of income reduce the amount you need to withdraw from your investments.</p>
                       </div>
                 
                       <div class="people-panels">
@@ -755,74 +755,83 @@
                     </section>
                   </div>
                 
-                  <div class="input-grid-bottom">
-                    <section class="input-group-card card-block">
-                      <div class="section-heading">
-                        <h3>Plan settings</h3>
-                        <p><strong>Fine-tune your confidence.</strong> Run thousands of market simulations for a high-probability forecast, or test your strategy against real-world historical data to ensure its resilience.</p>
-                      </div>
-                
-                      <div class="field-grid field-grid-3">
-                        <label class="field">
-                          <span class="field-label">Simulation mode</span>
-                          <select id="simulationMode">
-                            <option value="monteCarlo" selected>Monte Carlo</option>
-                            <option value="historical">Historical</option>
-                            <option value="deterministic">Deterministic</option>
-                          </select>
-                        </label>
-                
-                        <div id="monteCarloRunsRow">
-                          <label class="field">
-                            <span class="field-label">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="Number of simulated return paths. More runs are smoother and more stable, but slower."
-                            >Monte Carlo runs</span>
-                          </span>
-                            <input id="monteCarloRuns" type="text" inputmode="numeric" data-format="integer" value="1,000" />
-                          </label>
+                    <div class="input-grid-bottom">
+                      <section class="input-group-card card-block">
+                        <div class="section-heading">
+                          <h3>Plan settings</h3>
+                          <p>Fine-tune your confidence and run thousands of possible market simulations for a high-probability forecast, or test your strategy against real-world historical data to ensure its resilience.</p>
                         </div>
-                
-                        <div id="historicalScenarioRow" class="hidden">
+                    
+                        <div class="plan-settings-grid">
                           <label class="field">
-                            <span class="field-label">Historical scenario</span>
-                            <select id="historicalScenario">
-                              <optgroup label="Stress - crashes">
-                                <option value="1929">1929 - Great Depression</option>
-                                <option value="2008">2008 - Global Financial Crisis</option>
-                                <option value="2000">2000 - Dot-com bubble</option>
-                              </optgroup>
-                
-                              <optgroup label="Stress - inflation">
-                                <option value="1966">1966 - Inflation shock</option>
-                                <option value="1973">1973 - Stagflation shock</option>
-                                <option value="1979">1979 - High inflation peak</option>
-                              </optgroup>
-                
-                              <optgroup label="Stress - war">
-                                <option value="1914">1914 - WWI disruption</option>
-                                <option value="1939">1939 - WWII disruption</option>
-                              </optgroup>
-                
-                              <optgroup label="Low growth - stagnation">
-                                <option value="1906">1906 - Early instability</option>
-                                <option value="1965">1965 - Pre-inflation peak</option>
-                                <option value="2001">2001 - Post dot-com stagnation</option>
-                              </optgroup>
-                
-                              <optgroup label="Growth - bull markets">
-                                <option value="1982">1982 - Strong bull market start</option>
-                                <option value="1991">1991 - Long expansion</option>
-                                <option value="2010">2010 - Recovery bull market</option>
-                              </optgroup>
+                            <span class="field-label">Simulation mode</span>
+                            <select id="simulationMode">
+                              <option value="monteCarlo" selected>Monte Carlo</option>
+                              <option value="historical">Historical</option>
+                              <option value="deterministic">Deterministic</option>
                             </select>
                           </label>
+                    
+                          <div id="monteCarloRunsRow" class="plan-settings-dynamic-field">
+                            <label class="field">
+                              <span class="field-label">
+                                <span
+                                  class="metric-heading-with-tooltip"
+                                  tabindex="0"
+                                  data-tooltip="Number of simulated return paths. More runs are smoother and more stable, but slower."
+                                >Monte Carlo runs</span>
+                              </span>
+                    
+                              <div class="monte-carlo-runs-control">
+                                <select id="monteCarloRunsPreset" aria-label="Monte Carlo run presets">
+                                  <option value="1000" selected>1,000</option>
+                                  <option value="5000">5,000</option>
+                                  <option value="10000">10,000</option>
+                                  <option value="20000">20,000</option>
+                                  <option value="custom">Custom</option>
+                                </select>
+                    
+                                <input
+                                  id="monteCarloRuns"
+                                  type="text"
+                                  inputmode="numeric"
+                                  data-format="integer"
+                                  value="1,000"
+                                  aria-label="Monte Carlo runs"
+                                />
+                              </div>
+                    
+                              <div class="field-help-text">Choose a preset number or type your own value up to 100,000.</div>
+                            </label>
+                          </div>
+                    
+                          <div id="historicalScenarioRow" class="plan-settings-dynamic-field hidden">
+                            <label class="field">
+                              <span class="field-label">Historical scenario</span>
+                              <select id="historicalScenario">
+                                <optgroup label="Stress - crashes">
+                                  <option value="1929">1929 - Great Depression</option>
+                                  <option value="2008">2008 - Global Financial Crisis</option>
+                                  <option value="2000">2000 - Dot-com bubble</option>
+                                </optgroup>
+                    
+                                <optgroup label="Stress - inflation">
+                                  <option value="1966">1966 - Inflation shock</option>
+                                  <option value="1973">1973 - Stagflation shock</option>
+                                  <option value="1979">1979 - High inflation peak</option>
+                                </optgroup>
+                    
+                                <optgroup label="Mixed / prolonged stress">
+                                  <option value="1914">1914 - War disruption (WWI)</option>
+                                  <option value="1937">1937 - Recession within recovery</option>
+                                  <option value="1972">1972 - Inflation then market slump</option>
+                                  <option value="2007">2007 - Pre-crisis peak into GFC</option>
+                                </optgroup>
+                              </select>
+                            </label>
+                          </div>
                         </div>
-              
-                      </div>
-                    </section>
+                      </section>
                 
                     <section class="input-group-card card-block spending-rules-card">
                       <div class="section-heading">
