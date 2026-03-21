@@ -706,23 +706,16 @@ function renderResultsContextAndPathSummary({
   let status = 'strong';
   let statusLabel = 'Strong';
   let statusIcon = '✓';
-  let verdictTitle = 'This plan is on track';
-  let verdictMessage =
-    'The plan sustains the target spending level across most outcomes.';
-  let verdictSubtext =
-    'Downside resilience remains strong under the tested assumptions.';
+  let verdictTitle = 'The plan is on track';
 
   if (isHistorical) {
     const depleted = Boolean(result?.summary?.depleted);
     status = depleted ? 'weak' : 'strong';
     statusLabel = depleted ? 'Depleted' : 'Sustained';
     statusIcon = depleted ? '×' : '✓';
-    verdictTitle = activePath?.label || 'Selected historical path';
-    verdictMessage =
-      'This result shows one selected historical return sequence rather than Monte Carlo ranges.';
-    verdictSubtext = depleted
-      ? `This historical path depletes the portfolio${depletionYear ? ` in Year ${depletionYear}` : ''}.`
-      : 'This historical path sustains spending without portfolio depletion.';
+    verdictTitle = depleted
+      ? `Historical path depleted${depletionYear ? ` in Year ${depletionYear}` : ''}`
+      : 'Historical path sustained';
   } else if (!isDeterministic && result?.monteCarlo) {
     const successRate = Number(result.monteCarlo.successRate ?? 0);
 
@@ -730,20 +723,12 @@ function renderResultsContextAndPathSummary({
       status = 'weak';
       statusLabel = 'Weak';
       statusIcon = '×';
-      verdictTitle = 'This plan is under pressure';
-      verdictMessage =
-        'Target spending does not hold up reliably across simulations.';
-      verdictSubtext =
-        'Main pressure: high starting withdrawals and early downside depletion.';
+      verdictTitle = 'The plan is under pressure';
     } else if (successRate < 0.9) {
       status = 'watch';
       statusLabel = 'Watch';
       statusIcon = '!';
-      verdictTitle = 'This plan is sensitive to conditions';
-      verdictMessage =
-        'The plan broadly holds, but weaker outcomes require spending adjustments.';
-      verdictSubtext =
-        'Pressure comes from variability in returns and sequence risk.';
+      verdictTitle = 'The plan is sensitive to conditions';
     }
   }
 
@@ -930,17 +915,10 @@ function renderResultsContextAndPathSummary({
       ${detailMetricsHtml}
 
       <div class="retirement-outlook-hero">
-        <div class="plan-status-card">
-          <div class="plan-status-pill plan-status-pill--${status}">
-            <span class="plan-status-icon">${statusIcon}</span>
-            <span>${statusLabel}</span>
+        <div class="plan-status-card plan-status-card--${status}">
+          <div class="plan-status-inline">
+            ${statusIcon} ${statusLabel}: ${verdictTitle}
           </div>
-
-          <h3 class="plan-status-title">${verdictTitle}</h3>
-
-          <p class="plan-status-text">${verdictMessage}</p>
-
-          <p class="plan-status-subtext">${verdictSubtext}</p>
 
           ${depletionAlertHtml}
         </div>
