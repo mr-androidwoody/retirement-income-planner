@@ -453,6 +453,7 @@ export function createPlanForm(
     bindActions,
     readValues,
     setBusy,
-    syncPerson2State
+    syncPerson2State,
+    syncDefaultSpendingFloors
   };
 }
