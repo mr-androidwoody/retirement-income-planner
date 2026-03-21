@@ -61,7 +61,6 @@ const els = {
   monteCarloRunsRow: document.getElementById('monteCarloRunsRow'),
   historicalScenarioRow: document.getElementById('historicalScenarioRow'),
   monteCarloRuns: document.getElementById('monteCarloRuns'),
-  seed: document.getElementById('seed'),
   skipInflationAfterNegative: document.getElementById('skipInflationAfterNegative'),
 
   chartModeNominal: document.getElementById('chartModeNominal'),
