@@ -102,9 +102,10 @@ const els = {
   planSummaryGrid: document.getElementById('planSummaryGrid'),
   spendingChart: document.getElementById('spendingChart'),
   tableCard: document.getElementById('tableCard'),
+  tableViewSelector: document.getElementById('tableViewSelector'),
   resultsTable: document.getElementById('resultsTable'),
-  deterministicNote: document.getElementById('deterministicNote'),
-  resultsLegend: document.getElementById('resultsLegend')
+  resultsTableNote: document.getElementById('resultsTableNote'),
+  resultsTableLegend: document.getElementById('resultsTableLegend')
 };
 
 let latestResult = null;
