@@ -13,9 +13,14 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
     setFieldValue('lowerGuardrail', defaults.lowerGuardrail);
     setFieldValue('adjustmentSize', defaults.adjustmentSize);
     setFieldValue('monteCarloRuns', defaults.monteCarloRuns, true);
-    elements.skipInflationAfterNegative.checked = defaults.skipInflationAfterNegative;
-    elements.showRealValues.checked = defaults.showRealValues;
-    elements.showFullTable.checked = defaults.showFullTable;
+
+    if (elements.skipInflationAfterNegative) {
+      elements.skipInflationAfterNegative.checked = defaults.skipInflationAfterNegative;
+    }
+
+    if (elements.showRealValues) {
+      elements.showRealValues.checked = defaults.showRealValues;
+    }
   }
 
   function attachFormatting() {
@@ -47,17 +52,17 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
       lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value),
       adjustmentSize: parseLooseNumber(elements.adjustmentSize.value),
       monteCarloRuns: parseLooseInteger(elements.monteCarloRuns.value),
-      skipInflationAfterNegative: elements.skipInflationAfterNegative.checked,
-      showRealValues: elements.showRealValues.checked,
-      showFullTable: elements.showFullTable.checked
+      skipInflationAfterNegative: Boolean(elements.skipInflationAfterNegative?.checked),
+      showRealValues: Boolean(elements.showRealValues?.checked)
     };
   }
 
   function bindDisplayEvents({ onViewChange } = {}) {
     if (typeof onViewChange !== 'function') return;
 
-    elements.showRealValues.addEventListener('change', onViewChange);
-    elements.showFullTable.addEventListener('change', onViewChange);
+    if (elements.showRealValues) {
+      elements.showRealValues.addEventListener('change', onViewChange);
+    }
   }
 
   function setFieldValue(id, value, formatAsInteger = false) {
