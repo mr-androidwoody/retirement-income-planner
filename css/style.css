@@ -134,7 +134,7 @@ textarea{
 
 .summary-band{
   margin:0;
-  padding:20px;
+  padding:12px;
   background:linear-gradient(180deg, #12264a 0%, #1a315b 100%);
   border-radius:28px;
   box-shadow:var(--shadow);
@@ -143,12 +143,12 @@ textarea{
 .summary-grid{
   display:grid;
   grid-template-columns:repeat(4, minmax(0, 1fr));
-  gap:16px;
+  gap:12px;
 }
 
 .summary-card{
-  min-height:162px;
-  padding:18px 18px 16px;
+  min-height:136px;
+  padding:14px 16px;
   color:#fff;
   background:rgba(255,255,255,0.10);
   border:1px solid rgba(255,255,255,0.16);
@@ -208,7 +208,7 @@ textarea{
 
 .tab-layout.single-column{
   display:grid;
-  gap:16px;
+  gap:10px;
   align-items:start;
 }
 
@@ -240,6 +240,7 @@ textarea{
 
 .tab-panels{
   min-width:0;
+  margin-top:12px;
 }
 
 .tab-panel{
