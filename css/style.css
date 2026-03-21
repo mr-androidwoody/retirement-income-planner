@@ -2925,8 +2925,8 @@ input[type="checkbox"]{
 }
 
 .results-context-metric{
-  min-height:96px; /* reduce card height */
-  padding:10px 14px; /* tighter vertical padding */
+  min-height:118px;
+  padding:14px 16px;
   border-right:1px solid var(--line);
   display:grid;
   grid-template-rows:auto 1fr;
@@ -2936,26 +2936,24 @@ input[type="checkbox"]{
   display:flex;
   flex-direction:column;
   align-items:flex-start;
-  justify-content:flex-start; /* stop stretching */
-  gap:4px; /* tighter spacing between value + sub */
-  min-height:0;
+  justify-content:space-between;
+  gap:10px;
+  min-height:100%;
 }
 
 .results-context-metric-value{
-  font-size:1.1rem; /* slight reduction */
+  font-size:1.15rem;
   font-weight:800;
   color:var(--text);
-  line-height:1.15; /* tighter line box */
-  margin:0; /* remove any inherited spacing */
+  line-height:1.25;
   white-space:normal;
 }
 
 .results-context-metric-subvalue{
-  font-size:0.74rem;
+  font-size:0.76rem;
   font-weight:600;
   white-space:normal;
-  line-height:1.25;
-  margin:0; /* remove default spacing */
+  line-height:1.35;
   opacity:0.95;
   text-align:left;
 }
