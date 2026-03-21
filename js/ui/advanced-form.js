@@ -1,5 +1,5 @@
 export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, parseLooseInteger } = {}) {
-  const advancedIntegerFieldIds = ['monteCarloRuns', 'seed'];
+  const advancedIntegerFieldIds = ['monteCarloRuns'];
 
   function applyDefaults(defaults) {
     setFieldValue('equityReturn', defaults.equityReturn);
@@ -13,7 +13,6 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
     setFieldValue('lowerGuardrail', defaults.lowerGuardrail);
     setFieldValue('adjustmentSize', defaults.adjustmentSize);
     setFieldValue('monteCarloRuns', defaults.monteCarloRuns, true);
-    elements.seed.value = '';
     elements.skipInflationAfterNegative.checked = defaults.skipInflationAfterNegative;
     elements.showRealValues.checked = defaults.showRealValues;
     elements.showFullTable.checked = defaults.showFullTable;
@@ -29,11 +28,6 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
       });
 
       input.addEventListener('blur', () => {
-        if (fieldId === 'seed' && input.value.trim() === '') {
-          input.value = '';
-          return;
-        }
-
         const value = parseLooseNumber(input.value);
         input.value = Number.isFinite(value) ? formatInteger(value) : '';
       });
@@ -53,7 +47,6 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
       lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value),
       adjustmentSize: parseLooseNumber(elements.adjustmentSize.value),
       monteCarloRuns: parseLooseInteger(elements.monteCarloRuns.value),
-      seed: elements.seed.value.trim() === '' ? null : parseLooseInteger(elements.seed.value),
       skipInflationAfterNegative: elements.skipInflationAfterNegative.checked,
       showRealValues: elements.showRealValues.checked,
       showFullTable: elements.showFullTable.checked
