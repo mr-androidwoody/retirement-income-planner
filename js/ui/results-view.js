@@ -509,27 +509,39 @@ if (isDeterministic || !result?.monteCarlo) {
 }
 
   const successRate = Number(result?.monteCarlo?.successRate ?? 0);
+  const successPct = Number.isFinite(successRate)
+    ? Math.round(successRate * 100)
+    : null;
 
   if (successRate < 0.7) {
     return {
       ...PLAN_OUTLOOK_STATES.WEAK,
-      resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
-      resolvedBody: PLAN_OUTLOOK_STATES.WEAK.body
+      resolvedTitle: 'Weak — low success rate',
+      resolvedBody:
+        successPct === null
+          ? 'The plan fails too often across simulated outcomes.'
+          : `The plan succeeds in ${successPct}% of simulated outcomes, which is too low and leaves the plan under pressure.`
     };
   }
 
   if (successRate < 0.9) {
     return {
       ...PLAN_OUTLOOK_STATES.WATCH,
-      resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
-      resolvedBody: PLAN_OUTLOOK_STATES.WATCH.body
+      resolvedTitle: 'Watch — moderate success rate',
+      resolvedBody:
+        successPct === null
+          ? 'The plan is sensitive to weaker simulated return paths.'
+          : `The plan succeeds in ${successPct}% of simulated outcomes, leaving it sensitive to weaker return paths.`
     };
   }
 
   return {
     ...PLAN_OUTLOOK_STATES.STRONG,
-    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
-    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
+    resolvedTitle: 'Strong — high success rate',
+    resolvedBody:
+      successPct === null
+        ? 'The plan lasts in most simulated outcomes.'
+        : `The plan succeeds in ${successPct}% of simulated outcomes, indicating a strong level of resilience.`
   };
 }
 
