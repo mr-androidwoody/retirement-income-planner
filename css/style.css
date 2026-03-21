@@ -2925,7 +2925,7 @@ input[type="checkbox"]{
 }
 
 .results-context-metric{
-  min-height:118px;
+  min-height:100px;
   padding:14px 16px;
   border-right:1px solid var(--line);
   display:grid;
