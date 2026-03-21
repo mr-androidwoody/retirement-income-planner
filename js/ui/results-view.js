@@ -227,26 +227,24 @@ renderResultsContextAndPathSummary({
     resetPlanOutlookContent(elements);
   }
 
-if (isHistorical) {
+  if (isHistorical) {
+    renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
-if (isHistorical) {
-  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+    renderSpendingChart(
+      elements.spendingChart,
+      result,
+      useReal,
+      formatCurrency,
+      cutDiagnostics
+    );
 
-  renderSpendingChart(
-    elements.spendingChart,
-    result,
-    useReal,
-    formatCurrency,
-    cutDiagnostics
-  );
-
-if (elements.planWarnings) {
-  elements.planWarnings.innerHTML = `
-    <div class="plan-warning-ok">
-      Historical mode is showing one selected return sequence rather than Monte Carlo risk ranges.
-    </div>
-  `;
-}
+    if (elements.planWarnings) {
+      elements.planWarnings.innerHTML = `
+        <div class="plan-warning-ok">
+          Historical mode is showing one selected return sequence rather than Monte Carlo risk ranges.
+        </div>
+      `;
+    }
 
   if (elements.retirementOutlookHero) {
     elements.retirementOutlookHero.innerHTML = `
