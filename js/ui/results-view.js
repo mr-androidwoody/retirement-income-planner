@@ -458,20 +458,19 @@ if (isHistorical) {
            result?.inputs?.initialPortfolio ?? 0);
 
   const endValue = Number(
-    activePath?.terminalReal ??
-    activePath?.terminalNominal ??
-    0
+    getSelectedPathEndValue(activePath, activePath?.yearlyRows || [], true)
   );
 
   if (startingPortfolio > 0 && Number.isFinite(endValue)) {
     const ratio = endValue / startingPortfolio;
+    const retainedPct = Math.round(ratio * 100);
 
     if (ratio < 0.5) {
       return {
         ...PLAN_OUTLOOK_STATES.WEAK,
         resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
         resolvedBody:
-          'The plan finishes with less than 50% of the starting portfolio in real terms, leaving the plan under pressure.'
+          `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 50% threshold and under pressure.`
       };
     }
 
@@ -480,9 +479,16 @@ if (isHistorical) {
         ...PLAN_OUTLOOK_STATES.WATCH,
         resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
         resolvedBody:
-          'The plan finishes with less than 75% of the starting portfolio in real terms, leaving a reduced cushion.'
+          `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 75% threshold and leaving a reduced cushion.`
       };
     }
+
+    return {
+      ...PLAN_OUTLOOK_STATES.STRONG,
+      resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+      resolvedBody:
+        `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, preserving a healthy cushion.`
+    };
   }
 
   return {
@@ -492,7 +498,7 @@ if (isHistorical) {
       'The plan finishes with at least 75% of the starting portfolio in real terms.'
   };
 }
-
+    
 // deterministic fallback (leave as-is for now)
 if (isDeterministic || !result?.monteCarlo) {
   return {
