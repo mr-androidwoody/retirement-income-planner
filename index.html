@@ -1229,26 +1229,13 @@
               </section>
             </div>
 
-            <section class="panel plan-warnings-panel" id="planWarningsPanel">
-              <div class="card-header">
-                <div class="card-title-block">
-                  <h2>Plan warnings</h2>
-                  <p>Highlights key input risks and weaker model outcomes that need attention.</p>
-                </div>
-              </div>
-
-              <div id="planWarnings">
-                <!-- Populated by results-view.js -->
-              </div>
-            </section>
-
             <section class="panel plan-summary-panel" id="planSummaryPanel">
               <div class="card-header">
                 <div class="card-title-block">
                   <h2>Plan outlook</h2>
-                  <p>Key planning metrics and outcomes from the current simulation.</p>
+                  <p>A combined view of plan resilience, key risks, and supporting outcome metrics.</p>
                 </div>
-
+            
                 <div class="outlook-panel-actions">
                   <button
                     id="explainOutlookTerms"
@@ -1259,26 +1246,28 @@
                   </button>
                 </div>
               </div>
-
+            
               <div class="plan-outlook-legend" aria-label="Plan outlook colour guide">
                 <span class="plan-outlook-legend-item">
                   <span class="summary-label-dot summary-label-dot--green"></span>
                   <strong>Strong</strong> — plan comfortably sustains the target lifestyle
                 </span>
-
+            
                 <span class="plan-outlook-legend-item">
                   <span class="summary-label-dot summary-label-dot--amber"></span>
                   <strong>Watch</strong> — viable plan but sensitive to assumptions
                 </span>
-
+            
                 <span class="plan-outlook-legend-item">
                   <span class="summary-label-dot summary-label-dot--red"></span>
                   <strong>Risk</strong> — meaningful chance of spending pressure
                 </span>
               </div>
-
+            
               <div id="retirementOutlookHero" class="retirement-outlook-hero"></div>
-
+            
+              <div id="planWarnings" class="plan-outlook-warnings"></div>
+            
               <div class="plan-summary-grid" id="planSummaryGrid"></div>
             </section>
 
