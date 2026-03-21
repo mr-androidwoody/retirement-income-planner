@@ -219,13 +219,8 @@ renderResultsContextAndPathSummary({
     }
   }
 
-  const shouldShowPlanOutlook = isHistorical || hasMonteCarlo;
-
-  setPlanOutlookPanelVisibility(elements, shouldShowPlanOutlook);
-
-  if (!shouldShowPlanOutlook) {
-    resetPlanOutlookContent(elements);
-  }
+  setPlanOutlookPanelVisibility(elements, false);
+  resetPlanOutlookContent(elements);
 
   if (isHistorical) {
     renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
@@ -237,93 +232,17 @@ renderResultsContextAndPathSummary({
       formatCurrency,
       cutDiagnostics
     );
+  } else if (hasMonteCarlo) {
+    renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
-    if (elements.planWarnings) {
-      elements.planWarnings.innerHTML = `
-        <div class="plan-warning-ok">
-          Historical mode is showing one selected return sequence rather than Monte Carlo risk ranges.
-        </div>
-      `;
-    }
-
-  if (elements.retirementOutlookHero) {
-    elements.retirementOutlookHero.innerHTML = `
-      <div class="retirement-outlook-hero-card">
-        <div class="retirement-outlook-hero-top">
-          <div class="retirement-outlook-kicker">Historical scenario</div>
-          <div class="retirement-outlook-status-row">
-            <div class="retirement-outlook-badge retirement-outlook-badge--${
-              result?.summary?.depleted ? 'weak' : 'strong'
-            }">
-              <span class="retirement-outlook-badge-icon">${
-                result?.summary?.depleted ? '×' : '✓'
-              }</span>
-              <span>${result?.summary?.depleted ? 'Depleted' : 'Sustained'}</span>
-            </div>
-
-            <div class="retirement-outlook-heading-group">
-              <div class="retirement-outlook-subheading">
-                ${activePath?.label || 'Selected historical path'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <p class="retirement-outlook-description">
-          This result shows one selected historical return sequence rather than Monte Carlo ranges.
-        </p>
-
-        <div class="plan-summary-outcome">
-          <h4 class="plan-summary-section-title">Outcome summary</h4>
-          <div class="plan-summary-section-grid plan-summary-section-grid--top">
-            ${renderSummaryItem(
-              'Ending portfolio',
-              formatCurrency(
-                useReal
-                  ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
-                  : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
-              )
-            )}
-            ${renderSummaryItem(
-              'Minimum wealth',
-              formatCurrency(result?.summary?.minimumWealth ?? 0)
-            )}
-            ${renderSummaryItem(
-              'Depletion year',
-              result?.summary?.depleted
-                ? `Year ${result?.summary?.depletionYear ?? '—'}`
-                : 'Not depleted'
-            )}
-          </div>
-        </div>
-      </div>
-    `;
+    renderSpendingChart(
+      elements.spendingChart,
+      result,
+      useReal,
+      formatCurrency,
+      cutDiagnostics
+    );
   }
-
-  if (elements.planSummaryGrid) {
-    elements.planSummaryGrid.innerHTML = '';
-  }
-} else if (hasMonteCarlo) {
-  renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
-
-  renderSpendingChart(
-    elements.spendingChart,
-    result,
-    useReal,
-    formatCurrency,
-    cutDiagnostics
-  );
-  renderPlanWarnings(result, elements, useReal, formatters, activePath);
-  renderRetirementOutlook(result, elements, useReal, formatters, cutDiagnostics);
-  renderMonteCarloSummary(
-    result,
-    elements,
-    useReal,
-    formatters,
-    cutDiagnostics,
-    activePath
-  );
-}
 
 if (elements.tableCard && showFullTable) {
   let header = elements.tableCard.querySelector('.results-header-row');
@@ -706,7 +625,7 @@ function renderResultsContextAndPathSummary({
   const container = elements.resultsContextBar;
   if (!container) return;
 
-  const { formatCurrency } = formatters;
+  const { formatCurrency, formatPercent } = formatters;
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
@@ -753,22 +672,16 @@ function renderResultsContextAndPathSummary({
 
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
-  const endValue = getSelectedPathEndValue(activePath, rows, useReal);
-  const endValueForChange = endValue;
-  const endValueLabel = useReal ? 'Real end value' : 'Nominal end value';
-
-  const initialPortfolio =
+  const selectedEndValue = getSelectedPathEndValue(activePath, rows, useReal);
+  const startingPortfolio =
     Number(result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio ?? 0);
 
-  let endValueChangePct = null;
   let endValueChangeDisplay = '';
   let endValueChangeClass = '';
 
-  if (initialPortfolio > 0 && Number.isFinite(endValueForChange)) {
-    endValueChangePct = (endValueForChange - initialPortfolio) / initialPortfolio;
-
-    const sign =
-      endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
+  if (startingPortfolio > 0 && Number.isFinite(selectedEndValue)) {
+    const endValueChangePct = (selectedEndValue - startingPortfolio) / startingPortfolio;
+    const sign = endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
 
     endValueChangeDisplay =
       `${sign}${Math.abs(endValueChangePct * 100).toFixed(1)}% from initial investments`;
@@ -782,27 +695,28 @@ function renderResultsContextAndPathSummary({
   const { comfortFloor, minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
 
   let firstComfortBreachYear = null;
-  let worstActualSpending = Number.POSITIVE_INFINITY;
-  let worstMinimumFloorForYear = 0;
-  let worstFloorYear = null;
+  let firstCutAmount = 0;
+  let firstCutPct = 0;
   let yearsBelowMinimumFloor = 0;
+  let worstFloorGapNominal = 0;
+  let worstFloorYear = null;
+  let floorHeadroomPct = null;
 
   rows.forEach((row, index) => {
     const planYear = getRowPlanYear(row, index);
     const inflationIndex = Number(row.inflationIndex ?? 1);
 
     const actualNominal = Number(row.spendingNominal ?? 0);
-    const minimumFloorNominalForYear = minimumFloor * inflationIndex;
-    const comfortFloorNominalForYear = comfortFloor * inflationIndex;
+    const actual = getRowActualSpending(row, useReal);
 
-    if (
-      minimumFloorNominalForYear > 0 &&
-      actualNominal < worstActualSpending
-    ) {
-      worstActualSpending = actualNominal;
-      worstMinimumFloorForYear = minimumFloorNominalForYear;
-      worstFloorYear = planYear;
-    }
+    const target = getRowTargetSpending(
+      row,
+      useReal,
+      result?.inputs?.initialSpending || 0
+    );
+
+    const comfortFloorNominalForYear = comfortFloor * inflationIndex;
+    const minimumFloorNominalForYear = minimumFloor * inflationIndex;
 
     if (
       comfortFloorNominalForYear > 0 &&
@@ -810,6 +724,11 @@ function renderResultsContextAndPathSummary({
       firstComfortBreachYear === null
     ) {
       firstComfortBreachYear = planYear;
+
+      if (target > 0 && actual < target) {
+        firstCutAmount = target - actual;
+        firstCutPct = firstCutAmount / target;
+      }
     }
 
     if (
@@ -817,87 +736,57 @@ function renderResultsContextAndPathSummary({
       actualNominal < minimumFloorNominalForYear
     ) {
       yearsBelowMinimumFloor += 1;
+
+      const gapNominal = minimumFloorNominalForYear - actualNominal;
+
+      if (gapNominal > worstFloorGapNominal) {
+        worstFloorGapNominal = gapNominal;
+        worstFloorYear = planYear;
+
+        floorHeadroomPct =
+          (actualNominal - minimumFloorNominalForYear) / minimumFloorNominalForYear;
+      }
     }
   });
 
-  let firstCutAmount = 0;
-  let firstCutPct = 0;
-  let firstCutDisplay = '';
-  let firstCutClass = '';
-
-  if (firstComfortBreachYear != null) {
-    const firstCutRow = rows.find((row, index) => {
-      return getRowPlanYear(row, index) === firstComfortBreachYear;
-    });
-
-    if (firstCutRow) {
-      const target = getRowTargetSpending(
-        firstCutRow,
-        useReal,
-        result?.inputs?.initialSpending || 0
-      );
-      const actual = getRowActualSpending(firstCutRow, useReal);
-
-      if (target > 0 && actual < target) {
-        firstCutAmount = target - actual;
-        firstCutPct = firstCutAmount / target;
-      }
-    }
-  }
-
-  if (firstCutAmount > 0) {
-    firstCutDisplay =
-      `↓ ${formatCurrency(firstCutAmount)} (−${(firstCutPct * 100).toFixed(1)}%)`;
-    firstCutClass = 'results-context-metric-subvalue--red';
-  }
-
-  if (!Number.isFinite(worstActualSpending)) {
-    worstActualSpending = 0;
-  }
-
-  let floorHeadroomPct = null;
-
-  if (worstMinimumFloorForYear > 0) {
-    floorHeadroomPct =
-      (worstActualSpending - worstMinimumFloorForYear) / worstMinimumFloorForYear;
-  }
-
-  let floorHeadroomDisplay = '—';
-  let floorHeadroomClass = '';
-
-  if (floorHeadroomPct !== null) {
-    const sign = floorHeadroomPct > 0 ? '+' : floorHeadroomPct < 0 ? '−' : '';
-    floorHeadroomDisplay = `${sign}${Math.abs(floorHeadroomPct * 100).toFixed(1)}%`;
-
-    floorHeadroomClass =
-      floorHeadroomPct >= 0
-        ? 'results-context-metric-subvalue--green'
-        : 'results-context-metric-subvalue--red';
-  }
-
-  const worstFloorGapNominal =
-    worstMinimumFloorForYear > 0 &&
-    worstActualSpending < worstMinimumFloorForYear
-      ? worstMinimumFloorForYear - worstActualSpending
-      : 0;
-
   const worstFloorGap =
     useReal && worstFloorGapNominal > 0 && minimumFloor > 0
-      ? worstFloorGapNominal / (worstMinimumFloorForYear / minimumFloor)
+      ? worstFloorGapNominal / ((minimumFloor * 1) / minimumFloor)
       : worstFloorGapNominal;
 
   const totalYears = rows.length || 0;
   const yearsBelowFloorPct =
     totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
 
-  let floorBreachYearsDisplay = '0% of years below minimum level';
-  let floorBreachYearsClass = 'results-context-metric-subvalue--green';
+  const firstCutDisplay =
+    firstCutAmount > 0
+      ? `↓ ${formatCurrency(firstCutAmount)} (−${(firstCutPct * 100).toFixed(1)}%)`
+      : '';
 
-  if (yearsBelowMinimumFloor > 0) {
-    floorBreachYearsDisplay =
-      `${yearsBelowFloorPct.toFixed(1)}% of years below minimum level`;
-    floorBreachYearsClass = 'results-context-metric-subvalue--red';
-  }
+  const firstCutClass =
+    firstCutAmount > 0 ? 'results-context-metric-subvalue--red' : '';
+
+  const floorHeadroomDisplay =
+    floorHeadroomPct === null
+      ? 'At or above minimum spending level'
+      : `${floorHeadroomPct >= 0 ? '+' : '−'}${Math.abs(floorHeadroomPct * 100).toFixed(1)}% vs minimum spending level`;
+
+  const floorHeadroomClass =
+    floorHeadroomPct === null
+      ? 'results-context-metric-subvalue--green'
+      : floorHeadroomPct >= 0
+        ? 'results-context-metric-subvalue--green'
+        : 'results-context-metric-subvalue--red';
+
+  const floorBreachYearsDisplay =
+    yearsBelowMinimumFloor > 0
+      ? `${yearsBelowFloorPct.toFixed(1)}% of years below minimum level`
+      : '0% of years below minimum level';
+
+  const floorBreachYearsClass =
+    yearsBelowMinimumFloor > 0
+      ? 'results-context-metric-subvalue--red'
+      : 'results-context-metric-subvalue--green';
 
   const summarySaysDepleted = Boolean(
     result?.summary?.depleted ??
@@ -907,174 +796,391 @@ function renderResultsContextAndPathSummary({
 
   const depletionYearFromSummary =
     result?.summary?.depletionYear ??
-    result?.depletionYear ??
+    result?.depletedYear ??
     activePath?.depletionYear ??
     null;
 
-  let depletionYear = Number.isFinite(Number(depletionYearFromSummary))
+  const depletionYear = Number.isFinite(Number(depletionYearFromSummary))
     ? Number(depletionYearFromSummary)
     : null;
 
-  if (summarySaysDepleted && depletionYear === null) {
-    const depletedRow = rows.find((row, index) => {
-      const planYear = getRowPlanYear(row, index);
+  const warningData =
+    !isHistorical && result?.monteCarlo
+      ? getPlanWarningsData(result, useReal, formatters, activePath)
+      : { inputWarnings: [], modelWarnings: [], hasWarnings: false };
 
-      const endPortfolioValue = Number(
-        useReal
-          ? (
-              row?.endPortfolioReal ??
-              row?.endingPortfolioReal ??
-              row?.portfolioReal ??
-              row?.endPortfolio ??
-              row?.portfolio ??
-              NaN
-            )
-          : (
-              row?.endPortfolioNominal ??
-              row?.endingPortfolioNominal ??
-              row?.portfolioNominal ??
-              row?.endPortfolio ??
-              row?.portfolio ??
-              NaN
-            )
-      );
+  let status = 'strong';
+  let statusLabel = 'Strong';
+  let statusIcon = '✓';
+  let statusSubheading = 'Highly resilient under current assumptions';
+  let statusMessage =
+    'The plan is highly likely to sustain the target spending level across simulated outcomes.';
 
-      return (
-        Number.isFinite(endPortfolioValue) &&
-        endPortfolioValue <= 0 &&
-        planYear != null &&
-        planYear > 0
-      );
-    });
+  if (isHistorical) {
+    const depleted = Boolean(result?.summary?.depleted);
+    status = depleted ? 'weak' : 'strong';
+    statusLabel = depleted ? 'Depleted' : 'Sustained';
+    statusIcon = depleted ? '×' : '✓';
+    statusSubheading = activePath?.label || 'Selected historical path';
+    statusMessage =
+      'This result shows one selected historical return sequence rather than Monte Carlo ranges.';
+  } else if (!isDeterministic && result?.monteCarlo) {
+    const successRate = Number(result.monteCarlo.successRate ?? 0);
 
-    if (depletedRow) {
-      depletionYear = getRowPlanYear(depletedRow, rows.indexOf(depletedRow));
+    if (successRate < 0.7) {
+      status = 'weak';
+      statusLabel = 'Weak';
+      statusIcon = '×';
+      statusSubheading = 'Material pressure under current assumptions';
+      statusMessage =
+        'The plan does not reliably sustain the target spending level across simulations.';
+    } else if (successRate < 0.9) {
+      status = 'watch';
+      statusLabel = 'Watch';
+      statusIcon = '!';
+      statusSubheading = 'Worth monitoring under weaker outcomes';
+      statusMessage =
+        'The plan is broadly viable, but outcomes show some pressure and should be monitored.';
     }
   }
 
-  const isDepleted = summarySaysDepleted;
+  const lifestyleMetrics =
+    !isHistorical && result?.monteCarlo
+      ? getLifestyleResilienceMetrics(result, useReal, activePath)
+      : null;
 
-  const endValueTooltip =
-    'Portfolio value at the end of the selected path.';
+  const percentiles =
+    !isHistorical && result?.monteCarlo
+      ? (useReal
+          ? result.monteCarlo.realPercentiles
+          : result.monteCarlo.nominalPercentiles)
+      : null;
 
-  const firstCutTooltip =
-    'The first year when actual spending falls below planned target spending. This is a cut versus target spending, not versus your minimum level.';
+  const medianEnd =
+    percentiles?.p50?.length
+      ? percentiles.p50[percentiles.p50.length - 1]
+      : selectedEndValue;
 
-  const worstShortfallTooltip =
-    'The largest gap in any year between actual spending and your minimum acceptable spending level. This only applies when spending falls below the minimum.';
+  const successRate =
+    !isHistorical && result?.monteCarlo
+      ? Number(result.monteCarlo.successRate ?? 0)
+      : null;
 
-  const yearsReducedTooltip =
-    'Number of years when actual spending falls below your minimum spending level.';
+  const firstShortfallYear = rows.find((row, index) => {
+    return getRowShortfall(row, useReal, result?.inputs?.initialSpending || 0) > 0;
+  });
 
-  const contextBody = isDepleted
+  const firstShortfallText =
+    firstShortfallYear
+      ? `Base-case shortfall begins: year ${getRowPlanYear(firstShortfallYear, rows.indexOf(firstShortfallYear))}`
+      : 'No base-case shortfall';
+
+  const outcomeSummaryHtml = isHistorical
     ? `
-        <div class="results-context-alert results-context-alert--warning">
-          <div class="results-context-alert-icon" aria-hidden="true">!</div>
-          <div class="results-context-alert-body">
-            <div class="results-context-alert-title">
-              Plan warning: portfolio depleted in Year ${depletionYear}
-            </div>
-            <div class="results-context-alert-text">
-              After depletion, spending is limited to guaranteed income only (for example, State Pension).
-            </div>
+      <div class="plan-summary-outcome">
+        <h4 class="plan-summary-section-title">Outcome summary</h4>
+        <div class="plan-summary-section-grid plan-summary-section-grid--top">
+          ${renderSummaryItem(
+            'Ending portfolio',
+            formatCurrency(
+              useReal
+                ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
+                : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
+            )
+          )}
+          ${renderSummaryItem(
+            'Minimum wealth',
+            formatCurrency(result?.summary?.minimumWealth ?? 0)
+          )}
+          ${renderSummaryItem(
+            'Depletion year',
+            result?.summary?.depleted
+              ? `Year ${result?.summary?.depletionYear ?? '—'}`
+              : 'Not depleted'
+          )}
+        </div>
+      </div>
+    `
+    : `
+      <div class="plan-summary-outcome">
+        <h4 class="plan-summary-section-title">Outcome summary</h4>
+        <div class="plan-summary-section-grid plan-summary-section-grid--top">
+          ${renderSummaryItem(
+            'Plan success',
+            formatPercent(successRate ?? 0),
+            getPlanSuccessSignal(successRate)
+          )}
+          ${renderSummaryItem(
+            'Median ending portfolio',
+            formatCurrency(medianEnd ?? 0),
+            getMedianEndingSignal(medianEnd, startingPortfolio)
+          )}
+          ${renderSummaryItem(
+            'Base-case timing',
+            firstShortfallText,
+            getBaseCaseTimingSignal(
+              firstShortfallYear
+                ? getRowPlanYear(firstShortfallYear, rows.indexOf(firstShortfallYear))
+                : null
+            )
+          )}
+        </div>
+      </div>
+    `;
+
+  const warningsHtml = isHistorical
+    ? `
+      <div class="plan-outlook-warnings">
+        <div class="plan-warning-ok">
+          Historical mode is showing one selected return sequence rather than Monte Carlo risk ranges.
+        </div>
+      </div>
+    `
+    : warningData.hasWarnings
+      ? `
+        <div class="plan-outlook-warnings">
+          <div class="plan-outlook-warnings-grid">
+            ${
+              warningData.inputWarnings.length
+                ? `
+                  <div class="plan-warning-group">
+                    <h4 class="plan-warning-group-title">Input risk</h4>
+                    ${warningData.inputWarnings
+                      .map(
+                        (text) => `
+                          <div class="plan-warning">⚠ ${text}</div>
+                        `
+                      )
+                      .join('')}
+                  </div>
+                `
+                : ''
+            }
+            ${
+              warningData.modelWarnings.length
+                ? `
+                  <div class="plan-warning-group">
+                    <h4 class="plan-warning-group-title">Model risk</h4>
+                    ${warningData.modelWarnings
+                      .map(
+                        (text) => `
+                          <div class="plan-warning">⚠ ${text}</div>
+                        `
+                      )
+                      .join('')}
+                  </div>
+                `
+                : ''
+            }
           </div>
         </div>
       `
-    : `
-        <div class="results-context-metrics">
-          <div class="results-context-metric">
-            <div class="results-context-metric-label">
-              ${renderMetricHeading(endValueLabel, endValueTooltip)}
-            </div>
-            <div class="results-context-metric-body">
-              <div class="results-context-metric-value">${formatCurrency(endValue ?? 0)}</div>
-              ${
-                endValueChangeDisplay
-                  ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                       ${endValueChangeDisplay}
-                     </div>`
-                  : ''
-              }
-            </div>
-          </div>
-
-          <div class="results-context-metric">
-            <div class="results-context-metric-label">
-              ${renderMetricHeading('First spending cut', firstCutTooltip)}
-            </div>
-            <div class="results-context-metric-body">
-              <div class="results-context-metric-value">
-                ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
-              </div>
-              ${
-                firstCutDisplay
-                  ? `<div class="results-context-metric-subvalue ${firstCutClass}">
-                       ${firstCutDisplay}
-                     </div>`
-                  : ''
-              }
-            </div>
-          </div>
-
-          <div class="results-context-metric">
-            <div class="results-context-metric-label">
-              ${renderMetricHeading('Worst shortfall vs minimum', worstShortfallTooltip)}
-            </div>
-            <div class="results-context-metric-body">
-              <div class="results-context-metric-value">
-                ${
-                  worstFloorGap > 0
-                    ? `${formatCurrency(worstFloorGap)}${worstFloorYear ? ` (Year ${worstFloorYear})` : ''}`
-                    : 'None'
-                }
-              </div>
-              <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-                ${floorHeadroomDisplay} vs minimum spending level
-              </div>
-            </div>
-          </div>
-
-          <div class="results-context-metric">
-            <div class="results-context-metric-label">
-              ${renderMetricHeading('Years below minimum', yearsReducedTooltip)}
-            </div>
-            <div class="results-context-metric-body">
-              <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-              <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-                ${floorBreachYearsDisplay}
-              </div>
-            </div>
+      : `
+        <div class="plan-outlook-warnings">
+          <div class="plan-warning-ok">
+            ✓ No major risks detected in current plan assumptions.
           </div>
         </div>
       `;
 
-  container.innerHTML = `
-    <div class="results-context-card${isDepleted ? ' results-context-card--warning' : ''}">
-      <div class="results-context-top">
-        <div class="results-context-mode">${modeLabel}</div>
+  const detailMetricsHtml = isHistorical
+    ? ''
+    : `
+      <div class="results-context-metrics">
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">
+            ${renderMetricHeading(
+              useReal ? 'Real end value' : 'Nominal end value',
+              'Portfolio value at the end of the selected path.'
+            )}
+          </div>
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">${formatCurrency(selectedEndValue ?? 0)}</div>
+            ${
+              endValueChangeDisplay
+                ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                     ${endValueChangeDisplay}
+                   </div>`
+                : ''
+            }
+          </div>
+        </div>
 
-        ${
-          isHistorical
-            ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
-            : isDeterministic
-              ? `<div class="results-context-path">Base case</div>`
-              : `
-                <div class="results-context-toggle table-view-selector">
-                  <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">
-                    Downside
-                  </button>
-                  <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">
-                    Median
-                  </button>
-                  <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">
-                    Upside
-                  </button>
-                </div>
-              `
-        }
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">
+            ${renderMetricHeading(
+              'First spending cut',
+              'The first year when actual spending falls below planned target spending.'
+            )}
+          </div>
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">
+              ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+            </div>
+            ${
+              firstCutDisplay
+                ? `<div class="results-context-metric-subvalue ${firstCutClass}">
+                     ${firstCutDisplay}
+                   </div>`
+                : ''
+            }
+          </div>
+        </div>
+
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">
+            ${renderMetricHeading(
+              'Worst shortfall vs minimum',
+              'The largest gap in any year between actual spending and your minimum acceptable spending level.'
+            )}
+          </div>
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">
+              ${
+                worstFloorGap > 0
+                  ? `${formatCurrency(worstFloorGap)}${worstFloorYear ? ` (Year ${worstFloorYear})` : ''}`
+                  : 'None'
+              }
+            </div>
+            <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+              ${floorHeadroomDisplay}
+            </div>
+          </div>
+        </div>
+
+        <div class="results-context-metric">
+          <div class="results-context-metric-label">
+            ${renderMetricHeading(
+              'Years below minimum',
+              'Number of years when actual spending falls below your minimum spending level.'
+            )}
+          </div>
+          <div class="results-context-metric-body">
+            <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+            <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+              ${floorBreachYearsDisplay}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+  const lowerSummaryHtml = !isHistorical && lifestyleMetrics
+    ? `
+      <div class="plan-summary-grid">
+        ${renderSummarySection('Lifestyle resilience', [
+          renderSummaryItem(
+            'Comfort spending level',
+            formatCurrency(lifestyleMetrics.comfortFloor),
+            getYearsSignal(lifestyleMetrics.yearsBelowComfort)
+          ),
+          renderSummaryItem(
+            'Minimum spending level',
+            formatCurrency(lifestyleMetrics.minimumFloor),
+            getYearsSignal(lifestyleMetrics.yearsBelowMinimum)
+          ),
+          renderSummaryItem(
+            'Worst cut',
+            `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(lifestyleMetrics.worstCutPercent)})`,
+            getWorstCutSignal(lifestyleMetrics.worstCutPercent)
+          )
+        ])}
+      </div>
+    `
+    : '';
+
+  const headerControls = isHistorical
+    ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
+    : isDeterministic
+      ? `<div class="results-context-path">Base case</div>`
+      : `
+        <div class="results-context-toggle table-view-selector">
+          <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
+          <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
+          <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+        </div>
+      `;
+
+  const legendHtml = `
+    <div class="plan-outlook-legend" aria-label="Plan outlook colour guide">
+      <span class="plan-outlook-legend-item">
+        <span class="summary-label-dot summary-label-dot--green"></span>
+        <strong>Strong</strong> — plan comfortably sustains the target lifestyle
+      </span>
+
+      <span class="plan-outlook-legend-item">
+        <span class="summary-label-dot summary-label-dot--amber"></span>
+        <strong>Watch</strong> — viable plan but sensitive to assumptions
+      </span>
+
+      <span class="plan-outlook-legend-item">
+        <span class="summary-label-dot summary-label-dot--red"></span>
+        <strong>Risk</strong> — meaningful chance of spending pressure
+      </span>
+    </div>
+  `;
+
+  const depletionAlertHtml = summarySaysDepleted
+    ? `
+      <div class="results-context-alert results-context-alert--warning">
+        <div class="results-context-alert-icon" aria-hidden="true">!</div>
+        <div class="results-context-alert-body">
+          <div class="results-context-alert-title">
+            Plan warning: portfolio depleted${depletionYear ? ` in Year ${depletionYear}` : ''}
+          </div>
+          <div class="results-context-alert-text">
+            After depletion, spending is limited to guaranteed income only.
+          </div>
+        </div>
+      </div>
+    `
+    : '';
+
+  container.innerHTML = `
+    <div class="results-context-card results-context-card--merged${summarySaysDepleted ? ' results-context-card--warning' : ''}">
+      <div class="results-context-panel-header">
+        <div class="card-title-block">
+          <h2>Plan outlook</h2>
+          <p>A combined view of plan resilience, key risks, and supporting outcome metrics.</p>
+        </div>
+
+        <div class="results-context-header-actions">
+          ${headerControls}
+        </div>
       </div>
 
-      ${contextBody}
+      ${legendHtml}
+
+      <div class="retirement-outlook-hero">
+        <div class="retirement-outlook-hero-card">
+          <div class="retirement-outlook-hero-top">
+            <div class="retirement-outlook-kicker">${isHistorical ? 'Historical scenario' : 'Plan outlook'}</div>
+
+            <div class="retirement-outlook-status-row">
+              <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
+                <span class="retirement-outlook-badge-icon">${statusIcon}</span>
+                <span>${statusLabel}</span>
+              </div>
+
+              <div class="retirement-outlook-heading-group">
+                <div class="retirement-outlook-subheading">${statusSubheading}</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="retirement-outlook-description">${statusMessage}</p>
+
+          ${depletionAlertHtml}
+
+          ${outcomeSummaryHtml}
+        </div>
+      </div>
+
+      ${warningsHtml}
+
+      ${detailMetricsHtml}
+
+      ${lowerSummaryHtml}
     </div>
   `;
 }
