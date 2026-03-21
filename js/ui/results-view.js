@@ -706,18 +706,23 @@ function renderResultsContextAndPathSummary({
   let status = 'strong';
   let statusLabel = 'Strong';
   let statusIcon = '✓';
-  let statusSubheading = 'Highly resilient under current assumptions';
-  let statusMessage =
-    'The plan is highly likely to sustain the target spending level across simulated outcomes.';
+  let verdictTitle = 'This plan is on track';
+  let verdictMessage =
+    'The plan sustains the target spending level across most outcomes.';
+  let verdictSubtext =
+    'Downside resilience remains strong under the tested assumptions.';
 
   if (isHistorical) {
     const depleted = Boolean(result?.summary?.depleted);
     status = depleted ? 'weak' : 'strong';
     statusLabel = depleted ? 'Depleted' : 'Sustained';
     statusIcon = depleted ? '×' : '✓';
-    statusSubheading = activePath?.label || 'Selected historical path';
-    statusMessage =
+    verdictTitle = activePath?.label || 'Selected historical path';
+    verdictMessage =
       'This result shows one selected historical return sequence rather than Monte Carlo ranges.';
+    verdictSubtext = depleted
+      ? `This historical path depletes the portfolio${depletionYear ? ` in Year ${depletionYear}` : ''}.`
+      : 'This historical path sustains spending without portfolio depletion.';
   } else if (!isDeterministic && result?.monteCarlo) {
     const successRate = Number(result.monteCarlo.successRate ?? 0);
 
@@ -725,16 +730,20 @@ function renderResultsContextAndPathSummary({
       status = 'weak';
       statusLabel = 'Weak';
       statusIcon = '×';
-      statusSubheading = 'Material pressure under current assumptions';
-      statusMessage =
-        'The plan does not reliably sustain the target spending level across simulations.';
+      verdictTitle = 'This plan is under pressure';
+      verdictMessage =
+        'Target spending does not hold up reliably across simulations.';
+      verdictSubtext =
+        'Main pressure: high starting withdrawals and early downside depletion.';
     } else if (successRate < 0.9) {
       status = 'watch';
       statusLabel = 'Watch';
       statusIcon = '!';
-      statusSubheading = 'Worth monitoring under weaker outcomes';
-      statusMessage =
-        'The plan is broadly viable, but outcomes show some pressure and should be monitored.';
+      verdictTitle = 'This plan is sensitive to conditions';
+      verdictMessage =
+        'The plan broadly holds, but weaker outcomes require spending adjustments.';
+      verdictSubtext =
+        'Pressure comes from variability in returns and sequence risk.';
     }
   }
 
@@ -919,23 +928,17 @@ function renderResultsContextAndPathSummary({
       </div>
 
       <div class="retirement-outlook-hero">
-        <div class="retirement-outlook-hero-card">
-          <div class="retirement-outlook-hero-top">
-            <div class="retirement-outlook-kicker">${isHistorical ? 'Historical scenario' : 'Plan outlook'}</div>
-
-            <div class="retirement-outlook-status-row">
-              <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
-                <span class="retirement-outlook-badge-icon">${statusIcon}</span>
-                <span>${statusLabel}</span>
-              </div>
-
-              <div class="retirement-outlook-heading-group">
-                <div class="retirement-outlook-subheading">${statusSubheading}</div>
-              </div>
-            </div>
+        <div class="plan-status-card">
+          <div class="plan-status-pill plan-status-pill--${status}">
+            <span class="plan-status-icon">${statusIcon}</span>
+            <span>${statusLabel}</span>
           </div>
 
-          <p class="retirement-outlook-description">${statusMessage}</p>
+          <h3 class="plan-status-title">${verdictTitle}</h3>
+
+          <p class="plan-status-text">${verdictMessage}</p>
+
+          <p class="plan-status-subtext">${verdictSubtext}</p>
 
           ${depletionAlertHtml}
         </div>
