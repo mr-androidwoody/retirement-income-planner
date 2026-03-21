@@ -57,7 +57,6 @@ export const DEFAULT_INPUTS = {
   adjustmentSize: 10,
 
   monteCarloRuns: 1000,
-  seed: null,
   skipInflationAfterNegative: true,
   enableGuardrails: true,
   showRealValues: true,
@@ -226,18 +225,12 @@ function normaliseInputs(rawInputs = {}) {
     adjustmentSize: toRatio(merged.adjustmentSize),
 
     monteCarloRuns: toInt(merged.monteCarloRuns),
-    seed:
-      merged.seed === null ||
-      merged.seed === undefined ||
-      merged.seed === ''
-        ? null
-        : toInt(merged.seed),
     skipInflationAfterNegative: Boolean(merged.skipInflationAfterNegative),
     enableGuardrails: Boolean(merged.enableGuardrails),
     showRealValues: Boolean(merged.showRealValues),
     showFullTable: Boolean(merged.showFullTable)
-  };
-}
+      };
+    }
 
 function simulateDeterministicPath(inputs) {
   const annualReturns = {
@@ -251,10 +244,11 @@ function simulateDeterministicPath(inputs) {
 }
 
 function runMonteCarlo(inputs) {
-  const rng = createRng(inputs.seed ?? 123456789);
+  const rng = createRng();
+
   const nominalPaths = [];
   const realPaths = [];
-  const scenarioPaths = [];   // ← ADD
+  const scenarioPaths = [];
   let successCount = 0;
 
   for (let run = 0; run < inputs.monteCarloRuns; run += 1) {
@@ -678,7 +672,10 @@ function percentile(sortedValues, p) {
 }
 
 function createRng(seed) {
-  let state = (seed >>> 0) || 1;
+  let state =
+    typeof seed === 'number'
+      ? (seed >>> 0)
+      : Math.floor(Math.random() * 4294967296);
 
   return function next() {
     state = (1664525 * state + 1013904223) >>> 0;
