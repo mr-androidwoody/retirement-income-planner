@@ -1055,33 +1055,43 @@ function renderResultsTableLegend(elements, result) {
   legend.innerHTML = `
     <div class="results-table-legend-group">
       <span class="results-table-legend-title">Portfolio change</span>
+    
       <span class="results-table-legend-item">
         <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
         Increase
       </span>
+    
       <span class="results-table-legend-item">
         <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
         Decrease
       </span>
     </div>
-
+    
     <div class="results-table-legend-group">
-      <span class="results-table-legend-title">Spending pressure</span>
+      <span class="results-table-legend-title">Spending cuts</span>
+    
       <span class="results-table-legend-item">
         <span class="status-dot cut-mild"></span>
-        Mild cut
+        Mild
       </span>
+    
       <span class="results-table-legend-item">
         <span class="status-dot cut-moderate"></span>
-        Moderate cut
+        Moderate
       </span>
+    
       <span class="results-table-legend-item">
         <span class="status-dot cut-severe"></span>
-        Severe cut
+        Severe
       </span>
+    </div>
+    
+    <div class="results-table-legend-group">
+      <span class="results-table-legend-title">Shortfall</span>
+    
       <span class="results-table-legend-item">
         <span class="status-dot shortfall-dot"></span>
-        Shortfall
+        Spending below target
       </span>
     </div>
   `;
