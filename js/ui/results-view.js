@@ -451,13 +451,53 @@ function resolvePlanOutlookPrimaryState(result, activePath) {
     };
   }
 
-  if (isHistorical || isDeterministic || !result?.monteCarlo) {
-    return {
-      ...PLAN_OUTLOOK_STATES.STRONG,
-      resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
-      resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
-    };
+// HISTORICAL MODE — evaluate based on end value vs starting portfolio
+if (isHistorical) {
+  const startingPortfolio =
+    Number(result?.inputs?.startingPortfolio ??
+           result?.inputs?.initialPortfolio ?? 0);
+
+  const endValue = Number(
+    activePath?.terminalReal ??
+    activePath?.terminalNominal ??
+    0
+  );
+
+  if (startingPortfolio > 0 && Number.isFinite(endValue)) {
+    const ratio = endValue / startingPortfolio;
+
+    if (ratio < 0.5) {
+      return {
+        ...PLAN_OUTLOOK_STATES.WEAK,
+        resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
+        resolvedBody: PLAN_OUTLOOK_STATES.WEAK.body
+      };
+    }
+
+    if (ratio < 0.75) {
+      return {
+        ...PLAN_OUTLOOK_STATES.WATCH,
+        resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
+        resolvedBody: PLAN_OUTLOOK_STATES.WATCH.body
+      };
+    }
   }
+
+  return {
+    ...PLAN_OUTLOOK_STATES.STRONG,
+    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
+  };
+}
+
+// deterministic fallback (leave as-is for now)
+if (isDeterministic || !result?.monteCarlo) {
+  return {
+    ...PLAN_OUTLOOK_STATES.STRONG,
+    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
+  };
+}
 
   const successRate = Number(result?.monteCarlo?.successRate ?? 0);
 
