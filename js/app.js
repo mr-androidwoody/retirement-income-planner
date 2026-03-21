@@ -708,19 +708,25 @@ function formatYears(value) {
 }
 
 function attachTableViewSelector() {
-  const buttons = document.querySelectorAll('.table-view-selector button');
+  const selectorContainers = document.querySelectorAll('.table-view-selector');
 
-  if (!buttons.length) return;
+  if (!selectorContainers.length) return;
 
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      currentTableView = btn.dataset.view;
+  selectorContainers.forEach((container) => {
+    if (container.dataset.bound === 'true') return;
 
-      buttons.forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
+    container.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-view]');
+      if (!button) return;
 
+      const nextView = button.dataset.view;
+      if (!nextView || nextView === currentTableView) return;
+
+      currentTableView = nextView;
       renderAll();
     });
+
+    container.dataset.bound = 'true';
   });
 }
 
