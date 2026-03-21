@@ -2932,6 +2932,16 @@ input[type="checkbox"]{
   grid-template-rows:auto 1fr;
 }
 
+.results-context-metric-label{
+  font-size:0.68rem;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  align-self:start;
+}
+
 .results-context-metric-body{
   display:flex;
   flex-direction:column;
