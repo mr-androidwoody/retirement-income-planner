@@ -16,8 +16,7 @@
   --radius:16px;
   --radius-sm:10px;
 
-  /* NEW — header offset control */
-  --header-height:164px;
+  --header-height:212px;
 }
 
 /* ========================================
@@ -2443,6 +2442,10 @@ input[type="checkbox"]{
 }
 
 @media (max-width: 1024px){
+  :root{
+    --header-height:276px;
+  }
+
   .top-header__inner{
     flex-direction:column;
     align-items:stretch;
@@ -2462,8 +2465,14 @@ input[type="checkbox"]{
   }
 
   .page-content{
-    padding-top:232px;
+    padding-top:calc(var(--header-height) + 24px);
   }
+
+@media (max-width: 720px){
+  :root{
+    --header-height:320px;
+  }
+}    
 
   .input-grid-top,
   .input-grid-bottom{
