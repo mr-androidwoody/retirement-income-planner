@@ -68,24 +68,6 @@ export function renderResultsView({
     Boolean(result?.monteCarlo?.realPercentiles) &&
     Boolean(result?.monteCarlo?.nominalPercentiles);
 
-  const percentileSeries = hasMonteCarlo
-    ? (
-        useReal
-          ? result.monteCarlo.realPercentiles
-          : result.monteCarlo.nominalPercentiles
-      )
-    : null;
-
-  const medianEnd = percentileSeries?.p50?.length
-    ? percentileSeries.p50[percentileSeries.p50.length - 1]
-    : (
-        (useReal ? activePath?.terminalReal : activePath?.terminalNominal) ??
-        result?.summary?.medianTerminalWealth ??
-        result?.summary?.terminalNominal ??
-        result?.baseCase?.terminalNominal ??
-        0
-      );
-
   const hasStressSummary = result.summary && result.summary.worstStressName;
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
@@ -141,16 +123,15 @@ export function renderResultsView({
     shortfallYears
   };
 
-renderResultsContextAndPathSummary({
-  result,
-  elements,
-  tableView,
-  activePath,
-  useReal,
-  formatters
-});
+  renderResultsContextAndPathSummary({
+    result,
+    elements,
+    tableView,
+    activePath,
+    useReal,
+    formatters
+  });
 
-  // --- ensure summary labels reflect mode + selected path
   renderSummaryCardLabels(elements, result, activePath, tableView);
 
   if (elements.summarySuccessRate) {
@@ -219,9 +200,6 @@ renderResultsContextAndPathSummary({
     }
   }
 
-  setPlanOutlookPanelVisibility(elements, false);
-  resetPlanOutlookContent(elements);
-
   if (isHistorical) {
     renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
 
@@ -244,49 +222,48 @@ renderResultsContextAndPathSummary({
     );
   }
 
-if (elements.tableCard && showFullTable) {
-  let header = elements.tableCard.querySelector('.results-header-row');
+  if (elements.tableCard && showFullTable) {
+    let header = elements.tableCard.querySelector('.results-header-row');
 
-  if (!header) {
-    header = document.createElement('div');
-    header.className = 'results-header-row';
+    if (!header) {
+      header = document.createElement('div');
+      header.className = 'results-header-row';
 
-    header.innerHTML = `
-      <div class="results-header-text">
-        <h3>Yearly results</h3>
-        <p>
-          Shows the year-by-year base-case path including spending, pension income,
-          withdrawals and portfolio value.
-        </p>
-      </div>
+      header.innerHTML = `
+        <div class="results-header-text">
+          <h3>Yearly results</h3>
+          <p>
+            Shows the year-by-year base-case path including spending, pension income,
+            withdrawals and portfolio value.
+          </p>
+        </div>
 
-      <div class="table-view-selector">
-        <button data-view="median">Median</button>
-        <button data-view="p10">Downside</button>
-        <button data-view="p90">Upside</button>
-      </div>
-    `;
+        <div class="table-view-selector">
+          <button data-view="median">Median</button>
+          <button data-view="p10">Downside</button>
+          <button data-view="p90">Upside</button>
+        </div>
+      `;
 
-    elements.tableCard.prepend(header);
+      elements.tableCard.prepend(header);
+    }
+
+    const selectorButtons = header.querySelectorAll('.table-view-selector button');
+
+    selectorButtons.forEach((button) => {
+      const isActive = button.dataset.view === tableView;
+      button.classList.toggle('active', isActive);
+    });
   }
 
-  const selectorButtons = header.querySelectorAll('.table-view-selector button');
+  renderDeterministicNote(elements, result, activePath);
 
-  selectorButtons.forEach((button) => {
-    const isActive = button.dataset.view === tableView;
-    button.classList.toggle('active', isActive);
+  renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
+    person1Name: result.inputs?.person1Name,
+    person2Name: result.inputs?.person2Name,
+    includePerson2: result.inputs?.includePerson2,
+    cutDiagnostics
   });
-}
-
-renderDeterministicNote(elements, result, activePath);
-renderStatusLegend(elements, rows);
-
-renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
-  person1Name: result.inputs?.person1Name,
-  person2Name: result.inputs?.person2Name,
-  includePerson2: result.inputs?.includePerson2,
-  cutDiagnostics
-});
 }
 
 function getSelectedPathEndValue(activePath, rows, useReal) {
@@ -401,56 +378,6 @@ function getRowPlanYear(row, index) {
   }
 
   return index + 1;
-}
-
-function getLifestyleResilienceMetrics(result, useReal = false, activePath = null) {
-  const inputs = result?.inputs || {};
-  const rows = activePath?.rows || activePath?.yearlyRows || result?.baseCase?.rows || [];
-  const { targetSpending, comfortFloor, minimumFloor } =
-    getResolvedSpendingFloors(inputs);
-
-  if (!targetSpending || !rows.length) {
-    return null;
-  }
-
-  let worstCutAmount = 0;
-  let worstCutPercent = 0;
-  let yearsBelowComfort = 0;
-  let yearsBelowMinimum = 0;
-
-  rows.forEach((row) => {
-    const annualTarget = getRowTargetSpending(row, useReal, targetSpending);
-    const annualActual = getRowActualSpending(row, useReal);
-
-    const cutAmount = Math.max(0, annualTarget - annualActual);
-    const cutPercent = annualTarget > 0 ? cutAmount / annualTarget : 0;
-
-    if (cutAmount > worstCutAmount) {
-      worstCutAmount = cutAmount;
-    }
-
-    if (cutPercent > worstCutPercent) {
-      worstCutPercent = cutPercent;
-    }
-
-    if (annualActual < comfortFloor) {
-      yearsBelowComfort += 1;
-    }
-
-    if (annualActual < minimumFloor) {
-      yearsBelowMinimum += 1;
-    }
-  });
-
-  return {
-    targetSpending,
-    comfortFloor,
-    minimumFloor,
-    worstCutAmount,
-    worstCutPercent,
-    yearsBelowComfort,
-    yearsBelowMinimum
-  };
 }
 
 function getPlanWarningsData(result, useReal, formatters, activePath) {
@@ -625,50 +552,11 @@ function renderResultsContextAndPathSummary({
   const container = elements.resultsContextBar;
   if (!container) return;
 
-  const { formatCurrency, formatPercent } = formatters;
+  const { formatCurrency } = formatters;
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
   const isDeterministic = mode === 'deterministic';
-
-  const simulationCount =
-    result?.scenarioCount ??
-    result?.monteCarlo?.scenarioCount ??
-    result?.monteCarlo?.runs ??
-    0;
-
-  const historicalLabel =
-    result?.inputs?.historicalScenarioLabel ||
-    result?.inputs?.historicalScenarioName ||
-    activePath?.label ||
-    '';
-
-  let modeLabel;
-
-  if (isHistorical) {
-    const parts = historicalLabel
-      .split('—')
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-    if (parts.length >= 2) {
-      const [year, ...rest] = parts;
-      modeLabel = `Historical scenario: ${year} (${rest.join(' : ')})`;
-    } else if (historicalLabel) {
-      modeLabel = `Historical scenario: ${historicalLabel}`;
-    } else {
-      modeLabel = 'Historical scenario';
-    }
-  } else if (isDeterministic) {
-    modeLabel = 'Base case';
-  } else {
-    const runsLabel =
-      simulationCount > 0
-        ? ` (${simulationCount.toLocaleString()} simulations)`
-        : '';
-
-    modeLabel = `Simulated outcomes${runsLabel}`;
-  }
 
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
@@ -680,8 +568,10 @@ function renderResultsContextAndPathSummary({
   let endValueChangeClass = '';
 
   if (startingPortfolio > 0 && Number.isFinite(selectedEndValue)) {
-    const endValueChangePct = (selectedEndValue - startingPortfolio) / startingPortfolio;
-    const sign = endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
+    const endValueChangePct =
+      (selectedEndValue - startingPortfolio) / startingPortfolio;
+    const sign =
+      endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
 
     endValueChangeDisplay =
       `${sign}${Math.abs(endValueChangePct * 100).toFixed(1)}% from initial investments`;
@@ -692,7 +582,8 @@ function renderResultsContextAndPathSummary({
         : 'results-context-metric-subvalue--red';
   }
 
-  const { comfortFloor, minimumFloor } = getResolvedSpendingFloors(result?.inputs || {});
+  const { comfortFloor, minimumFloor } =
+    getResolvedSpendingFloors(result?.inputs || {});
 
   let firstComfortBreachYear = null;
   let firstCutAmount = 0;
@@ -744,7 +635,8 @@ function renderResultsContextAndPathSummary({
         worstFloorYear = planYear;
 
         floorHeadroomPct =
-          (actualNominal - minimumFloorNominalForYear) / minimumFloorNominalForYear;
+          (actualNominal - minimumFloorNominalForYear) /
+          minimumFloorNominalForYear;
       }
     }
   });
@@ -769,7 +661,9 @@ function renderResultsContextAndPathSummary({
   const floorHeadroomDisplay =
     floorHeadroomPct === null
       ? 'At or above minimum spending level'
-      : `${floorHeadroomPct >= 0 ? '+' : '−'}${Math.abs(floorHeadroomPct * 100).toFixed(1)}% vs minimum spending level`;
+      : `${floorHeadroomPct >= 0 ? '+' : '−'}${Math.abs(
+          floorHeadroomPct * 100
+        ).toFixed(1)}% vs minimum spending level`;
 
   const floorHeadroomClass =
     floorHeadroomPct === null
@@ -843,90 +737,6 @@ function renderResultsContextAndPathSummary({
         'The plan is broadly viable, but outcomes show some pressure and should be monitored.';
     }
   }
-
-  const lifestyleMetrics =
-    !isHistorical && result?.monteCarlo
-      ? getLifestyleResilienceMetrics(result, useReal, activePath)
-      : null;
-
-  const percentiles =
-    !isHistorical && result?.monteCarlo
-      ? (useReal
-          ? result.monteCarlo.realPercentiles
-          : result.monteCarlo.nominalPercentiles)
-      : null;
-
-  const medianEnd =
-    percentiles?.p50?.length
-      ? percentiles.p50[percentiles.p50.length - 1]
-      : selectedEndValue;
-
-  const successRate =
-    !isHistorical && result?.monteCarlo
-      ? Number(result.monteCarlo.successRate ?? 0)
-      : null;
-
-  const firstShortfallYear = rows.find((row, index) => {
-    return getRowShortfall(row, useReal, result?.inputs?.initialSpending || 0) > 0;
-  });
-
-  const firstShortfallText =
-    firstShortfallYear
-      ? `Base-case shortfall begins: year ${getRowPlanYear(firstShortfallYear, rows.indexOf(firstShortfallYear))}`
-      : 'No base-case shortfall';
-
-  const outcomeSummaryHtml = isHistorical
-    ? `
-      <div class="plan-summary-outcome">
-        <h4 class="plan-summary-section-title">Outcome summary</h4>
-        <div class="plan-summary-section-grid plan-summary-section-grid--top">
-          ${renderSummaryItem(
-            'Ending portfolio',
-            formatCurrency(
-              useReal
-                ? (activePath?.terminalReal ?? result?.summary?.terminalReal ?? 0)
-                : (activePath?.terminalNominal ?? result?.summary?.terminalNominal ?? 0)
-            )
-          )}
-          ${renderSummaryItem(
-            'Minimum wealth',
-            formatCurrency(result?.summary?.minimumWealth ?? 0)
-          )}
-          ${renderSummaryItem(
-            'Depletion year',
-            result?.summary?.depleted
-              ? `Year ${result?.summary?.depletionYear ?? '—'}`
-              : 'Not depleted'
-          )}
-        </div>
-      </div>
-    `
-    : `
-      <div class="plan-summary-outcome">
-        <h4 class="plan-summary-section-title">Outcome summary</h4>
-        <div class="plan-summary-section-grid plan-summary-section-grid--top">
-          ${renderSummaryItem(
-            'Plan success',
-            formatPercent(successRate ?? 0),
-            getPlanSuccessSignal(successRate)
-          )}
-          ${renderSummaryItem(
-            'Median ending portfolio',
-            formatCurrency(medianEnd ?? 0),
-            getMedianEndingSignal(medianEnd, startingPortfolio)
-          )}
-          ${renderSummaryItem(
-            'Base-case timing',
-            firstShortfallText,
-            getBaseCaseTimingSignal(
-              firstShortfallYear
-                ? getRowPlanYear(firstShortfallYear, rows.indexOf(firstShortfallYear))
-                : null
-            )
-          )}
-        </div>
-      </div>
-    `;
 
   const warningsHtml = isHistorical
     ? `
@@ -1038,7 +848,9 @@ function renderResultsContextAndPathSummary({
             <div class="results-context-metric-value">
               ${
                 worstFloorGap > 0
-                  ? `${formatCurrency(worstFloorGap)}${worstFloorYear ? ` (Year ${worstFloorYear})` : ''}`
+                  ? `${formatCurrency(worstFloorGap)}${
+                      worstFloorYear ? ` (Year ${worstFloorYear})` : ''
+                    }`
                   : 'None'
               }
             </div>
@@ -1065,30 +877,6 @@ function renderResultsContextAndPathSummary({
       </div>
     `;
 
-  const lowerSummaryHtml = !isHistorical && lifestyleMetrics
-    ? `
-      <div class="plan-summary-grid">
-        ${renderSummarySection('Lifestyle resilience', [
-          renderSummaryItem(
-            'Comfort spending level',
-            formatCurrency(lifestyleMetrics.comfortFloor),
-            getYearsSignal(lifestyleMetrics.yearsBelowComfort)
-          ),
-          renderSummaryItem(
-            'Minimum spending level',
-            formatCurrency(lifestyleMetrics.minimumFloor),
-            getYearsSignal(lifestyleMetrics.yearsBelowMinimum)
-          ),
-          renderSummaryItem(
-            'Worst cut',
-            `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(lifestyleMetrics.worstCutPercent)})`,
-            getWorstCutSignal(lifestyleMetrics.worstCutPercent)
-          )
-        ])}
-      </div>
-    `
-    : '';
-
   const headerControls = isHistorical
     ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
     : isDeterministic
@@ -1100,25 +888,6 @@ function renderResultsContextAndPathSummary({
           <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
         </div>
       `;
-
-  const legendHtml = `
-    <div class="plan-outlook-legend" aria-label="Plan outlook colour guide">
-      <span class="plan-outlook-legend-item">
-        <span class="summary-label-dot summary-label-dot--green"></span>
-        <strong>Strong</strong> — plan comfortably sustains the target lifestyle
-      </span>
-
-      <span class="plan-outlook-legend-item">
-        <span class="summary-label-dot summary-label-dot--amber"></span>
-        <strong>Watch</strong> — viable plan but sensitive to assumptions
-      </span>
-
-      <span class="plan-outlook-legend-item">
-        <span class="summary-label-dot summary-label-dot--red"></span>
-        <strong>Risk</strong> — meaningful chance of spending pressure
-      </span>
-    </div>
-  `;
 
   const depletionAlertHtml = summarySaysDepleted
     ? `
@@ -1149,8 +918,6 @@ function renderResultsContextAndPathSummary({
         </div>
       </div>
 
-      ${legendHtml}
-
       <div class="retirement-outlook-hero">
         <div class="retirement-outlook-hero-card">
           <div class="retirement-outlook-hero-top">
@@ -1171,375 +938,13 @@ function renderResultsContextAndPathSummary({
           <p class="retirement-outlook-description">${statusMessage}</p>
 
           ${depletionAlertHtml}
-
-          ${outcomeSummaryHtml}
         </div>
       </div>
 
       ${warningsHtml}
 
       ${detailMetricsHtml}
-
-      ${lowerSummaryHtml}
     </div>
-  `;
-}
-
-function setPlanOutlookPanelVisibility(elements, isVisible) {
-  const panel = elements.planSummaryPanel;
-  if (!panel) return;
-
-  panel.classList.toggle('hidden', !isVisible);
-
-  if (isVisible) {
-    panel.removeAttribute('hidden');
-  } else {
-    panel.setAttribute('hidden', 'hidden');
-  }
-}
-
-function resetPlanOutlookContent(elements) {
-  if (elements.retirementOutlookHero) {
-    elements.retirementOutlookHero.innerHTML = '';
-  }
-
-  if (elements.planWarnings) {
-    elements.planWarnings.innerHTML = '';
-  }
-
-  if (elements.planSummaryGrid) {
-    elements.planSummaryGrid.innerHTML = '';
-  }
-}
-
-function renderRetirementOutlook(
-  result,
-  elements,
-  useReal,
-  formatters,
-  cutDiagnostics = {}
-) {
-  const hero = elements.retirementOutlookHero;
-  const panel = elements.planSummaryPanel;
-  if (!panel || !hero) return;
-
-  panel.classList.remove('hidden');
-  panel.removeAttribute('hidden');
-
-  const { formatCurrency, formatPercent } = formatters;
-  const percentiles = useReal
-    ? result.monteCarlo.realPercentiles
-    : result.monteCarlo.nominalPercentiles;
-  const medianEnd = percentiles.p50[percentiles.p50.length - 1];
-  const successRate = result.monteCarlo.successRate;
-  const shortfallYears = cutDiagnostics.shortfallYears || 0;
-  const worstShortfall = cutDiagnostics.worstShortfall || 0;
-  const firstShortfallYear = cutDiagnostics.firstShortfallYear;
-  const worstYear = cutDiagnostics.worstShortfallYear ?? '—';
-  const hasAnyShortfall = shortfallYears > 0;
-  const startingPortfolio = Number(result.inputs?.initialPortfolio) || 0;
-
-  const outcomeSignals = {
-    planSuccess: getPlanSuccessSignal(successRate),
-    medianEnding: getMedianEndingSignal(medianEnd, startingPortfolio),
-    baseCaseTiming: getBaseCaseTimingSignal(firstShortfallYear)
-  };
-
-  let status = 'strong';
-  let label = 'Strong';
-  let message =
-    'The plan is highly likely to sustain the target spending level across simulated outcomes.';
-  let guardrailNotice = '';
-
-  if (successRate < 0.7) {
-    status = 'weak';
-    label = 'Weak';
-    message =
-      'The plan does not reliably sustain the target spending level across simulations.';
-  } else if (successRate < 0.9) {
-    status = 'watch';
-    label = 'Watch';
-    message =
-      'The plan is broadly viable, but outcomes show some pressure and should be monitored.';
-  }
-
-  if (hasAnyShortfall) {
-    if (successRate >= 0.9) {
-      guardrailNotice = `
-        <div class="plan-summary-note plan-summary-note--info">
-          <strong>Base-case path dips below target in ${shortfallYears} year${
-            shortfallYears === 1 ? '' : 's'
-          }.</strong>
-          <span>Worst shortfall: ${formatCurrency(
-            worstShortfall
-          )} in year ${worstYear}. Monte Carlo success remains ${formatPercent(
-            successRate
-          )}.</span>
-        </div>
-      `;
-    } else {
-      guardrailNotice = `
-        <div class="plan-summary-note plan-summary-note--warning">
-          <strong>Base-case spending pressure in ${shortfallYears} year${
-            shortfallYears === 1 ? '' : 's'
-          }.</strong>
-          <span>Worst shortfall: ${formatCurrency(
-            worstShortfall
-          )} in year ${worstYear}.</span>
-        </div>
-      `;
-    }
-  }
-
-  const firstShortfallText =
-    firstShortfallYear === null
-      ? 'No base-case shortfall'
-      : `Base-case shortfall begins: year ${firstShortfallYear}`;
-
-  const statusSubheading =
-    status === 'strong'
-      ? 'Highly resilient under current assumptions'
-      : status === 'watch'
-        ? 'Worth monitoring under weaker outcomes'
-        : 'Material pressure under current assumptions';
-
-  const statusIcon =
-    status === 'strong'
-      ? '✓'
-      : status === 'watch'
-        ? '!'
-        : '×';
-
-  panel.classList.remove(
-    'plan-summary-panel--strong',
-    'plan-summary-panel--watch',
-    'plan-summary-panel--weak'
-  );
-  panel.classList.add(`plan-summary-panel--${status}`);
-
-  hero.innerHTML = `
-    <div class="retirement-outlook-hero-card">
-      <div class="retirement-outlook-hero-top">
-        <div class="retirement-outlook-kicker">Retirement outlook</div>
-
-        <div class="retirement-outlook-status-row">
-          <div class="retirement-outlook-badge retirement-outlook-badge--${status}">
-            <span class="retirement-outlook-badge-icon">${statusIcon}</span>
-            <span>${label}</span>
-          </div>
-
-          <div class="retirement-outlook-heading-group">
-            <div class="retirement-outlook-subheading">${statusSubheading}</div>
-          </div>
-        </div>
-      </div>
-
-      <p class="retirement-outlook-description">${message}</p>
-
-      ${guardrailNotice}
-
-      <div class="plan-summary-outcome">
-        <h4 class="plan-summary-section-title">Outcome summary</h4>
-        <div class="plan-summary-section-grid plan-summary-section-grid--top">
-          ${renderSummaryItem(
-            'Plan success',
-            formatPercent(successRate),
-            outcomeSignals.planSuccess
-          )}
-          ${renderSummaryItem(
-            'Median ending portfolio',
-            formatCurrency(medianEnd),
-            outcomeSignals.medianEnding
-          )}
-          ${renderSummaryItem(
-            'Base-case timing',
-            firstShortfallText,
-            outcomeSignals.baseCaseTiming
-          )}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderMonteCarloSummary(
-  result,
-  elements,
-  useReal,
-  formatters,
-  cutDiagnostics = {},
-  activePath
-) {
-  const { formatCurrency, formatPercent } = formatters;
-  const grid = elements.planSummaryGrid;
-  if (!grid) return;
-
-  const rows = activePath?.rows || activePath?.yearlyRows || [];
-  if (!rows.length) return;
-
-  const inputs = result.inputs || {};
-  const percentiles = useReal
-    ? result.monteCarlo.realPercentiles
-    : result.monteCarlo.nominalPercentiles;
-  const lastIndex = percentiles.p50.length - 1;
-
-  const p10End = percentiles.p10[lastIndex];
-  const p90End = percentiles.p90[lastIndex];
-
-  const totals = rows.reduce(
-    (acc, row) => {
-      acc.spending += getRowActualSpending(row, useReal);
-      acc.withdrawals += Number(
-        useReal ? row.withdrawalReal : row.withdrawalNominal
-      ) || 0;
-      acc.statePension += Number(
-        useReal ? row.statePensionReal : row.statePensionNominal
-      ) || 0;
-      return acc;
-    },
-    { spending: 0, withdrawals: 0, statePension: 0 }
-  );
-
-  const dependence =
-    totals.spending > 0 ? totals.withdrawals / totals.spending : 0;
-  const statePensionReliance =
-    totals.spending > 0 ? totals.statePension / totals.spending : 0;
-  const initialWithdrawalRate =
-    inputs.initialPortfolio > 0
-      ? inputs.initialSpending / inputs.initialPortfolio
-      : 0;
-
-  const lifestyleMetrics = getLifestyleResilienceMetrics(result, useReal, activePath);
-
-  let weakCaseDepletionYear = 'Not depleted';
-  for (let i = 0; i < percentiles.p10.length; i += 1) {
-    if (percentiles.p10[i] <= 0) {
-      weakCaseDepletionYear = i + 1;
-      break;
-    }
-  }
-
-  const worstShortfallLabel =
-    cutDiagnostics.worstShortfallYear === null ||
-    cutDiagnostics.worstShortfallYear === undefined
-      ? 'None'
-      : `${formatCurrency(cutDiagnostics.worstShortfall)} in year ${cutDiagnostics.worstShortfallYear}`;
-
-  const startingPortfolio = Number(inputs.initialPortfolio) || 0;
-  const targetSpending =
-    lifestyleMetrics?.targetSpending ||
-    safePositiveNumber(inputs.initialSpending) ||
-    0;
-
-  const signals = {
-    comfortFloor: lifestyleMetrics
-      ? getYearsSignal(lifestyleMetrics.yearsBelowComfort)
-      : null,
-    minimumFloor: lifestyleMetrics
-      ? getYearsSignal(lifestyleMetrics.yearsBelowMinimum)
-      : null,
-    worstCut: lifestyleMetrics
-      ? getWorstCutSignal(lifestyleMetrics.worstCutPercent)
-      : null,
-
-    initialWithdrawalRate: getInitialWithdrawalSignal(initialWithdrawalRate),
-    statePensionReliance: getStatePensionRelianceSignal(
-      statePensionReliance
-    ),
-    portfolioDependence: getPortfolioDependenceSignal(dependence),
-
-    p10Ending: getP10EndingSignal(p10End, startingPortfolio),
-    p90Ending: getP90EndingSignal(p90End, startingPortfolio),
-    weakCaseDepletion: getWeakCaseDepletionSignal(weakCaseDepletionYear),
-
-    worstShortfall: getWorstShortfallSignal(
-      cutDiagnostics.worstShortfall || 0,
-      targetSpending
-    ),
-    shortfallYears: getYearsSignal(cutDiagnostics.shortfallYears || 0),
-    yearsBelowComfort: lifestyleMetrics
-      ? getYearsSignal(lifestyleMetrics.yearsBelowComfort)
-      : null
-  };
-
-  grid.innerHTML = `
-    ${renderSummarySection('Lifestyle resilience', [
-      renderSummaryItem(
-        'Comfort spending level',
-        lifestyleMetrics ? formatCurrency(lifestyleMetrics.comfortFloor) : '—',
-        signals.comfortFloor
-      ),
-      renderSummaryItem(
-        'Minimum spending level',
-        lifestyleMetrics ? formatCurrency(lifestyleMetrics.minimumFloor) : '—',
-        signals.minimumFloor
-      ),
-      renderSummaryItem(
-        'Worst cut',
-        lifestyleMetrics
-          ? `${formatCurrency(lifestyleMetrics.worstCutAmount)} (${formatPercent(
-              lifestyleMetrics.worstCutPercent
-            )})`
-          : '—',
-        signals.worstCut
-      )
-    ])}
-
-    ${renderSummarySection('Plan health', [
-      renderSummaryItem(
-        'Initial withdrawal rate',
-        formatPercent(initialWithdrawalRate),
-        signals.initialWithdrawalRate
-      ),
-      renderSummaryItem(
-        'State pension reliance',
-        formatPercent(statePensionReliance),
-        signals.statePensionReliance
-      ),
-      renderSummaryItem(
-        'Portfolio dependence',
-        formatPercent(dependence),
-        signals.portfolioDependence
-      )
-    ])}
-
-    ${renderSummarySection('Portfolio outcomes', [
-      renderSummaryItem(
-        '10th percentile ending',
-        formatCurrency(p10End),
-        signals.p10Ending
-      ),
-      renderSummaryItem(
-        '90th percentile ending',
-        formatCurrency(p90End),
-        signals.p90Ending
-      ),
-      renderSummaryItem(
-        'Weak-case depletion year',
-        weakCaseDepletionYear,
-        signals.weakCaseDepletion
-      )
-    ])}
-
-    ${renderSummarySection('Plan risks', [
-      renderSummaryItem(
-        'Worst spending shortfall',
-        worstShortfallLabel,
-        signals.worstShortfall
-      ),
-      renderSummaryItem(
-        'Years with spending shortfall',
-        formatInteger(cutDiagnostics.shortfallYears || 0),
-        signals.shortfallYears
-      ),
-      renderSummaryItem(
-        'Years below comfort spending level',
-        lifestyleMetrics
-          ? formatInteger(lifestyleMetrics.yearsBelowComfort)
-          : '—',
-        signals.yearsBelowComfort
-      )
-    ])}
   `;
 }
 
@@ -1716,67 +1121,6 @@ function renderSummaryItem(label, value, signal = null) {
   `;
 }
 
-function renderPlanWarnings(result, elements, useReal, formatters, activePath) {
-  const container = elements.planWarnings;
-  const panel = elements.planSummaryPanel;
-
-  if (!container) return;
-
-  if (panel) {
-    panel.classList.remove('hidden');
-    panel.removeAttribute('hidden');
-  }
-
-  const warningData = getPlanWarningsData(result, useReal, formatters, activePath);
-
-  if (!warningData.hasWarnings) {
-    container.innerHTML = `
-      <div class="plan-warning-ok">
-        ✓ No major risks detected in current plan assumptions.
-      </div>
-    `;
-    return;
-  }
-
-  const groups = [];
-
-  if (warningData.inputWarnings.length) {
-    groups.push(`
-      <div class="plan-warning-group">
-        <h4 class="plan-warning-group-title">Input risk</h4>
-        ${warningData.inputWarnings
-          .map(
-            (text) => `
-              <div class="plan-warning">⚠ ${text}</div>
-            `
-          )
-          .join('')}
-      </div>
-    `);
-  }
-
-  if (warningData.modelWarnings.length) {
-    groups.push(`
-      <div class="plan-warning-group">
-        <h4 class="plan-warning-group-title">Model risk</h4>
-        ${warningData.modelWarnings
-          .map(
-            (text) => `
-              <div class="plan-warning">⚠ ${text}</div>
-            `
-          )
-          .join('')}
-      </div>
-    `);
-  }
-
-  container.innerHTML = `
-    <div class="plan-outlook-warnings-grid">
-      ${groups.join('')}
-    </div>
-  `;
-}
-
 function renderDeterministicNote(elements, result, activePath) {
   const note = ensureDeterministicNoteContainer(elements);
   if (!note) return;
@@ -1824,118 +1168,6 @@ function ensureDeterministicNoteContainer(elements) {
 
   elements.deterministicNote = note;
   return note;
-}
-
-function renderStatusLegend(elements, rows) {
-  const legend = ensureResultsLegendContainer(elements);
-  if (!legend) return;
-
-  const flags = getLegendFlags(rows);
-
-  if (!flags.hasMild && !flags.hasModerate && !flags.hasSevere && !flags.hasShortfall) {
-    legend.innerHTML = '';
-    legend.classList.add('hidden');
-    return;
-  }
-
-  const items = [];
-
-  if (flags.hasMild) {
-    items.push(`
-      <div class="results-legend-item">
-        <span class="results-legend-swatch results-legend-swatch--mild"></span>
-        <span>Spending cut (mild)</span>
-      </div>
-    `);
-  }
-
-  if (flags.hasModerate) {
-    items.push(`
-      <div class="results-legend-item">
-        <span class="results-legend-swatch results-legend-swatch--moderate"></span>
-        <span>Spending cut (moderate)</span>
-      </div>
-    `);
-  }
-
-  if (flags.hasSevere) {
-    items.push(`
-      <div class="results-legend-item">
-        <span class="results-legend-swatch results-legend-swatch--severe"></span>
-        <span>Spending cut (severe)</span>
-      </div>
-    `);
-  }
-
-  if (flags.hasShortfall) {
-    items.push(`
-      <div class="results-legend-item">
-        <span class="results-legend-swatch results-legend-swatch--shortfall"></span>
-        <span>Spending shortfall</span>
-      </div>
-    `);
-  }
-
-  legend.innerHTML = items.join('');
-  legend.classList.remove('hidden');
-}
-
-function ensureResultsLegendContainer(elements) {
-  if (elements.resultsLegend) {
-    return elements.resultsLegend;
-  }
-
-  const table = elements.resultsTable;
-  const tableCard = elements.tableCard;
-  if (!table || !tableCard) {
-    return null;
-  }
-
-  let legend = tableCard.querySelector('#resultsLegend');
-
-  if (!legend) {
-    legend = document.createElement('div');
-    legend.id = 'resultsLegend';
-    legend.className = 'results-legend hidden';
-
-    const tableWrap = table.closest('.table-wrap');
-    if (tableWrap && tableWrap.parentNode) {
-      tableWrap.parentNode.insertBefore(legend, tableWrap);
-    } else {
-      tableCard.insertBefore(legend, tableCard.firstChild);
-    }
-  }
-
-  elements.resultsLegend = legend;
-  return legend;
-}
-
-function getLegendFlags(rows) {
-  let hasMild = false;
-  let hasModerate = false;
-  let hasSevere = false;
-  let hasShortfall = false;
-
-  rows.forEach((row) => {
-    const cut = Number(row.spendingCutPercent) || 0;
-
-    if (cut > 0 && cut < 0.05) {
-      hasMild = true;
-    } else if (cut >= 0.05 && cut < 0.1) {
-      hasModerate = true;
-    } else if (cut >= 0.1) {
-      hasSevere = true;
-    }
-
-    if (
-      getRowShortfall(row, true) > 0 ||
-      getRowShortfall(row, false) > 0
-    ) {
-      hasShortfall = true;
-    }
-  });
-
-  return { hasMild, hasModerate, hasSevere, hasShortfall };
 }
 
 function getRowShortfall(row, useReal, fallbackTarget = 0) {
