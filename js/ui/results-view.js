@@ -470,7 +470,8 @@ if (isHistorical) {
       return {
         ...PLAN_OUTLOOK_STATES.WEAK,
         resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
-        resolvedBody: PLAN_OUTLOOK_STATES.WEAK.body
+        resolvedBody:
+          'The plan finishes with less than 50% of the starting portfolio in real terms, leaving the plan under pressure.'
       };
     }
 
@@ -478,7 +479,8 @@ if (isHistorical) {
       return {
         ...PLAN_OUTLOOK_STATES.WATCH,
         resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
-        resolvedBody: PLAN_OUTLOOK_STATES.WATCH.body
+        resolvedBody:
+          'The plan finishes with less than 75% of the starting portfolio in real terms, leaving a reduced cushion.'
       };
     }
   }
@@ -486,7 +488,8 @@ if (isHistorical) {
   return {
     ...PLAN_OUTLOOK_STATES.STRONG,
     resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
-    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
+    resolvedBody:
+      'The plan finishes with at least 75% of the starting portfolio in real terms.'
   };
 }
 
