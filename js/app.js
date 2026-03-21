@@ -236,11 +236,11 @@ function applyDefaults() {
 }
 
 function setResultsViewDefaults() {
-  if (els.chartModeNominal) els.chartModeNominal.checked = true;
-  if (els.chartModeReal) els.chartModeReal.checked = false;
-  if (els.showRealValues) els.showRealValues.checked = false;
+  if (els.chartModeNominal) els.chartModeNominal.checked = false;
+  if (els.chartModeReal) els.chartModeReal.checked = true;
+  if (els.showRealValues) els.showRealValues.checked = true;
   if (els.showFullTable) els.showFullTable.checked = true;
-  if (els.showPlanOutlook) els.showPlanOutlook.checked = true;    
+  if (els.showPlanOutlook) els.showPlanOutlook.checked = true;
   if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
   if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
