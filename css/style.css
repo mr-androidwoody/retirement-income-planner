@@ -2821,6 +2821,10 @@ input[type="checkbox"]{
   line-height:1.4;
 }
 
+.results-table-intro{
+  margin-top:10px;
+}
+
 .results-table-legend{
   display:flex;
   flex-wrap:wrap;
