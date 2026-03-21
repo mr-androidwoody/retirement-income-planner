@@ -927,6 +927,8 @@ function renderResultsContextAndPathSummary({
         </div>
       </div>
 
+      ${detailMetricsHtml}
+
       <div class="retirement-outlook-hero">
         <div class="plan-status-card">
           <div class="plan-status-pill plan-status-pill--${status}">
@@ -943,8 +945,6 @@ function renderResultsContextAndPathSummary({
           ${depletionAlertHtml}
         </div>
       </div>
-
-      ${detailMetricsHtml}
 
       ${warningsHtml}
     </div>
