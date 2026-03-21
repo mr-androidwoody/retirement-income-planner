@@ -745,89 +745,87 @@ function renderResultsContextAndPathSummary({
     suppressWarnings: primaryState.key === PLAN_OUTLOOK_STATES.DEPLETED.key
   });
 
-  const detailMetricsHtml = isHistorical
-    ? ''
-    : `
-      <div class="results-context-metrics">
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              useReal ? 'Real end value' : 'Nominal end value',
-              'Portfolio value at the end of the selected path.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">${formatCurrency(selectedEndValue ?? 0)}</div>
-            ${
-              endValueChangeDisplay
-                ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                     ${endValueChangeDisplay}
-                   </div>`
-                : ''
-            }
-          </div>
-        </div>
+const detailMetricsHtml = `
+  <div class="results-context-metrics">
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          useReal ? 'Real end value' : 'Nominal end value',
+          'Portfolio value at the end of the selected path.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">${formatCurrency(selectedEndValue ?? 0)}</div>
+        ${
+          endValueChangeDisplay
+            ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                 ${endValueChangeDisplay}
+               </div>`
+            : ''
+        }
+      </div>
+    </div>
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              'First spending cut',
-              'The first year when actual spending falls below planned target spending.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">
-              ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
-            </div>
-            ${
-              firstCutDisplay
-                ? `<div class="results-context-metric-subvalue ${firstCutClass}">
-                     ${firstCutDisplay}
-                   </div>`
-                : ''
-            }
-          </div>
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          'First spending cut',
+          'The first year when actual spending falls below planned target spending.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">
+          ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
         </div>
+        ${
+          firstCutDisplay
+            ? `<div class="results-context-metric-subvalue ${firstCutClass}">
+                 ${firstCutDisplay}
+               </div>`
+            : ''
+        }
+      </div>
+    </div>
 
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              'Worst shortfall vs minimum',
-              'The largest gap in any year between actual spending and your minimum acceptable spending level.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">
-              ${
-                worstFloorGap > 0
-                  ? `${formatCurrency(worstFloorGap)}${
-                      worstFloorYear ? ` (Year ${worstFloorYear})` : ''
-                    }`
-                  : 'None'
-              }
-            </div>
-            <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-              ${floorHeadroomDisplay}
-            </div>
-          </div>
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          'Worst shortfall vs minimum',
+          'The largest gap in any year between actual spending and your minimum acceptable spending level.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">
+          ${
+            worstFloorGap > 0
+              ? `${formatCurrency(worstFloorGap)}${
+                  worstFloorYear ? ` (Year ${worstFloorYear})` : ''
+                }`
+              : 'None'
+          }
         </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              'Years below minimum',
-              'Number of years when actual spending falls below your minimum spending level.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-            <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-              ${floorBreachYearsDisplay}
-            </div>
-          </div>
+        <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+          ${floorHeadroomDisplay}
         </div>
       </div>
-    `;
+    </div>
+
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          'Years below minimum',
+          'Number of years when actual spending falls below your minimum spending level.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+        <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+          ${floorBreachYearsDisplay}
+        </div>
+      </div>
+    </div>
+  </div>
+`;
 
   const headerControls = isHistorical
     ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
