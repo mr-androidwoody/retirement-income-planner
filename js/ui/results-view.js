@@ -223,67 +223,85 @@ export function renderResultsView({
     );
   }
 
-  if (elements.tableCard && showFullTable) {
-    let header = elements.tableCard.querySelector('.results-header-row');
+if (elements.tableCard && showFullTable) {
+  let header = elements.tableCard.querySelector('.results-header-row');
 
-    if (!header) {
-      header = document.createElement('div');
-      header.className = 'results-header-row';
+  if (!header) {
+    header = document.createElement('div');
+    header.className = 'results-header-row';
 
-      header.innerHTML = `
-        <div class="results-header-text">
-          <h3>Yearly results</h3>
-          <p>
-            A year-by-year view of your plan showing how spending, income, and withdrawals
-            interact with your portfolio over time.
-            <br />
-            Focus on <strong>cuts</strong>, <strong>shortfalls</strong>, and <strong>portfolio changes</strong>
-            to understand where pressure builds.
-          </p>
-        </div>
-    
-        <div class="table-view-selector">
-          <button data-view="median">Median</button>
-          <button data-view="p10">Downside</button>
-          <button data-view="p90">Upside</button>
-        </div>
-      `;
+    header.innerHTML = `
+      <div class="results-header-text">
+        <h3>Yearly results</h3>
+        <p>
+          A year-by-year view of your plan showing how spending, income, and withdrawals
+          interact with your portfolio over time.
+          <br />
+          Focus on <strong>cuts</strong>, <strong>shortfalls</strong>, and <strong>portfolio changes</strong>
+          to understand where pressure builds.
+        </p>
+      </div>
 
-        elements.tableCard.prepend(header);
-        
-        let legend = elements.tableCard.querySelector('.results-table-legend');
-        
-        if (!legend) {
-          legend = document.createElement('div');
-          legend.className = 'results-table-legend';
-        
-          legend.innerHTML = `
-            <div class="legend-group">
-              <span class="legend-title">Portfolio change</span>
-              <span class="legend-item"><span class="legend-arrow up">↑</span> Increase</span>
-              <span class="legend-item"><span class="legend-arrow down">↓</span> Decrease</span>
-            </div>
-        
-            <div class="legend-group">
-              <span class="legend-title">Spending pressure</span>
-              <span class="legend-item"><span class="status-dot cut-mild"></span> Mild cut</span>
-              <span class="legend-item"><span class="status-dot cut-moderate"></span> Moderate cut</span>
-              <span class="legend-item"><span class="status-dot cut-severe"></span> Severe cut</span>
-              <span class="legend-item"><span class="status-dot shortfall-dot"></span> Below minimum</span>
-            </div>
-          `;
-        
-          header.insertAdjacentElement('afterend', legend);
-        }
-    }
+      <div class="table-view-selector">
+        <button data-view="median">Median</button>
+        <button data-view="p10">Downside</button>
+        <button data-view="p90">Upside</button>
+      </div>
+    `;
 
-    const selectorButtons = header.querySelectorAll('.table-view-selector button');
-
-    selectorButtons.forEach((button) => {
-      const isActive = button.dataset.view === tableView;
-      button.classList.toggle('active', isActive);
-    });
+    elements.tableCard.prepend(header);
   }
+
+  let legend = elements.tableCard.querySelector('.results-table-legend');
+
+  if (!legend) {
+    legend = document.createElement('div');
+    legend.className = 'results-table-legend';
+
+    legend.innerHTML = `
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Portfolio change</span>
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
+          Increase
+        </span>
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
+          Decrease
+        </span>
+      </div>
+
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Spending pressure</span>
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-mild"></span>
+          Mild cut
+        </span>
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-moderate"></span>
+          Moderate cut
+        </span>
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-severe"></span>
+          Severe cut
+        </span>
+        <span class="results-table-legend-item">
+          <span class="status-dot shortfall-dot"></span>
+          Shortfall
+        </span>
+      </div>
+    `;
+
+    header.insertAdjacentElement('afterend', legend);
+  }
+
+  const selectorButtons = header.querySelectorAll('.table-view-selector button');
+
+  selectorButtons.forEach((button) => {
+    const isActive = button.dataset.view === tableView;
+    button.classList.toggle('active', isActive);
+  });
+}
 
   renderResultsTableNote(elements, result, activePath);
 
@@ -1070,7 +1088,8 @@ function renderResultsTableNote(elements, result, activePath) {
       ? `This table shows the selected historical path: ${activePath.label}.`
       : 'This table shows the selected historical path.';
   } else {
-    note.textContent = 'This table shows the selected yearly path.';
+    note.textContent =
+      'Each row shows how your spending, income, and withdrawals interact with your portfolio over time.';
   }
 
   note.classList.remove('hidden');
