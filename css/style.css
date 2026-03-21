@@ -1900,97 +1900,78 @@ input[type="checkbox"]{
   margin:0 0 16px;
 }
 
-.retirement-outlook-hero-card{
-  display:grid;
-  gap:16px;
-  padding:20px;
+.plan-status-card{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:18px 20px;
   border:1px solid var(--line);
   border-radius:16px;
   background:linear-gradient(180deg, #f8fbff 0%, #f4f7fc 100%);
 }
 
-.retirement-outlook-hero-top{
-  display:grid;
-  gap:12px;
-}
-
-.retirement-outlook-kicker{
-  font-size:0.78rem;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:0.06em;
-  color:var(--muted);
-}
-
-.retirement-outlook-status-row{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  flex-wrap:wrap;
-}
-
-.retirement-outlook-badge{
+.plan-status-pill{
   display:inline-flex;
   align-items:center;
-  justify-content:center;
   gap:8px;
-  min-width:132px;
-  min-height:46px;
-  padding:0 16px;
+  width:fit-content;
+  padding:6px 12px;
   border-radius:999px;
-  font-size:1rem;
-  font-weight:800;
-  letter-spacing:-0.01em;
-  border:1px solid transparent;
-}
-
-.retirement-outlook-badge-icon{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:18px;
-  height:18px;
-  font-size:0.95rem;
+  font-size:0.78rem;
+  font-weight:700;
   line-height:1;
 }
 
-.retirement-outlook-badge--strong{
-  background:#ecfdf5;
-  color:#065f46;
-  border-color:#6ee7b7;
-}
-
-.retirement-outlook-badge--watch{
-  background:#fff7ed;
-  color:#b45309;
-  border-color:#fdba74;
-}
-
-.retirement-outlook-badge--weak{
-  background:#fff1f2;
-  color:#b91c1c;
-  border-color:#fda4af;
-}
-
-.retirement-outlook-heading-group{
-  display:grid;
-  gap:4px;
-}
-
-.retirement-outlook-subheading{
-  font-size:1.15rem;
+.plan-status-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:14px;
+  height:14px;
+  font-size:0.82rem;
   font-weight:800;
-  line-height:1.25;
-  color:var(--text);
-  letter-spacing:-0.01em;
+  line-height:1;
 }
 
-.retirement-outlook-description{
+.plan-status-pill--strong{
+  background:#dcfce7;
+  color:#166534;
+  border:1px solid #86efac;
+}
+
+.plan-status-pill--watch{
+  background:#fef3c7;
+  color:#92400e;
+  border:1px solid #fcd34d;
+}
+
+.plan-status-pill--weak{
+  background:#fee2e2;
+  color:#991b1b;
+  border:1px solid #fca5a5;
+}
+
+.plan-status-title{
+  margin:2px 0 0;
+  font-size:1.08rem;
+  font-weight:700;
+  line-height:1.28;
+  letter-spacing:-0.01em;
+  color:var(--text);
+}
+
+.plan-status-text{
   margin:0;
-  max-width:780px;
+  font-size:0.9rem;
+  line-height:1.45;
+  color:#44536b;
+}
+
+.plan-status-subtext{
+  margin:0;
+  font-size:0.82rem;
+  line-height:1.4;
   color:var(--muted);
-  font-size:0.95rem;
-  line-height:1.6;
 }
 
 .plan-outlook-legend{
