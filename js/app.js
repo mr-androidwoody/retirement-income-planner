@@ -17,6 +17,9 @@ const els = {
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
   cashlikeAllocation: document.getElementById('cashlikeAllocation'),
+  allocationStatus: document.getElementById('allocationStatus'),
+  allocationStatusTotal: document.getElementById('allocationStatusTotal'),
+  allocationStatusMessage: document.getElementById('allocationStatusMessage'),
   rebalanceToTarget: document.getElementById('rebalanceToTarget'),
 
   equityReturn: document.getElementById('equityReturn'),
@@ -134,6 +137,7 @@ function initialise() {
   attachEvents();
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
+  updateAllocationStatus();
   tabs.setActiveTab('inputs');
 }
 
@@ -192,6 +196,7 @@ function attachEvents() {
     onReset: () => {
       applyDefaults();
       setResultsViewDefaults();
+      updateAllocationStatus();
       hideError();
       tabs.setActiveTab('inputs');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -215,12 +220,74 @@ function attachEvents() {
     }, 100)
   );
 
-  // ✅ ADD HERE (clean, inside function)
   if (els.showPlanOutlook) {
     els.showPlanOutlook.addEventListener('change', () => {
       togglePlanOutlook();
     });
   }
+
+  attachAllocationStatusEvents();
+}
+
+function attachAllocationStatusEvents() {
+  const allocationInputs = [
+    els.equityAllocation,
+    els.bondAllocation,
+    els.cashlikeAllocation
+  ].filter(Boolean);
+
+  allocationInputs.forEach((input) => {
+    input.addEventListener('input', updateAllocationStatus);
+    input.addEventListener('change', updateAllocationStatus);
+  });
+
+  document.querySelectorAll(
+    '[data-step-target="equityAllocation"], [data-step-target="bondAllocation"], [data-step-target="cashlikeAllocation"]'
+  ).forEach((button) => {
+    button.addEventListener('click', () => {
+      requestAnimationFrame(updateAllocationStatus);
+    });
+  });
+}
+
+function updateAllocationStatus() {
+  if (!els.allocationStatus || !els.allocationStatusTotal || !els.allocationStatusMessage) {
+    return;
+  }
+
+  const equity = parseLooseNumber(els.equityAllocation?.value);
+  const bond = parseLooseNumber(els.bondAllocation?.value);
+  const cashlike = parseLooseNumber(els.cashlikeAllocation?.value);
+
+  const total =
+    (Number.isFinite(equity) ? equity : 0) +
+    (Number.isFinite(bond) ? bond : 0) +
+    (Number.isFinite(cashlike) ? cashlike : 0);
+
+  const roundedTotal = Math.round(total);
+
+  els.allocationStatus.classList.remove(
+    'allocation-status--balanced',
+    'allocation-status--under',
+    'allocation-status--over'
+  );
+
+  els.allocationStatusTotal.textContent = `${roundedTotal}%`;
+
+  if (roundedTotal === 100) {
+    els.allocationStatus.classList.add('allocation-status--balanced');
+    els.allocationStatusMessage.textContent = 'Balanced';
+    return;
+  }
+
+  if (roundedTotal < 100) {
+    els.allocationStatus.classList.add('allocation-status--under');
+    els.allocationStatusMessage.textContent = `${100 - roundedTotal}% left to allocate`;
+    return;
+  }
+
+  els.allocationStatus.classList.add('allocation-status--over');
+  els.allocationStatusMessage.textContent = `${roundedTotal - 100}% overallocated`;
 }
 
 function attachWithdrawalRateSync() {
