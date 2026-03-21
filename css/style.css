@@ -1437,8 +1437,8 @@ input[type="checkbox"]{
   flex-wrap:wrap;
   align-items:flex-end;
   gap:12px;
-  margin-top:14px;
-  padding-top:14px;
+  margin-top:8px;
+  padding-top:8px;
   border-top:1px solid var(--line);
 }
 
@@ -2822,7 +2822,7 @@ input[type="checkbox"]{
 .results-context-metric-label {
   font-size:0.66rem;
   color:var(--muted);
-  font-weight:700;
+  font-weight:600;
   margin-bottom:0;
   text-transform:uppercase;
   letter-spacing:0.03em;
