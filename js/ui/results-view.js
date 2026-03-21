@@ -468,7 +468,7 @@ if (isHistorical) {
     if (ratio < 0.5) {
       return {
         ...PLAN_OUTLOOK_STATES.WEAK,
-        resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
+        resolvedTitle: 'Weak — capital materially eroded',
         resolvedBody:
           `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 50% threshold and under pressure.`
       };
@@ -477,7 +477,7 @@ if (isHistorical) {
     if (ratio < 0.75) {
       return {
         ...PLAN_OUTLOOK_STATES.WATCH,
-        resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
+        resolvedTitle: 'Watch — capital cushion reduced',
         resolvedBody:
           `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 75% threshold and leaving a reduced cushion.`
       };
@@ -485,7 +485,7 @@ if (isHistorical) {
 
     return {
       ...PLAN_OUTLOOK_STATES.STRONG,
-      resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+      resolvedTitle: 'Strong — capital broadly preserved',
       resolvedBody:
         `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, preserving a healthy cushion.`
     };
@@ -493,7 +493,7 @@ if (isHistorical) {
 
   return {
     ...PLAN_OUTLOOK_STATES.STRONG,
-    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+    resolvedTitle: 'Strong — capital broadly preserved',
     resolvedBody:
       'The plan finishes with at least 75% of the starting portfolio in real terms.'
   };
