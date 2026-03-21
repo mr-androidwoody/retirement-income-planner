@@ -231,79 +231,82 @@ if (elements.tableCard && showFullTable) {
   if (!header) {
     header = document.createElement('div');
     header.className = 'results-header-row';
-
-    header.innerHTML = `
-      <div class="results-header-text">
-        <h3>Yearly results</h3>
-        <p>
-          A year-by-year view of your plan showing how spending, income, and withdrawals
-          interact with your portfolio over time.
-          <br />
-          Focus on <strong>cuts</strong>, <strong>shortfalls</strong>, and <strong>portfolio changes</strong>
-          to understand where pressure builds.
-        </p>
-      </div>
-
-      <div class="table-view-selector">
-        <button data-view="median">Median</button>
-        <button data-view="p10">Downside</button>
-        <button data-view="p90">Upside</button>
-      </div>
-    `;
-
     elements.tableCard.prepend(header);
   }
+
+  header.innerHTML = `
+    <div class="results-header-text">
+      <h3>Yearly results</h3>
+      <p>
+        A year-by-year view of your plan showing how spending, income, and withdrawals
+        interact with your portfolio over time.
+        <br />
+        Focus on <strong>cuts</strong>, <strong>shortfalls</strong>, and <strong>portfolio changes</strong>
+        to understand where pressure builds.
+      </p>
+    </div>
+
+    <div class="table-view-selector">
+      <button data-view="median">Median</button>
+      <button data-view="p10">Downside</button>
+      <button data-view="p90">Upside</button>
+    </div>
+  `;
 
   let legend = elements.tableCard.querySelector('.results-table-legend');
 
   if (!legend) {
     legend = document.createElement('div');
     legend.className = 'results-table-legend';
+  }
 
-    legend.innerHTML = `
-      <div class="results-table-legend-group">
-        <span class="results-table-legend-title">Portfolio change</span>
-        <span class="results-table-legend-item">
-          <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
-          Increase
-        </span>
-        <span class="results-table-legend-item">
-          <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
-          Decrease
-        </span>
-      </div>
+  legend.innerHTML = `
+    <div class="results-table-legend-group">
+      <span class="results-table-legend-title">Portfolio change</span>
+      <span class="results-table-legend-item">
+        <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
+        Increase
+      </span>
+      <span class="results-table-legend-item">
+        <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
+        Decrease
+      </span>
+    </div>
 
-      <div class="results-table-legend-group">
-        <span class="results-table-legend-title">Spending pressure</span>
-        <span class="results-table-legend-item">
-          <span class="status-dot cut-mild"></span>
-          Mild cut
-        </span>
-        <span class="results-table-legend-item">
-          <span class="status-dot cut-moderate"></span>
-          Moderate cut
-        </span>
-        <span class="results-table-legend-item">
-          <span class="status-dot cut-severe"></span>
-          Severe cut
-        </span>
-        <span class="results-table-legend-item">
-          <span class="status-dot shortfall-dot"></span>
-          Shortfall
-        </span>
-      </div>
-    `;
+    <div class="results-table-legend-group">
+      <span class="results-table-legend-title">Spending pressure</span>
+      <span class="results-table-legend-item">
+        <span class="status-dot cut-mild"></span>
+        Mild cut
+      </span>
+      <span class="results-table-legend-item">
+        <span class="status-dot cut-moderate"></span>
+        Moderate cut
+      </span>
+      <span class="results-table-legend-item">
+        <span class="status-dot cut-severe"></span>
+        Severe cut
+      </span>
+      <span class="results-table-legend-item">
+        <span class="status-dot shortfall-dot"></span>
+        Shortfall
+      </span>
+    </div>
+  `;
 
-    const note = elements.tableCard.querySelector('#resultsTableNote');
-    const tableWrap = elements.tableCard.querySelector('.table-wrap');
+  const note = elements.tableCard.querySelector('#resultsTableNote');
+  const tableWrap = elements.tableCard.querySelector('.table-wrap');
 
-    if (note) {
+  if (note) {
+    if (legend.previousElementSibling !== note) {
       note.insertAdjacentElement('afterend', legend);
-    } else if (tableWrap) {
-      elements.tableCard.insertBefore(legend, tableWrap);
-    } else {
-      elements.tableCard.appendChild(legend);
     }
+  } else if (tableWrap) {
+    if (legend.nextElementSibling !== tableWrap) {
+      elements.tableCard.insertBefore(legend, tableWrap);
+    }
+  } else if (!legend.parentNode) {
+    elements.tableCard.appendChild(legend);
   }
 
   const selectorButtons = header.querySelectorAll('.table-view-selector button');
