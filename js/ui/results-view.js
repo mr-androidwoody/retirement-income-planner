@@ -223,6 +223,8 @@ export function renderResultsView({
     );
   }
 
+renderResultsTableNote(elements, result, activePath);
+
 if (elements.tableCard && showFullTable) {
   let header = elements.tableCard.querySelector('.results-header-row');
 
@@ -252,53 +254,57 @@ if (elements.tableCard && showFullTable) {
     elements.tableCard.prepend(header);
   }
 
-let legend = elements.tableCard.querySelector('.results-table-legend');
+  let legend = elements.tableCard.querySelector('.results-table-legend');
 
-if (!legend) {
-  console.log('LEGEND BLOCK RUNNING');
+  if (!legend) {
+    legend = document.createElement('div');
+    legend.className = 'results-table-legend';
 
-  legend = document.createElement('div');
-  legend.className = 'results-table-legend';
+    legend.innerHTML = `
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Portfolio change</span>
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
+          Increase
+        </span>
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
+          Decrease
+        </span>
+      </div>
 
-  legend.innerHTML = `
-    <div class="results-table-legend-group">
-      <span class="results-table-legend-title">Portfolio change</span>
-      <span class="results-table-legend-item">
-        <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
-        Increase
-      </span>
-      <span class="results-table-legend-item">
-        <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
-        Decrease
-      </span>
-    </div>
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Spending pressure</span>
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-mild"></span>
+          Mild cut
+        </span>
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-moderate"></span>
+          Moderate cut
+        </span>
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-severe"></span>
+          Severe cut
+        </span>
+        <span class="results-table-legend-item">
+          <span class="status-dot shortfall-dot"></span>
+          Shortfall
+        </span>
+      </div>
+    `;
 
-    <div class="results-table-legend-group">
-      <span class="results-table-legend-title">Spending pressure</span>
-      <span class="results-table-legend-item">
-        <span class="status-dot cut-mild"></span>
-        Mild cut
-      </span>
-      <span class="results-table-legend-item">
-        <span class="status-dot cut-moderate"></span>
-        Moderate cut
-      </span>
-      <span class="results-table-legend-item">
-        <span class="status-dot cut-severe"></span>
-        Severe cut
-      </span>
-      <span class="results-table-legend-item">
-        <span class="status-dot shortfall-dot"></span>
-        Shortfall
-      </span>
-    </div>
-  `;
+    const note = elements.tableCard.querySelector('#resultsTableNote');
+    const tableWrap = elements.tableCard.querySelector('.table-wrap');
 
-  elements.tableCard.insertBefore(
-    legend,
-    elements.tableCard.querySelector('.table-wrap')
-  );
-}
+    if (note) {
+      note.insertAdjacentElement('afterend', legend);
+    } else if (tableWrap) {
+      elements.tableCard.insertBefore(legend, tableWrap);
+    } else {
+      elements.tableCard.appendChild(legend);
+    }
+  }
 
   const selectorButtons = header.querySelectorAll('.table-view-selector button');
 
@@ -307,8 +313,6 @@ if (!legend) {
     button.classList.toggle('active', isActive);
   });
 }
-
-  renderResultsTableNote(elements, result, activePath);
 
   renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
     person1Name: result.inputs?.person1Name,
