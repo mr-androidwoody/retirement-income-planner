@@ -846,8 +846,7 @@ function renderResultsContextAndPathSummary({
   const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
 
   container.innerHTML = `
-    <div class="results-context-card results-context-card--merged${primaryState.key === PLAN_OUTLOOK_STATES.DEPLETED.key ? ' results-context-card--warning' : ''}">
-      <div class="results-context-panel-header">
+      <div class="results-context-card results-context-card--merged">      <div class="results-context-panel-header">
         <div class="card-title-block">
           <h2>Plan outlook</h2>
           <p>A combined view of plan resilience, key risks, and supporting outcome metrics.</p>
