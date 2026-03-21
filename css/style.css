@@ -2212,6 +2212,37 @@ input[type="checkbox"]{
 }
 
 /* ========================================
+   Plan Outlook — merged warnings layout (NEW)
+   ======================================== */
+
+.plan-outlook-warnings{
+  margin-top:16px;
+}
+
+.plan-outlook-warnings-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:12px;
+}
+
+.plan-outlook-warnings .plan-warning-group{
+  margin:0;
+  height:100%;
+}
+
+.plan-outlook-warnings .plan-warning-ok{
+  margin:0;
+}
+
+/* stack on smaller screens */
+@media (max-width: 900px){
+  .plan-outlook-warnings-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ========================================
    Spending Cut Diagnostics
    ======================================== */
 
