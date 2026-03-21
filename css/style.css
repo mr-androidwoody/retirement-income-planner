@@ -2841,6 +2841,13 @@ input[type="checkbox"]{
   flex-wrap:wrap;
 }
 
+.results-context-inline-note{
+  margin:2px 0 4px;
+  font-size:0.82rem;
+  line-height:1.4;
+  color:var(--muted);
+}
+
 .results-context-panel-header .card-title-block p{
   display:none;
 }
