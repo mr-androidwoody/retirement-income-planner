@@ -257,7 +257,7 @@ export function renderResultsView({
     });
   }
 
-  renderDeterministicNote(elements, result, activePath);
+  renderResultsTableNote(elements, result, activePath);
 
   renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
     person1Name: result.inputs?.person1Name,
@@ -424,7 +424,6 @@ function getPlanWarningsData(result, useReal, formatters, activePath) {
 function resolvePlanOutlookPrimaryState(result, activePath) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
-  const isDeterministic = mode === 'deterministic';
 
   const depleted = Boolean(
     result?.summary?.depleted ??
@@ -499,15 +498,6 @@ if (isHistorical) {
   };
 }
     
-// deterministic fallback (leave as-is for now)
-if (isDeterministic || !result?.monteCarlo) {
-  return {
-    ...PLAN_OUTLOOK_STATES.STRONG,
-    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
-    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
-  };
-}
-
   const successRate = Number(result?.monteCarlo?.successRate ?? 0);
   const successPct = Number.isFinite(successRate)
     ? Math.round(successRate * 100)
@@ -669,7 +659,6 @@ function renderResultsContextAndPathSummary({
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
-  const isDeterministic = mode === 'deterministic';
 
   const rows = activePath?.rows || activePath?.yearlyRows || [];
 
@@ -890,23 +879,22 @@ const detailMetricsHtml = `
 
   const headerControls = isHistorical
     ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
-    : isDeterministic
-      ? `<div class="results-context-path">Base case</div>`
-      : `
-        <div class="results-context-toggle table-view-selector">
-          <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
-          <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
-          <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
-        </div>
-      `;
+    : `
+      <div class="results-context-toggle table-view-selector">
+        <button data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
+        <button data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
+        <button data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+      </div>
+    `;
 
   const primaryCardClass = getPlanOutlookCardClass(primaryState);
   const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
   const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
 
   container.innerHTML = `
-      <div class="results-context-card results-context-card--merged">      <div class="results-context-panel-header">
-        <div class="card-title-block">
+     <div class="results-context-card results-context-card--merged">
+       <div class="results-context-panel-header">
+         <div class="card-title-block">
           <h2>Plan outlook</h2>
           <p>A combined view of plan resilience, key risks, and supporting outcome metrics.</p>
         </div>
@@ -944,7 +932,6 @@ const detailMetricsHtml = `
 function renderSummaryCardLabels(elements, result, activePath, tableView) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
-  const isDeterministic = mode === 'deterministic';
 
   if (isHistorical) {
     if (elements.summarySuccessRateLabel) {
@@ -972,46 +959,6 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
     if (elements.summaryWorstStressDesc) {
       elements.summaryWorstStressDesc.textContent =
         'Earliest year the portfolio reaches zero on this historical path, or not depleted.';
-    }
-
-    if (elements.summaryCashRunwayLabel) {
-      elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
-    }
-
-    if (elements.summaryCashRunwayDesc) {
-      elements.summaryCashRunwayDesc.textContent =
-        'Years the opening cashlike bucket could fund withdrawals before refill.';
-    }
-
-    return;
-  }
-
-  if (isDeterministic) {
-    if (elements.summarySuccessRateLabel) {
-      elements.summarySuccessRateLabel.textContent = 'Success rate';
-    }
-
-    if (elements.summarySuccessRateDesc) {
-      elements.summarySuccessRateDesc.textContent =
-        'Only applies to simulated outcomes.';
-    }
-
-    if (elements.summaryMedianEndLabel) {
-      elements.summaryMedianEndLabel.textContent = 'Selected path';
-    }
-
-    if (elements.summaryMedianEndDesc) {
-      elements.summaryMedianEndDesc.textContent =
-        'Base case used for the current charts, plan outlook, and yearly table.';
-    }
-
-    if (elements.summaryWorstStressLabel) {
-      elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
-    }
-
-    if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent =
-        'Lowest ending portfolio across the deterministic stress paths.';
     }
 
     if (elements.summaryCashRunwayLabel) {
@@ -1084,36 +1031,8 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   }
 }
 
-function renderSummarySection(title, items) {
-  return `
-    <section class="plan-summary-section">
-      <h4 class="plan-summary-section-title">${title}</h4>
-      <div class="plan-summary-section-grid">
-        ${items.join('')}
-      </div>
-    </section>
-  `;
-}
-
-function renderSummaryItem(label, value, signal = null) {
-  const signalClass = signal ? ` summary-item--${signal}` : '';
-  const dotClass = signal
-    ? ` summary-label-dot--${signal}`
-    : ' summary-label-dot--neutral';
-
-  return `
-    <div class="summary-item${signalClass}">
-      <div class="summary-label">
-        <span class="summary-label-dot${dotClass}"></span>
-        <span>${label}</span>
-      </div>
-      <div class="summary-value">${value}</div>
-    </div>
-  `;
-}
-
-function renderDeterministicNote(elements, result, activePath) {
-  const note = ensureDeterministicNoteContainer(elements);
+function renderResultsTableNote(elements, result, activePath) {
+  const note = ensureResultsTableNoteContainer(elements);
   if (!note) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
@@ -1122,8 +1041,6 @@ function renderDeterministicNote(elements, result, activePath) {
     note.textContent = activePath?.label
       ? `This table shows the selected historical path: ${activePath.label}.`
       : 'This table shows the selected historical path.';
-  } else if (mode === 'deterministic') {
-    note.textContent = 'This table shows the deterministic base case only.';
   } else {
     note.textContent = 'This table shows the selected yearly path.';
   }
@@ -1131,9 +1048,9 @@ function renderDeterministicNote(elements, result, activePath) {
   note.classList.remove('hidden');
 }
 
-function ensureDeterministicNoteContainer(elements) {
-  if (elements.deterministicNote) {
-    return elements.deterministicNote;
+function ensureResultsTableNoteContainer(elements) {
+  if (elements.resultsTableNote) {
+    return elements.resultsTableNote;
   }
 
   const table = elements.resultsTable;
@@ -1142,12 +1059,12 @@ function ensureDeterministicNoteContainer(elements) {
     return null;
   }
 
-  let note = tableCard.querySelector('#deterministicNote');
+  let note = tableCard.querySelector('#resultsTableNote');
 
   if (!note) {
     note = document.createElement('p');
-    note.id = 'deterministicNote';
-    note.className = 'deterministic-note hidden';
+    note.id = 'resultsTableNote';
+    note.className = 'results-table-note hidden';
 
     const tableWrap = table.closest('.table-wrap');
     if (tableWrap && tableWrap.parentNode) {
@@ -1157,7 +1074,7 @@ function ensureDeterministicNoteContainer(elements) {
     }
   }
 
-  elements.deterministicNote = note;
+  elements.resultsTableNote = note;
   return note;
 }
 
