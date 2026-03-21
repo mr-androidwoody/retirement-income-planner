@@ -1,5 +1,10 @@
 import { renderPortfolioChart, renderSpendingChart } from './charts.js';
 import { renderYearlyTable } from './yearly-table.js';
+import {
+  PLAN_OUTLOOK_STATES,
+  PLAN_OUTLOOK_CONTEXT,
+  PLAN_OUTLOOK_WARNINGS
+} from './plan-outlook-state-definitions.js';
 
 function resolveActivePath(result, tableView) {
   if (result?.tableViews && tableView && result.tableViews[tableView]) {
@@ -24,8 +29,6 @@ function resolveActivePath(result, tableView) {
   return null;
 }
 
-/* ADD THIS BLOCK */
-
 function escapeHtmlAttribute(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -46,8 +49,6 @@ function renderMetricHeading(label, tooltip) {
     </span>
   `;
 }
-
-/* END BLOCK */
 
 export function renderResultsView({
   result,
@@ -326,7 +327,6 @@ function safePositiveNumber(value) {
 
 function getResolvedSpendingFloors(inputs = {}) {
   const targetSpending = safePositiveNumber(inputs.initialSpending) ?? 0;
-
   const derivedComfort = Math.round(targetSpending * 0.9);
   const derivedMinimum = Math.round(targetSpending * 0.75);
 
@@ -421,124 +421,226 @@ function getPlanWarningsData(result, useReal, formatters, activePath) {
   };
 }
 
-function getThresholdSignal(value, greenMax, amberMax) {
-  if (!Number.isFinite(value)) return null;
-  if (value <= greenMax) return 'green';
-  if (value <= amberMax) return 'amber';
-  return 'red';
+function resolvePlanOutlookPrimaryState(result, activePath) {
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+  const isDeterministic = mode === 'deterministic';
+
+  const depleted = Boolean(
+    result?.summary?.depleted ??
+    result?.depleted ??
+    activePath?.depleted
+  );
+
+  const depletionYearRaw =
+    result?.summary?.depletionYear ??
+    result?.depletedYear ??
+    activePath?.depletionYear ??
+    null;
+
+  const depletionYear = Number.isFinite(Number(depletionYearRaw))
+    ? Number(depletionYearRaw)
+    : null;
+
+  if (depleted) {
+    return {
+      ...PLAN_OUTLOOK_STATES.DEPLETED,
+      resolvedTitle: PLAN_OUTLOOK_STATES.DEPLETED.title(depletionYear),
+      resolvedBody: PLAN_OUTLOOK_STATES.DEPLETED.body,
+      depletionYear
+    };
+  }
+
+// HISTORICAL MODE — evaluate based on end value vs starting portfolio
+if (isHistorical) {
+  const startingPortfolio =
+    Number(result?.inputs?.startingPortfolio ??
+           result?.inputs?.initialPortfolio ?? 0);
+
+  const endValue = Number(
+    activePath?.terminalReal ??
+    activePath?.terminalNominal ??
+    0
+  );
+
+  if (startingPortfolio > 0 && Number.isFinite(endValue)) {
+    const ratio = endValue / startingPortfolio;
+    const retainedPct = Math.round(ratio * 100);
+
+    if (ratio < 0.5) {
+      return {
+        ...PLAN_OUTLOOK_STATES.WEAK,
+        resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
+        resolvedBody:
+          `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 50% threshold and under pressure.`
+      };
+    }
+
+    if (ratio < 0.75) {
+      return {
+        ...PLAN_OUTLOOK_STATES.WATCH,
+        resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
+        resolvedBody:
+          `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 75% threshold and leaving a reduced cushion.`
+      };
+    }
+
+    return {
+      ...PLAN_OUTLOOK_STATES.STRONG,
+      resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+      resolvedBody:
+        `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, preserving a healthy cushion.`
+    };
+  }
+
+  return {
+    ...PLAN_OUTLOOK_STATES.STRONG,
+    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+    resolvedBody:
+      'The plan finishes with at least 75% of the starting portfolio in real terms.'
+  };
+}
+// deterministic fallback (leave as-is for now)
+if (isDeterministic || !result?.monteCarlo) {
+  return {
+    ...PLAN_OUTLOOK_STATES.STRONG,
+    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
+  };
 }
 
-function getYearsSignal(years) {
-  if (!Number.isFinite(years)) return null;
-  if (years === 0) return 'green';
-  if (years <= 5) return 'amber';
-  return 'red';
+  const successRate = Number(result?.monteCarlo?.successRate ?? 0);
+
+  if (successRate < 0.7) {
+    return {
+      ...PLAN_OUTLOOK_STATES.WEAK,
+      resolvedTitle: PLAN_OUTLOOK_STATES.WEAK.title,
+      resolvedBody: PLAN_OUTLOOK_STATES.WEAK.body
+    };
+  }
+
+  if (successRate < 0.9) {
+    return {
+      ...PLAN_OUTLOOK_STATES.WATCH,
+      resolvedTitle: PLAN_OUTLOOK_STATES.WATCH.title,
+      resolvedBody: PLAN_OUTLOOK_STATES.WATCH.body
+    };
+  }
+
+  return {
+    ...PLAN_OUTLOOK_STATES.STRONG,
+    resolvedTitle: PLAN_OUTLOOK_STATES.STRONG.title,
+    resolvedBody: PLAN_OUTLOOK_STATES.STRONG.body
+  };
 }
 
-function getWorstCutSignal(cutPercent) {
-  if (!Number.isFinite(cutPercent)) return null;
-  if (cutPercent < 0.10) return 'green';
-  if (cutPercent <= 0.25) return 'amber';
-  return 'red';
-}
+function resolvePlanOutlookContextNote(result) {
+  const mode = String(result?.mode ?? '').toLowerCase();
 
-function getInitialWithdrawalSignal(rate) {
-  return getThresholdSignal(rate, 0.04, 0.06);
-}
-
-function getStatePensionRelianceSignal(rate) {
-  if (!Number.isFinite(rate)) return null;
-  if (rate >= 0.35) return 'green';
-  if (rate >= 0.15) return 'amber';
-  return 'red';
-}
-
-function getPortfolioDependenceSignal(rate) {
-  return getThresholdSignal(rate, 0.40, 0.70);
-}
-
-function getWeakCaseDepletionSignal(yearValue) {
-  if (yearValue === 'Not depleted') return 'green';
-
-  const year = Number(yearValue);
-  if (!Number.isFinite(year)) return null;
-  if (year > 25) return 'amber';
-  return 'red';
-}
-
-function getP10EndingSignal(p10End, startingPortfolio) {
-  if (
-    !Number.isFinite(p10End) ||
-    !Number.isFinite(startingPortfolio) ||
-    startingPortfolio <= 0
-  ) {
+  if (mode !== 'historical') {
     return null;
   }
 
-  if (p10End <= 0) return 'red';
-
-  const ratio = p10End / startingPortfolio;
-  if (ratio > 0.5) return 'green';
-  return 'amber';
+  return PLAN_OUTLOOK_CONTEXT.HISTORICAL_NOTE;
 }
 
-function getP90EndingSignal(p90End, startingPortfolio) {
-  if (
-    !Number.isFinite(p90End) ||
-    !Number.isFinite(startingPortfolio) ||
-    startingPortfolio <= 0
-  ) {
-    return null;
+function resolvePlanOutlookWarningGroups({
+  result,
+  activePath,
+  useReal,
+  formatters,
+  suppressWarnings
+}) {
+  if (suppressWarnings) {
+    return [];
   }
 
-  const ratio = p90End / startingPortfolio;
-  if (ratio > 2) return 'green';
-  if (ratio >= 1) return 'amber';
-  return 'red';
-}
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
 
-function getWorstShortfallSignal(amount, targetSpending) {
-  if (!Number.isFinite(amount) || amount <= 0) return 'green';
-  if (!Number.isFinite(targetSpending) || targetSpending <= 0) return null;
-
-  const ratio = amount / targetSpending;
-  if (ratio < 0.10) return 'amber';
-  return 'red';
-}
-
-function getPlanSuccessSignal(rate) {
-  if (!Number.isFinite(rate)) return null;
-  if (rate >= 0.9) return 'green';
-  if (rate >= 0.75) return 'amber';
-  return 'red';
-}
-
-function getMedianEndingSignal(medianEnd, startingPortfolio) {
-  if (
-    !Number.isFinite(medianEnd) ||
-    !Number.isFinite(startingPortfolio) ||
-    startingPortfolio <= 0
-  ) {
-    return null;
+  if (isHistorical || !result?.monteCarlo) {
+    return [];
   }
 
-  const ratio = medianEnd / startingPortfolio;
-  if (ratio >= 1) return 'green';
-  if (ratio >= 0.25) return 'amber';
-  return 'red';
+  const warningData = getPlanWarningsData(result, useReal, formatters, activePath);
+  const groups = [];
+
+  if (warningData.inputWarnings.length) {
+    groups.push({
+      ...PLAN_OUTLOOK_WARNINGS.INPUT,
+      items: warningData.inputWarnings
+    });
+  }
+
+  if (warningData.modelWarnings.length) {
+    groups.push({
+      ...PLAN_OUTLOOK_WARNINGS.MODEL,
+      items: warningData.modelWarnings
+    });
+  }
+
+  return groups;
 }
 
-function getBaseCaseTimingSignal(firstShortfallYear) {
-  if (firstShortfallYear === null || firstShortfallYear === undefined) {
-    return 'green';
+function getPlanOutlookCardClass(primaryState) {
+  if (primaryState.key === PLAN_OUTLOOK_STATES.DEPLETED.key) {
+    return 'plan-status-card--weak';
   }
 
-  if (!Number.isFinite(Number(firstShortfallYear))) {
-    return null;
+  if (primaryState.tone === 'red') {
+    return 'plan-status-card--weak';
   }
 
-  if (Number(firstShortfallYear) > 20) return 'amber';
-  return 'red';
+  if (primaryState.tone === 'amber') {
+    return 'plan-status-card--watch';
+  }
+
+  return 'plan-status-card--strong';
+}
+
+function getPlanOutlookIconTokenHtml(icon) {
+  if (icon === 'alert-circle-filled') {
+    return '<span class="plan-status-icon plan-status-icon--alert-circle-filled" aria-hidden="true">!</span>';
+  }
+
+  if (icon === 'alert') {
+    return '<span class="plan-status-icon plan-status-icon--alert" aria-hidden="true">!</span>';
+  }
+
+  if (icon === 'check') {
+    return '<span class="plan-status-icon plan-status-icon--check" aria-hidden="true">✓</span>';
+  }
+
+  return '';
+}
+
+function renderPlanOutlookWarningGroups(warningGroups) {
+  if (!warningGroups.length) {
+    return '';
+  }
+
+  return `
+    <div class="plan-outlook-warnings">
+      <div class="plan-outlook-warnings-grid">
+        ${warningGroups
+          .map(
+            (group) => `
+              <div class="plan-warning-group">
+                <h4 class="plan-warning-group-title">${group.title}</h4>
+                ${group.items
+                  .map(
+                    (text) => `
+                      <div class="plan-warning">⚠ ${text}</div>
+                    `
+                  )
+                  .join('')}
+              </div>
+            `
+          )
+          .join('')}
+      </div>
+    </div>
+  `;
 }
 
 function renderResultsContextAndPathSummary({
@@ -643,7 +745,7 @@ function renderResultsContextAndPathSummary({
 
   const worstFloorGap =
     useReal && worstFloorGapNominal > 0 && minimumFloor > 0
-      ? worstFloorGapNominal / ((minimumFloor * 1) / minimumFloor)
+      ? worstFloorGapNominal
       : worstFloorGapNominal;
 
   const totalYears = rows.length || 0;
@@ -682,194 +784,98 @@ function renderResultsContextAndPathSummary({
       ? 'results-context-metric-subvalue--red'
       : 'results-context-metric-subvalue--green';
 
-  const summarySaysDepleted = Boolean(
-    result?.summary?.depleted ??
-    result?.depleted ??
-    activePath?.depleted
-  );
+  const primaryState = resolvePlanOutlookPrimaryState(result, activePath);
+  const contextNote = resolvePlanOutlookContextNote(result);
 
-  const depletionYearFromSummary =
-    result?.summary?.depletionYear ??
-    result?.depletedYear ??
-    activePath?.depletionYear ??
-    null;
+  const warningGroups = resolvePlanOutlookWarningGroups({
+    result,
+    activePath,
+    useReal,
+    formatters,
+    suppressWarnings: primaryState.key === PLAN_OUTLOOK_STATES.DEPLETED.key
+  });
 
-  const depletionYear = Number.isFinite(Number(depletionYearFromSummary))
-    ? Number(depletionYearFromSummary)
-    : null;
+const detailMetricsHtml = `
+  <div class="results-context-metrics">
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          useReal ? 'Real end value' : 'Nominal end value',
+          'Portfolio value at the end of the selected path.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">${formatCurrency(selectedEndValue ?? 0)}</div>
+        ${
+          endValueChangeDisplay
+            ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
+                 ${endValueChangeDisplay}
+               </div>`
+            : ''
+        }
+      </div>
+    </div>
 
-  const warningData =
-    !isHistorical && result?.monteCarlo
-      ? getPlanWarningsData(result, useReal, formatters, activePath)
-      : { inputWarnings: [], modelWarnings: [], hasWarnings: false };
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          'First spending cut',
+          'The first year when actual spending falls below planned target spending.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">
+          ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+        </div>
+        ${
+          firstCutDisplay
+            ? `<div class="results-context-metric-subvalue ${firstCutClass}">
+                 ${firstCutDisplay}
+               </div>`
+            : ''
+        }
+      </div>
+    </div>
 
-  let status = 'strong';
-  let statusLabel = 'Strong';
-  let statusIcon = '✓';
-  let verdictTitle = 'The plan is on track';
-
-  if (isHistorical) {
-    const depleted = Boolean(result?.summary?.depleted);
-    status = depleted ? 'weak' : 'strong';
-    statusLabel = depleted ? 'Depleted' : 'Sustained';
-    statusIcon = depleted ? '×' : '✓';
-    verdictTitle = depleted
-      ? `Historical path depleted${depletionYear ? ` in Year ${depletionYear}` : ''}`
-      : 'Historical path sustained';
-  } else if (!isDeterministic && result?.monteCarlo) {
-    const successRate = Number(result.monteCarlo.successRate ?? 0);
-
-    if (successRate < 0.7) {
-      status = 'weak';
-      statusLabel = 'Weak';
-      statusIcon = '×';
-      verdictTitle = 'The plan is under pressure';
-    } else if (successRate < 0.9) {
-      status = 'watch';
-      statusLabel = 'Watch';
-      statusIcon = '!';
-      verdictTitle = 'The plan is sensitive to conditions';
-    }
-  }
-
-  const warningsHtml = isHistorical
-    ? `
-      <div class="plan-outlook-warnings">
-        <div class="plan-warning-ok">
-          Historical mode is showing one selected return sequence rather than Monte Carlo risk ranges.
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          'Worst shortfall vs minimum',
+          'The largest gap in any year between actual spending and your minimum acceptable spending level.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">
+          ${
+            worstFloorGap > 0
+              ? `${formatCurrency(worstFloorGap)}${
+                  worstFloorYear ? ` (Year ${worstFloorYear})` : ''
+                }`
+              : 'None'
+          }
+        </div>
+        <div class="results-context-metric-subvalue ${floorHeadroomClass}">
+          ${floorHeadroomDisplay}
         </div>
       </div>
-    `
-    : warningData.hasWarnings
-      ? `
-        <div class="plan-outlook-warnings">
-          <div class="plan-outlook-warnings-grid">
-            ${
-              warningData.inputWarnings.length
-                ? `
-                  <div class="plan-warning-group">
-                    <h4 class="plan-warning-group-title">Input risk</h4>
-                    ${warningData.inputWarnings
-                      .map(
-                        (text) => `
-                          <div class="plan-warning">⚠ ${text}</div>
-                        `
-                      )
-                      .join('')}
-                  </div>
-                `
-                : ''
-            }
-            ${
-              warningData.modelWarnings.length
-                ? `
-                  <div class="plan-warning-group">
-                    <h4 class="plan-warning-group-title">Model risk</h4>
-                    ${warningData.modelWarnings
-                      .map(
-                        (text) => `
-                          <div class="plan-warning">⚠ ${text}</div>
-                        `
-                      )
-                      .join('')}
-                  </div>
-                `
-                : ''
-            }
-          </div>
-        </div>
-      `
-      : `
-        <div class="plan-outlook-warnings">
-          <div class="plan-warning-ok">
-            ✓ No major risks detected in current plan assumptions.
-          </div>
-        </div>
-      `;
+    </div>
 
-  const detailMetricsHtml = isHistorical
-    ? ''
-    : `
-      <div class="results-context-metrics">
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              useReal ? 'Real end value' : 'Nominal end value',
-              'Portfolio value at the end of the selected path.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">${formatCurrency(selectedEndValue ?? 0)}</div>
-            ${
-              endValueChangeDisplay
-                ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                     ${endValueChangeDisplay}
-                   </div>`
-                : ''
-            }
-          </div>
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              'First spending cut',
-              'The first year when actual spending falls below planned target spending.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">
-              ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
-            </div>
-            ${
-              firstCutDisplay
-                ? `<div class="results-context-metric-subvalue ${firstCutClass}">
-                     ${firstCutDisplay}
-                   </div>`
-                : ''
-            }
-          </div>
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              'Worst shortfall vs minimum',
-              'The largest gap in any year between actual spending and your minimum acceptable spending level.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">
-              ${
-                worstFloorGap > 0
-                  ? `${formatCurrency(worstFloorGap)}${
-                      worstFloorYear ? ` (Year ${worstFloorYear})` : ''
-                    }`
-                  : 'None'
-              }
-            </div>
-            <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-              ${floorHeadroomDisplay}
-            </div>
-          </div>
-        </div>
-
-        <div class="results-context-metric">
-          <div class="results-context-metric-label">
-            ${renderMetricHeading(
-              'Years below minimum',
-              'Number of years when actual spending falls below your minimum spending level.'
-            )}
-          </div>
-          <div class="results-context-metric-body">
-            <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-            <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-              ${floorBreachYearsDisplay}
-            </div>
-          </div>
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">
+        ${renderMetricHeading(
+          'Years below minimum',
+          'Number of years when actual spending falls below your minimum spending level.'
+        )}
+      </div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
+        <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
+          ${floorBreachYearsDisplay}
         </div>
       </div>
-    `;
+    </div>
+  </div>
+`;
 
   const headerControls = isHistorical
     ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
@@ -883,25 +889,12 @@ function renderResultsContextAndPathSummary({
         </div>
       `;
 
-  const depletionAlertHtml = summarySaysDepleted
-    ? `
-      <div class="results-context-alert results-context-alert--warning">
-        <div class="results-context-alert-icon" aria-hidden="true">!</div>
-        <div class="results-context-alert-body">
-          <div class="results-context-alert-title">
-            Plan warning: portfolio depleted${depletionYear ? ` in Year ${depletionYear}` : ''}
-          </div>
-          <div class="results-context-alert-text">
-            After depletion, spending is limited to guaranteed income only.
-          </div>
-        </div>
-      </div>
-    `
-    : '';
+  const primaryCardClass = getPlanOutlookCardClass(primaryState);
+  const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
+  const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
 
   container.innerHTML = `
-    <div class="results-context-card results-context-card--merged${summarySaysDepleted ? ' results-context-card--warning' : ''}">
-      <div class="results-context-panel-header">
+      <div class="results-context-card results-context-card--merged">      <div class="results-context-panel-header">
         <div class="card-title-block">
           <h2>Plan outlook</h2>
           <p>A combined view of plan resilience, key risks, and supporting outcome metrics.</p>
@@ -912,15 +905,23 @@ function renderResultsContextAndPathSummary({
         </div>
       </div>
 
+      ${contextNote ? `
+        <div class="results-context-inline-note">
+          ${contextNote.body}
+        </div>
+      ` : ''}
+
       ${detailMetricsHtml}
 
       <div class="retirement-outlook-hero">
-        <div class="plan-status-card plan-status-card--${status}">
+        <div class="plan-status-card ${primaryCardClass}">
           <div class="plan-status-inline">
-            ${statusIcon} ${statusLabel}: ${verdictTitle}
+            ${primaryIconHtml}
+            <span class="plan-status-label">${primaryState.resolvedTitle}</span>
           </div>
-
-          ${depletionAlertHtml}
+          <div class="plan-status-copy">
+            ${primaryState.resolvedBody}
+          </div>
         </div>
       </div>
 
@@ -1013,8 +1014,6 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
 
     return;
   }
-
-  // Monte Carlo (default)
 
   if (elements.summarySuccessRateLabel) {
     elements.summarySuccessRateLabel.textContent = 'Success rate';
@@ -1155,12 +1154,6 @@ function getRowShortfall(row, useReal, fallbackTarget = 0) {
   const target = getRowTargetSpending(row, useReal, fallbackTarget);
   const actual = getRowActualSpending(row, useReal);
   return Math.max(0, target - actual);
-}
-
-function formatInteger(value) {
-  return new Intl.NumberFormat('en-GB', {
-    maximumFractionDigits: 0
-  }).format(value);
 }
 
 const glossaryButton = document.getElementById('explainOutlookTerms');
