@@ -22,6 +22,7 @@ export const DEFAULT_INPUTS = {
   equityAllocation: 60,
   bondAllocation: 20,
   cashlikeAllocation: 20,
+  annualFeeRate: 0.0027, 
   rebalanceToTarget: true,
 
   equityReturn: 7,
@@ -30,6 +31,7 @@ export const DEFAULT_INPUTS = {
   bondVolatility: 7,
   cashlikeReturn: 4,
   cashlikeVolatility: 1,
+  annualFeeRate: 0.27,
   inflation: 2.5,
 
   person1Name: 'Person 1',
@@ -193,6 +195,7 @@ function normaliseInputs(rawInputs = {}) {
     bondVolatility: toRate(merged.bondVolatility),
     cashlikeReturn: toRate(merged.cashlikeReturn),
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
+    annualFeeRate: toRate(merged.annualFeeRate),
     inflation: toRate(merged.inflation),
 
     person1Name:
@@ -434,19 +437,20 @@ function simulatePath(inputs, annualReturns) {
     const bondReturn = annualReturns.bonds[yearIndex] ?? inputs.bondReturn;
     const cashReturn = annualReturns.cashlike[yearIndex] ?? inputs.cashlikeReturn;
     const inflationRate = annualReturns.inflation[yearIndex] ?? inputs.inflation;
+    const annualFeeRate = inputs.annualFeeRate ?? 0;
 
     applyAssetReturns(buckets, {
-      equities: eqReturn,
-      bonds: bondReturn,
-      cashlike: cashReturn
+      equities: eqReturn - annualFeeRate,
+      bonds: bondReturn - annualFeeRate,
+      cashlike: cashReturn - annualFeeRate
     });
 
     const realisedReturn = weightedAverageReturn({
       allocations,
       returns: {
-        equities: eqReturn,
-        bonds: bondReturn,
-        cashlike: cashReturn
+        equities: eqReturn - annualFeeRate,
+        bonds: bondReturn - annualFeeRate,
+        cashlike: cashReturn - annualFeeRate
       }
     });
 
