@@ -189,6 +189,7 @@ export function createPlanForm(
     setFieldValue(elements, 'years', defaults.years);
     setFieldValue(elements, 'initialPortfolio', defaults.initialPortfolio, true, formatInteger);
     setFieldValue(elements, 'initialSpending', defaults.initialSpending, true, formatInteger);
+    setFieldValue(elements, 'annualFeeRate', defaults.annualFeeRate ?? 0);
 
     setFieldValue(
       elements,
@@ -490,6 +491,7 @@ export function createPlanForm(
       years: parseLooseInteger(elements.years?.value),
       initialPortfolio: parseLooseNumber(elements.initialPortfolio?.value),
       initialSpending: parseLooseNumber(elements.initialSpending?.value),
+      annualFeeRate: parseLooseNumber(elements.annualFeeRate?.value),
       comfortSpending: parseLooseNumber(elements.comfortSpending?.value),
       minimumSpending: parseLooseNumber(elements.minimumSpending?.value),
       equityAllocation: parseLooseNumber(elements.equityAllocation?.value),
