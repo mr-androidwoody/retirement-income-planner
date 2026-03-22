@@ -1408,6 +1408,8 @@ input[type="checkbox"]{
   line-height:1.2;
 }
 
+
+
 .person-panel__body{
   display:grid;
   gap:12px;
@@ -1424,22 +1426,15 @@ input[type="checkbox"]{
   background:rgba(255,255,255,0.18);
 }
 
-.person-panel-disabled *{
+.person-panel-disabled .person-panel__body{
   pointer-events:none;
 }
 
-.person-panel-disabled .person-toggle{
-  pointer-events:auto;
-}
-
-.person-panel-disabled input,
-.person-panel-disabled select,
-.person-panel-disabled textarea{
+.person-panel-disabled .person-panel__body input,
+.person-panel-disabled .person-panel__body select,
+.person-panel-disabled .person-panel__body textarea,
+.person-panel-disabled .person-panel__body button{
   cursor:not-allowed;
-}
-
-.person-panel-disabled .switch-control{
-  opacity:0.7;
 }
 
 /* ========================================
