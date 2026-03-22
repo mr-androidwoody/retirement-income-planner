@@ -2868,20 +2868,20 @@ input[type="checkbox"]{
    Performance summary overlay
    ======================================== */
 
-.performance-summary-trigger{
+.table-view-selector .performance-summary-trigger{
   background:var(--accent);
   color:#ffffff;
-  border-color:var(--accent);
+  border:1px solid var(--accent);
   box-shadow:0 6px 16px rgba(45, 91, 255, 0.18);
 }
 
-.performance-summary-trigger:hover{
+.table-view-selector .performance-summary-trigger:hover{
   background:#244ee6;
   border-color:#244ee6;
   color:#ffffff;
 }
 
-.performance-summary-trigger:focus-visible{
+.table-view-selector .performance-summary-trigger:focus-visible{
   outline:2px solid rgba(45, 91, 255, 0.28);
   outline-offset:2px;
 }
@@ -2928,6 +2928,14 @@ input[type="checkbox"]{
   letter-spacing:-0.02em;
 }
 
+.performance-summary-metric__value--positive{
+  color:#16a34a;
+}
+
+.performance-summary-metric__value--negative{
+  color:#dc2626;
+}
+
 @media (max-width: 720px){
   #performanceSummaryOverlay .outlook-glossary-dialog{
     width:min(100vw - 20px, 900px);
@@ -2949,7 +2957,7 @@ input[type="checkbox"]{
 }
 
 /* ========================================
-   Table view selector (NEW)
+   Table view selector
    ======================================== */
 
 .table-view-selector,
@@ -2966,6 +2974,7 @@ input[type="checkbox"]{
   border-radius:9px;
   border:1px solid #cfd8e8;
   background:#fff;
+  color:var(--text);
   cursor:pointer;
   font-size:0.8rem;
   font-weight:700;
@@ -2990,6 +2999,24 @@ input[type="checkbox"]{
   color:#fff;
   border-color:#162033;
   box-shadow:0 4px 10px rgba(22, 32, 51, 0.12);
+}
+
+.table-view-selector .performance-summary-trigger{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+  box-shadow:0 4px 10px rgba(45, 91, 255, 0.18);
+}
+
+.table-view-selector .performance-summary-trigger:hover{
+  background:#244ee6;
+  color:#fff;
+  border-color:#244ee6;
+}
+
+.table-view-selector .performance-summary-trigger:focus-visible{
+  outline:2px solid rgba(45, 91, 255, 0.28);
+  outline-offset:2px;
 }
 
 .results-table-note{
@@ -3047,6 +3074,14 @@ input[type="checkbox"]{
 }
 
 .results-table-legend-arrow--down{
+  color:#dc2626;
+}
+
+.performance-summary-metric__value--positive{
+  color:#16a34a;
+}
+
+.performance-summary-metric__value--negative{
   color:#dc2626;
 }
 
