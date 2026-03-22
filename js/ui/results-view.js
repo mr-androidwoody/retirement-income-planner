@@ -488,21 +488,29 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
 
   const { formatPercent } = formatters;
 
-  const value = (v) =>
-    Number.isFinite(v) ? formatPercent(v) : '—';
+  const valueWithClass = (v, { signed = false } = {}) => {
+    if (!Number.isFinite(v)) {
+      return { text: '—', className: '' };
+    }
 
-  const signed = (v) =>
-    Number.isFinite(v)
-      ? `${v > 0 ? '+' : ''}${formatPercent(v)}`
-      : '—';
+    return {
+      text: `${signed && v > 0 ? '+' : ''}${formatPercent(v)}`,
+      className:
+        v > 0
+          ? 'performance-summary-metric__value--positive'
+          : v < 0
+            ? 'performance-summary-metric__value--negative'
+            : ''
+    };
+  };
 
   const items = [
-    ['Portfolio value CAGR', value(summary.portfolioValueCagr)],
-    ['Market CAGR', value(summary.marketCagr)],
-    ['Return gap', signed(summary.returnGap)],
-    ['Max drawdown', value(summary.maxDrawdown)],
-    ['Worst year return', value(summary.worstYearReturn)],
-    ['Worst rolling 5-year return', value(summary.worstRollingFiveYearReturn)]
+    ['Portfolio value CAGR', valueWithClass(summary.portfolioValueCagr)],
+    ['Market CAGR', valueWithClass(summary.marketCagr)],
+    ['Return gap', valueWithClass(summary.returnGap, { signed: true })],
+    ['Max drawdown', valueWithClass(summary.maxDrawdown)],
+    ['Worst year return', valueWithClass(summary.worstYearReturn)],
+    ['Worst rolling 5-year return', valueWithClass(summary.worstRollingFiveYearReturn)]
   ];
 
   return `
@@ -512,7 +520,9 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
           ([label, val]) => `
             <div class="performance-summary-metric">
               <div class="performance-summary-metric__label">${label}</div>
-              <div class="performance-summary-metric__value">${val}</div>
+              <div class="performance-summary-metric__value ${val.className}">
+                ${val.text}
+              </div>
             </div>
           `
         )
