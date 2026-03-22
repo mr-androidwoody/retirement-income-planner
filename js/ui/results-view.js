@@ -84,7 +84,7 @@ function getTableViewSelectorHtml(tableView) {
   `;
 }
 
-function renderTableViewSelector(elements, result, tableView) {
+function renderTableViewSelector(elements, result, tableView, tableMode) {
   const selector = elements?.tableViewSelector;
   if (!selector) return;
 
@@ -97,7 +97,25 @@ function renderTableViewSelector(elements, result, tableView) {
     return;
   }
 
-  selector.innerHTML = getTableViewSelectorHtml(tableView);
+  selector.innerHTML = `
+  <div class="table-view-selector-group">
+    ${getTableViewSelectorHtml(tableView)}
+  </div>
+
+  ${
+    tableMode === 'performance'
+      ? `
+        <button
+          type="button"
+          id="openPerformanceSummary"
+          class="button button--secondary button--small performance-summary-trigger"
+        >
+          Key metrics
+        </button>
+      `
+      : ''
+  }
+`;
   selector.classList.remove('hidden');
 }
 
@@ -202,7 +220,24 @@ export function renderResultsView({
 
   renderTableModeSelector(elements, tableMode);
   renderResultsTableIntro(elements, tableMode);
-  renderTableViewSelector(elements, result, tableView);
+  renderTableViewSelector(elements, result, tableView, tableMode);
+
+if (tableMode === 'performance') {
+  const button = document.getElementById('openPerformanceSummary');
+
+  if (button) {
+    const summary = computePerformanceSummary(rows);
+
+    button.replaceWith(button.cloneNode(true));
+    const newButton = document.getElementById('openPerformanceSummary');
+
+    if (newButton) {
+      newButton.onclick = () => {
+        openPerformanceSummaryOverlay(summary, { formatPercent });
+      };
+    }
+  }
+}
 
   renderSummaryCardLabels(elements, result, activePath, tableView);
 
@@ -300,12 +335,7 @@ export function renderResultsView({
   renderResultsTableLegend(elements, result, tableMode);
 
   if (tableMode === 'performance') {
-    renderPerformanceSummary({
-      elements,
-      rows,
-      formatCurrency,
-      formatPercent
-    });
+    clearPerformanceSummary(elements);
 
     renderPerformanceTable(elements.resultsTable, rows, formatCurrency, {
       activePath,
@@ -332,19 +362,20 @@ function clearPerformanceSummary(elements) {
   container.classList.add('hidden');
 }
 
-function renderPerformanceSummary({
-  elements,
-  rows,
-  formatCurrency,
-  formatPercent
-}) {
-  const container = elements?.performanceSummary;
-  if (!container) return;
-
-  if (!rows || !rows.length) {
-    container.innerHTML = '';
-    container.classList.add('hidden');
-    return;
+function computePerformanceSummary(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return {
+      startValue: null,
+      endValue: null,
+      years: 0,
+      portfolioValueCagr: null,
+      marketCagr: null,
+      returnGap: null,
+      maxDrawdown: null,
+      worstYearReturn: null,
+      worstRollingFiveYearReturn: null,
+      validMarketYears: 0
+    };
   }
 
   const firstRow = rows[0];
@@ -354,22 +385,25 @@ function renderPerformanceSummary({
   const endValue = Number(lastRow?.endPortfolioNominal);
   const years = rows.length;
 
-  const portfolioCagr =
+  const portfolioValueCagr =
     Number.isFinite(startValue) &&
     Number.isFinite(endValue) &&
     startValue > 0 &&
+    endValue > 0 &&
     years > 0
       ? Math.pow(endValue / startValue, 1 / years) - 1
       : null;
 
-  const marketGrowthFactor = rows.reduce((acc, row) => {
-    const r = Number(row?.marketReturn);
-    return Number.isFinite(r) ? acc * (1 + r) : acc;
-  }, 1);
+  let marketGrowthFactor = 1;
+  let validMarketYears = 0;
 
-  const validMarketYears = rows.filter((row) =>
-    Number.isFinite(Number(row?.marketReturn))
-  ).length;
+  rows.forEach((row) => {
+    const r = Number(row?.marketReturn);
+    if (Number.isFinite(r)) {
+      marketGrowthFactor *= (1 + r);
+      validMarketYears += 1;
+    }
+  });
 
   const marketCagr =
     validMarketYears > 0 && marketGrowthFactor > 0
@@ -377,8 +411,8 @@ function renderPerformanceSummary({
       : null;
 
   const returnGap =
-    portfolioCagr !== null && marketCagr !== null
-      ? portfolioCagr - marketCagr
+    Number.isFinite(portfolioValueCagr) && Number.isFinite(marketCagr)
+      ? portfolioValueCagr - marketCagr
       : null;
 
   let peak = Number.isFinite(Number(firstRow?.endPortfolioNominal))
@@ -401,110 +435,123 @@ function renderPerformanceSummary({
     }
   });
 
-  const worstYearReturn = rows.reduce((worst, row) => {
-    const r = Number(row?.marketReturn);
-    if (!Number.isFinite(r)) return worst;
-    return worst === null || r < worst ? r : worst;
-  }, null);
+  let worstYearReturn = null;
 
-  const rollingFiveYearReturns = [];
+  rows.forEach((row) => {
+    const r = Number(row?.marketReturn);
+    if (!Number.isFinite(r)) return;
+
+    if (worstYearReturn === null || r < worstYearReturn) {
+      worstYearReturn = r;
+    }
+  });
+
+  let worstRollingFiveYearReturn = null;
 
   for (let index = 5; index < rows.length; index += 1) {
-    const start = Number(rows[index - 5]?.endPortfolioNominal);
-    const end = Number(rows[index]?.endPortfolioNominal);
+    const start5 = Number(rows[index - 5]?.endPortfolioNominal);
+    const end5 = Number(rows[index]?.endPortfolioNominal);
 
     if (
-      Number.isFinite(start) &&
-      Number.isFinite(end) &&
-      start > 0 &&
-      end > 0
+      Number.isFinite(start5) &&
+      Number.isFinite(end5) &&
+      start5 > 0 &&
+      end5 > 0
     ) {
-      rollingFiveYearReturns.push(Math.pow(end / start, 1 / 5) - 1);
+      const rolling5 = Math.pow(end5 / start5, 1 / 5) - 1;
+
+      if (
+        worstRollingFiveYearReturn === null ||
+        rolling5 < worstRollingFiveYearReturn
+      ) {
+        worstRollingFiveYearReturn = rolling5;
+      }
     }
   }
 
-  const worstRollingFiveYear =
-    rollingFiveYearReturns.length > 0
-      ? Math.min(...rollingFiveYearReturns)
-      : null;
-
-  const subvalueClass = (value) => {
-    if (!Number.isFinite(value)) return '';
-    return value >= 0
-      ? 'results-context-metric-subvalue--green'
-      : 'results-context-metric-subvalue--red';
+  return {
+    startValue,
+    endValue,
+    years,
+    portfolioValueCagr,
+    marketCagr,
+    returnGap,
+    maxDrawdown,
+    worstYearReturn,
+    worstRollingFiveYearReturn,
+    validMarketYears
   };
+}
 
-  const metricHtml = (label, value, subvalue = '', subClass = '') => `
-    <div class="results-context-metric">
-      <div class="results-context-metric-label">${label}</div>
-      <div class="results-context-metric-body">
-        <div class="results-context-metric-value">${value}</div>
-        ${
-          subvalue
-            ? `<div class="results-context-metric-subvalue ${subClass}">${subvalue}</div>`
-            : ''
-        }
-      </div>
+function renderPerformanceSummaryOverlayBody(summary, formatters) {
+  if (!summary) return '';
+
+  const { formatPercent } = formatters;
+
+  const value = (v) =>
+    Number.isFinite(v) ? formatPercent(v) : '—';
+
+  const signed = (v) =>
+    Number.isFinite(v)
+      ? `${v > 0 ? '+' : ''}${formatPercent(v)}`
+      : '—';
+
+  const items = [
+    ['Portfolio value CAGR', value(summary.portfolioValueCagr)],
+    ['Market CAGR', value(summary.marketCagr)],
+    ['Return gap', signed(summary.returnGap)],
+    ['Max drawdown', value(summary.maxDrawdown)],
+    ['Worst year return', value(summary.worstYearReturn)],
+    ['Worst rolling 5-year return', value(summary.worstRollingFiveYearReturn)]
+  ];
+
+  return `
+    <div class="performance-summary-grid">
+      ${items
+        .map(
+          ([label, val]) => `
+            <div class="performance-summary-metric">
+              <div class="performance-summary-metric__label">${label}</div>
+              <div class="performance-summary-metric__value">${val}</div>
+            </div>
+          `
+        )
+        .join('')}
     </div>
   `;
+}
 
-  container.innerHTML = `
-    <div class="results-context-card results-context-card--merged">
-      <div class="results-context-panel-header">
-        <div class="card-title-block">
-          <h2>Performance summary</h2>
-          <p>Key investment outcome metrics for the selected path.</p>
-        </div>
-      </div>
+function openPerformanceSummaryOverlay(summary, formatters) {
+  const overlay = document.getElementById('performanceSummaryOverlay');
+  const body = document.getElementById('performanceSummaryBody');
 
-      <div class="results-context-metrics">
-        ${metricHtml(
-          'Portfolio value CAGR',
-          portfolioCagr !== null ? formatPercent(portfolioCagr) : '—',
-          endValue > 0 ? `End value: ${formatCurrency(endValue)}` : '',
-          subvalueClass(portfolioCagr)
-        )}
+  if (!overlay || !body || !summary) return;
 
-        ${metricHtml(
-          'Market CAGR',
-          marketCagr !== null ? formatPercent(marketCagr) : '—',
-          validMarketYears > 0 ? `${validMarketYears} yearly observations` : '',
-          subvalueClass(marketCagr)
-        )}
+  body.innerHTML = renderPerformanceSummaryOverlayBody(summary, formatters);
 
-        ${metricHtml(
-          'Return gap',
-          returnGap !== null ? formatPercent(returnGap) : '—',
-          'Portfolio value CAGR minus market CAGR',
-          subvalueClass(returnGap)
-        )}
+  overlay.classList.remove('hidden');
+  document.body.classList.add('glossary-open');
+}
 
-        ${metricHtml(
-          'Max drawdown',
-          formatPercent(maxDrawdown),
-          'Largest end-of-year fall from prior peak',
-          subvalueClass(maxDrawdown)
-        )}
+function closePerformanceSummaryOverlay() {
+  const overlay = document.getElementById('performanceSummaryOverlay');
+  const body = document.getElementById('performanceSummaryBody');
+  const glossaryOverlay = document.getElementById('outlookGlossaryOverlay');
 
-        ${metricHtml(
-          'Worst year return',
-          worstYearReturn !== null ? formatPercent(worstYearReturn) : '—',
-          'Weakest single market year on this path',
-          subvalueClass(worstYearReturn)
-        )}
+  if (!overlay || !body) return;
 
-        ${metricHtml(
-          'Worst rolling 5-year return',
-          worstRollingFiveYear !== null ? formatPercent(worstRollingFiveYear) : '—',
-          'Weakest annualised 5-year period',
-          subvalueClass(worstRollingFiveYear)
-        )}
-      </div>
-    </div>
-  `;
+  overlay.classList.add('hidden');
+  body.innerHTML = '';
 
-  container.classList.remove('hidden');
+  const glossaryOpen =
+    glossaryOverlay && !glossaryOverlay.classList.contains('hidden');
+
+  const performanceOpen =
+    overlay && !overlay.classList.contains('hidden');
+
+  if (!glossaryOpen && !performanceOpen) {
+    document.body.classList.remove('glossary-open');
+  }
 }
     
 function getSelectedPathEndValue(activePath, rows, useReal) {
@@ -1281,7 +1328,7 @@ function renderResultsTableNote(elements, result, activePath, tableMode) {
 
   if (tableMode === 'performance') {
     note.textContent =
-      'Performance view compares market returns with changes in portfolio value, and shows drawdowns and rolling performance over time.'
+      'Performance view compares market returns with changes in portfolio value, and shows drawdowns and rolling performance over time.';
     note.classList.remove('hidden');
     return;
   }
@@ -1395,6 +1442,9 @@ const glossaryOverlay = document.getElementById('outlookGlossaryOverlay');
 const glossaryClose = document.getElementById('closeOutlookGlossary');
 const glossaryBackdrop = glossaryOverlay?.querySelector('.outlook-glossary-backdrop');
 
+const performanceOverlay = document.getElementById('performanceSummaryOverlay');
+const performanceCloseButtons = document.querySelectorAll('[data-performance-summary-close]');
+
 if (glossaryButton && glossaryOverlay) {
   glossaryButton.addEventListener('click', () => {
     glossaryOverlay.classList.remove('hidden');
@@ -1416,12 +1466,23 @@ if (glossaryBackdrop && glossaryOverlay) {
   });
 }
 
+if (performanceCloseButtons && performanceCloseButtons.length) {
+  performanceCloseButtons.forEach((el) => {
+    el.addEventListener('click', () => {
+      closePerformanceSummaryOverlay();
+    });
+  });
+}
+
 document.addEventListener('keydown', (event) => {
-  if (
-    event.key === 'Escape' &&
-    glossaryOverlay &&
-    !glossaryOverlay.classList.contains('hidden')
-  ) {
+  if (event.key !== 'Escape') return;
+
+  if (performanceOverlay && !performanceOverlay.classList.contains('hidden')) {
+    closePerformanceSummaryOverlay();
+    return;
+  }
+
+  if (glossaryOverlay && !glossaryOverlay.classList.contains('hidden')) {
     glossaryOverlay.classList.add('hidden');
     document.body.classList.remove('glossary-open');
   }
