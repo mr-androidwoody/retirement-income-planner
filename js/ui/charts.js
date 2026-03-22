@@ -188,53 +188,54 @@ const withdrawalValues = rows.map((r) => {
     }))
     .filter((x) => x.cut > 0);
 
-  drawLineChart(canvas, {
-    labels: rows.map((r) => r.year),
-
-    stackedAreas: [
-      {
-        label: 'Other income',
-        values: otherIncomeValues,
-        color: 'rgba(5,150,105,0.18)',
-        strokeColor: '#059669'
+    drawLineChart(canvas, {
+      labels: rows.map((r) => r.year),
+    
+      stackedAreas: [
+        {
+          label: 'State pension income',
+          values: pensionValues,
+          color: 'rgba(249,115,22,0.25)',
+          strokeColor: '#f97316'
+        },
+        {
+          label: 'Other income',
+          values: otherIncomeValues,
+          color: 'rgba(5,150,105,0.18)',
+          strokeColor: '#059669'
+        },
+        {
+          label: 'Withdrawals from portfolio',
+          values: withdrawalValues,
+          color: 'rgba(220,38,38,0.18)',
+          strokeColor: '#dc2626'
+        }
+      ],
+    
+      gapBand: {
+        upper: targetValues,
+        lower: actualValues,
+        fillStyle: 'rgba(220, 38, 38, 0.16)',
+        strokeStyle: '#dc2626',
+        label: 'Spending shortfall'
       },
-      {
-        label: 'State pension income',
-        values: pensionValues,
-        color: 'rgba(249,115,22,0.25)',
-        strokeColor: '#f97316'
-      },
-      {
-        label: 'Portfolio withdrawals',
-        values: withdrawalValues,
-        color: 'rgba(220,38,38,0.18)',
-        strokeColor: '#dc2626'
-      }
-    ],
-
-    gapBand: {
-      upper: targetValues,
-      lower: actualValues,
-      fillStyle: 'rgba(220, 38, 38, 0.16)',
-      strokeStyle: '#dc2626'
-    },
-
-    lines: [
-      {
-        label: 'Planned household spending',
-        values: targetValues,
-        color: '#7c3aed',
-        width: 2,
-        dash: [8, 6]
-      },
-      {
-        label: 'Actual spending after guardrails',
-        values: actualValues,
-        color: '#4f46e5',
-        width: 3,
-        markers: cutYears.map((c) => c.index)
-      }
-    ],
+    
+      lines: [
+        {
+          label: 'Planned household spending',
+          values: targetValues,
+          color: '#7c3aed',
+          width: 2,
+          dash: [8, 6]
+        },
+        {
+          label: 'Actual spending after guardrails',
+          values: actualValues,
+          color: '#4f46e5',
+          width: 3,
+          markers: cutYears.map((c) => c.index)
+        }
+      ],
 
     verticalMarkers: [
       cutDiagnostics?.firstCutYear != null
@@ -336,7 +337,7 @@ function drawLineChart(canvas, config) {
     })),
     ...(config.gapBand
       ? [{
-          label: 'Shortfall gap',
+          label: config.gapBand.label || 'Spending shortfall',
           color: config.gapBand.strokeStyle || '#dc2626',
           width: 2
         }]
