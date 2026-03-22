@@ -13,6 +13,7 @@ const els = {
   initialSpending: document.getElementById('initialSpending'),
   comfortSpending: document.getElementById('comfortSpending'),
   minimumSpending: document.getElementById('minimumSpending'),
+  annualFeeRate: document.getElementById('annualFeeRate'),
 
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
