@@ -195,28 +195,28 @@ const withdrawalValues = rows.map((r) => {
         {
           label: 'Other income',
           values: otherIncomeValues,
-          color: 'rgba(5,150,105,0.18)',
-          strokeColor: '#059669'
+          color: 'rgba(16,185,129,0.25)',   // clearer green
+          strokeColor: '#10b981'
         },
         {
           label: 'State pension income',
           values: pensionValues,
-          color: 'rgba(249,115,22,0.25)',
-          strokeColor: '#f97316'
+          color: 'rgba(245,158,11,0.28)',   // amber (distinct from green/red)
+          strokeColor: '#f59e0b'
         },
         {
           label: 'Withdrawals from portfolio',
           values: withdrawalValues,
-          color: 'rgba(220,38,38,0.18)',
-          strokeColor: '#dc2626'
+          color: 'rgba(239,68,68,0.22)',    // red (lighter than gap)
+          strokeColor: '#ef4444'
         }
       ],
     
       gapBand: {
         upper: targetValues,
         lower: actualValues,
-        fillStyle: 'rgba(220, 38, 38, 0.16)',
-        strokeStyle: '#dc2626',
+        fillStyle: 'rgba(220, 38, 38, 0.12)',  // lighter, less dominant
+        strokeStyle: '#b91c1c',                // darker edge for clarity
         label: 'Spending shortfall'
       },
     
