@@ -158,7 +158,7 @@ export function createPlanForm(
     const include = Boolean(elements.includePerson2?.checked ?? true);
 
     if (elements.person2Panel) {
-      elements.person2Panel.classList.toggle('hidden', !include);
+      elements.person2Panel.classList.toggle('person-panel-disabled', !include);
     }
 
     if (elements.person2Name) elements.person2Name.disabled = !include;
