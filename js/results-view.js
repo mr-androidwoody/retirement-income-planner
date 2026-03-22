@@ -80,33 +80,28 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
   const selector = elements?.tableViewSelector;
   if (!selector) return;
 
-  const mode = String(result?.mode ?? '').toLowerCase();
-  const isHistorical = mode === 'historical';
+  selector.innerHTML = `
+    <div class="table-view-selector-group">
+      ${getTableViewSelectorHtml(tableView)}
+    </div>
 
-  if (isHistorical) {
-    selector.innerHTML = `
-      <div class="table-view-selector-group">
-        ${getTableViewSelectorHtml(tableView)}
-      </div>
+    ${
+      tableMode === 'performance'
+        ? `
+          <button
+            type="button"
+            id="openPerformanceSummary"
+            class="button button--secondary button--small performance-summary-trigger"
+          >
+            Key metrics
+          </button>
+        `
+        : ''
+    }
+  `;
 
-      ${
-        tableMode === 'performance'
-          ? `
-            <button
-              type="button"
-              id="openPerformanceSummary"
-              class="button button--secondary button--small performance-summary-trigger"
-            >
-              Key metrics
-            </button>
-          `
-          : ''
-      }
-    `;
-
-    selector.classList.remove('hidden');
-    return;
-  }
+  selector.classList.remove('hidden');
+}
 
   selector.innerHTML = `
     <div class="table-view-selector-group">
