@@ -505,23 +505,48 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
   };
 
   const items = [
-    ['Portfolio value CAGR', valueWithClass(summary.portfolioValueCagr)],
-    ['Market CAGR', valueWithClass(summary.marketCagr)],
-    ['Return gap', valueWithClass(summary.returnGap, { signed: true })],
-    ['Max drawdown', valueWithClass(summary.maxDrawdown)],
-    ['Worst year return', valueWithClass(summary.worstYearReturn)],
-    ['Worst rolling 5-year return', valueWithClass(summary.worstRollingFiveYearReturn)]
+    {
+      label: 'Portfolio value CAGR',
+      description: 'Annualised growth of your portfolio value',
+      value: valueWithClass(summary.portfolioValueCagr)
+    },
+    {
+      label: 'Market CAGR',
+      description: 'Annualised return of the underlying market',
+      value: valueWithClass(summary.marketCagr)
+    },
+    {
+      label: 'Return gap',
+      description: 'Difference between your returns and the market',
+      value: valueWithClass(summary.returnGap, { signed: true })
+    },
+    {
+      label: 'Max drawdown',
+      description: 'Largest peak-to-trough portfolio fall',
+      value: valueWithClass(summary.maxDrawdown)
+    },
+    {
+      label: 'Worst year return',
+      description: 'Largest loss in a single year',
+      value: valueWithClass(summary.worstYearReturn)
+    },
+    {
+      label: 'Worst rolling 5-year return',
+      description: 'Worst annualised return over any 5-year period',
+      value: valueWithClass(summary.worstRollingFiveYearReturn)
+    }
   ];
 
   return `
     <div class="performance-summary-grid">
       ${items
         .map(
-          ([label, val]) => `
+          ({ label, description, value }) => `
             <div class="performance-summary-metric">
               <div class="performance-summary-metric__label">${label}</div>
-              <div class="performance-summary-metric__value ${val.className}">
-                ${val.text}
+              <div class="performance-summary-metric__description">${description}</div>
+              <div class="performance-summary-metric__value ${value.className}">
+                ${value.text}
               </div>
             </div>
           `
