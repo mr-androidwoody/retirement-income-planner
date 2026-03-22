@@ -284,17 +284,37 @@ if (tableMode === 'performance') {
 
   renderSummaryCardLabels(elements, result, activePath, tableView);
 
-  if (elements.summarySuccessRate) {
-    if (isHistorical) {
-      elements.summarySuccessRate.textContent = result?.summary?.depleted
-        ? 'Depleted'
-        : 'Sustained';
+if (elements.summarySuccessRate) {
+  const card = document.getElementById('summarySuccessRateCard');
+
+  if (card) {
+    card.classList.remove('is-strong', 'is-weak', 'is-watch');
+  }
+
+  if (isHistorical) {
+    elements.summarySuccessRate.textContent = result?.summary?.depleted
+      ? 'Depleted'
+      : 'Sustained';
+  } else {
+    const rate = result?.monteCarlo?.successRate;
+
+    if (Number.isFinite(rate)) {
+      elements.summarySuccessRate.textContent = formatPercent(rate);
+
+      if (card) {
+        if (rate >= 0.9) {
+          card.classList.add('is-strong');
+        } else if (rate < 0.6) {
+          card.classList.add('is-weak');
+        } else {
+          card.classList.add('is-watch');
+        }
+      }
     } else {
-      elements.summarySuccessRate.textContent = hasMonteCarlo
-        ? formatPercent(result.monteCarlo.successRate)
-        : '—';
+      elements.summarySuccessRate.textContent = '—';
     }
   }
+}
 
   if (elements.summaryMedianEnd) {
     const selectedPathValue = getSelectedPathEndValue(activePath, rows, useReal);
