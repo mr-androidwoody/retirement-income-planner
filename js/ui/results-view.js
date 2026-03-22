@@ -80,6 +80,27 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
   const selector = elements?.tableViewSelector;
   if (!selector) return;
 
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  if (isHistorical) {
+    selector.innerHTML =
+      tableMode === 'performance'
+        ? `
+          <button
+            type="button"
+            id="openPerformanceSummary"
+            class="button button--secondary button--small performance-summary-trigger"
+          >
+            Key metrics
+          </button>
+        `
+        : '';
+
+    selector.classList.toggle('hidden', tableMode !== 'performance');
+    return;
+  }
+
   selector.innerHTML = `
     <div class="table-view-selector-group">
       ${getTableViewSelectorHtml(tableView)}
