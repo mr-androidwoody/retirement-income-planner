@@ -347,13 +347,6 @@ textarea{
   gap:16px;
 }
 
-.table-view-selector{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
 .results-section-header{
   margin-bottom:14px;
   padding-bottom:10px;
@@ -2530,7 +2523,7 @@ input[type="checkbox"]{
   font-size:0.95rem;
 }
 
-//* ========================================
+/* ========================================
    Responsive
    ======================================== */
 
@@ -2555,6 +2548,10 @@ input[type="checkbox"]{
     align-items:stretch;
     gap:12px;
   }
+
+  .results-table-controls-row{
+    align-items:flex-start;
+  } 
 
   .top-header__tabs,
   .top-header__actions{
@@ -2671,6 +2668,16 @@ input[type="checkbox"]{
   .results-toolbar > *{
     width:100%;
   }
+
+  .results-table-controls-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .results-table-controls-row .results-table-legend{
+    margin-left:0;
+    width:100%;
+  } 
 
   .outlook-glossary-dialog{
     width:min(100vw - 20px, 900px);
@@ -2792,16 +2799,71 @@ input[type="checkbox"]{
 }
 
 /* ========================================
-   Table view selector (NEW)
+   Results table header layout
    ======================================== */
 
-.table-view-selector{
+.results-table-header{
+  display:grid;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.results-table-mode-row{
   display:flex;
-  gap:6px;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+.results-table-description-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+}
+
+.results-table-controls-row #tableViewSelector{
+  order:1;
+}
+
+.results-table-controls-row .results-table-legend{
+  order:2;
+  margin-left:auto;
+}
+
+.results-table-controls-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
   flex-wrap:wrap;
 }
 
-.table-view-selector button{
+.results-table-mode-selector{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.results-table-intro{
+  margin:0;
+  color:var(--muted);
+  font-size:0.84rem;
+  line-height:1.45;
+}
+
+/* ========================================
+   Table view selector (NEW)
+   ======================================== */
+
+.table-view-selector,
+.results-table-mode-selector{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.table-view-selector button,
+.results-table-mode-selector button{
   padding:7px 11px;
   border-radius:9px;
   border:1px solid #cfd8e8;
@@ -2814,14 +2876,18 @@ input[type="checkbox"]{
     background 0.15s ease,
     border-color 0.15s ease,
     color 0.15s ease,
-    box-shadow 0.15s ease;
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
-.table-view-selector button:hover{
+.table-view-selector button:hover,
+.results-table-mode-selector button:hover{
   border-color:#9cb3e6;
+  transform:translateY(-1px);
 }
 
-.table-view-selector button.active{
+.table-view-selector button.active,
+.results-table-mode-selector button.active{
   background:#162033;
   color:#fff;
   border-color:#162033;
