@@ -193,16 +193,16 @@ const withdrawalValues = rows.map((r) => {
     
       stackedAreas: [
         {
-          label: 'State pension income',
-          values: pensionValues,
-          color: 'rgba(249,115,22,0.25)',
-          strokeColor: '#f97316'
-        },
-        {
           label: 'Other income',
           values: otherIncomeValues,
           color: 'rgba(5,150,105,0.18)',
           strokeColor: '#059669'
+        },
+        {
+          label: 'State pension income',
+          values: pensionValues,
+          color: 'rgba(249,115,22,0.25)',
+          strokeColor: '#f97316'
         },
         {
           label: 'Withdrawals from portfolio',
