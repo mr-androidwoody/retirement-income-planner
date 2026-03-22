@@ -187,14 +187,18 @@ export function renderResultsView({
     shortfallYears
   };
 
-  renderResultsContextAndPathSummary({
-    result,
-    elements,
-    tableView,
-    activePath,
-    useReal,
-    formatters
-  });
+  if (tableMode !== 'performance') {
+    renderResultsContextAndPathSummary({
+      result,
+      elements,
+      tableView,
+      activePath,
+      useReal,
+      formatters
+    });
+  } else if (elements.resultsContextBar) {
+    elements.resultsContextBar.innerHTML = '';
+  }
 
   renderTableModeSelector(elements, tableMode);
   renderResultsTableIntro(elements, tableMode);
@@ -296,12 +300,21 @@ export function renderResultsView({
   renderResultsTableLegend(elements, result, tableMode);
 
   if (tableMode === 'performance') {
+    renderPerformanceSummary({
+      elements,
+      rows,
+      formatCurrency,
+      formatPercent
+    });
+
     renderPerformanceTable(elements.resultsTable, rows, formatCurrency, {
       activePath,
       inputs: result.inputs,
       tableView
     });
   } else {
+    clearPerformanceSummary(elements);
+
     renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
       person1Name: result.inputs?.person1Name,
       person2Name: result.inputs?.person2Name,
@@ -311,6 +324,189 @@ export function renderResultsView({
   }
 }
 
+function clearPerformanceSummary(elements) {
+  const container = elements?.performanceSummary;
+  if (!container) return;
+
+  container.innerHTML = '';
+  container.classList.add('hidden');
+}
+
+function renderPerformanceSummary({
+  elements,
+  rows,
+  formatCurrency,
+  formatPercent
+}) {
+  const container = elements?.performanceSummary;
+  if (!container) return;
+
+  if (!rows || !rows.length) {
+    container.innerHTML = '';
+    container.classList.add('hidden');
+    return;
+  }
+
+  const firstRow = rows[0];
+  const lastRow = rows[rows.length - 1];
+
+  const startValue = Number(firstRow?.startPortfolioNominal);
+  const endValue = Number(lastRow?.endPortfolioNominal);
+  const years = rows.length;
+
+  const portfolioCagr =
+    Number.isFinite(startValue) &&
+    Number.isFinite(endValue) &&
+    startValue > 0 &&
+    years > 0
+      ? Math.pow(endValue / startValue, 1 / years) - 1
+      : null;
+
+  const marketGrowthFactor = rows.reduce((acc, row) => {
+    const r = Number(row?.marketReturn);
+    return Number.isFinite(r) ? acc * (1 + r) : acc;
+  }, 1);
+
+  const validMarketYears = rows.filter((row) =>
+    Number.isFinite(Number(row?.marketReturn))
+  ).length;
+
+  const marketCagr =
+    validMarketYears > 0 && marketGrowthFactor > 0
+      ? Math.pow(marketGrowthFactor, 1 / validMarketYears) - 1
+      : null;
+
+  const returnGap =
+    portfolioCagr !== null && marketCagr !== null
+      ? portfolioCagr - marketCagr
+      : null;
+
+  let peak = Number.isFinite(Number(firstRow?.endPortfolioNominal))
+    ? Number(firstRow.endPortfolioNominal)
+    : 0;
+
+  let maxDrawdown = 0;
+
+  rows.forEach((row) => {
+    const end = Number(row?.endPortfolioNominal);
+    if (!Number.isFinite(end) || end <= 0) return;
+
+    if (end > peak) peak = end;
+
+    if (peak > 0) {
+      const drawdown = (end / peak) - 1;
+      if (drawdown < maxDrawdown) {
+        maxDrawdown = drawdown;
+      }
+    }
+  });
+
+  const worstYearReturn = rows.reduce((worst, row) => {
+    const r = Number(row?.marketReturn);
+    if (!Number.isFinite(r)) return worst;
+    return worst === null || r < worst ? r : worst;
+  }, null);
+
+  const rollingFiveYearReturns = [];
+
+  for (let index = 5; index < rows.length; index += 1) {
+    const start = Number(rows[index - 5]?.endPortfolioNominal);
+    const end = Number(rows[index]?.endPortfolioNominal);
+
+    if (
+      Number.isFinite(start) &&
+      Number.isFinite(end) &&
+      start > 0 &&
+      end > 0
+    ) {
+      rollingFiveYearReturns.push(Math.pow(end / start, 1 / 5) - 1);
+    }
+  }
+
+  const worstRollingFiveYear =
+    rollingFiveYearReturns.length > 0
+      ? Math.min(...rollingFiveYearReturns)
+      : null;
+
+  const subvalueClass = (value) => {
+    if (!Number.isFinite(value)) return '';
+    return value >= 0
+      ? 'results-context-metric-subvalue--green'
+      : 'results-context-metric-subvalue--red';
+  };
+
+  const metricHtml = (label, value, subvalue = '', subClass = '') => `
+    <div class="results-context-metric">
+      <div class="results-context-metric-label">${label}</div>
+      <div class="results-context-metric-body">
+        <div class="results-context-metric-value">${value}</div>
+        ${
+          subvalue
+            ? `<div class="results-context-metric-subvalue ${subClass}">${subvalue}</div>`
+            : ''
+        }
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = `
+    <div class="results-context-card results-context-card--merged">
+      <div class="results-context-panel-header">
+        <div class="card-title-block">
+          <h2>Performance summary</h2>
+          <p>Key investment outcome metrics for the selected path.</p>
+        </div>
+      </div>
+
+      <div class="results-context-metrics">
+        ${metricHtml(
+          'Portfolio value CAGR',
+          portfolioCagr !== null ? formatPercent(portfolioCagr) : '—',
+          endValue > 0 ? `End value: ${formatCurrency(endValue)}` : '',
+          subvalueClass(portfolioCagr)
+        )}
+
+        ${metricHtml(
+          'Market CAGR',
+          marketCagr !== null ? formatPercent(marketCagr) : '—',
+          validMarketYears > 0 ? `${validMarketYears} yearly observations` : '',
+          subvalueClass(marketCagr)
+        )}
+
+        ${metricHtml(
+          'Return gap',
+          returnGap !== null ? formatPercent(returnGap) : '—',
+          'Portfolio value CAGR minus market CAGR',
+          subvalueClass(returnGap)
+        )}
+
+        ${metricHtml(
+          'Max drawdown',
+          formatPercent(maxDrawdown),
+          'Largest end-of-year fall from prior peak',
+          subvalueClass(maxDrawdown)
+        )}
+
+        ${metricHtml(
+          'Worst year return',
+          worstYearReturn !== null ? formatPercent(worstYearReturn) : '—',
+          'Weakest single market year on this path',
+          subvalueClass(worstYearReturn)
+        )}
+
+        ${metricHtml(
+          'Worst rolling 5-year return',
+          worstRollingFiveYear !== null ? formatPercent(worstRollingFiveYear) : '—',
+          'Weakest annualised 5-year period',
+          subvalueClass(worstRollingFiveYear)
+        )}
+      </div>
+    </div>
+  `;
+
+  container.classList.remove('hidden');
+}
+    
 function getSelectedPathEndValue(activePath, rows, useReal) {
   const toFiniteNumber = (value) => {
     const n = Number(value);
@@ -1085,7 +1281,7 @@ function renderResultsTableNote(elements, result, activePath, tableMode) {
 
   if (tableMode === 'performance') {
     note.textContent =
-      'Performance view separates market return from the return actually experienced by the portfolio after withdrawals.';
+      'Performance view compares market returns with changes in portfolio value, and shows drawdowns and rolling performance over time.'
     note.classList.remove('hidden');
     return;
   }
