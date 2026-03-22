@@ -178,11 +178,11 @@ export function renderSpendingChart(canvas, result, useReal, formatCurrency, cut
     useReal ? r.otherIncomeReal : r.otherIncomeNominal
   );
 
-  const withdrawalValues = rows.map((r, i) => {
-    const spending = useReal ? r.spendingReal : r.spendingNominal;
-    return Math.max(0, spending - pensionValues[i] - otherIncomeValues[i]);
-  });
-
+const withdrawalValues = rows.map((r) => {
+  const value = useReal ? r.withdrawalReal : r.withdrawalNominal;
+  return Math.max(0, Number.isFinite(value) ? value : 0);
+});
+    
   const cutYears = rows
     .map((r, i) => ({
       index: i,
