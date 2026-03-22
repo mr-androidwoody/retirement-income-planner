@@ -470,30 +470,43 @@ function simulatePath(inputs, annualReturns) {
       year,
       age1: inputs.person1Age + yearIndex,
       age2: inputs.person2Age + yearIndex,
+
       startPortfolioNominal,
       startPortfolioReal,
+
       targetSpendingNominal,
       targetSpendingReal,
+
       actualSpendingNominal,
       actualSpendingReal,
       spendingNominal: actualSpendingNominal,
       spendingReal: actualSpendingReal,
+
       statePensionNominal: pensionNominal,
       statePensionReal: pensionReal,
+
       otherIncomeNominal,
       otherIncomeReal,
+
       windfallNominal,
       windfallReal,
+
       requestedWithdrawalNominal,
       requestedWithdrawalReal: requestedWithdrawalNominal / inflationIndex,
+
       withdrawalNominal: actualWithdrawalNominal,
       withdrawalReal,
+
       spendingCutNominal: Math.max(0, targetSpendingNominal - actualSpendingNominal),
       spendingCutReal: Math.max(0, targetSpendingReal - actualSpendingReal),
+
       spendingCutPercent:
         targetSpendingNominal > 0
           ? Math.max(0, 1 - actualSpendingNominal / targetSpendingNominal)
           : 0,
+
+      marketReturn: realisedReturn,
+
       endPortfolioNominal,
       endPortfolioReal
     });
