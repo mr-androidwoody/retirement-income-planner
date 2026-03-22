@@ -76,14 +76,6 @@ function renderResultsTableIntro(elements, tableMode) {
       : 'A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.';
 }
 
-function getTableViewSelectorHtml(tableView) {
-  return `
-    <button type="button" data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
-    <button type="button" data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
-    <button type="button" data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
-  `;
-}
-
 function renderTableViewSelector(elements, result, tableView, tableMode) {
   const selector = elements?.tableViewSelector;
   if (!selector) return;
@@ -92,31 +84,82 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
   const isHistorical = mode === 'historical';
 
   if (isHistorical) {
-    selector.innerHTML = '';
-    selector.classList.add('hidden');
+    selector.innerHTML =
+      tableMode === 'performance'
+        ? `
+          <button
+            type="button"
+            id="openPerformanceSummary"
+            class="button button--secondary button--small performance-summary-trigger"
+          >
+            Key metrics
+          </button>
+        `
+        : '';
+
+    selector.classList.toggle('hidden', tableMode !== 'performance');
     return;
   }
 
   selector.innerHTML = `
-  <div class="table-view-selector-group">
-    ${getTableViewSelectorHtml(tableView)}
-  </div>
+    <div class="table-view-selector-group">
+      ${getTableViewSelectorHtml(tableView)}
+    </div>
 
-  ${
-    tableMode === 'performance'
-      ? `
-        <button
-          type="button"
-          id="openPerformanceSummary"
-          class="button button--secondary button--small performance-summary-trigger"
-        >
-          Key metrics
-        </button>
-      `
-      : ''
-  }
-`;
+    ${
+      tableMode === 'performance'
+        ? `
+          <button
+            type="button"
+            id="openPerformanceSummary"
+            class="button button--secondary button--small performance-summary-trigger"
+          >
+            Key metrics
+          </button>
+        `
+        : ''
+    }
+  `;
+
   selector.classList.remove('hidden');
+}
+
+function getTableViewSelectorHtml(tableView) {
+  return `
+    <button type="button" data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
+    <button type="button" data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
+    <button type="button" data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+  `;
+}
+
+function renderResultsTableNote(elements, result, activePath, tableMode) {
+  const note = elements?.resultsTableNote;
+  if (!note) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const historicalLabel = activePath?.label
+    ? `Historical path: ${activePath.label}.`
+    : 'Historical path selected.';
+
+  if (mode === 'historical') {
+    note.textContent =
+      tableMode === 'performance'
+        ? `${historicalLabel} Performance view shows portfolio changes, drawdowns, and rolling performance across this historical sequence.`
+        : `${historicalLabel} Cashflow view shows how spending, income, and withdrawals evolved across this historical sequence.`;
+
+    note.classList.remove('hidden');
+    return;
+  }
+
+  if (tableMode === 'performance') {
+    note.textContent =
+      'Performance view compares market returns with changes in portfolio value, and shows drawdowns and rolling performance over time.';
+    note.classList.remove('hidden');
+    return;
+  }
+
+  note.textContent = '';
+  note.classList.add('hidden');
 }
 
 export function renderResultsView({
@@ -1347,42 +1390,12 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   }
 }
 
-function renderResultsTableNote(elements, result, activePath, tableMode) {
-  const note = elements?.resultsTableNote;
-  if (!note) return;
-
-  const mode = String(result?.mode ?? '').toLowerCase();
-
-  if (mode === 'historical') {
-    note.textContent = activePath?.label
-      ? `Historical path: ${activePath.label}.`
-      : 'Historical path selected.';
-    note.classList.remove('hidden');
-    return;
-  }
-
-  if (tableMode === 'performance') {
-    note.textContent =
-      'Performance view compares market returns with changes in portfolio value, and shows drawdowns and rolling performance over time.';
-    note.classList.remove('hidden');
-    return;
-  }
-
-  note.textContent = '';
-  note.classList.add('hidden');
-}
-
 function renderResultsTableLegend(elements, result, tableMode) {
   const legend = elements?.resultsTableLegend;
   if (!legend) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
-
-  if (mode === 'historical') {
-    legend.innerHTML = '';
-    legend.classList.add('hidden');
-    return;
-  }
+  const isHistorical = mode === 'historical';
 
   if (tableMode === 'performance') {
     legend.innerHTML = `
@@ -1411,6 +1424,55 @@ function renderResultsTableLegend(elements, result, tableMode) {
         <span class="results-table-legend-item">
           <span class="status-dot cut-severe"></span>
           Weak rolling 5-year period
+        </span>
+      </div>
+    `;
+
+    legend.classList.remove('hidden');
+    return;
+  }
+
+  if (isHistorical) {
+    legend.innerHTML = `
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Portfolio change</span>
+
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
+          Increase
+        </span>
+
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
+          Decrease
+        </span>
+      </div>
+
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Spending cuts</span>
+
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-mild"></span>
+          Mild
+        </span>
+
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-moderate"></span>
+          Moderate
+        </span>
+
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-severe"></span>
+          Severe
+        </span>
+      </div>
+
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Shortfall</span>
+
+        <span class="results-table-legend-item">
+          <span class="status-dot shortfall-dot"></span>
+          Spending below target
         </span>
       </div>
     `;
