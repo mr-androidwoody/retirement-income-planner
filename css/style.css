@@ -1241,7 +1241,7 @@ input[type="checkbox"]{
 
 /* rebalance spans remaining space */
 .core-rebalance-field{
-  grid-column:span 2;
+  grid-column:span 1;
 }
 
 .core-assumptions-bottom-row > *{
