@@ -1417,9 +1417,35 @@
             </div>
           </section>
 
-        </div>
-      </div>
-    </div>
-  </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="performanceSummaryOverlay" class="outlook-glossary-overlay hidden" aria-hidden="true" >
+              <div class="outlook-glossary-backdrop" data-performance-summary-close></div>
+            
+              <div class="outlook-glossary-dialog" role="dialog" aria-modal="true" aria-labelledby="performanceSummaryTitle">
+                <div class="outlook-glossary-header">
+                  <div>
+                    <h3 id="performanceSummaryTitle">Performance summary</h3>
+                    <p>Key long-term return and drawdown metrics for the selected scenario.</p>
+                  </div>
+            
+                  <button
+                   id="closePerformanceSummary"
+                   class="outlook-glossary-close"
+                   type="button"
+                   aria-label="Close performance summary"
+                   data-performance-summary-close
+                 >
+                   ×
+                  </button>
+                </div>
+            
+                <div id="performanceSummaryBody" class="outlook-glossary-body"></div>
+              </div>
+            </div>
+
 </body>
 </html>
