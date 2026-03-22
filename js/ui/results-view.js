@@ -438,6 +438,8 @@ function computePerformanceSummary(rows) {
       maxDrawdown: null,
       worstYearReturn: null,
       worstRollingFiveYearReturn: null,
+      bestRollingFiveYearReturn: null,
+      endPortfolioGrowth: null,
       validMarketYears: 0
     };
   }
@@ -533,6 +535,36 @@ function computePerformanceSummary(rows) {
     }
   }
 
+  let bestRollingFiveYearReturn = null;
+
+  for (let index = 5; index < rows.length; index += 1) {
+    const start5 = Number(rows[index - 5]?.endPortfolioNominal);
+    const end5 = Number(rows[index]?.endPortfolioNominal);
+
+    if (
+      Number.isFinite(start5) &&
+      Number.isFinite(end5) &&
+      start5 > 0 &&
+      end5 > 0
+    ) {
+      const rolling5 = Math.pow(end5 / start5, 1 / 5) - 1;
+
+      if (
+        bestRollingFiveYearReturn === null ||
+        rolling5 > bestRollingFiveYearReturn
+      ) {
+        bestRollingFiveYearReturn = rolling5;
+      }
+    }
+  }
+
+  const endPortfolioGrowth =
+    Number.isFinite(startValue) &&
+    Number.isFinite(endValue) &&
+    startValue > 0
+      ? (endValue / startValue) - 1
+      : null;
+
   return {
     startValue,
     endValue,
@@ -543,6 +575,8 @@ function computePerformanceSummary(rows) {
     maxDrawdown,
     worstYearReturn,
     worstRollingFiveYearReturn,
+    bestRollingFiveYearReturn,
+    endPortfolioGrowth,
     validMarketYears
   };
 }
@@ -569,37 +603,47 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
   };
 
   const items = [
-    {
-      label: 'Portfolio value CAGR',
-      description: 'Annualised growth of your portfolio value',
-      value: valueWithClass(summary.portfolioValueCagr)
-    },
-    {
-      label: 'Market CAGR',
-      description: 'Annualised return of the underlying market',
-      value: valueWithClass(summary.marketCagr)
-    },
-    {
-      label: 'Return gap',
-      description: 'Difference between your returns and the market',
-      value: valueWithClass(summary.returnGap, { signed: true })
-    },
-    {
-      label: 'Max drawdown',
-      description: 'Largest peak-to-trough portfolio fall',
-      value: valueWithClass(summary.maxDrawdown)
-    },
-    {
-      label: 'Worst year return',
-      description: 'Largest loss in a single year',
-      value: valueWithClass(summary.worstYearReturn)
-    },
-    {
-      label: 'Worst rolling 5-year return',
-      description: 'Worst annualised return over any 5-year period',
-      value: valueWithClass(summary.worstRollingFiveYearReturn)
-    }
-  ];
+  {
+    label: 'Portfolio value CAGR',
+    description: 'Annualised growth of your portfolio value',
+    value: valueWithClass(summary.portfolioValueCagr)
+  },
+  {
+    label: 'Market CAGR',
+    description: 'Annualised return of the underlying market',
+    value: valueWithClass(summary.marketCagr)
+  },
+  {
+    label: 'Return gap',
+    description: 'Difference between your returns and the market',
+    value: valueWithClass(summary.returnGap, { signed: true })
+  },
+  {
+    label: 'Max drawdown',
+    description: 'Largest peak-to-trough portfolio fall',
+    value: valueWithClass(summary.maxDrawdown)
+  },
+  {
+    label: 'Worst year return',
+    description: 'Largest loss in a single year',
+    value: valueWithClass(summary.worstYearReturn)
+  },
+  {
+    label: 'Worst rolling 5-year return',
+    description: 'Worst annualised return over any 5-year period',
+    value: valueWithClass(summary.worstRollingFiveYearReturn)
+  },
+  {
+    label: 'Best rolling 5-year return',
+    description: 'Best annualised return over any 5-year period',
+    value: valueWithClass(summary.bestRollingFiveYearReturn)
+  },
+  {
+    label: 'End portfolio growth',
+    description: 'Percentage change in ending portfolio versus starting value',
+    value: valueWithClass(summary.endPortfolioGrowth, { signed: true })
+  }
+];
 
   return `
     <div class="performance-summary-grid">
