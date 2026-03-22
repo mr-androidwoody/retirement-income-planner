@@ -184,6 +184,41 @@ textarea{
 }
 
 /* ========================================
+   Success rate card — status variants
+   ======================================== */
+
+#summarySuccessRateCard.is-strong{
+  background:#ecfdf5;
+  border:1px solid #6ee7b7;
+  color:#065f46;
+}
+
+#summarySuccessRateCard.is-weak{
+  background:#fef2f2;
+  border:1px solid #fca5a5;
+  color:#991b1b;
+}
+
+#summarySuccessRateCard.is-watch{
+  background:#fffbeb;
+  border:1px solid #fcd34d;
+  color:#92400e;
+}
+
+/* fix internal text colours */
+#summarySuccessRateCard.is-strong .summary-label,
+#summarySuccessRateCard.is-strong .summary-value,
+#summarySuccessRateCard.is-strong .summary-desc,
+#summarySuccessRateCard.is-weak .summary-label,
+#summarySuccessRateCard.is-weak .summary-value,
+#summarySuccessRateCard.is-weak .summary-desc,
+#summarySuccessRateCard.is-watch .summary-label,
+#summarySuccessRateCard.is-watch .summary-value,
+#summarySuccessRateCard.is-watch .summary-desc{
+  color:inherit;
+}
+
+/* ========================================
    Tabs (UPDATED — header-integrated)
    ======================================== */
 
