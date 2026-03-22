@@ -524,42 +524,35 @@ function simulatePath(inputs, annualReturns) {
       previousMarketReturn < 0;
 
     const nextTargetSpendingNominal = targetSpendingNominal * (1 + inflationRate);
-    let nextActualSpendingNominal = actualSpendingNominal;
-
-    if (!shouldSkipInflation) {
-      nextActualSpendingNominal *= 1 + inflationRate;
-    }
-
-    const nextWithdrawalRate =
-      endPortfolioNominal > 0
-        ? nextActualSpendingNominal / endPortfolioNominal
-        : Number.POSITIVE_INFINITY;
-
-    const upperLimit = initialWithdrawalRate * (1 + inputs.upperGuardrail);
-    const lowerLimit = initialWithdrawalRate * Math.max(0, 1 - inputs.lowerGuardrail);
-
-    if (
-      inputs.enableGuardrails &&
-      Number.isFinite(nextWithdrawalRate) &&
-      initialWithdrawalRate > 0
-    ) {
-      if (nextWithdrawalRate > upperLimit) {
-        nextActualSpendingNominal *= 1 - inputs.adjustmentSize;
-      } else if (nextWithdrawalRate < lowerLimit) {
-        nextActualSpendingNominal *= 1 + inputs.adjustmentSize;
+    let nextPlannedSpendingNominal = nextTargetSpendingNominal;
+    
+    if (inputs.enableGuardrails) {
+      if (shouldSkipInflation) {
+        nextPlannedSpendingNominal = actualSpendingNominal;
+      }
+    
+      const nextWithdrawalRate =
+        endPortfolioNominal > 0
+          ? nextPlannedSpendingNominal / endPortfolioNominal
+          : Number.POSITIVE_INFINITY;
+    
+      const upperLimit = initialWithdrawalRate * (1 + inputs.upperGuardrail);
+      const lowerLimit = initialWithdrawalRate * Math.max(0, 1 - inputs.lowerGuardrail);
+    
+      if (
+        Number.isFinite(nextWithdrawalRate) &&
+        initialWithdrawalRate > 0
+      ) {
+        if (nextWithdrawalRate > upperLimit) {
+          nextPlannedSpendingNominal *= 1 - inputs.adjustmentSize;
+        } else if (nextWithdrawalRate < lowerLimit) {
+          nextPlannedSpendingNominal *= 1 + inputs.adjustmentSize;
+        }
       }
     }
-
+    
     targetSpendingNominal = Math.max(0, nextTargetSpendingNominal);
-
-    const nextIncomeOnly =
-      getStatePensionNominal(inputs, yearIndex + 1, inflationIndex) +
-      getOtherIncomeNominal(inputs, yearIndex + 1, inflationIndex);
-
-    spendingNominal = Math.max(
-      0,
-      Math.min(nextActualSpendingNominal, nextIncomeOnly + endPortfolioNominal)
-    );
+    spendingNominal = Math.max(0, nextPlannedSpendingNominal);
 
     previousMarketReturn = realisedReturn;
   }
