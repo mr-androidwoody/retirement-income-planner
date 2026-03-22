@@ -1231,29 +1231,32 @@
     </section>
 
     <section class="table-card" id="tableCard">
-  <div class="panel-header results-section-header">
-    <div>
-      <h2>Yearly results</h2>
-      <p class="results-table-intro">
-        A year-by-year view of how spending, income, and withdrawals interact with your portfolio.
-        Focus on cuts, shortfalls, and portfolio changes to understand where pressure builds.
-      </p>
-    </div>
-
-    <div class="table-view-selector" id="tableViewSelector"></div>
-  </div>
-
-  <p id="resultsTableNote" class="results-table-note hidden"></p>
-
-  <div id="resultsTableLegend" class="results-table-legend hidden"></div>
-
-  <div class="table-wrap">
-    <table id="resultsTable">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</section>
+      <div class="results-table-header">
+        <div class="results-table-mode-row">
+          <div id="tableModeSelector" class="results-table-mode-selector"></div>
+        </div>
+    
+        <div class="results-table-description-row">
+          <p id="resultsTableIntro" class="results-table-intro">
+            A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.
+          </p>
+        </div>
+    
+        <div class="results-table-controls-row">
+          <div id="resultsTableLegend" class="results-table-legend hidden"></div>
+          <div id="tableViewSelector" class="table-view-selector"></div>
+        </div>
+      </div>
+    
+      <p id="resultsTableNote" class="results-table-note hidden"></p>
+    
+      <div class="table-wrap">
+        <table id="resultsTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
       </div>
     </main>
   </div>
