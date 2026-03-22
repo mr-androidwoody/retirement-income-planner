@@ -21,12 +21,6 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
   const includePerson2 = Boolean(options.includePerson2);
   const person2Name = sanitiseHeaderLabel(options.person2Name, 'Person 2');
 
-  const cutDiagnostics = options.cutDiagnostics || {};
-  const firstCutYear = cutDiagnostics.firstCutYear;
-  const worstCutYear = cutDiagnostics.worstCutYear;
-  const firstShortfallYear = cutDiagnostics.firstShortfallYear;
-  const worstShortfallYear = cutDiagnostics.worstShortfallYear;
-
   thead.innerHTML = `
     <tr>
       <th class="col-text">Year</th>
@@ -73,7 +67,6 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     let severity = '';
     let cutDot = '';
     let shortfallDot = '';
-    let shortfallClass = '';
 
     if (cut > 0) {
       let cutLabel = '';
@@ -93,24 +86,8 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     }
 
     if (shortfall > 0) {
-      shortfallClass = 'spending-shortfall';
       shortfallDot = `<span class="status-dot shortfall-dot" aria-hidden="true" title="Spending shortfall"></span>`;
     }
-
-    const firstCutClass = index === firstCutYear ? 'first-cut-year' : '';
-    const worstCutClass = index === worstCutYear ? 'worst-cut-year' : '';
-
-    const firstShortfallClass = index === firstShortfallYear ? 'first-shortfall-year' : '';
-    const worstShortfallClass = index === worstShortfallYear ? 'worst-shortfall-year' : '';
-
-    const rowClass = [
-      severity,
-      shortfallClass,
-      firstCutClass,
-      worstCutClass,
-      firstShortfallClass,
-      worstShortfallClass
-    ].filter(Boolean).join(' ');
 
     const cutDisplay = cut > 0 ? `${(cut * 100).toFixed(1)}%` : '—';
     const shortfallDisplay = shortfall > 0 ? formatCurrency(shortfall) : '—';
@@ -140,7 +117,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
     `;
 
     return `
-      <tr class="${rowClass}">
+      <tr>
         <td class="col-text">${row.year}</td>
         <td class="col-text">${row.age1}</td>
         ${includePerson2 ? `<td class="col-text">${row.age2}</td>` : ''}
