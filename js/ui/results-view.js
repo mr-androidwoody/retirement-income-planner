@@ -383,7 +383,8 @@ if (tableMode === 'performance') {
     renderPerformanceTable(elements.resultsTable, rows, formatCurrency, {
       activePath,
       inputs: result.inputs,
-      tableView
+      tableView,
+      useReal
     });
   } else {
     clearPerformanceSummary(elements);

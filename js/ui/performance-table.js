@@ -61,11 +61,17 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
 
   if (!thead || !tbody) return;
 
+  const useReal = Boolean(options.useReal);
+
+  const startField = useReal ? 'startPortfolioReal' : 'startPortfolioNominal';
+  const endField = useReal ? 'endPortfolioReal' : 'endPortfolioNominal';
+  const valueLabel = useReal ? 'Real' : 'Nominal';
+
   thead.innerHTML = `
     <tr>
       <th class="col-text">Year</th>
-      <th class="col-number">Start (£)</th>
-      <th class="col-number">End (£)</th>
+      <th class="col-number">Start (${valueLabel} £)</th>
+      <th class="col-number">End (${valueLabel} £)</th>
       <th class="col-number">
         ${renderHeaderLabel(
           'Market return',
@@ -98,8 +104,8 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
   tbody.innerHTML = rows
     .map((row, index) => {
       const year = Number(row?.year) || index + 1;
-      const start = toFiniteNumber(row?.startPortfolioNominal) ?? 0;
-      const end = toFiniteNumber(row?.endPortfolioNominal) ?? 0;
+      const start = toFiniteNumber(row?.[startField]) ?? 0;
+      const end = toFiniteNumber(row?.[endField]) ?? 0;
       const marketReturn = toFiniteNumber(row?.marketReturn);
       const portfolioChange = start > 0 ? (end / start) - 1 : null;
 
@@ -108,7 +114,7 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
 
       let rolling5 = null;
       if (index >= 5) {
-        const start5 = toFiniteNumber(rows[index - 5]?.endPortfolioNominal);
+        const start5 = toFiniteNumber(rows[index - 5]?.[endField]);
         if (start5 && start5 > 0 && end > 0) {
           rolling5 = Math.pow(end / start5, 1 / 5) - 1;
         }
