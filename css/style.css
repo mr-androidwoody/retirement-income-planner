@@ -3085,6 +3085,15 @@ input[type="checkbox"]{
   color:#dc2626;
 }
 
+.performance-summary-metric__description{
+  margin:0 0 10px;
+  color:var(--muted);
+  font-size:0.72rem;
+  font-weight:600;
+  line-height:1.25;
+  white-space:nowrap;
+}
+
 /* ========================================
    Results context + path summary (NEW)
    ======================================== */
