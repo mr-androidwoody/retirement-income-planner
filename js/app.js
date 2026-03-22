@@ -102,7 +102,9 @@ const els = {
   planSummaryGrid: document.getElementById('planSummaryGrid'),
   spendingChart: document.getElementById('spendingChart'),
   tableCard: document.getElementById('tableCard'),
+  tableModeSelector: document.getElementById('tableModeSelector'),
   tableViewSelector: document.getElementById('tableViewSelector'),
+  resultsTableIntro: document.getElementById('resultsTableIntro'),
   resultsTable: document.getElementById('resultsTable'),
   resultsTableNote: document.getElementById('resultsTableNote'),
   resultsTableLegend: document.getElementById('resultsTableLegend')
@@ -113,6 +115,7 @@ let latestBaseInputs = null;
 let worker = null;
 let withdrawalInputMode = 'amount';
 let currentTableView = 'median';
+let currentTableMode = 'plan';
 
 const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 
@@ -233,6 +236,7 @@ function applyDefaults() {
   latestBaseInputs = null;
   withdrawalInputMode = 'amount';
   currentTableView = 'median';
+  currentTableMode = 'plan';
   syncInitialWithdrawalRateFromAmount();
 }
 
@@ -260,6 +264,7 @@ function attachEvents() {
       latestResult = null;
       latestBaseInputs = null;
       currentTableView = 'median';
+      currentTableMode = 'plan';
 
       resetResultsHeader();
 
@@ -530,6 +535,7 @@ function runSimulation() {
   hideError();
   latestBaseInputs = mergedInputs;
   currentTableView = 'median';
+  currentTableMode = 'plan';
   planForm.setBusy(true);
 
   const effectiveInputs = getResultsOverrideInputs(mergedInputs);
@@ -622,6 +628,7 @@ function renderAll() {
     useReal: Boolean(els.showRealValues?.checked),
     showFullTable: Boolean(els.showFullTable?.checked),
     tableView: currentTableView,
+    tableMode: currentTableMode,
     formatters: {
       formatCurrency,
       formatPercent,
@@ -631,8 +638,9 @@ function renderAll() {
 
   applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
 
+  attachTableModeSelector();
   attachTableViewSelector();
-  togglePlanOutlook();  
+  togglePlanOutlook();
 }
 
 function applySuccessRateTone(successRate) {
@@ -705,6 +713,22 @@ function formatPercent(value) {
 function formatYears(value) {
   if (!Number.isFinite(value)) return '—';
   return `${value.toFixed(1)} years`;
+}
+
+function attachTableModeSelector() {
+  const selector = els.tableModeSelector;
+  if (!selector) return;
+
+  selector.querySelectorAll('button[data-mode]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextMode = button.dataset.mode;
+
+      if (!nextMode || nextMode === currentTableMode) return;
+
+      currentTableMode = nextMode;
+      renderAll();
+    });
+  });
 }
 
 function attachTableViewSelector() {
