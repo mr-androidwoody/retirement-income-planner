@@ -357,7 +357,7 @@ if (tableMode === 'performance') {
 
     renderSpendingChart(
       elements.spendingChart,
-      result,
+      rows,
       useReal,
       formatCurrency,
       cutDiagnostics
@@ -367,7 +367,7 @@ if (tableMode === 'performance') {
 
     renderSpendingChart(
       elements.spendingChart,
-      result,
+      rows,
       useReal,
       formatCurrency,
       cutDiagnostics

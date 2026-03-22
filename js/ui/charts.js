@@ -157,10 +157,8 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
   drawLineChart(canvas, chartConfig);
 }
 
-export function renderSpendingChart(canvas, result, useReal, formatCurrency, cutDiagnostics = {}) {
-  if (!result?.baseCase?.rows) return;
-
-  const rows = result.baseCase.rows;
+export function renderSpendingChart(canvas, rows, useReal, formatCurrency, cutDiagnostics = {}) {
+  if (!Array.isArray(rows) || !rows.length) return;
 
   const targetValues = rows.map((r) =>
     useReal ? r.targetSpendingReal : r.targetSpendingNominal
