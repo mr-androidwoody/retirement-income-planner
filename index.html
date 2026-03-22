@@ -372,44 +372,78 @@
             </div>
           </div>
         
-          <div class="core-assumptions-bottom-row">
-            <label class="field people-pension-inline-field">
-              <span class="field-label">Full state pension: today's value</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="statePensionToday"
-                  data-step-direction="-1"
-                  data-step-size="500"
-                  aria-label="Decrease full state pension today value by £500"
-                >−</button>
-                <input
-                  id="statePensionToday"
-                  type="text"
-                  inputmode="numeric"
-                  data-format="integer"
-                  value="12,547"
-                />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="statePensionToday"
-                  data-step-direction="1"
-                  data-step-size="500"
-                  aria-label="Increase full state pension today value by £500"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field field-inline field-inline-wide core-rebalance-field">
-              <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
-              <label class="switch-control" aria-label="Toggle yearly rebalancing">
-                <input id="rebalanceToTarget" type="checkbox" checked />
-                <span class="switch-slider"></span>
+            <div class="core-assumptions-bottom-row">
+            
+              <!-- Fees -->
+              <label class="field">
+                <span class="field-label">Annual portfolio fees (%)</span>
+                <div class="stepper-input">
+                  <button
+                    type="button"
+                    class="stepper-btn"
+                    data-step-target="annualFeeRate"
+                    data-step-direction="-1"
+                    data-step-size="0.05"
+                  >−</button>
+            
+                  <input
+                    id="annualFeeRate"
+                    type="number"
+                    min="0"
+                    step="0.05"
+                    value="0.40"
+                  />
+            
+                  <button
+                    type="button"
+                    class="stepper-btn"
+                    data-step-target="annualFeeRate"
+                    data-step-direction="1"
+                    data-step-size="0.05"
+                  >+</button>
+                </div>
               </label>
-            </label>
-          </div>
+            
+              <!-- State pension -->
+              <label class="field people-pension-inline-field">
+                <span class="field-label">Full state pension: today's value</span>
+                <div class="stepper-input">
+                  <button
+                    type="button"
+                    class="stepper-btn"
+                    data-step-target="statePensionToday"
+                    data-step-direction="-1"
+                    data-step-size="500"
+                  >−</button>
+            
+                  <input
+                    id="statePensionToday"
+                    type="text"
+                    inputmode="numeric"
+                    data-format="integer"
+                    value="12,547"
+                  />
+            
+                  <button
+                    type="button"
+                    class="stepper-btn"
+                    data-step-target="statePensionToday"
+                    data-step-direction="1"
+                    data-step-size="500"
+                  >+</button>
+                </div>
+              </label>
+            
+              <!-- Rebalance -->
+              <label class="field field-inline field-inline-wide core-rebalance-field">
+                <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
+                <label class="switch-control">
+                  <input id="rebalanceToTarget" type="checkbox" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </label>
+            
+            </div>
         </section>               
                     <section class="input-group-card people-pensions-card card-block">
                       <div class="section-heading">
