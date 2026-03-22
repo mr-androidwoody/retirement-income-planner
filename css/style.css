@@ -705,7 +705,7 @@ textarea{
   min-height:40px;
   display:flex;
   flex-direction:row;
-  align-items:center;
+  align-items:flex-start;        /* allow label to sit lower */
   justify-content:space-between;
   gap:12px;
   padding:0;
@@ -716,13 +716,18 @@ textarea{
   display:block;
   flex:1 1 auto;
   min-width:0;
-  min-height:auto;
   margin:0;
   line-height:1.2;
-  padding:0;
-  padding-top:12px;
+  padding-top:6px;               /* adjust (6–10px) to taste */
   text-align:left;
   white-space:normal;
+}
+
+.core-rebalance-field .switch-control{
+  flex:0 0 auto;
+  align-self:center;             /* keep toggle vertically centred */
+  margin:0;
+  transform:none;
 }
 
 .core-rebalance-field .switch-control{
