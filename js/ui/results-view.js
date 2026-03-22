@@ -1,5 +1,6 @@
 import { renderPortfolioChart, renderSpendingChart } from './charts.js';
 import { renderYearlyTable } from './yearly-table.js';
+import { renderPerformanceTable } from './performance-table.js';
 import {
   PLAN_OUTLOOK_STATES,
   PLAN_OUTLOOK_CONTEXT,
@@ -50,6 +51,31 @@ function renderMetricHeading(label, tooltip) {
   `;
 }
 
+function getTableModeSelectorHtml(tableMode) {
+  return `
+    <button type="button" data-mode="plan" class="${tableMode === 'plan' ? 'active' : ''}">Cashflow plan</button>
+    <button type="button" data-mode="performance" class="${tableMode === 'performance' ? 'active' : ''}">Investment performance</button>
+  `;
+}
+
+function renderTableModeSelector(elements, tableMode) {
+  const selector = elements?.tableModeSelector;
+  if (!selector) return;
+
+  selector.innerHTML = getTableModeSelectorHtml(tableMode);
+  selector.classList.remove('hidden');
+}
+
+function renderResultsTableIntro(elements, tableMode) {
+  const intro = elements?.resultsTableIntro;
+  if (!intro) return;
+
+  intro.textContent =
+    tableMode === 'performance'
+      ? 'A year-by-year view of how your portfolio behaved as an investment, including returns, drawdowns, and rolling performance.'
+      : 'A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.';
+}
+
 function getTableViewSelectorHtml(tableView) {
   return `
     <button type="button" data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
@@ -81,6 +107,7 @@ export function renderResultsView({
   useReal,
   showFullTable,
   tableView,
+  tableMode = 'plan',
   formatters
 }) {
   if (!result) return;
@@ -97,6 +124,17 @@ export function renderResultsView({
   const hasStressSummary = result.summary && result.summary.worstStressName;
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
+
+  if (elements.tableCard) {
+    elements.tableCard.classList.toggle(
+      'is-performance-table',
+      tableMode === 'performance'
+    );
+    elements.tableCard.classList.toggle(
+      'is-plan-table',
+      tableMode !== 'performance'
+    );
+  }
 
   let firstCutYear = null;
   let worstCutYear = null;
@@ -158,6 +196,8 @@ export function renderResultsView({
     formatters
   });
 
+  renderTableModeSelector(elements, tableMode);
+  renderResultsTableIntro(elements, tableMode);
   renderTableViewSelector(elements, result, tableView);
 
   renderSummaryCardLabels(elements, result, activePath, tableView);
@@ -215,9 +255,11 @@ export function renderResultsView({
   }
 
   const runway = result.summary?.cashRunwayYears;
+
   if (elements.summaryCashRunway) {
     if (isHistorical) {
-      elements.summaryCashRunway.textContent = activePath?.label || 'Selected path';
+      elements.summaryCashRunway.textContent =
+        activePath?.label || 'Selected path';
     } else {
       elements.summaryCashRunway.textContent =
         runway === Number.POSITIVE_INFINITY
@@ -250,15 +292,23 @@ export function renderResultsView({
     );
   }
 
-  renderResultsTableNote(elements, result, activePath);
-  renderResultsTableLegend(elements, result);
+  renderResultsTableNote(elements, result, activePath, tableMode);
+  renderResultsTableLegend(elements, result, tableMode);
 
-  renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
-    person1Name: result.inputs?.person1Name,
-    person2Name: result.inputs?.person2Name,
-    includePerson2: result.inputs?.includePerson2,
-    cutDiagnostics
-  });
+  if (tableMode === 'performance') {
+    renderPerformanceTable(elements.resultsTable, rows, formatCurrency, {
+      activePath,
+      inputs: result.inputs,
+      tableView
+    });
+  } else {
+    renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
+      person1Name: result.inputs?.person1Name,
+      person2Name: result.inputs?.person2Name,
+      includePerson2: result.inputs?.includePerson2,
+      cutDiagnostics
+    });
+  }
 }
 
 function getSelectedPathEndValue(activePath, rows, useReal) {
@@ -873,11 +923,7 @@ const detailMetricsHtml = `
 
   const headerControls = isHistorical
     ? `<div class="results-context-path">${(activePath?.label || 'Selected scenario').replace(/—/g, '–')}</div>`
-    : `
-      <div class="results-context-toggle table-view-selector">
-        ${getTableViewSelectorHtml(tableView)}
-      </div>
-    `;
+    : '';
 
   const primaryCardClass = getPlanOutlookCardClass(primaryState);
   const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
@@ -1023,7 +1069,7 @@ function renderSummaryCardLabels(elements, result, activePath, tableView) {
   }
 }
 
-function renderResultsTableNote(elements, result, activePath) {
+function renderResultsTableNote(elements, result, activePath, tableMode) {
   const note = elements?.resultsTableNote;
   if (!note) return;
 
@@ -1034,13 +1080,21 @@ function renderResultsTableNote(elements, result, activePath) {
       ? `Historical path: ${activePath.label}.`
       : 'Historical path selected.';
     note.classList.remove('hidden');
-  } else {
-    note.textContent = '';
-    note.classList.add('hidden');
+    return;
   }
+
+  if (tableMode === 'performance') {
+    note.textContent =
+      'Performance view separates market return from the return actually experienced by the portfolio after withdrawals.';
+    note.classList.remove('hidden');
+    return;
+  }
+
+  note.textContent = '';
+  note.classList.add('hidden');
 }
 
-function renderResultsTableLegend(elements, result) {
+function renderResultsTableLegend(elements, result, tableMode) {
   const legend = elements?.resultsTableLegend;
   if (!legend) return;
 
@@ -1049,6 +1103,41 @@ function renderResultsTableLegend(elements, result) {
   if (mode === 'historical') {
     legend.innerHTML = '';
     legend.classList.add('hidden');
+    return;
+  }
+
+  if (tableMode === 'performance') {
+    legend.innerHTML = `
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Returns</span>
+
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--up">↑</span>
+          Positive return
+        </span>
+
+        <span class="results-table-legend-item">
+          <span class="results-table-legend-arrow results-table-legend-arrow--down">↓</span>
+          Negative return
+        </span>
+      </div>
+
+      <div class="results-table-legend-group">
+        <span class="results-table-legend-title">Risk</span>
+
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-moderate"></span>
+          Drawdown from peak
+        </span>
+
+        <span class="results-table-legend-item">
+          <span class="status-dot cut-severe"></span>
+          Weak rolling 5-year period
+        </span>
+      </div>
+    `;
+
+    legend.classList.remove('hidden');
     return;
   }
 
