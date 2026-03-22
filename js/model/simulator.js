@@ -195,7 +195,7 @@ function normaliseInputs(rawInputs = {}) {
     bondVolatility: toRate(merged.bondVolatility),
     cashlikeReturn: toRate(merged.cashlikeReturn),
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
-    annualFeeRate: toRate(merged.annualFeeRate),
+    annualFeeRate: toNumber(merged.annualFeeRate) / 100,
     inflation: toRate(merged.inflation),
 
     person1Name:
