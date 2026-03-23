@@ -212,12 +212,29 @@ function renderTableModeSelector(elements, tableMode) {
 
 function renderResultsTableIntro(elements, tableMode) {
   const intro = elements?.resultsTableIntro;
-  if (!intro) return;
+  const actions = document.getElementById('tableDescriptionActions');
 
-  intro.textContent =
-    tableMode === 'performance'
-      ? 'A year-by-year view of how your portfolio behaved as an investment, including returns, drawdowns, and rolling performance.'
-      : 'A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.';
+  if (intro) {
+    intro.textContent =
+      tableMode === 'performance'
+        ? 'A year-by-year view of how your portfolio behaved as an investment, including returns, drawdowns, and rolling performance.'
+        : 'A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.';
+  }
+
+  if (actions) {
+    actions.innerHTML =
+      tableMode === 'performance'
+        ? `
+          <button
+            type="button"
+            id="openPerformanceSummary"
+            class="button button--secondary button--small performance-summary-trigger"
+          >
+            Key metrics
+          </button>
+        `
+        : '';
+  }
 }
 
 function renderTableViewSelector(elements, result, tableView, tableMode) {
@@ -229,40 +246,28 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
-  const showPathSelectorInPlanOutlook =
-    mode === 'montecarlo' && tableMode !== 'performance';
 
-    if (isHistorical) {
-    if (selector) {
-      selector.innerHTML =
-        tableMode === 'performance'
-          ? `
-            <button
-              type="button"
-              id="openPerformanceSummary"
-              class="button button--secondary button--small performance-summary-trigger"
-            >
-              Key metrics
-            </button>
-          `
-          : '';
+  if (selector) {
+    selector.innerHTML = '';
+    selector.classList.add('hidden');
+  }
 
-      selector.classList.toggle('hidden', tableMode !== 'performance');
+  if (isHistorical) {
+    if (chartsSelector) {
+      chartsSelector.innerHTML = '';
+      chartsSelector
+        .closest('.results-context-header-actions')
+        ?.classList.add('hidden');
     }
 
-    if (chartsSelector) {
-     chartsSelector.innerHTML = '';
-     chartsSelector.closest('.results-context-header-actions')?.classList.add('hidden');
-   }
-
-   if (tableHeaderSelector) {
-     tableHeaderSelector.innerHTML = '';
-   }
+    if (tableHeaderSelector) {
+      tableHeaderSelector.innerHTML = '';
+    }
 
     return;
   }
 
-    const chartPathSelectorHtml =
+  const pathSelectorHtml =
     mode === 'montecarlo' && tableMode !== 'performance'
       ? `
           <div class="table-view-selector-group">
@@ -271,50 +276,19 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
         `
       : '';
 
-  if (selector) {
-    selector.innerHTML = `
-      ${
-        showPathSelectorInPlanOutlook
-          ? ''
-          : `
-            <div class="table-view-selector-group">
-              ${getTableViewSelectorHtml(tableView)}
-            </div>
-          `
-      }
-
-      ${
-        tableMode === 'performance'
-          ? `
-            <button
-              type="button"
-              id="openPerformanceSummary"
-              class="button button--secondary button--small performance-summary-trigger"
-            >
-              Key metrics
-            </button>
-          `
-          : ''
-      }
-    `;
-
-    selector.classList.remove('hidden');
-  }
-
   if (chartsSelector) {
-    chartsSelector.innerHTML = chartPathSelectorHtml;
-    chartsSelector.closest('.results-context-header-actions')?.classList.toggle(
-      'hidden',
-      !chartPathSelectorHtml
-    );
+    chartsSelector.innerHTML = pathSelectorHtml;
+    chartsSelector
+      .closest('.results-context-header-actions')
+      ?.classList.toggle('hidden', !pathSelectorHtml);
   }
-    
+
   if (tableHeaderSelector) {
     tableHeaderSelector.innerHTML =
       mode === 'montecarlo' && tableMode !== 'performance'
         ? getTableViewSelectorHtml(tableView)
         : '';
-  }    
+  }
 }
 
 function getTableViewSelectorHtml(tableView) {
