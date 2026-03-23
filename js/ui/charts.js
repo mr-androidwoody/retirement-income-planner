@@ -1029,7 +1029,7 @@ function measureLegend(ctx, lines, width) {
   const heightNeededRaw =
     rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
 
-  const MIN_LEGEND_HEIGHT = 80;
+  const MIN_LEGEND_HEIGHT = 70;
 
   const heightNeeded = Math.max(heightNeededRaw, MIN_LEGEND_HEIGHT);
 
@@ -1068,7 +1068,11 @@ function drawLegend(ctx, width, height, layout) {
     layout.rows.length * layout.rowHeight +
     (layout.rows.length - 1) * layout.rowGap;
 
-  let y = boxY + boxPaddingY + layout.rowHeight / 2;
+  const contentHeight =
+  layout.rows.length * layout.rowHeight +
+  (layout.rows.length - 1) * layout.rowGap;
+
+  let y = boxY + (boxHeight - contentHeight) / 2 + layout.rowHeight / 2;
 
     layout.rows.forEach((row) => {
     const rowWidth =
