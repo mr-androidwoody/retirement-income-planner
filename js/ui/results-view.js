@@ -90,6 +90,18 @@ function formatHistoricalResultsHeader(result, activePath, rows) {
   )}`;
 }
 
+function renderResultsPanelTitle(result, activePath, rows) {
+  const titleEl = document.getElementById('resultsPanelTitle');
+  if (!titleEl) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  titleEl.textContent = isHistorical
+    ? formatHistoricalResultsHeader(result, activePath, rows)
+    : 'Results';
+}
+
 function escapeHtmlAttribute(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -239,6 +251,8 @@ export function renderResultsView({
 
   const activePath = resolveActivePath(result, tableView);
   const rows = activePath?.yearlyRows || [];
+
+  renderResultsPanelTitle(result, activePath, rows); 
 
   const hasMonteCarlo =
     Boolean(result?.monteCarlo?.realPercentiles) &&
@@ -1412,9 +1426,7 @@ const detailMetricsHtml = `
   </div>
 `;
 
-  const headerControls = isHistorical
-  ? `<div class="results-context-path">${formatHistoricalResultsHeader(result, activePath, rows)}</div>`
-  : '';
+  const headerControls = '';
 
   const primaryCardClass = getPlanOutlookCardClass(primaryState);
   const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
