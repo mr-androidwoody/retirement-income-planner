@@ -2831,25 +2831,16 @@ input[type="checkbox"]{
   margin-bottom:12px;
 }
 
+.results-table-description-row{
+  display:block;
+}
+
 .results-table-mode-row{
   display:flex;
   align-items:center;
   justify-content:flex-start;
-}
-
-.results-table-description-row{
-  display:flex;
-  align-items:flex-start;
-  justify-content:flex-start;
-}
-
-.results-table-controls-row #tableViewSelector{
-  order:1;
-}
-
-.results-table-controls-row .results-table-legend{
-  order:2;
-  margin-left:auto;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 .results-table-controls-row{
@@ -2864,6 +2855,14 @@ input[type="checkbox"]{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
+  align-items:center;
+}
+
+.results-table-description-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  flex:0 0 auto;
 }
 
 .results-table-intro{
@@ -2877,20 +2876,20 @@ input[type="checkbox"]{
    Performance summary overlay
    ======================================== */
 
-.table-view-selector .performance-summary-trigger{
+.performance-summary-trigger{
   background:var(--accent);
-  color:#ffffff;
+  color:#fff;
   border:1px solid var(--accent);
-  box-shadow:0 6px 16px rgba(45, 91, 255, 0.18);
+  box-shadow:0 4px 10px rgba(45, 91, 255, 0.18);
 }
 
-.table-view-selector .performance-summary-trigger:hover{
+.performance-summary-trigger:hover{
   background:#244ee6;
+  color:#fff;
   border-color:#244ee6;
-  color:#ffffff;
 }
 
-.table-view-selector .performance-summary-trigger:focus-visible{
+.performance-summary-trigger:focus-visible{
   outline:2px solid rgba(45, 91, 255, 0.28);
   outline-offset:2px;
 }
@@ -3010,24 +3009,6 @@ input[type="checkbox"]{
   box-shadow:0 4px 10px rgba(22, 32, 51, 0.12);
 }
 
-.table-view-selector .performance-summary-trigger{
-  background:var(--accent);
-  color:#fff;
-  border-color:var(--accent);
-  box-shadow:0 4px 10px rgba(45, 91, 255, 0.18);
-}
-
-.table-view-selector .performance-summary-trigger:hover{
-  background:#244ee6;
-  color:#fff;
-  border-color:#244ee6;
-}
-
-.table-view-selector .performance-summary-trigger:focus-visible{
-  outline:2px solid rgba(45, 91, 255, 0.28);
-  outline-offset:2px;
-}
-
 .results-table-note{
   margin:0 0 10px;
   color:var(--muted);
@@ -3035,8 +3016,8 @@ input[type="checkbox"]{
   line-height:1.4;
 }
 
-.panel-header .results-table-intro{
-  margin-top:10px;
+.results-table-description-row .results-table-intro{
+  margin:0;
 }
 
 .results-table-legend{
