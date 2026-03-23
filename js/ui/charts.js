@@ -1099,11 +1099,11 @@ function drawLegend(ctx, width, height, layout) {
       if (item.description) {
         ctx.fillStyle = '#475569';
         ctx.font = '13px Inter, system-ui, sans-serif';
-        ctx.fillText(item.label, textX, y - 8);
+        ctx.fillText(item.label, textX, y - 6);
     
         ctx.fillStyle = '#94a3b8';
         ctx.font = '13px Inter, system-ui, sans-serif';
-        ctx.fillText(item.description, textX, y + 8);
+        ctx.fillText(item.description, textX, y + 6);
       } else {
         ctx.fillStyle = '#475569';
         ctx.font = '13px Inter, system-ui, sans-serif';
