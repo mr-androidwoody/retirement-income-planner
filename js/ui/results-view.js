@@ -482,8 +482,6 @@ function clearPerformanceSummary(elements) {
   container.classList.add('hidden');
 }
 
-computePerformanceSummary
-
 function renderPerformanceSummaryOverlayBody(summary, formatters) {
   if (!summary) return '';
 
@@ -589,6 +587,180 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
     </div>
   `;
 }
+
+function clearPerformanceSummary(elements) {
+  const container = elements?.performanceSummary;
+  if (!container) return;
+
+  container.innerHTML = '';
+  container.classList.add('hidden');
+}
+
+function computePerformanceSummary(rows, result) {
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return {
+      mode,
+      startValue: null,
+      endValue: null,
+      years: 0,
+      portfolioValueCagr: null,
+      marketCagr: null,
+      returnGap: null,
+      maxDrawdown: null,
+      worstYearReturn: null,
+      worstRollingFiveYearReturn: null,
+      bestRollingFiveYearReturn: null,
+      endPortfolioGrowth: null,
+      validMarketYears: 0
+    };
+  }
+
+  const firstRow = rows[0];
+  const lastRow = rows[rows.length - 1];
+
+  const inputStartValue = Number(
+    result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio
+  );
+
+  const startValue =
+    Number.isFinite(inputStartValue) && inputStartValue > 0
+      ? inputStartValue
+      : Number(firstRow?.startPortfolioNominal);
+
+  const endValue = Number(lastRow?.endPortfolioNominal);
+  const years = rows.length;
+
+  const portfolioValueCagr =
+    Number.isFinite(startValue) &&
+    Number.isFinite(endValue) &&
+    startValue > 0 &&
+    endValue > 0 &&
+    years > 0
+      ? Math.pow(endValue / startValue, 1 / years) - 1
+      : null;
+
+  let marketGrowthFactor = 1;
+  let validMarketYears = 0;
+
+  rows.forEach((row) => {
+    const r = Number(row?.marketReturn);
+    if (Number.isFinite(r)) {
+      marketGrowthFactor *= (1 + r);
+      validMarketYears += 1;
+    }
+  });
+
+  const marketCagr =
+    !isHistorical && validMarketYears > 0 && marketGrowthFactor > 0
+      ? Math.pow(marketGrowthFactor, 1 / validMarketYears) - 1
+      : null;
+
+  const returnGap =
+    !isHistorical &&
+    Number.isFinite(portfolioValueCagr) &&
+    Number.isFinite(marketCagr)
+      ? portfolioValueCagr - marketCagr
+      : null;
+
+  let peak =
+    Number.isFinite(startValue) && startValue > 0
+      ? startValue
+      : Number(firstRow?.endPortfolioNominal) || 0;
+
+  let maxDrawdown = 0;
+
+  rows.forEach((row) => {
+    const end = Number(row?.endPortfolioNominal);
+    if (!Number.isFinite(end) || end <= 0) return;
+
+    if (end > peak) peak = end;
+
+    if (peak > 0) {
+      const drawdown = (end / peak) - 1;
+      if (drawdown < maxDrawdown) {
+        maxDrawdown = drawdown;
+      }
+    }
+  });
+
+  let worstYearReturn = null;
+
+  if (!isHistorical) {
+    rows.forEach((row) => {
+      const r = Number(row?.marketReturn);
+      if (!Number.isFinite(r)) return;
+
+      if (worstYearReturn === null || r < worstYearReturn) {
+        worstYearReturn = r;
+      }
+    });
+  }
+
+  let worstRollingFiveYearReturn = null;
+  let bestRollingFiveYearReturn = null;
+
+  const rollingBaseValues = [
+    startValue,
+    ...rows.map((row) => Number(row?.endPortfolioNominal))
+  ];
+
+  for (let index = 5; index < rollingBaseValues.length; index += 1) {
+    const start5 = Number(rollingBaseValues[index - 5]);
+    const end5 = Number(rollingBaseValues[index]);
+
+    if (
+      Number.isFinite(start5) &&
+      Number.isFinite(end5) &&
+      start5 > 0 &&
+      end5 > 0
+    ) {
+      const rolling5 = Math.pow(end5 / start5, 1 / 5) - 1;
+
+      if (
+        worstRollingFiveYearReturn === null ||
+        rolling5 < worstRollingFiveYearReturn
+      ) {
+        worstRollingFiveYearReturn = rolling5;
+      }
+
+      if (
+        bestRollingFiveYearReturn === null ||
+        rolling5 > bestRollingFiveYearReturn
+      ) {
+        bestRollingFiveYearReturn = rolling5;
+      }
+    }
+  }
+
+  const endPortfolioGrowth =
+    !isHistorical &&
+    Number.isFinite(startValue) &&
+    Number.isFinite(endValue) &&
+    startValue > 0
+      ? (endValue / startValue) - 1
+      : null;
+
+  return {
+    mode,
+    startValue,
+    endValue,
+    years,
+    portfolioValueCagr,
+    marketCagr,
+    returnGap,
+    maxDrawdown,
+    worstYearReturn,
+    worstRollingFiveYearReturn,
+    bestRollingFiveYearReturn,
+    endPortfolioGrowth,
+    validMarketYears
+  };
+}
+
+function renderPerformanceSummaryOverlayBody(summary, formatters) {
 
 function openPerformanceSummaryOverlay(summary, formatters) {
   const overlay = document.getElementById('performanceSummaryOverlay');
