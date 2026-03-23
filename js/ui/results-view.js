@@ -223,8 +223,9 @@ function renderResultsTableIntro(elements, tableMode) {
 function renderTableViewSelector(elements, result, tableView, tableMode) {
   const selector = elements?.tableViewSelector;
   const chartsSelector = document.getElementById('chartsViewSelector');
+  const tableHeaderSelector = document.getElementById('tableHeaderViewSelector');
 
-  if (!selector && !chartsSelector) return;
+  if (!selector && !chartsSelector && !tableHeaderSelector) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
@@ -250,9 +251,13 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
     }
 
     if (chartsSelector) {
-      chartsSelector.innerHTML = '';
-      chartsSelector.closest('.results-context-header-actions')?.classList.add('hidden');
-    }
+     chartsSelector.innerHTML = '';
+     chartsSelector.closest('.results-context-header-actions')?.classList.add('hidden');
+   }
+
+   if (tableHeaderSelector) {
+     tableHeaderSelector.innerHTML = '';
+   }
 
     return;
   }
@@ -303,6 +308,13 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
       !chartPathSelectorHtml
     );
   }
+    
+  if (tableHeaderSelector) {
+    tableHeaderSelector.innerHTML =
+      mode === 'montecarlo' && tableMode !== 'performance'
+        ? getTableViewSelectorHtml(tableView)
+        : '';
+  }    
 }
 
 function getTableViewSelectorHtml(tableView) {
