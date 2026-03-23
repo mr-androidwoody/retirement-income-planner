@@ -226,6 +226,8 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
+  const showPathSelectorInPlanOutlook =
+    mode === 'montecarlo' && tableMode !== 'performance';
 
   if (isHistorical) {
     selector.innerHTML =
@@ -246,9 +248,15 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
   }
 
   selector.innerHTML = `
-    <div class="table-view-selector-group">
-      ${getTableViewSelectorHtml(tableView)}
-    </div>
+    ${
+      showPathSelectorInPlanOutlook
+        ? ''
+        : `
+          <div class="table-view-selector-group">
+            ${getTableViewSelectorHtml(tableView)}
+          </div>
+        `
+    }
 
     ${
       tableMode === 'performance'
@@ -1521,11 +1529,21 @@ const detailMetricsHtml = `
   </div>
 `;
 
-  const headerControls = '';
+const isMonteCarlo = String(result?.mode ?? '').toLowerCase() === 'montecarlo';
 
-  const primaryCardClass = getPlanOutlookCardClass(primaryState);
-  const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
-  const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
+const headerControls = isMonteCarlo
+  ? `
+      <div class="plan-outlook-path-selector table-view-selector">
+        <div class="table-view-selector-group">
+          ${getTableViewSelectorHtml(tableView)}
+        </div>
+      </div>
+    `
+  : '';
+
+const primaryCardClass = getPlanOutlookCardClass(primaryState);
+const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
+const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
 
   container.innerHTML = `
      <div class="results-context-card results-context-card--merged">
