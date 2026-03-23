@@ -55,22 +55,78 @@ export async function runHistoricalScenario(inputs) {
       endYear: window.endYear
     }
   ]);
+    
+// --- Cash runway calculation (match simulator.js) ---
+
+const openingCash =
+  Number(mappedInputs.startingPortfolio || 0) *
+  (Number(mappedInputs.cashAllocation || 0) / 100);
+
+const sharedPensionToday = Number(
+  inputs.statePensionToday ??
+  inputs.person1PensionToday ??
+  inputs.person2PensionToday ??
+  0
+);
+
+const firstYearPension =
+  (inputs.person1Age >= inputs.person1PensionAge
+    ? Number(inputs.person1PensionToday ?? sharedPensionToday)
+    : 0) +
+  (inputs.includePerson2 &&
+   inputs.person2Age >= inputs.person2PensionAge
+    ? Number(inputs.person2PensionToday ?? sharedPensionToday)
+    : 0);
+
+const firstYearOtherIncome =
+  (inputs.person1OtherIncomeYears > 0
+    ? inputs.person1OtherIncomeToday || 0
+    : 0) +
+  (inputs.includePerson2 && inputs.person2OtherIncomeYears > 0
+    ? inputs.person2OtherIncomeToday || 0
+    : 0);
+
+const firstYearWindfall =
+  (inputs.person1WindfallYear === 1
+    ? inputs.person1WindfallAmount || 0
+    : 0) +
+  (inputs.includePerson2 && inputs.person2WindfallYear === 1
+    ? inputs.person2WindfallAmount || 0
+    : 0);
+
+const openingNetWithdrawal = Math.max(
+  0,
+  inputs.initialSpending -
+    firstYearPension -
+    firstYearOtherIncome -
+    firstYearWindfall
+);
+
+const cashRunwayYears =
+  openingNetWithdrawal > 0
+    ? openingCash / openingNetWithdrawal
+    : Number.POSITIVE_INFINITY;
+
+    
 
   const rows = adaptHistoricalRows(scenario.yearlyRows, inputs);
 
   return {
-    inputs,
-    summary,
-    rows,
-    yearlyRows: rows,
-    pathNominal: scenario.pathNominal || [],
-    pathReal: scenario.pathReal || [],
-    terminalNominal: scenario.terminalNominal,
-    terminalReal: scenario.terminalReal,
-    startYear: window.startYear,
-    endYear: window.endYear,
-    label: `${window.startYear} — ${window.endYear}`
-  };
+  inputs,
+  summary: {
+    ...summary,
+    cashRunwayYears
+  },
+  rows,
+  yearlyRows: rows,
+  pathNominal: scenario.pathNominal || [],
+  pathReal: scenario.pathReal || [],
+  terminalNominal: scenario.terminalNominal,
+  terminalReal: scenario.terminalReal,
+  startYear: window.startYear,
+  endYear: window.endYear,
+  label: `${window.startYear} — ${window.endYear}`
+};
 }
 
 function mapInputs(inputs) {
