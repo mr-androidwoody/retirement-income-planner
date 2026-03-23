@@ -1478,7 +1478,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
 
     if (elements.summaryMedianEndDesc) {
       elements.summaryMedianEndDesc.textContent =
-        'The final portfolio value based on this historical sequence of returns.';
+        'The median (50th percentile) ending portfolio value based on this historical sequence of returns.';
     }
 
     if (elements.summaryWorstStressLabel) {
