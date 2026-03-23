@@ -990,7 +990,7 @@ function measureLegend(ctx, lines, width) {
   const markerSize = 20;
   const markerTextGap = 8;
   const itemGap = 28;
-  const rowGap = 12;
+  const rowGap = 6;    // tweak row gap in chart legend
   const maxRowWidth = Math.max(200, width - 36);
 
   ctx.font = '13px Inter, system-ui, sans-serif';
