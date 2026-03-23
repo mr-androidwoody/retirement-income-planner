@@ -57,38 +57,37 @@ function getStartingCashlikeBalance(result) {
   );
 }
 
-function formatHistoricalScenarioHeader(result, rows) {
+function formatHistoricalScenarioRangeLabel(result, activePath, rows) {
   if (!Array.isArray(rows) || rows.length === 0) {
-    return 'Historical';
+    return 'Historical scenario';
   }
 
   const startYear = Number(rows[0]?.year);
   const horizonYears = Number(result?.inputs?.years);
 
   if (!Number.isFinite(startYear) || !Number.isFinite(horizonYears) || horizonYears <= 0) {
-    return 'Historical';
+    return 'Historical scenario';
   }
 
   const endYear = startYear + horizonYears - 1;
 
-  const scenarioLabels = {
-    1914: 'War disruption (WWI)',
-    1929: 'Great Depression',
-    1937: 'Recession within recovery',
-    1966: 'Inflation shock',
-    1972: 'Inflation then market slump',
-    1973: 'Stagflation shock',
-    1979: 'High inflation peak',
-    2000: 'Dot-com bubble',
-    2007: 'Global Financial Crisis start',
-    2008: 'Global Financial Crisis'
-  };
+  const rawLabel = String(activePath?.label ?? '').trim();
 
-  const scenarioLabel = scenarioLabels[startYear];
+  const scenarioName = rawLabel
+    .replace(/^\d{4}\s*[-–]\s*/, '')
+    .trim();
 
-  return scenarioLabel
-    ? `Historical: ${startYear}–${endYear} — ${scenarioLabel}`
-    : `Historical: ${startYear}–${endYear}`;
+  return scenarioName
+    ? `${startYear}–${endYear} - ${scenarioName}`
+    : `${startYear}–${endYear}`;
+}
+
+function formatHistoricalResultsHeader(result, activePath, rows) {
+  return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(
+    result,
+    activePath,
+    rows
+  )}`;
 }
 
 function escapeHtmlAttribute(value) {
@@ -198,10 +197,11 @@ function renderResultsTableNote(elements, result, activePath, tableMode) {
   if (!note) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
-  const historicalLabel = `Historical scenario: ${formatHistoricalScenarioHeader(
+  const historicalLabel = `Historical scenario: ${formatHistoricalScenarioRangeLabel(
   result,
+  activePath,
   activePath?.yearlyRows || activePath?.rows || []
-).replace(/^Historical:\s*/, '')}.`;
+)}.`;
 
   if (mode === 'historical') {
     note.textContent =
@@ -1413,8 +1413,8 @@ const detailMetricsHtml = `
 `;
 
   const headerControls = isHistorical
-      ? `<div class="results-context-path">${formatHistoricalScenarioHeader(result, rows)}</div>`
-    : '';
+  ? `<div class="results-context-path">${formatHistoricalResultsHeader(result, activePath, rows)}</div>`
+  : '';
 
   const primaryCardClass = getPlanOutlookCardClass(primaryState);
   const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
