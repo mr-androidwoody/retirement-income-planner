@@ -452,7 +452,6 @@ function simulatePath(inputs, annualReturns) {
     const eqReturn = annualReturns.equities[yearIndex] ?? inputs.equityReturn;
     const bondReturn = annualReturns.bonds[yearIndex] ?? inputs.bondReturn;
     const cashReturn = annualReturns.cashlike[yearIndex] ?? inputs.cashlikeReturn;
-    const inflationRate = annualReturns.inflation[yearIndex] ?? inputs.inflation;
     const annualFeeRate = inputs.annualFeeRate ?? 0;
 
     applyAssetReturns(buckets, {
