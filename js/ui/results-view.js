@@ -116,7 +116,11 @@ function formatRetirementPeriodLabel(result) {
     const select = document.getElementById('historicalScenario');
     startYear = Number(select?.value);
   } else {
-    startYear = Number(result?.inputs?.startYear);
+    startYear = Number(
+      result?.inputs?.startYear ??
+      result?.inputs?.retirementStartYear ??
+      new Date().getFullYear()
+    );
   }
 
   if (!Number.isFinite(startYear)) {
