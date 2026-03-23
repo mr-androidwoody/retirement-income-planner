@@ -987,16 +987,22 @@ function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
 }
 
 function measureLegend(ctx, lines, width) {
-  const markerSize = 18;
+  const markerSize = 20;
   const markerTextGap = 8;
   const itemGap = 28;
   const rowGap = 12;
   const maxRowWidth = Math.max(200, width - 36);
 
+  ctx.font = '13px Inter, system-ui, sans-serif';
+
   const items = lines.map((line) => {
-  const textWidth = ctx.measureText(line.label).width;
-  const widthNeeded = markerSize + markerTextGap + textWidth;
-  return { ...line, widthNeeded };
+    const labelWidth = ctx.measureText(line.label).width;
+    const descriptionWidth = line.description
+      ? ctx.measureText(line.description).width
+      : 0;
+    const textWidth = Math.max(labelWidth, descriptionWidth);
+    const widthNeeded = markerSize + markerTextGap + textWidth;
+    return { ...line, widthNeeded };
   });
 
   const rows = [];
@@ -1004,7 +1010,8 @@ function measureLegend(ctx, lines, width) {
   let rowWidth = 0;
 
   items.forEach((item) => {
-    const nextWidth = row.length === 0 ? item.widthNeeded : rowWidth + itemGap + item.widthNeeded;
+    const nextWidth =
+      row.length === 0 ? item.widthNeeded : rowWidth + itemGap + item.widthNeeded;
 
     if (nextWidth > maxRowWidth && row.length) {
       rows.push(row);
@@ -1018,8 +1025,13 @@ function measureLegend(ctx, lines, width) {
 
   if (row.length) rows.push(row);
 
-  const rowHeight = 28;
-  const heightNeeded = rows.length * rowHeight + (rows.length - 1) * rowGap + 18;
+  const rowHeight = 42;
+  const heightNeededRaw =
+  rows.length * rowHeight + (rows.length - 1) * rowGap + 18;
+
+  const MIN_LEGEND_HEIGHT = 110; // tweak this after visual check
+
+  const heightNeeded = Math.max(heightNeededRaw, MIN_LEGEND_HEIGHT);
 
   return {
     rows,
@@ -1080,18 +1092,25 @@ function drawLegend(ctx, width, height, layout) {
 
       const textX = x + layout.markerSize + layout.markerTextGap;
 
-      ctx.fillStyle = '#475569';
+      ctx.save();
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(item.label, textX, y);
-
+    
       if (item.description) {
-        ctx.save();
+        ctx.fillStyle = '#475569';
+        ctx.font = '13px Inter, system-ui, sans-serif';
+        ctx.fillText(item.label, textX, y - 8);
+    
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '11px Inter, system-ui, sans-serif';
-        ctx.fillText(item.description, textX, y + 12);
-        ctx.restore();
+        ctx.font = '13px Inter, system-ui, sans-serif';
+        ctx.fillText(item.description, textX, y + 8);
+      } else {
+        ctx.fillStyle = '#475569';
+        ctx.font = '13px Inter, system-ui, sans-serif';
+        ctx.fillText(item.label, textX, y);
       }
+    
+      ctx.restore();
 
       x += item.widthNeeded + layout.itemGap;
     });
@@ -1140,7 +1159,7 @@ function drawXAxis(ctx, labels, width, height, padding) {
 
     ctx.save();
     ctx.fillStyle = '#657086';
-    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.font = '13px Inter, system-ui, sans-serif';
     ctx.textAlign = 'center';
 
 ctx.fillText('Years in retirement', padding.left + plotWidth / 2, baseline + 22);
