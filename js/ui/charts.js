@@ -1029,7 +1029,7 @@ function measureLegend(ctx, lines, width) {
   const heightNeededRaw =
     rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
 
-  const MIN_LEGEND_HEIGHT = 0;
+  const MIN_LEGEND_HEIGHT = 115;
 
   const heightNeeded = Math.max(heightNeededRaw, MIN_LEGEND_HEIGHT);
 
