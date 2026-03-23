@@ -209,6 +209,39 @@ function renderTableModeSelector(elements, tableMode) {
   selector.classList.remove('hidden');
 }
 
+function renderResultsTableTitle(result) {
+  const titleEl = document.getElementById('resultsTableTitle');
+  if (!titleEl) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+
+  if (mode === 'historical') {
+    const label = formatHistoricalScenarioRangeLabel(result);
+
+    // strip the bracketed range → keep clean label
+    const cleanLabel = label.replace(/\s*\(.*?\)\s*$/, '');
+
+    titleEl.textContent = `Yearly results view for: historical scenario ${cleanLabel}`;
+    return;
+  }
+
+  if (mode === 'montecarlo') {
+    const runs =
+      Number(result?.scenarioCount) ||
+      Number(result?.monteCarlo?.scenarioCount) ||
+      Number(result?.monteCarlo?.runs) ||
+      Number(result?.inputs?.simulations) ||
+      0;
+
+    const formattedRuns = runs > 0 ? runs.toLocaleString() : '—';
+
+    titleEl.textContent = `Yearly results view for: ${formattedRuns} simulated outcomes`;
+    return;
+  }
+
+  titleEl.textContent = 'Yearly results view';
+}
+
 function renderResultsTableIntro(elements, tableMode) {
   const intro = elements?.resultsTableIntro;
   const actions = document.getElementById('tableDescriptionActions');
@@ -416,10 +449,11 @@ export function renderResultsView({
       formatters
     });
   } else if (elements.resultsContextBar) {
-    elements.resultsContextBar.innerHTML = '';
+  elements.resultsContextBar.innerHTML = '';
   }
 
   renderTableModeSelector(elements, tableMode);
+  renderResultsTableTitle(result);
   renderResultsTableIntro(elements, tableMode);
   renderTableViewSelector(elements, result, tableView, tableMode);
 
