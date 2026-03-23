@@ -474,14 +474,6 @@ export function renderResultsView({
   }
 }
 
-function clearPerformanceSummary(elements) {
-  const container = elements?.performanceSummary;
-  if (!container) return;
-
-  container.innerHTML = '';
-  container.classList.add('hidden');
-}
-
 function renderPerformanceSummaryOverlayBody(summary, formatters) {
   if (!summary) return '';
 
@@ -759,8 +751,6 @@ function computePerformanceSummary(rows, result) {
     validMarketYears
   };
 }
-
-function renderPerformanceSummaryOverlayBody(summary, formatters) {
 
 function openPerformanceSummaryOverlay(summary, formatters) {
   const overlay = document.getElementById('performanceSummaryOverlay');
