@@ -2876,20 +2876,26 @@ input[type="checkbox"]{
    Performance summary overlay
    ======================================== */
 
-.performance-summary-trigger{
+.performance-summary-trigger.button,
+.performance-summary-trigger.button--secondary,
+.performance-summary-trigger.button--small{
   background:var(--accent);
   color:#fff;
   border:1px solid var(--accent);
   box-shadow:0 4px 10px rgba(45, 91, 255, 0.18);
 }
 
-.performance-summary-trigger:hover{
+.performance-summary-trigger.button:hover,
+.performance-summary-trigger.button--secondary:hover,
+.performance-summary-trigger.button--small:hover{
   background:#244ee6;
   color:#fff;
   border-color:#244ee6;
 }
 
-.performance-summary-trigger:focus-visible{
+.performance-summary-trigger.button:focus-visible,
+.performance-summary-trigger.button--secondary:focus-visible,
+.performance-summary-trigger.button--small:focus-visible{
   outline:2px solid rgba(45, 91, 255, 0.28);
   outline-offset:2px;
 }
