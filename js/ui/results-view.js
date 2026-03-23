@@ -1478,7 +1478,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
   if (elements.summaryMedianEndDesc) {
     if (tableView === 'median') {
       elements.summaryMedianEndDesc.textContent =
-        'The median (50th percentile), representing a typical outcome.';
+        'The ending portfolio value if retirement began at the start of this historical period.';
     } else if (tableView === 'p10') {
       elements.summaryMedianEndDesc.textContent =
         'A weaker simulated outcome, showing how the plan holds up under poorer return conditions.';
@@ -1487,7 +1487,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
         'A stronger simulated outcome, showing how the plan performs under better return conditions.';
     } else {
       elements.summaryMedianEndDesc.textContent =
-        'The median (50th percentile), representing a typical outcome.';
+        'The ending portfolio value if retirement began at the start of this historical period.';
     }
   }
 
