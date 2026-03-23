@@ -534,7 +534,13 @@ export function renderResultsView({
   }
 
   if (isHistorical || hasMonteCarlo) {
-    renderPortfolioChart(elements.portfolioChart, result, useReal, formatCurrency);
+    renderPortfolioChart(
+      elements.portfolioChart,
+      result,
+      useReal,
+      formatCurrency,
+      tableView
+    );
 
     renderSpendingChart(
       elements.spendingChart,
