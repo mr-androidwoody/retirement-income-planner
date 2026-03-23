@@ -57,21 +57,6 @@ function getStartingCashlikeBalance(result) {
   );
 }
 
-function getSelectedHistoricalScenarioLabel(result, rows) {
-  const select = document.getElementById('historicalScenario');
-
-  if (select && select.selectedOptions && select.selectedOptions[0]) {
-    return String(select.selectedOptions[0].textContent || '').trim();
-  }
-
-  const startYear = Number(rows?.[0]?.year);
-  if (!Number.isFinite(startYear)) {
-    return '';
-  }
-
-  return String(startYear);
-}
-
 function formatHistoricalScenarioRangeLabel(result) {
   const select = document.getElementById('historicalScenario');
 
@@ -97,22 +82,6 @@ function formatHistoricalScenarioRangeLabel(result) {
   return scenarioName
     ? `${startYear} ${scenarioName} (${startYear} - ${endYear})`
     : `${startYear} (${startYear} - ${endYear})`;
-}
-
-function formatHistoricalResultsHeader(result) {
-  return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(result)}`;
-}
-
-function renderResultsPanelTitle(result) {
-  const titleEl = document.getElementById('resultsPanelTitle');
-  if (!titleEl) return;
-
-  const mode = String(result?.mode ?? '').toLowerCase();
-  const isHistorical = mode === 'historical';
-
-  titleEl.textContent = isHistorical
-    ? formatHistoricalResultsHeader(result)
-    : 'Results';
 }
 
 function formatHistoricalResultsHeader(result) {
