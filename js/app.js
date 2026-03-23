@@ -203,9 +203,12 @@ function resetResultsHeader() {
   els.summarySuccessRateCard.classList.remove(
     'summary-card--green',
     'summary-card--amber',
-    'summary-card--red'
+    'summary-card--red',
+    'is-strong',
+    'is-weak',
+    'is-watch'
   );
- }
+}
 }
 
 function setupWorker() {
