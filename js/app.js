@@ -200,8 +200,12 @@ function resetResultsHeader() {
   }
 
   if (els.summarySuccessRateCard) {
-    els.summarySuccessRateCard.classList.remove('summary-card--green');
-  }
+  els.summarySuccessRateCard.classList.remove(
+    'summary-card--green',
+    'summary-card--amber',
+    'summary-card--red'
+  );
+ }
 }
 
 function setupWorker() {
