@@ -477,11 +477,18 @@ export function renderResultsView({
 function renderPerformanceSummaryOverlayBody(summary, formatters) {
   if (!summary) return '';
 
-  const { formatPercent } = formatters;
+  const { formatPercent, formatCurrency } = formatters;
 
-  const valueWithClass = (v, { signed = false } = {}) => {
+  const valueWithClass = (v, { signed = false, currency = false } = {}) => {
     if (!Number.isFinite(v)) {
       return { text: '—', className: '' };
+    }
+
+    if (currency) {
+      return {
+        text: formatCurrency(v),
+        className: ''
+      };
     }
 
     return {
@@ -496,70 +503,80 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
   };
 
   const items = summary.mode === 'historical'
-  ? [
-      {
-        label: 'Portfolio value CAGR',
-        description: 'Annualised growth of your portfolio value',
-        value: valueWithClass(summary.portfolioValueCagr)
-      },
-      {
-        label: 'Max drawdown',
-        description: 'Largest peak-to-trough portfolio fall',
-        value: valueWithClass(summary.maxDrawdown)
-      },
-      {
-        label: 'Worst rolling 5-year return',
-        description: 'Worst annualised return over any 5-year period',
-        value: valueWithClass(summary.worstRollingFiveYearReturn)
-      },
-      {
-        label: 'Best rolling 5-year return',
-        description: 'Best annualised return over any 5-year period',
-        value: valueWithClass(summary.bestRollingFiveYearReturn)
-      }
-    ]
-  : [
-      {
-        label: 'Portfolio value CAGR',
-        description: 'Annualised growth of your portfolio value',
-        value: valueWithClass(summary.portfolioValueCagr)
-      },
-      {
-        label: 'Market CAGR',
-        description: 'Annualised return of the underlying market',
-        value: valueWithClass(summary.marketCagr)
-      },
-      {
-        label: 'Return gap',
-        description: 'Difference between your returns and the market',
-        value: valueWithClass(summary.returnGap, { signed: true })
-      },
-      {
-        label: 'Max drawdown',
-        description: 'Largest peak-to-trough portfolio fall',
-        value: valueWithClass(summary.maxDrawdown)
-      },
-      {
-        label: 'Worst year return',
-        description: 'Largest loss in a single year',
-        value: valueWithClass(summary.worstYearReturn)
-      },
-      {
-        label: 'Worst rolling 5-year return',
-        description: 'Worst annualised return over any 5-year period',
-        value: valueWithClass(summary.worstRollingFiveYearReturn)
-      },
-      {
-        label: 'Best rolling 5-year return',
-        description: 'Best annualised return over any 5-year period',
-        value: valueWithClass(summary.bestRollingFiveYearReturn)
-      },
-      {
-        label: 'End portfolio growth',
-        description: 'Percentage change in ending portfolio versus starting value',
-        value: valueWithClass(summary.endPortfolioGrowth, { signed: true })
-      }
-    ];
+    ? [
+        {
+          label: 'Portfolio value at start',
+          description: 'Starting portfolio value for this scenario',
+          value: valueWithClass(summary.startValue, { currency: true })
+        },
+        {
+          label: 'Portfolio value at end',
+          description: 'Ending portfolio value for this scenario',
+          value: valueWithClass(summary.endValue, { currency: true })
+        },
+        {
+          label: 'Portfolio value CAGR',
+          description: 'Annualised growth of your portfolio value',
+          value: valueWithClass(summary.portfolioValueCagr)
+        },
+        {
+          label: 'Max drawdown',
+          description: 'Largest peak-to-trough portfolio fall',
+          value: valueWithClass(summary.maxDrawdown)
+        },
+        {
+          label: 'Worst rolling 5-year return',
+          description: 'Worst annualised return over any 5-year period',
+          value: valueWithClass(summary.worstRollingFiveYearReturn)
+        },
+        {
+          label: 'Best rolling 5-year return',
+          description: 'Best annualised return over any 5-year period',
+          value: valueWithClass(summary.bestRollingFiveYearReturn)
+        }
+      ]
+    : [
+        {
+          label: 'Portfolio value CAGR',
+          description: 'Annualised growth of your portfolio value',
+          value: valueWithClass(summary.portfolioValueCagr)
+        },
+        {
+          label: 'Market CAGR',
+          description: 'Annualised return of the underlying market',
+          value: valueWithClass(summary.marketCagr)
+        },
+        {
+          label: 'Return gap',
+          description: 'Difference between your returns and the market',
+          value: valueWithClass(summary.returnGap, { signed: true })
+        },
+        {
+          label: 'Max drawdown',
+          description: 'Largest peak-to-trough portfolio fall',
+          value: valueWithClass(summary.maxDrawdown)
+        },
+        {
+          label: 'Worst year return',
+          description: 'Largest loss in a single year',
+          value: valueWithClass(summary.worstYearReturn)
+        },
+        {
+          label: 'Worst rolling 5-year return',
+          description: 'Worst annualised return over any 5-year period',
+          value: valueWithClass(summary.worstRollingFiveYearReturn)
+        },
+        {
+          label: 'Best rolling 5-year return',
+          description: 'Best annualised return over any 5-year period',
+          value: valueWithClass(summary.bestRollingFiveYearReturn)
+        },
+        {
+          label: 'End portfolio growth',
+          description: 'Percentage change in ending portfolio versus starting value',
+          value: valueWithClass(summary.endPortfolioGrowth, { signed: true })
+        }
+      ];
 
   return `
     <div class="performance-summary-grid">
@@ -1461,7 +1478,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
 
     if (elements.summaryMedianEndDesc) {
       elements.summaryMedianEndDesc.textContent =
-        'The median (50th percentile) ending portfolio value across all simulated outcomes';
+        'The final portfolio value based on this historical sequence of returns.';
     }
 
     if (elements.summaryWorstStressLabel) {
