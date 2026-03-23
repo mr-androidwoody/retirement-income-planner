@@ -2876,15 +2876,32 @@ input[type="checkbox"]{
    Performance summary overlay
    ======================================== */
 
+.performance-summary-trigger,
 .performance-summary-trigger.button,
 .performance-summary-trigger.button--secondary,
 .performance-summary-trigger.button--small{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 11px;
+  border-radius:9px;
+  border:1px solid var(--accent);
   background:var(--accent);
   color:#fff;
-  border:1px solid var(--accent);
-  box-shadow:0 4px 10px rgba(45, 91, 255, 0.18);
+  cursor:pointer;
+  font-size:0.8rem;
+  font-weight:700;
+  line-height:1.2;
+  box-shadow:none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
+.performance-summary-trigger:hover,
 .performance-summary-trigger.button:hover,
 .performance-summary-trigger.button--secondary:hover,
 .performance-summary-trigger.button--small:hover{
@@ -2893,6 +2910,7 @@ input[type="checkbox"]{
   border-color:#244ee6;
 }
 
+.performance-summary-trigger:focus-visible,
 .performance-summary-trigger.button:focus-visible,
 .performance-summary-trigger.button--secondary:focus-visible,
 .performance-summary-trigger.button--small:focus-visible{
@@ -2934,6 +2952,13 @@ input[type="checkbox"]{
   line-height:1.35;
 }
 
+.performance-summary-metric__description{
+  margin:0 0 10px;
+  color:var(--muted);
+  font-size:0.82rem;
+  line-height:1.45;
+}
+
 .performance-summary-metric__value{
   color:var(--text);
   font-size:1.35rem;
@@ -2952,7 +2977,7 @@ input[type="checkbox"]{
 
 @media (max-width: 720px){
   #performanceSummaryOverlay .outlook-glossary-dialog{
-    width:min(100vw - 20px, 900px);
+    width:min(calc(100vw - 20px), 900px);
     max-height:90vh;
   }
 
@@ -2969,7 +2994,6 @@ input[type="checkbox"]{
     gap:12px;
   }
 }
-
 /* ========================================
    Table view selector
    ======================================== */
