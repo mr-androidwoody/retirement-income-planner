@@ -216,12 +216,24 @@ function renderResultsTableTitle(result) {
   const mode = String(result?.mode ?? '').toLowerCase();
 
   if (mode === 'historical') {
-    const label = formatHistoricalScenarioRangeLabel(result);
+    const select = document.getElementById('historicalScenario');
 
-    // strip the bracketed range → keep clean label
-    const cleanLabel = label.replace(/\s*\(.*?\)\s*$/, '');
+    if (!select) {
+      titleEl.textContent = 'Yearly results view';
+      return;
+    }
 
-    titleEl.textContent = `Yearly results view for: historical scenario ${cleanLabel}`;
+    const startYear = Number(select.value);
+    const labelText = String(select.selectedOptions?.[0]?.textContent || '').trim();
+
+    const scenarioName = labelText
+      .replace(/^\d{4}\s*-\s*/, '')
+      .trim();
+
+    titleEl.textContent = scenarioName
+      ? `Yearly results view for: historic scenario ${startYear} ${scenarioName}`
+      : `Yearly results view for: historic scenario ${startYear}`;
+
     return;
   }
 
