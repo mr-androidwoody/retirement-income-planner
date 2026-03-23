@@ -3351,3 +3351,21 @@ input[type="checkbox"]{
   opacity: 0.8;
   margin-top: 2px;
 }
+
+/* ========================================
+   Footer
+   ======================================== */
+
+.site-footer {
+  margin-top: 40px;
+  padding: 24px 16px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.site-footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
