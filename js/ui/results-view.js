@@ -429,25 +429,23 @@ export function renderResultsView({
   renderResultsTableIntro(elements, tableMode);
   renderTableViewSelector(elements, result, tableView, tableMode);
 
-  if (tableMode === 'performance') {
   const button = document.getElementById('openPerformanceSummary');
 
-  if (button) {
-    const summary = computePerformanceSummary(rows, result, useReal);
+   if (button) {
+     const summary = computePerformanceSummary(rows, result, useReal);
 
-    button.replaceWith(button.cloneNode(true));
-    const newButton = document.getElementById('openPerformanceSummary');
+     button.replaceWith(button.cloneNode(true));
+     const newButton = document.getElementById('openPerformanceSummary');
 
-    if (newButton) {
-      newButton.onclick = () => {
-        openPerformanceSummaryOverlay(summary, {
-          formatPercent,
-          formatCurrency
-        });
-      };
-    }
-  }
-}
+     if (newButton) {
+         newButton.onclick = () => {
+         openPerformanceSummaryOverlay(summary, {
+         formatPercent,
+         formatCurrency
+         });
+       };
+     }
+   }
 
   renderSummaryCardLabels(elements, result, tableView);
 
