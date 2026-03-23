@@ -309,13 +309,13 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
   }
 
   const pathSelectorHtml =
-    mode === 'montecarlo' && tableMode !== 'performance'
-      ? `
-          <div class="table-view-selector-group">
-            ${getTableViewSelectorHtml(tableView)}
-          </div>
-        `
-      : '';
+  mode === 'montecarlo'
+    ? `
+        <div class="table-view-selector-group">
+          ${getTableViewSelectorHtml(tableView)}
+        </div>
+      `
+    : '';
 
   if (chartsSelector) {
     chartsSelector.innerHTML = pathSelectorHtml;
@@ -325,11 +325,11 @@ function renderTableViewSelector(elements, result, tableView, tableMode) {
   }
 
   if (tableHeaderSelector) {
-    tableHeaderSelector.innerHTML =
-      mode === 'montecarlo' && tableMode !== 'performance'
-        ? getTableViewSelectorHtml(tableView)
-        : '';
-  }
+  tableHeaderSelector.innerHTML =
+    mode === 'montecarlo'
+      ? getTableViewSelectorHtml(tableView)
+      : '';
+}
 }
 
 function getTableViewSelectorHtml(tableView) {
