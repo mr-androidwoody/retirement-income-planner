@@ -222,18 +222,15 @@ function renderResultsTableIntro(elements, tableMode) {
   }
 
   if (actions) {
-    actions.innerHTML =
-      tableMode === 'performance'
-        ? `
-          <button
-            type="button"
-            id="openPerformanceSummary"
-            class="button button--secondary button--small performance-summary-trigger"
-          >
-            Key metrics
-          </button>
-        `
-        : '';
+    actions.innerHTML = `
+      <button
+        type="button"
+        id="openPerformanceSummary"
+        class="button button--secondary button--small performance-summary-trigger"
+      >
+        Key metrics
+      </button>
+    `;
   }
 }
 
