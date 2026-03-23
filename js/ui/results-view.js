@@ -410,24 +410,24 @@ export function renderResultsView({
   renderTableViewSelector(elements, result, tableView, tableMode);
 
   if (tableMode === 'performance') {
-    const button = document.getElementById('openPerformanceSummary');
+  const button = document.getElementById('openPerformanceSummary');
 
-    if (button) {
-      const summary = computePerformanceSummary(rows, result);
+  if (button) {
+    const summary = computePerformanceSummary(rows, result, useReal);
 
-      button.replaceWith(button.cloneNode(true));
-      const newButton = document.getElementById('openPerformanceSummary');
+    button.replaceWith(button.cloneNode(true));
+    const newButton = document.getElementById('openPerformanceSummary');
 
-      if (newButton) {
-        newButton.onclick = () => {
-            openPerformanceSummaryOverlay(summary, {
-            formatPercent,
-            formatCurrency
-            });
-        };
-      }
+    if (newButton) {
+      newButton.onclick = () => {
+        openPerformanceSummaryOverlay(summary, {
+          formatPercent,
+          formatCurrency
+        });
+      };
     }
   }
+}
 
   renderSummaryCardLabels(elements, result, tableView);
 
@@ -690,7 +690,7 @@ function clearPerformanceSummary(elements) {
   container.classList.add('hidden');
 }
 
-function computePerformanceSummary(rows, result) {
+function computePerformanceSummary(rows, result, useReal = false) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
 
@@ -722,9 +722,18 @@ function computePerformanceSummary(rows, result) {
   const startValue =
     Number.isFinite(inputStartValue) && inputStartValue > 0
       ? inputStartValue
-      : Number(firstRow?.startPortfolioNominal);
+      : Number(
+          useReal
+            ? firstRow?.startPortfolioReal ?? firstRow?.startPortfolioNominal
+            : firstRow?.startPortfolioNominal
+        );
 
-  const endValue = Number(lastRow?.endPortfolioNominal);
+  const endValue = Number(
+    useReal
+      ? lastRow?.endPortfolioReal ?? lastRow?.endPortfolioNominal
+      : lastRow?.endPortfolioNominal
+  );
+
   const years = rows.length;
 
   const portfolioValueCagr =
@@ -762,12 +771,21 @@ function computePerformanceSummary(rows, result) {
   let peak =
     Number.isFinite(startValue) && startValue > 0
       ? startValue
-      : Number(firstRow?.endPortfolioNominal) || 0;
+      : Number(
+          useReal
+            ? firstRow?.endPortfolioReal ?? firstRow?.endPortfolioNominal
+            : firstRow?.endPortfolioNominal
+        ) || 0;
 
   let maxDrawdown = 0;
 
   rows.forEach((row) => {
-    const end = Number(row?.endPortfolioNominal);
+    const end = Number(
+      useReal
+        ? row?.endPortfolioReal ?? row?.endPortfolioNominal
+        : row?.endPortfolioNominal
+    );
+
     if (!Number.isFinite(end) || end <= 0) return;
 
     if (end > peak) peak = end;
@@ -798,7 +816,13 @@ function computePerformanceSummary(rows, result) {
 
   const rollingBaseValues = [
     startValue,
-    ...rows.map((row) => Number(row?.endPortfolioNominal))
+    ...rows.map((row) =>
+      Number(
+        useReal
+          ? row?.endPortfolioReal ?? row?.endPortfolioNominal
+          : row?.endPortfolioNominal
+      )
+    )
   ];
 
   for (let index = 5; index < rollingBaseValues.length; index += 1) {
