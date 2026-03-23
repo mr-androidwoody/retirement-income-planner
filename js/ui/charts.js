@@ -1068,7 +1068,7 @@ function drawLegend(ctx, width, height, layout) {
     layout.rows.length * layout.rowHeight +
     (layout.rows.length - 1) * layout.rowGap;
 
-  let y = boxY + (boxHeight - contentHeight) / 1 + layout.rowHeight / 1;  // legend box height
+  let y = boxY + (boxHeight - contentHeight) / 2 + layout.rowHeight / 2;
 
     layout.rows.forEach((row) => {
     const rowWidth =
