@@ -990,7 +990,7 @@ function measureLegend(ctx, lines, width) {
   const markerSize = 20;
   const markerTextGap = 8;
   const itemGap = 28;
-  const rowGap = 6;    // tweak row gap in chart legend
+  const rowGap = 0;    // tweak row gap in chart legend
   const maxRowWidth = Math.max(200, width - 36);
 
   ctx.font = '13px Inter, system-ui, sans-serif';
@@ -1025,11 +1025,11 @@ function measureLegend(ctx, lines, width) {
 
   if (row.length) rows.push(row);
 
-  const rowHeight = 42;
+  const rowHeight = 34;
   const heightNeededRaw =
-  rows.length * rowHeight + (rows.length - 1) * rowGap + 18;
+    rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
 
-  const MIN_LEGEND_HEIGHT = 115; // tweak this after visual check
+  const MIN_LEGEND_HEIGHT = 0;
 
   const heightNeeded = Math.max(heightNeededRaw, MIN_LEGEND_HEIGHT);
 
@@ -1045,7 +1045,7 @@ function measureLegend(ctx, lines, width) {
 }
 
 function drawLegend(ctx, width, height, layout) {
-  const boxPaddingY = 6;
+  const boxPaddingY = 3;
   const boxRadius = 12;
   const boxX = 24;
   const boxWidth = width - 48;
@@ -1068,7 +1068,7 @@ function drawLegend(ctx, width, height, layout) {
     layout.rows.length * layout.rowHeight +
     (layout.rows.length - 1) * layout.rowGap;
 
-  let y = boxY + (boxHeight - contentHeight) / 2 + layout.rowHeight / 2;
+  let y = boxY + boxPaddingY + layout.rowHeight / 2;
 
     layout.rows.forEach((row) => {
     const rowWidth =
@@ -1159,7 +1159,7 @@ function drawXAxis(ctx, labels, width, height, padding) {
 
     ctx.save();
     ctx.fillStyle = '#657086';
-    ctx.font = '13px Inter, system-ui, sans-serif';
+    ctx.font = '12px Inter, system-ui, sans-serif';
     ctx.textAlign = 'center';
 
 ctx.fillText('Years in retirement', padding.left + plotWidth / 2, baseline + 22);
