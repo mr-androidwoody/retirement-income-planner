@@ -400,18 +400,31 @@ function simulatePath(inputs, annualReturns) {
   let previousMarketReturn = null;
 
   for (let yearIndex = 0; yearIndex < inputs.years; yearIndex += 1) {
-    const year = yearIndex + 1;
-    const startPortfolioNominal = totalPortfolio(buckets);
-    const startPortfolioReal = startPortfolioNominal / inflationIndex;
+  const year = yearIndex + 1;
 
-    const nextInflationIndex = inflationIndex * (1 + (annualReturns.inflation[yearIndex] ?? inputs.inflation));
+  const startPortfolioNominal = totalPortfolio(buckets);
+  const startPortfolioReal = startPortfolioNominal / inflationIndex;
 
-    const pensionNominal = getStatePensionNominal(inputs, yearIndex, nextInflationIndex);
-    const otherIncomeNominal = getOtherIncomeNominal(inputs, yearIndex, nextInflationIndex);
-    const otherIncomeNominal = getOtherIncomeNominal(inputs, yearIndex, inflationIndex);
-    const windfallNominal = getWindfallNominal(inputs, yearIndex);
-    const totalNonPortfolioIncomeNominal =
-      pensionNominal + otherIncomeNominal + windfallNominal;
+  const inflationRate = annualReturns.inflation[yearIndex] ?? inputs.inflation;
+
+  const nextInflationIndex = inflationIndex * (1 + inflationRate);
+
+  const pensionNominal = getStatePensionNominal(
+    inputs,
+    yearIndex,
+    nextInflationIndex
+  );
+
+  const otherIncomeNominal = getOtherIncomeNominal(
+    inputs,
+    yearIndex,
+    nextInflationIndex
+  );
+
+  const windfallNominal = getWindfallNominal(inputs, yearIndex);
+
+  const totalNonPortfolioIncomeNominal =
+    pensionNominal + otherIncomeNominal + windfallNominal;
 
     const requestedWithdrawalNominal = Math.max(
       0,
