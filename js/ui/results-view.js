@@ -1425,7 +1425,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
 
     if (elements.summaryMedianEndDesc) {
       elements.summaryMedianEndDesc.textContent =
-        'The ending portfolio value if retirement began at the start of this historical period.';
+        'The median (50th percentile) ending portfolio value across all simulated outcomes';
     }
 
     if (elements.summaryWorstStressLabel) {
@@ -1478,7 +1478,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
   if (elements.summaryMedianEndDesc) {
     if (tableView === 'median') {
       elements.summaryMedianEndDesc.textContent =
-        'The ending portfolio value if retirement began at the start of this historical period.';
+        'The median (50th percentile) ending portfolio value across all simulated outcomes';
     } else if (tableView === 'p10') {
       elements.summaryMedianEndDesc.textContent =
         'A weaker simulated outcome, showing how the plan holds up under poorer return conditions.';
