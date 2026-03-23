@@ -55,78 +55,74 @@ export async function runHistoricalScenario(inputs) {
       endYear: window.endYear
     }
   ]);
-    
-// --- Cash runway calculation (match simulator.js) ---
 
-const openingCash =
-  Number(mappedInputs.startingPortfolio || 0) *
-  (Number(mappedInputs.cashAllocation || 0) / 100);
+  // Cash runway calculation (match simulator.js intent)
+  const initialPortfolio = Number(inputs.initialPortfolio || 0);
+  const cashlikeAllocation = Number(inputs.cashlikeAllocation || 0) / 100;
+  const initialSpending = Number(inputs.initialSpending || 0);
 
-const sharedPensionToday = Number(
-  inputs.statePensionToday ??
-  inputs.person1PensionToday ??
-  inputs.person2PensionToday ??
-  0
-);
+  const sharedPensionToday = Number(
+    inputs.statePensionToday ??
+    inputs.person1PensionToday ??
+    inputs.person2PensionToday ??
+    0
+  );
 
-const firstYearPension =
-  (inputs.person1Age >= inputs.person1PensionAge
-    ? Number(inputs.person1PensionToday ?? sharedPensionToday)
-    : 0) +
-  (inputs.includePerson2 &&
-   inputs.person2Age >= inputs.person2PensionAge
-    ? Number(inputs.person2PensionToday ?? sharedPensionToday)
-    : 0);
+  const openingCash = initialPortfolio * cashlikeAllocation;
 
-const firstYearOtherIncome =
-  (inputs.person1OtherIncomeYears > 0
-    ? inputs.person1OtherIncomeToday || 0
-    : 0) +
-  (inputs.includePerson2 && inputs.person2OtherIncomeYears > 0
-    ? inputs.person2OtherIncomeToday || 0
-    : 0);
+  const firstYearPension =
+    (Number(inputs.person1Age) >= Number(inputs.person1PensionAge)
+      ? Number(inputs.person1PensionToday ?? sharedPensionToday)
+      : 0) +
+    (inputs.includePerson2 &&
+     Number(inputs.person2Age) >= Number(inputs.person2PensionAge)
+      ? Number(inputs.person2PensionToday ?? sharedPensionToday)
+      : 0);
 
-const firstYearWindfall =
-  (inputs.person1WindfallYear === 1
-    ? inputs.person1WindfallAmount || 0
-    : 0) +
-  (inputs.includePerson2 && inputs.person2WindfallYear === 1
-    ? inputs.person2WindfallAmount || 0
-    : 0);
+  const firstYearOtherIncome =
+    (Number(inputs.person1OtherIncomeYears) > 0
+      ? Number(inputs.person1OtherIncomeToday || 0)
+      : 0) +
+    (inputs.includePerson2 && Number(inputs.person2OtherIncomeYears) > 0
+      ? Number(inputs.person2OtherIncomeToday || 0)
+      : 0);
 
-const openingNetWithdrawal = Math.max(
-  0,
-  inputs.initialSpending -
-    firstYearPension -
-    firstYearOtherIncome -
-    firstYearWindfall
-);
+  const firstYearWindfall =
+    (Number(inputs.person1WindfallYear) === 1
+      ? Number(inputs.person1WindfallAmount || 0)
+      : 0) +
+    (inputs.includePerson2 && Number(inputs.person2WindfallYear) === 1
+      ? Number(inputs.person2WindfallAmount || 0)
+      : 0);
 
-const cashRunwayYears =
-  openingNetWithdrawal > 0
-    ? openingCash / openingNetWithdrawal
-    : Number.POSITIVE_INFINITY;
+  const openingNetWithdrawal = Math.max(
+    0,
+    initialSpending - firstYearPension - firstYearOtherIncome - firstYearWindfall
+  );
 
-    
+  const cashRunwayYears =
+    openingNetWithdrawal > 0
+      ? openingCash / openingNetWithdrawal
+      : Number.POSITIVE_INFINITY;
 
   const rows = adaptHistoricalRows(scenario.yearlyRows, inputs);
 
   return {
-  inputs,
-  summary: {
-    ...summary,
-    cashRunwayYears
-  },
-  rows,
-  yearlyRows: rows,
-  pathNominal: scenario.pathNominal || [],
-  pathReal: scenario.pathReal || [],
-  terminalNominal: scenario.terminalNominal,
-  terminalReal: scenario.terminalReal,
-  startYear: window.startYear,
-  endYear: window.endYear,
-  label: `${window.startYear} — ${window.endYear}`
-};
+    inputs,
+    summary: {
+      ...summary,
+      cashRunwayYears
+    },
+    rows,
+    yearlyRows: rows,
+    pathNominal: scenario.pathNominal || [],
+    pathReal: scenario.pathReal || [],
+    terminalNominal: scenario.terminalNominal,
+    terminalReal: scenario.terminalReal,
+    startYear: window.startYear,
+    endYear: window.endYear,
+    label: `${window.startYear} — ${window.endYear}`
+  };
 }
 
 function mapInputs(inputs) {
