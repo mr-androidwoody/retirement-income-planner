@@ -30,7 +30,6 @@ function resolveActivePath(result, tableView) {
   return null;
 }
 
-
 function getStartingCashlikeBalance(result) {
   const inputs = result?.inputs || {};
 
@@ -313,12 +312,7 @@ function renderResultsTableNote(elements, result, activePath, tableMode) {
     return;
   }
 
-  if (tableMode === 'performance') {
-    note.textContent =
-      'Performance view compares market returns with changes in portfolio value, and shows drawdowns and rolling performance over time.';
-    note.classList.remove('hidden');
-    return;
-  }
+ 
 
   note.textContent = '';
   note.classList.add('hidden');
