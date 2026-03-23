@@ -3256,6 +3256,19 @@ input[type="checkbox"]{
   }
 }
 
+.plan-outlook-path-selector{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+.plan-outlook-path-selector .table-view-selector-group{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
 /* ========================================
    Results context alert (depletion state)
    ======================================== */
