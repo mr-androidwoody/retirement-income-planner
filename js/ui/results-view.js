@@ -95,9 +95,34 @@ function renderResultsPanelTitle(result) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
 
-  titleEl.textContent = isHistorical
-    ? formatHistoricalResultsHeader(result)
-    : 'Results';
+  if (!isHistorical) {
+    titleEl.textContent = 'Results';
+    return;
+  }
+
+  const select = document.getElementById('historicalScenario');
+  if (!select) {
+    titleEl.textContent = 'Results';
+    return;
+  }
+
+  const startYear = Number(select.value);
+  const horizonYears = Number(result?.inputs?.years);
+  const endYear = startYear + horizonYears - 1;
+
+  const labelText = String(select.selectedOptions?.[0]?.textContent || '').trim();
+
+  const scenarioName = labelText
+    .replace(/^\d{4}\s*-\s*/, '')
+    .trim();
+
+  const mainTitle = `Results: Historical scenario ${startYear} ${scenarioName}`;
+  const subText = `simulated retirement from ${startYear} to ${endYear}`;
+
+  titleEl.innerHTML = `
+    ${mainTitle}
+    <span class="results-title-subtext">(${subText})</span>
+  `;
 }
 
 function escapeHtmlAttribute(value) {
