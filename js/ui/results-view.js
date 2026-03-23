@@ -72,12 +72,14 @@ function getSelectedHistoricalScenarioLabel(result, rows) {
   return String(startYear);
 }
 
-function formatHistoricalScenarioRangeLabel(result, rows) {
-  if (!Array.isArray(rows) || rows.length === 0) {
+function formatHistoricalScenarioRangeLabel(result) {
+  const select = document.getElementById('historicalScenario');
+
+  if (!select) {
     return 'Historical scenario';
   }
 
-  const startYear = Number(rows[0]?.year);
+  const startYear = Number(select.value);
   const horizonYears = Number(result?.inputs?.years);
 
   if (!Number.isFinite(startYear) || !Number.isFinite(horizonYears) || horizonYears <= 0) {
@@ -85,9 +87,10 @@ function formatHistoricalScenarioRangeLabel(result, rows) {
   }
 
   const endYear = startYear + horizonYears - 1;
-  const selectedLabel = getSelectedHistoricalScenarioLabel(result, rows);
 
-  const scenarioName = selectedLabel
+  const labelText = String(select.selectedOptions?.[0]?.textContent || '').trim();
+
+  const scenarioName = labelText
     .replace(/^\d{4}\s*-\s*/, '')
     .trim();
 
@@ -96,14 +99,11 @@ function formatHistoricalScenarioRangeLabel(result, rows) {
     : `${startYear} (${startYear} - ${endYear})`;
 }
 
-function formatHistoricalResultsHeader(result, rows) {
-  return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(
-    result,
-    rows
-  )}`;
+function formatHistoricalResultsHeader(result) {
+  return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(result)}`;
 }
 
-function renderResultsPanelTitle(result, rows) {
+function renderResultsPanelTitle(result) {
   const titleEl = document.getElementById('resultsPanelTitle');
   if (!titleEl) return;
 
@@ -111,7 +111,23 @@ function renderResultsPanelTitle(result, rows) {
   const isHistorical = mode === 'historical';
 
   titleEl.textContent = isHistorical
-    ? formatHistoricalResultsHeader(result, rows)
+    ? formatHistoricalResultsHeader(result)
+    : 'Results';
+}
+
+function formatHistoricalResultsHeader(result) {
+  return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(result)}`;
+}
+
+function renderResultsPanelTitle(result) {
+  const titleEl = document.getElementById('resultsPanelTitle');
+  if (!titleEl) return;
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  titleEl.textContent = isHistorical
+    ? formatHistoricalResultsHeader(result)
     : 'Results';
 }
 
@@ -222,11 +238,7 @@ function renderResultsTableNote(elements, result, activePath, tableMode) {
   if (!note) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
-  const historicalLabel = `Historical scenario: ${formatHistoricalScenarioRangeLabel(
-  result,
-  activePath,
-  activePath?.yearlyRows || activePath?.rows || []
-)}.`;
+  const historicalLabel = `Historical scenario: ${formatHistoricalScenarioRangeLabel(result)}.`;
 
   if (mode === 'historical') {
     note.textContent =
@@ -265,7 +277,7 @@ export function renderResultsView({
   const activePath = resolveActivePath(result, tableView);
   const rows = activePath?.yearlyRows || [];
 
-  renderResultsPanelTitle(result, rows);
+  renderResultsPanelTitle(result);
 
   const hasMonteCarlo =
     Boolean(result?.monteCarlo?.realPercentiles) &&
