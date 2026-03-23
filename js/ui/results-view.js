@@ -420,7 +420,10 @@ export function renderResultsView({
 
       if (newButton) {
         newButton.onclick = () => {
-          openPerformanceSummaryOverlay(summary, { formatPercent });
+            openPerformanceSummaryOverlay(summary, {
+            formatPercent,
+            formatCurrency
+            });
         };
       }
     }
