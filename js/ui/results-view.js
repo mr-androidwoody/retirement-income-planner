@@ -88,41 +88,86 @@ function formatHistoricalResultsHeader(result) {
   return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(result)}`;
 }
 
+function formatMonteCarloResultsHeader(result) {
+  const runs =
+    Number(result?.scenarioCount) ||
+    Number(result?.monteCarlo?.scenarioCount) ||
+    Number(result?.monteCarlo?.runs) ||
+    Number(result?.inputs?.simulations) ||
+    0;
+
+  const formattedRuns = runs > 0 ? runs.toLocaleString() : '—';
+
+  return `Results: Simulated outcomes (${formattedRuns})`;
+}
+
+function formatRetirementPeriodLabel(result) {
+  const horizonYears = Number(result?.inputs?.years);
+
+  if (!Number.isFinite(horizonYears) || horizonYears <= 0) {
+    return '';
+  }
+
+  const mode = String(result?.mode ?? '').toLowerCase();
+
+  let startYear = null;
+
+  if (mode === 'historical') {
+    const select = document.getElementById('historicalScenario');
+    startYear = Number(select?.value);
+  } else {
+    startYear = Number(result?.inputs?.startYear);
+  }
+
+  if (!Number.isFinite(startYear)) {
+    return '';
+  }
+
+  const endYear = startYear + horizonYears - 1;
+
+  return `Retirement period: ${startYear}–${endYear}`;
+}
+
 function renderResultsPanelTitle(result) {
   const titleEl = document.getElementById('resultsPanelTitle');
   if (!titleEl) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
-  const isHistorical = mode === 'historical';
 
-  if (!isHistorical) {
-    titleEl.textContent = 'Results';
-    return;
+  let mainTitle = 'Results';
+
+  if (mode === 'historical') {
+    const select = document.getElementById('historicalScenario');
+
+    if (!select) {
+      titleEl.textContent = 'Results';
+      return;
+    }
+
+    const startYear = Number(select.value);
+    const labelText = String(select.selectedOptions?.[0]?.textContent || '').trim();
+
+    const scenarioName = labelText
+      .replace(/^\d{4}\s*-\s*/, '')
+      .trim();
+
+    mainTitle = scenarioName
+      ? `Results: Historical scenario ${startYear} ${scenarioName}`
+      : `Results: Historical scenario ${startYear}`;
+  } else if (mode === 'montecarlo') {
+    mainTitle = formatMonteCarloResultsHeader(result);
   }
 
-  const select = document.getElementById('historicalScenario');
-  if (!select) {
-    titleEl.textContent = 'Results';
-    return;
+  const periodLabel = formatRetirementPeriodLabel(result);
+
+  if (periodLabel) {
+    titleEl.innerHTML = `
+      ${mainTitle}
+      <span class="results-title-subtext">${periodLabel}</span>
+    `;
+  } else {
+    titleEl.textContent = mainTitle;
   }
-
-  const startYear = Number(select.value);
-  const horizonYears = Number(result?.inputs?.years);
-  const endYear = startYear + horizonYears - 1;
-
-  const labelText = String(select.selectedOptions?.[0]?.textContent || '').trim();
-
-  const scenarioName = labelText
-    .replace(/^\d{4}\s*-\s*/, '')
-    .trim();
-
-  const mainTitle = `Results: Historical scenario ${startYear} ${scenarioName}`;
-  const subText = `simulated retirement from ${startYear} to ${endYear}`;
-
-  titleEl.innerHTML = `
-    ${mainTitle}
-    <span class="results-title-subtext">(${subText})</span>
-  `;
 }
 
 function escapeHtmlAttribute(value) {
