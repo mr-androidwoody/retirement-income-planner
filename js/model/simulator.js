@@ -20,8 +20,8 @@ export const DEFAULT_INPUTS = {
   initialPortfolio: 1000000,
   initialSpending: 40000,
   equityAllocation: 60,
-  bondAllocation: 20,
-  cashlikeAllocation: 20,
+  bondAllocation: 30,
+  cashlikeAllocation: 10,
   annualFeeRate: 0.0027, 
   rebalanceToTarget: true,
 
