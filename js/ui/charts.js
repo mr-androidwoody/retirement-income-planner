@@ -348,6 +348,12 @@ function drawLineChart(canvas, config) {
   const legendItems = [
     ...(config.lines || []).map((l) => ({
       label: l.label,
+      description:
+        l.label === 'Median simulation'
+          ? 'Typical outcome across simulations'
+          : l.label === 'Base case'
+            ? 'Single expected return path'
+            : '',
       color: l.color,
       width: l.width || 2.5,
       dash: l.dash || []
@@ -1012,7 +1018,7 @@ function measureLegend(ctx, lines, width) {
 
   if (row.length) rows.push(row);
 
-  const rowHeight = 18;
+  const rowHeight = 28;
   const heightNeeded = rows.length * rowHeight + (rows.length - 1) * rowGap + 18;
 
   return {
@@ -1061,7 +1067,7 @@ function drawLegend(ctx, width, height, layout) {
 
     row.forEach((item) => {
       ctx.save();
-
+    
       ctx.beginPath();
       ctx.setLineDash(item.dash || []);
       ctx.moveTo(x, y);
@@ -1069,19 +1075,26 @@ function drawLegend(ctx, width, height, layout) {
       ctx.strokeStyle = item.color;
       ctx.lineWidth = item.width || 2.5;
       ctx.stroke();
-
+    
       ctx.restore();
-
+    
+      const textX = x + layout.markerSize + layout.markerTextGap;
+    
       ctx.fillStyle = '#475569';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(item.label, x + layout.markerSize + layout.markerTextGap, y);
-
+      ctx.fillText(item.label, textX, y);
+    
+      if (item.description) {
+        ctx.save();
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px Inter, system-ui, sans-serif';
+        ctx.fillText(item.description, textX, y + 12);
+        ctx.restore();
+      }
+    
       x += item.widthNeeded + layout.itemGap;
     });
-
-    y += layout.rowHeight + layout.rowGap;
-  });
 }
 
 
