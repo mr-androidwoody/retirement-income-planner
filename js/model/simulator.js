@@ -404,7 +404,10 @@ function simulatePath(inputs, annualReturns) {
     const startPortfolioNominal = totalPortfolio(buckets);
     const startPortfolioReal = startPortfolioNominal / inflationIndex;
 
-    const pensionNominal = getStatePensionNominal(inputs, yearIndex, inflationIndex);
+    const nextInflationIndex = inflationIndex * (1 + (annualReturns.inflation[yearIndex] ?? inputs.inflation));
+
+    const pensionNominal = getStatePensionNominal(inputs, yearIndex, nextInflationIndex);
+    const otherIncomeNominal = getOtherIncomeNominal(inputs, yearIndex, nextInflationIndex);
     const otherIncomeNominal = getOtherIncomeNominal(inputs, yearIndex, inflationIndex);
     const windfallNominal = getWindfallNominal(inputs, yearIndex);
     const totalNonPortfolioIncomeNominal =
