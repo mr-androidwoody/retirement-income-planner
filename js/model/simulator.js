@@ -421,11 +421,11 @@ function simulatePath(inputs, annualReturns) {
     nextInflationIndex
   );
 
-  const windfallNominal = getWindfallNominal(inputs, yearIndex);
+    const windfallNominal = getWindfallNominal(inputs, yearIndex);
 
-  const totalNonPortfolioIncomeNominal =
-    pensionNominal + otherIncomeNominal + windfallNominal;
-
+    const totalNonPortfolioIncomeNominal =
+      pensionNominal + otherIncomeNominal;
+    
     const requestedWithdrawalNominal = Math.max(
       0,
       spendingNominal - totalNonPortfolioIncomeNominal
@@ -434,19 +434,23 @@ function simulatePath(inputs, annualReturns) {
       buckets,
       requestedWithdrawalNominal
     );
-
+    
     const actualSpendingNominal = Math.min(
       spendingNominal,
       totalNonPortfolioIncomeNominal + actualWithdrawalNominal
     );
-
+    
     const surplusIncomeNominal = Math.max(
       0,
       totalNonPortfolioIncomeNominal - spendingNominal
     );
-
+    
     if (surplusIncomeNominal > 0) {
       buckets.cashlike += surplusIncomeNominal;
+    }
+    
+    if (windfallNominal > 0) {
+      buckets.cashlike += windfallNominal;
     }
 
     const eqReturn = annualReturns.equities[yearIndex] ?? inputs.equityReturn;
@@ -588,11 +592,10 @@ function buildSummary(inputs, baseCase, monteCarlo) {
   const openingCash = inputs.initialPortfolio * inputs.cashlikeAllocation;
   const firstYearPension = getStatePensionNominal(inputs, 0, 1);
   const firstYearOtherIncome = getOtherIncomeNominal(inputs, 0, 1);
-  const firstYearWindfall = getWindfallNominal(inputs, 0);
 
   const openingNetWithdrawal = Math.max(
     0,
-    inputs.initialSpending - firstYearPension - firstYearOtherIncome - firstYearWindfall
+    inputs.initialSpending - firstYearPension - firstYearOtherIncome
   );
 
   const cashRunwayYears =
@@ -608,7 +611,6 @@ function buildSummary(inputs, baseCase, monteCarlo) {
     baseTerminalReal: baseCase.pathReal.at(-1)
   };
 }
-
 function getStatePensionNominal(inputs, yearIndex, inflationIndex) {
   const person1Eligible = inputs.person1Age + yearIndex >= inputs.person1PensionAge;
   const person2Eligible = inputs.person2Age + yearIndex >= inputs.person2PensionAge;
