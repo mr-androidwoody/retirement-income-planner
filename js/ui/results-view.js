@@ -57,7 +57,22 @@ function getStartingCashlikeBalance(result) {
   );
 }
 
-function formatHistoricalScenarioRangeLabel(result, activePath, rows) {
+function getSelectedHistoricalScenarioLabel(result, rows) {
+  const select = document.getElementById('historicalScenario');
+
+  if (select && select.selectedOptions && select.selectedOptions[0]) {
+    return String(select.selectedOptions[0].textContent || '').trim();
+  }
+
+  const startYear = Number(rows?.[0]?.year);
+  if (!Number.isFinite(startYear)) {
+    return '';
+  }
+
+  return String(startYear);
+}
+
+function formatHistoricalScenarioRangeLabel(result, rows) {
   if (!Array.isArray(rows) || rows.length === 0) {
     return 'Historical scenario';
   }
@@ -70,27 +85,25 @@ function formatHistoricalScenarioRangeLabel(result, activePath, rows) {
   }
 
   const endYear = startYear + horizonYears - 1;
+  const selectedLabel = getSelectedHistoricalScenarioLabel(result, rows);
 
-  const rawLabel = String(activePath?.label ?? '').trim();
-
-  const scenarioName = rawLabel
-    .replace(/^\d{4}\s*[-–]\s*/, '')
+  const scenarioName = selectedLabel
+    .replace(/^\d{4}\s*-\s*/, '')
     .trim();
 
   return scenarioName
-    ? `${startYear}–${endYear} - ${scenarioName}`
-    : `${startYear}–${endYear}`;
+    ? `${startYear} ${scenarioName} (${startYear} - ${endYear})`
+    : `${startYear} (${startYear} - ${endYear})`;
 }
 
-function formatHistoricalResultsHeader(result, activePath, rows) {
+function formatHistoricalResultsHeader(result, rows) {
   return `Results: Historical scenario ${formatHistoricalScenarioRangeLabel(
     result,
-    activePath,
     rows
   )}`;
 }
 
-function renderResultsPanelTitle(result, activePath, rows) {
+function renderResultsPanelTitle(result, rows) {
   const titleEl = document.getElementById('resultsPanelTitle');
   if (!titleEl) return;
 
@@ -98,7 +111,7 @@ function renderResultsPanelTitle(result, activePath, rows) {
   const isHistorical = mode === 'historical';
 
   titleEl.textContent = isHistorical
-    ? formatHistoricalResultsHeader(result, activePath, rows)
+    ? formatHistoricalResultsHeader(result, rows)
     : 'Results';
 }
 
@@ -252,7 +265,7 @@ export function renderResultsView({
   const activePath = resolveActivePath(result, tableView);
   const rows = activePath?.yearlyRows || [];
 
-  renderResultsPanelTitle(result, activePath, rows); 
+  renderResultsPanelTitle(result, rows);
 
   const hasMonteCarlo =
     Boolean(result?.monteCarlo?.realPercentiles) &&
