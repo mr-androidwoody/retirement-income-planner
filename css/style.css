@@ -3357,8 +3357,8 @@ input[type="checkbox"]{
    ======================================== */
 
 .site-footer {
-  margin-top: 40px;
-  padding: 24px 16px;
+  margin-top: 20px;
+  padding: 12px 8px;
   border-top: 1px solid var(--border-color);
   text-align: center;
   font-size: 0.9rem;
