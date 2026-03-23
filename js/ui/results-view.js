@@ -440,48 +440,36 @@ export function renderResultsView({
   renderSummaryCardLabels(elements, result, tableView);
 
   if (elements.summarySuccessRate) {
-  const rate = result?.monteCarlo?.successRate;
-
   const card = document.getElementById('summarySuccessRateCard');
 
   if (card) {
     card.classList.remove('is-strong', 'is-weak', 'is-watch');
   }
 
-  if (!Number.isFinite(rate)) {
-    elements.summarySuccessRate.textContent = '—';
-    return;
-  }
-    const card = document.getElementById('summarySuccessRateCard');
+  if (isHistorical) {
+    elements.summarySuccessRate.textContent = result?.summary?.depleted
+      ? 'Depleted'
+      : 'Sustained';
+  } else {
+    const rate = result?.monteCarlo?.successRate;
 
-    if (card) {
-      card.classList.remove('is-strong', 'is-weak', 'is-watch');
-    }
+    if (Number.isFinite(rate)) {
+      elements.summarySuccessRate.textContent = formatPercent(rate);
 
-    if (isHistorical) {
-      elements.summarySuccessRate.textContent = result?.summary?.depleted
-        ? 'Depleted'
-        : 'Sustained';
-    } else {
-      const rate = result?.monteCarlo?.successRate;
-
-      if (Number.isFinite(rate)) {
-        elements.summarySuccessRate.textContent = formatPercent(rate);
-
-        if (card) {
-          if (rate >= 0.9) {
-            card.classList.add('is-strong');
-          } else if (rate < 0.6) {
-            card.classList.add('is-weak');
-          } else {
-            card.classList.add('is-watch');
-          }
+      if (card) {
+        if (rate >= 0.9) {
+          card.classList.add('is-strong');
+        } else if (rate < 0.6) {
+          card.classList.add('is-weak');
+        } else {
+          card.classList.add('is-watch');
         }
-    } else {
-        elements.summarySuccessRate.textContent = '—';
       }
+    } else {
+      elements.summarySuccessRate.textContent = '—';
     }
   }
+}
 
   if (elements.summaryMedianEnd) {
     const selectedPathValue = getSelectedPathEndValue(activePath, rows, useReal);
