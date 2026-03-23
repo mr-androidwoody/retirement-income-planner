@@ -50,7 +50,11 @@ function getStartingCashlikeBalance(result) {
     return 0;
   }
 
-  return initialPortfolio * (cashlikeAllocationPct / 100);
+  return initialPortfolio * (
+  cashlikeAllocationPct > 1
+    ? cashlikeAllocationPct / 100   // 20 → 0.2
+    : cashlikeAllocationPct         // 0.2 → 0.2
+  );
 }
 
 function formatHistoricalScenarioHeader(result, rows) {
