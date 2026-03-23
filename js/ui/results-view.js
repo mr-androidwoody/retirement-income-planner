@@ -440,6 +440,18 @@ export function renderResultsView({
   renderSummaryCardLabels(elements, result, tableView);
 
   if (elements.summarySuccessRate) {
+  const rate = result?.monteCarlo?.successRate;
+
+  const card = document.getElementById('summarySuccessRateCard');
+
+  if (card) {
+    card.classList.remove('is-strong', 'is-weak', 'is-watch');
+  }
+
+  if (!Number.isFinite(rate)) {
+    elements.summarySuccessRate.textContent = '—';
+    return;
+  }
     const card = document.getElementById('summarySuccessRateCard');
 
     if (card) {
