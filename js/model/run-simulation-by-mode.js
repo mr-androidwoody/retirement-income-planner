@@ -18,7 +18,7 @@ export async function runSimulationByMode({ mode, inputs }) {
       summary: {
         terminalNominal: historicalResult.terminalNominal ?? 0,
         terminalReal: historicalResult.terminalReal ?? 0,
-        cashRunwayYears: null,
+        cashRunwayYears: historicalResult.summary?.cashRunwayYears ?? null,
         worstStressName: null,
         worstStressTerminalNominal: null,
         worstStressTerminalReal: null,
