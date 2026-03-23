@@ -1065,10 +1065,6 @@ function drawLegend(ctx, width, height, layout) {
   ctx.restore();
 
   const contentHeight =
-    layout.rows.length * layout.rowHeight +
-    (layout.rows.length - 1) * layout.rowGap;
-
-  const contentHeight =
   layout.rows.length * layout.rowHeight +
   (layout.rows.length - 1) * layout.rowGap;
 
