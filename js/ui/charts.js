@@ -1,4 +1,4 @@
-export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
+export function renderPortfolioChart(canvas, result, useReal, formatCurrency, tableView = 'median') {
   if (!canvas || !result?.inputs) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
@@ -111,7 +111,7 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
     });
   }
 
-  const chartConfig = {
+    const chartConfig = {
     labels,
     lines: isHistorical || !hasMonteCarlo
       ? [
@@ -143,15 +143,37 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency) {
   };
 
   if (!isHistorical && hasMonteCarlo) {
+    const p10Values = useReal
+      ? result.monteCarlo.realPercentiles.p10
+      : result.monteCarlo.nominalPercentiles.p10;
+
+    const p90Values = useReal
+      ? result.monteCarlo.realPercentiles.p90
+      : result.monteCarlo.nominalPercentiles.p90;
+
     chartConfig.band = {
-      lower: useReal
-        ? result.monteCarlo.realPercentiles.p10
-        : result.monteCarlo.nominalPercentiles.p10,
-      upper: useReal
-        ? result.monteCarlo.realPercentiles.p90
-        : result.monteCarlo.nominalPercentiles.p90,
+      lower: p10Values,
+      upper: p90Values,
       fillStyle: 'rgba(45, 91, 255, 0.15)'
     };
+
+    if (tableView === 'p90') {
+      chartConfig.overlayLine = {
+        label: 'Upside path',
+        values: p90Values,
+        color: '#7c3aed',
+        width: 2.5,
+        dash: [7, 6]
+      };
+    } else if (tableView === 'p10') {
+      chartConfig.overlayLine = {
+        label: 'Downside path',
+        values: p10Values,
+        color: '#dc2626',
+        width: 2.5,
+        dash: [7, 6]
+      };
+    }
   }
 
   drawLineChart(canvas, chartConfig);
@@ -389,9 +411,13 @@ function drawLineChart(canvas, config) {
     allValues.push(...totals);
   }
 
-  (config.lines || []).forEach((line) => {
+   (config.lines || []).forEach((line) => {
     allValues.push(...line.values.filter(Number.isFinite));
   });
+
+  if (config.overlayLine?.values?.length) {
+    allValues.push(...config.overlayLine.values.filter(Number.isFinite));
+  }
 
   const maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
 
@@ -449,7 +475,7 @@ function drawLineChart(canvas, config) {
     });
   }
 
-  (config.lines || []).forEach((line) => {
+    (config.lines || []).forEach((line) => {
     drawSeries(ctx, line.values, {
       width: plotWidth,
       height: plotHeight,
@@ -463,6 +489,30 @@ function drawLineChart(canvas, config) {
       markers: line.markers || []
     });
   });
+
+  if (config.overlayLine) {
+    drawSeries(ctx, config.overlayLine.values, {
+      width: plotWidth,
+      height: plotHeight,
+      left: padding.left,
+      top: padding.top,
+      minY,
+      maxY,
+      color: config.overlayLine.color,
+      lineWidth: config.overlayLine.width || 2,
+      dash: config.overlayLine.dash || [],
+      markers: []
+    });
+
+    drawOverlayLineLabel(ctx, config.overlayLine, {
+      width: plotWidth,
+      height: plotHeight,
+      left: padding.left,
+      top: padding.top,
+      minY,
+      maxY
+    });
+  }
 
   if (config.pointHighlights?.length) {
     drawPointHighlights(ctx, config.pointHighlights, {
@@ -492,6 +542,61 @@ function drawLineChart(canvas, config) {
 
   drawXAxis(ctx, config.labels, width, height, padding);
   drawLegend(ctx, width, height, legendLayout);
+}
+
+function drawOverlayLineLabel(ctx, line, geom) {
+  if (!line?.label || !Array.isArray(line.values) || !line.values.length) return;
+
+  let lastIndex = -1;
+
+  for (let i = line.values.length - 1; i >= 0; i -= 1) {
+    if (Number.isFinite(line.values[i])) {
+      lastIndex = i;
+      break;
+    }
+  }
+
+  if (lastIndex < 0) return;
+
+  const value = Number(line.values[lastIndex]);
+  const x = geom.left + getX(lastIndex, line.values.length, geom.width);
+  const y = geom.top + getY(value, geom.minY, geom.maxY, geom.height);
+
+  const label = line.label;
+  ctx.save();
+  ctx.font = '12px Inter, system-ui, sans-serif';
+
+  const textWidth = ctx.measureText(label).width;
+  const boxWidth = textWidth + 16;
+  const boxHeight = 24;
+
+  let boxX = x + 10;
+  let boxY = y - boxHeight - 8;
+
+  if (boxX + boxWidth > geom.left + geom.width - 4) {
+    boxX = x - boxWidth - 10;
+  }
+
+  if (boxX < geom.left + 4) {
+    boxX = geom.left + 4;
+  }
+
+  if (boxY < geom.top + 4) {
+    boxY = y + 8;
+  }
+
+  roundRect(ctx, boxX, boxY, boxWidth, boxHeight, 8);
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.fill();
+  ctx.strokeStyle = line.color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = line.color;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, boxX + 8, boxY + boxHeight / 2);
+
+  ctx.restore();
 }
 
 function drawGapBand(ctx, lower, upper, geom) {
