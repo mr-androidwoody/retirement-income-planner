@@ -222,58 +222,87 @@ function renderResultsTableIntro(elements, tableMode) {
 
 function renderTableViewSelector(elements, result, tableView, tableMode) {
   const selector = elements?.tableViewSelector;
-  if (!selector) return;
+  const chartsSelector = document.getElementById('chartsViewSelector');
+
+  if (!selector && !chartsSelector) return;
 
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
   const showPathSelectorInPlanOutlook =
     mode === 'montecarlo' && tableMode !== 'performance';
 
-  if (isHistorical) {
-    selector.innerHTML =
-      tableMode === 'performance'
-        ? `
-          <button
-            type="button"
-            id="openPerformanceSummary"
-            class="button button--secondary button--small performance-summary-trigger"
-          >
-            Key metrics
-          </button>
-        `
-        : '';
+    if (isHistorical) {
+    if (selector) {
+      selector.innerHTML =
+        tableMode === 'performance'
+          ? `
+            <button
+              type="button"
+              id="openPerformanceSummary"
+              class="button button--secondary button--small performance-summary-trigger"
+            >
+              Key metrics
+            </button>
+          `
+          : '';
 
-    selector.classList.toggle('hidden', tableMode !== 'performance');
+      selector.classList.toggle('hidden', tableMode !== 'performance');
+    }
+
+    if (chartsSelector) {
+      chartsSelector.innerHTML = '';
+      chartsSelector.closest('.results-context-header-actions')?.classList.add('hidden');
+    }
+
     return;
   }
 
-  selector.innerHTML = `
-    ${
-      showPathSelectorInPlanOutlook
-        ? ''
-        : `
+    const chartPathSelectorHtml =
+    mode === 'montecarlo' && tableMode !== 'performance'
+      ? `
           <div class="table-view-selector-group">
             ${getTableViewSelectorHtml(tableView)}
           </div>
         `
-    }
+      : '';
 
-    ${
-      tableMode === 'performance'
-        ? `
-          <button
-            type="button"
-            id="openPerformanceSummary"
-            class="button button--secondary button--small performance-summary-trigger"
-          >
-            Key metrics
-          </button>
-        `
-        : ''
-    }
-  `;
+  if (selector) {
+    selector.innerHTML = `
+      ${
+        showPathSelectorInPlanOutlook
+          ? ''
+          : `
+            <div class="table-view-selector-group">
+              ${getTableViewSelectorHtml(tableView)}
+            </div>
+          `
+      }
 
-  selector.classList.remove('hidden');
+      ${
+        tableMode === 'performance'
+          ? `
+            <button
+              type="button"
+              id="openPerformanceSummary"
+              class="button button--secondary button--small performance-summary-trigger"
+            >
+              Key metrics
+            </button>
+          `
+          : ''
+      }
+    `;
+
+    selector.classList.remove('hidden');
+  }
+
+  if (chartsSelector) {
+    chartsSelector.innerHTML = chartPathSelectorHtml;
+    chartsSelector.closest('.results-context-header-actions')?.classList.toggle(
+      'hidden',
+      !chartPathSelectorHtml
+    );
+  }
 }
 
 function getTableViewSelectorHtml(tableView) {
