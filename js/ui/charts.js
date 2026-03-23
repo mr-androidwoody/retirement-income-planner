@@ -1058,7 +1058,7 @@ function drawLegend(ctx, width, height, layout) {
 
   let y = boxY + (boxHeight - contentHeight) / 2 + layout.rowHeight / 2;
 
-  layout.rows.forEach((row) => {
+    layout.rows.forEach((row) => {
     const rowWidth =
       row.reduce((sum, item) => sum + item.widthNeeded, 0) +
       (row.length - 1) * layout.itemGap;
@@ -1067,7 +1067,7 @@ function drawLegend(ctx, width, height, layout) {
 
     row.forEach((item) => {
       ctx.save();
-    
+
       ctx.beginPath();
       ctx.setLineDash(item.dash || []);
       ctx.moveTo(x, y);
@@ -1075,16 +1075,16 @@ function drawLegend(ctx, width, height, layout) {
       ctx.strokeStyle = item.color;
       ctx.lineWidth = item.width || 2.5;
       ctx.stroke();
-    
+
       ctx.restore();
-    
+
       const textX = x + layout.markerSize + layout.markerTextGap;
-    
+
       ctx.fillStyle = '#475569';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       ctx.fillText(item.label, textX, y);
-    
+
       if (item.description) {
         ctx.save();
         ctx.fillStyle = '#94a3b8';
@@ -1092,11 +1092,13 @@ function drawLegend(ctx, width, height, layout) {
         ctx.fillText(item.description, textX, y + 12);
         ctx.restore();
       }
-    
+
       x += item.widthNeeded + layout.itemGap;
     });
-}
 
+    y += layout.rowHeight + layout.rowGap;
+  });
+}
 
 function drawBand(ctx, lower, upper, geom) {
   if (!lower.length || lower.length !== upper.length) return;
