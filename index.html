@@ -1355,10 +1355,7 @@
 
         <div class="results-explainer">
           <p><strong>Real</strong> values strip out inflation to show true sustainability. By focusing on constant purchasing power, you can see if your wealth actually covers your lifestyle.</p>
-          <p><strong>Nominal</strong> values show future cash totals including inflation; while the figures grow, rising prices mean they don’t necessarily represent increased real-world purchasing power.</p>        
-
-            
-
+          <p><strong>Nominal</strong> values show future cash totals including inflation; while the figures grow, rising prices mean they don’t necessarily represent increased real-world purchasing power.</p>
         </div>
       </div>
 
@@ -1367,17 +1364,17 @@
 
     <section class="panel results-charts-panel">
       <div class="panel-header results-section-header">
-          <div>
-            <h2>Charts</h2>
-          </div>
-        
-          <div class="results-context-header-actions">
-            <div class="plan-outlook-path-selector table-view-selector">
-              <div class="table-view-selector-group" id="chartsViewSelector"></div>
-            </div>
+        <div>
+          <h2>Charts</h2>
+        </div>
+
+        <div class="results-context-header-actions">
+          <div class="plan-outlook-path-selector table-view-selector">
+            <div class="table-view-selector-group" id="chartsViewSelector"></div>
           </div>
         </div>
-    
+      </div>
+
       <div class="results-chart-grid">
         <section class="chart-card">
           <div class="card-header chart-card-header">
@@ -1391,7 +1388,7 @@
             <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
           </div>
         </section>
-    
+
         <section class="chart-card">
           <div class="card-header chart-card-header">
             <div class="card-title-block">
@@ -1412,33 +1409,33 @@
           <div>
             <h2 id="resultsTableTitle">Yearly results view</h2>
           </div>
-    
+
           <div class="results-context-header-actions">
             <div class="plan-outlook-path-selector table-view-selector">
               <div class="table-view-selector-group" id="tableHeaderViewSelector"></div>
             </div>
           </div>
         </div>
-    
+
         <div class="results-table-description-row">
           <p id="resultsTableIntro" class="results-table-intro">
             A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.
           </p>
         </div>
-    
+
         <div class="results-table-mode-row">
           <div id="tableModeSelector" class="results-table-mode-selector"></div>
           <div id="tableDescriptionActions" class="results-table-description-actions"></div>
         </div>
-    
+
         <div class="results-table-controls-row">
           <div id="resultsTableLegend" class="results-table-legend hidden"></div>
           <div id="tableViewSelector" class="table-view-selector hidden"></div>
         </div>
       </div>
-    
+
       <p id="resultsTableNote" class="results-table-note hidden"></p>
-    
+
       <div class="table-wrap">
         <table id="resultsTable">
           <thead></thead>
@@ -1446,6 +1443,8 @@
         </table>
       </div>
     </section>
+  </div>
+</section>
       </div>
     </main>
   </div>
@@ -1481,7 +1480,6 @@
 
       <div class="outlook-glossary-body">
         <div class="outlook-glossary-sections">
-
           <section class="outlook-glossary-card">
             <h4>Lifestyle resilience</h4>
 
@@ -1605,41 +1603,49 @@
               </div>
             </div>
           </section>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                    </div>
-                  </div>
-                </div>
-              </div>
-            
-            <div id="performanceSummaryOverlay" class="outlook-glossary-overlay hidden" aria-hidden="true" >
-              <div class="outlook-glossary-backdrop" data-performance-summary-close></div>
-            
-              <div class="outlook-glossary-dialog" role="dialog" aria-modal="true" aria-labelledby="performanceSummaryTitle">
-                <div class="outlook-glossary-header">
-                  <div>
-                    <h3 id="performanceSummaryTitle">Performance summary</h3>
-                    <p>Key long-term return and drawdown metrics for the selected scenario.</p>
-                  </div>
-            
-                  <button
-                   id="closePerformanceSummary"
-                   class="outlook-glossary-close"
-                   type="button"
-                   aria-label="Close performance summary"
-                   data-performance-summary-close
-                 >
-                   ×
-                  </button>
-                </div>
-            
-                <div id="performanceSummaryBody" class="outlook-glossary-body"></div>
-              </div>
-            </div>
-        <footer class="site-footer">
-          <div class="site-footer__inner">
-            <p>Understand your plan. Test your assumptions. See what holds up.</p>
-          </div>
-        </footer>
+  <div
+    id="performanceSummaryOverlay"
+    class="outlook-glossary-overlay hidden"
+    aria-hidden="true"
+  >
+    <div class="outlook-glossary-backdrop" data-performance-summary-close></div>
 
+    <div
+      class="outlook-glossary-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="performanceSummaryTitle"
+    >
+      <div class="outlook-glossary-header">
+        <div>
+          <h3 id="performanceSummaryTitle">Performance summary</h3>
+          <p>Key long-term return and drawdown metrics for the selected scenario.</p>
+        </div>
+
+        <button
+          id="closePerformanceSummary"
+          class="outlook-glossary-close"
+          type="button"
+          aria-label="Close performance summary"
+          data-performance-summary-close
+        >
+          ×
+        </button>
+      </div>
+
+      <div id="performanceSummaryBody" class="outlook-glossary-body"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>Understand your plan. Test your assumptions. See what holds up.</p>
+    </div>
+  </footer>
 </body>
 </html>
