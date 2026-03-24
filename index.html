@@ -40,129 +40,7 @@
           
 <!--  OVerlay Start -->
 
-<div
-  id="introOverlay"
-  class="intro-overlay"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="introOverlayTitle"
-  aria-describedby="introOverlayDesc"
->
-  <div class="intro-overlay__backdrop"></div>
 
-  <div class="intro-overlay__panel">
-    <button
-      type="button"
-      class="intro-overlay__close"
-      id="introOverlayClose"
-      aria-label="Close introduction"
-    >
-      ×
-    </button>
-
-    <div class="intro-overlay__content">
-      <p class="intro-overlay__eyebrow">Before you start</p>
-
-      <h2 id="introOverlayTitle" class="intro-overlay__title">
-        Plan your retirement with clarity
-      </h2>
-
-      <p id="introOverlayDesc" class="intro-overlay__intro">
-        Enter your finances, set your spending target, and test how your plan holds up over time.
-      </p>
-
-      <p class="intro-overlay__micro">
-        Takes 2–3 minutes to get a first result.
-      </p>
-
-      <div class="intro-overlay__section">
-        <h3 class="intro-overlay__section-title">What you’ll need</h3>
-
-        <div class="intro-overlay__chips">
-          <div class="intro-chip">
-            <span class="intro-chip__dot" aria-hidden="true"></span>
-            <span class="intro-chip__text">Investment values</span>
-          </div>
-
-          <div class="intro-chip">
-            <span class="intro-chip__dot" aria-hidden="true"></span>
-            <span class="intro-chip__text">Asset mix</span>
-          </div>
-
-          <div class="intro-chip">
-            <span class="intro-chip__dot" aria-hidden="true"></span>
-            <span class="intro-chip__text">Income target</span>
-          </div>
-        </div>
-
-        <p class="intro-overlay__supporting">
-          Use the latest account values. For asset mix, check your platform breakdowns or fund factsheets.
-        </p>
-      </div>
-
-      <div class="intro-overlay__section">
-        <h3 class="intro-overlay__section-title">What this tool does</h3>
-
-        <div class="intro-overlay__feature-grid">
-          <div class="intro-feature">
-            <span class="intro-feature__dot" aria-hidden="true"></span>
-            <span class="intro-feature__text">Models income and withdrawals</span>
-          </div>
-
-          <div class="intro-feature">
-            <span class="intro-feature__dot" aria-hidden="true"></span>
-            <span class="intro-feature__text">Tests market scenarios</span>
-          </div>
-
-          <div class="intro-feature">
-            <span class="intro-feature__dot" aria-hidden="true"></span>
-            <span class="intro-feature__text">Shows cuts and shortfalls</span>
-          </div>
-
-          <div class="intro-feature">
-            <span class="intro-feature__dot" aria-hidden="true"></span>
-            <span class="intro-feature__text">Tracks yearly outcomes</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="intro-overlay__section intro-overlay__section--flow">
-        <h3 class="intro-overlay__section-title">How it works</h3>
-
-        <div class="intro-flow" aria-label="How the simulator works">
-          <span class="intro-flow__step">Inputs</span>
-          <span class="intro-flow__arrow" aria-hidden="true">→</span>
-          <span class="intro-flow__step">Run simulation</span>
-          <span class="intro-flow__arrow" aria-hidden="true">→</span>
-          <span class="intro-flow__step">Review results</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="intro-overlay__footer">
-      <label class="intro-overlay__checkbox">
-        <input type="checkbox" id="introOverlayDismiss" />
-        <span>Don’t show again</span>
-      </label>
-
-      <div class="intro-overlay__actions">
-        <button type="button" class="btn btn-primary" id="introOverlayStart">
-          Start planning
-        </button>
-
-        <button
-          type="button"
-          class="intro-overlay__link-button"
-          id="introOverlaySkip"
-        >
-          Skip for now
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Overlay end -->
           
         <div class="top-header__controls">
           <nav class="top-header__tabs tab-nav" aria-label="Simulator sections" role="tablist">
@@ -1647,5 +1525,121 @@
       <p>Understand your plan. Test your assumptions. See what holds up.</p>
     </div>
   </footer>
+
+<div
+  id="introOverlay"
+  class="intro-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="introOverlayTitle"
+  aria-describedby="introOverlayDesc"
+>
+  <div class="intro-overlay__backdrop"></div>
+
+  <div class="intro-overlay__panel">
+    <button
+      type="button"
+      class="intro-overlay__close"
+      id="introOverlayClose"
+      aria-label="Close introduction"
+    >
+      ×
+    </button>
+
+    <div class="intro-overlay__content">
+      <p class="intro-overlay__eyebrow">Before you start</p>
+
+      <h2 id="introOverlayTitle" class="intro-overlay__title">
+        Plan your retirement with clarity
+      </h2>
+
+      <p id="introOverlayDesc" class="intro-overlay__intro">
+        Enter your finances, set your spending target, and test how your plan holds up over time.
+      </p>
+
+      <p class="intro-overlay__micro">
+        Takes 2–3 minutes to get a first result.
+      </p>
+
+      <div class="intro-overlay__section">
+        <h3 class="intro-overlay__section-title">What you’ll need</h3>
+
+        <div class="intro-overlay__chips">
+          <div class="intro-chip">
+            <span class="intro-chip__dot" aria-hidden="true"></span>
+            <span class="intro-chip__text">Investment values</span>
+          </div>
+
+          <div class="intro-chip">
+            <span class="intro-chip__dot" aria-hidden="true"></span>
+            <span class="intro-chip__text">Asset mix</span>
+          </div>
+
+          <div class="intro-chip">
+            <span class="intro-chip__dot" aria-hidden="true"></span>
+            <span class="intro-chip__text">Income target</span>
+          </div>
+        </div>
+
+        <p class="intro-overlay__supporting">
+          Use the latest account values. For asset mix, check your platform breakdowns or fund factsheets.
+        </p>
+      </div>
+
+      <div class="intro-overlay__section">
+        <h3 class="intro-overlay__section-title">What this tool does</h3>
+
+        <div class="intro-overlay__feature-grid">
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Models income and withdrawals</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Tests market scenarios</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Shows cuts and shortfalls</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Tracks yearly outcomes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-overlay__section intro-overlay__section--flow">
+        <h3 class="intro-overlay__section-title">How it works</h3>
+
+        <div class="intro-flow" aria-label="How the simulator works">
+          <span class="intro-flow__step">Inputs</span>
+          <span class="intro-flow__arrow" aria-hidden="true">→</span>
+          <span class="intro-flow__step">Run simulation</span>
+          <span class="intro-flow__arrow" aria-hidden="true">→</span>
+          <span class="intro-flow__step">Review results</span>
+        </div>
+      </div>
+    </div>
+
+<div class="intro-overlay__footer">
+  <label class="intro-overlay__checkbox">
+    <input type="checkbox" id="introOverlayDismiss" />
+    <span>Don’t show again</span>
+  </label>
+
+  <button type="button" class="btn btn-primary" id="introOverlayStart">
+    Start planning
+  </button>
+</div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay end -->
+
 </body>
 </html>
