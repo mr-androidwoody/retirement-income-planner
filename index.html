@@ -5,6 +5,7 @@
   <title>Retirement Income Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pdf-report.css" />
   <script type="module" src="js/app.js" defer></script>
 </head>
 <body>
@@ -1196,7 +1197,7 @@
         </div>
       </div>
 
-      <div class="results-toolbar">
+            <div class="results-toolbar">
         <div class="chart-mode-group" role="group" aria-label="Chart mode">
           <div class="chart-mode-label">Chart mode</div>
           <div class="mode-switch">
@@ -1228,10 +1229,17 @@
 
         <div class="results-explainer">
           <p><strong>Real</strong> values strip out inflation to show true sustainability. By focusing on constant purchasing power, you can see if your wealth actually covers your lifestyle.</p>
-          <p><strong>Nominal</strong> values show future cash totals including inflation; while the figures grow, rising prices mean they don’t necessarily represent increased real-world purchasing power.</p>        
+          <p><strong>Nominal</strong> values show future cash totals including inflation; while the figures grow, rising prices mean they don’t necessarily represent increased real-world purchasing power.</p>
+        </div>
 
-            
-
+        <div class="results-toolbar-actions">
+          <button
+            id="printPdfBtn"
+            class="btn btn-success"
+            type="button"
+          >
+            Print PDF
+          </button>
         </div>
       </div>
 
