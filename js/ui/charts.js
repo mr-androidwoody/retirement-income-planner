@@ -858,7 +858,7 @@ function getAreaDetailLines(label) {
       ];
     case 'Withdrawals from portfolio':
       return [
-        'Sending funded by investment withdrawals.',
+        'Spending funded by investment withdrawals.',
         'It sits on top of other income and pension to make up total spending.'
       ];
     case 'Spending shortfall':
