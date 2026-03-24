@@ -409,12 +409,6 @@ textarea{
   margin-bottom:16px;
 }
 
-.panel-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
 .card-header{
   margin-bottom:12px;
 }
@@ -1531,56 +1525,10 @@ input[type="checkbox"]{
   border-top:1px solid var(--line);
 }
 
-.results-toolbar-actions{
-  margin-left:auto;
-  display:flex;
-  align-items:flex-start;
-}
-
 .chart-mode-group{
   display:flex;
   flex-direction:column;
   gap:8px;
-}
-
-.btn-success{
-  display:inline-flex;   
-  align-items:center;
-  justify-content:center;
-
-  min-height:34px;   /* rebalance spans remaining space -- 38px */
-  padding:0 12px;    /* makes button Makes it taller or wider -- 14px */
-
-  border-radius:10px;
-  border:1px solid #16a34a;
-  background:#16a34a;
-  color:#ffffff;
-
-  font-size:0.77rem;  /* button text size -- 87px */
-  font-weight:700;
-
-  cursor:pointer;
-
-  transition:
-    background 0.14s ease,
-    border-color 0.14s ease,
-    box-shadow 0.14s ease,
-    transform 0.14s ease;
-}
-
-.btn-success:hover{
-  background:#15803d;
-  border-color:#15803d;
-  transform:translateY(-1px);
-}
-
-.btn-success:active{
-  transform:translateY(0);
-}
-
-.btn-success:focus-visible{
-  outline:2px solid rgba(22,163,74,0.35);
-  outline-offset:2px;
 }
 
 .chart-mode-label{
