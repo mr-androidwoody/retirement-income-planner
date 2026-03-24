@@ -227,7 +227,6 @@ const withdrawalValues = rows.map((r) => {
           strokeColor: '#f59e0b'
         },
         {
-        {
           label: 'Withdrawals from portfolio',
           values: withdrawalValues,
           color: 'rgba(59,130,246,0.25)',   // blue fill
