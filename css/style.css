@@ -1544,19 +1544,19 @@ input[type="checkbox"]{
 }
 
 .btn-success{
-  display:inline-flex;
+  display:inline-flex;   
   align-items:center;
   justify-content:center;
 
-  min-height:38px;
-  padding:0 14px;
+  min-height:34px;   /* rebalance spans remaining space -- 38px */
+  padding:0 12px;    /* makes button Makes it taller or wider -- 14px */
 
   border-radius:10px;
   border:1px solid #16a34a;
   background:#16a34a;
   color:#ffffff;
 
-  font-size:0.87rem;
+  font-size:0.77rem;  /* button text size -- 87px */
   font-weight:700;
 
   cursor:pointer;
