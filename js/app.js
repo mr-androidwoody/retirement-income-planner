@@ -301,7 +301,7 @@ function attachEvents() {
     }, 100)
   );
 
-    if (els.showPlanOutlook) {
+  if (els.showPlanOutlook) {
     els.showPlanOutlook.addEventListener('change', () => {
       togglePlanOutlook();
     });
@@ -315,9 +315,13 @@ function attachEvents() {
 }
 
 function handlePrintPdf() {
+  console.log('Print PDF clicked');
+
   if (!latestResult || !els.pdfReportRoot || !latestResult.inputs) {
     return;
   }
+
+  console.log('About to open print dialog');
 
   buildPdfReport(latestResult);
   els.pdfReportRoot.classList.remove('hidden');
