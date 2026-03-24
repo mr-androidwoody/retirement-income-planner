@@ -786,7 +786,9 @@ function getAreaHoverPayload(config, state, geom) {
         x,
         y,
         title: area.label,
-        lines: getAreaDetailLines(area.label)
+        lines: getAreaDetailLines(area.label),
+        swatchColor: area.color,
+        swatchBorderColor: area.strokeColor || area.color
       };
     }
 
@@ -835,7 +837,9 @@ function getGapBandHoverPayload(config, state, geom) {
       x,
       y,
       title: gapBand.label || 'Spending shortfall',
-      lines: getAreaDetailLines(gapBand.label || 'Spending shortfall')
+      lines: getAreaDetailLines(gapBand.label || 'Spending shortfall'),
+      swatchColor: gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
+      swatchBorderColor: gapBand.strokeStyle || '#b91c1c'
     };
   }
 
@@ -936,6 +940,10 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
   const lineHeight = 16;
   const titleHeight = title ? 18 : 0;
 
+  const hasSwatch = Boolean(payload.swatchColor);
+  const swatchSize = hasSwatch ? 12 : 0;
+  const swatchGap = hasSwatch ? 8 : 0;
+
   const boxWidth = maxBoxWidth;
   const wrapWidth = boxWidth - boxPaddingX * 2;
 
@@ -1001,8 +1009,23 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
   let textY = y + boxPaddingTop;
 
   if (title) {
+    const titleX = x + boxPaddingX + swatchSize + swatchGap;
+
+    if (hasSwatch) {
+      const swatchX = x + boxPaddingX;
+      const swatchY = textY + 1;
+
+      ctx.beginPath();
+      ctx.rect(swatchX, swatchY, swatchSize, swatchSize);
+      ctx.fillStyle = payload.swatchColor;
+      ctx.fill();
+      ctx.strokeStyle = payload.swatchBorderColor || payload.swatchColor;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
     ctx.fillStyle = '#0f172a';
-    ctx.fillText(title, x + boxPaddingX, textY);
+    ctx.fillText(title, titleX, textY);
     textY += titleHeight;
   }
 
