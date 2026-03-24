@@ -316,6 +316,9 @@ function attachEvents() {
 
 function handlePrintPdf() {
   console.log('Print PDF clicked');
+  console.log('latestResult:', latestResult);
+  console.log('pdfReportRoot:', els.pdfReportRoot);
+  console.log('latestResult.inputs:', latestResult?.inputs);
 
   if (!latestResult || !els.pdfReportRoot || !latestResult.inputs) {
     return;
