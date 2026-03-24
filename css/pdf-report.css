@@ -158,19 +158,15 @@
 }
 
 @media print{
-  body *{
-    visibility:hidden !important;
-  }
-
-  #pdfReportRoot,
-  #pdfReportRoot *{
-    visibility:visible !important;
+  .page-shell,
+  .outlook-glossary-overlay,
+  .site-footer{
+    display:none !important;
   }
 
   #pdfReportRoot{
     display:block !important;
-    position:absolute;
-    inset:0;
+    position:static !important;
     width:100%;
     margin:0;
     padding:0;
