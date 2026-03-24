@@ -317,7 +317,7 @@ function initIntroOverlay() {
   const startBtn = document.getElementById('introOverlayStart');
   const dismissCheckbox = document.getElementById('introOverlayDismiss');
 
-  if (!overlay || !startBtn) return;
+  if (!overlay || !startBtn || !dismissCheckbox) return;
 
   const COOKIE_NAME = 'hideIntroOverlay';
 
@@ -329,27 +329,35 @@ function initIntroOverlay() {
   function getCookie(name) {
     return document.cookie
       .split('; ')
-      .find(row => row.startsWith(name + '='))
+      .find((row) => row.startsWith(`${name}=`))
       ?.split('=')[1];
+  }
+
+  function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
   }
 
   const shouldHide = getCookie(COOKIE_NAME) === 'true';
 
+  dismissCheckbox.checked = shouldHide;
+
   if (shouldHide) {
     overlay.classList.add('hidden');
     document.body.classList.remove('intro-overlay-active');
-    return;
+  } else {
+    overlay.classList.remove('hidden');
+    document.body.classList.add('intro-overlay-active');
   }
 
-  // show overlay
-  overlay.classList.remove('hidden');
-  document.body.classList.add('intro-overlay-active');
+  dismissCheckbox.addEventListener('change', () => {
+    if (dismissCheckbox.checked) {
+      setCookie(COOKIE_NAME, 'true', 0);  // Cookie //
+    } else {
+      deleteCookie(COOKIE_NAME);
+    }
+  });
 
   function closeOverlay() {
-    if (dismissCheckbox?.checked) {
-      setCookie(COOKIE_NAME, 'true', 365);
-    }
-
     overlay.classList.add('hidden');
     document.body.classList.remove('intro-overlay-active');
   }
