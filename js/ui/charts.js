@@ -356,18 +356,23 @@ function drawLineChart(canvas, config) {
             : '',
       color: l.color,
       width: l.width || 2.5,
-      dash: l.dash || []
+      dash: l.dash || [],
+      markerType: 'line'
     })),
     ...(config.stackedAreas || []).map((a) => ({
       label: a.label,
       color: a.strokeColor || a.color,
-      width: 2.5
+      fillColor: a.color,
+      width: 1.5,
+      markerType: 'square'
     })),
     ...(config.gapBand
       ? [{
           label: config.gapBand.label || 'Spending shortfall',
           color: config.gapBand.strokeStyle || '#dc2626',
-          width: 2
+          fillColor: config.gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
+          width: 1.5,
+          markerType: 'square'
         }]
       : [])
   ];
@@ -681,48 +686,123 @@ function drawPointHighlights(ctx, highlights, geom) {
   });
 }
 
-function getHoverPayload(config, state, geom) {
-  const markers = config.verticalMarkers || [];
-  const pointHighlights = config.pointHighlights || [];
-  const hoverRadius = 10;
+function getAreaHoverPayload(config, state, geom) {
+  const areas = config.stackedAreas || [];
+  if (!areas.length || !config.labels?.length) return null;
 
-  for (const marker of markers) {
-    const x = geom.left + getX(marker.index, config.labels.length, geom.width);
-    if (Math.abs(state.hoverX - x) <= hoverRadius) {
-      return {
-        x,
-        y: geom.top + 16,
-        title: marker.label,
-        lines: getMarkerDetailLines(marker.label)
-      };
-    }
+  if (
+    state.hoverX < geom.left ||
+    state.hoverX > geom.left + geom.width ||
+    state.hoverY < geom.top ||
+    state.hoverY > geom.top + geom.height
+  ) {
+    return null;
   }
 
-  for (const point of pointHighlights) {
-    const { index, values, label } = point;
-    if (index < 0 || index >= values.length) continue;
+  const length = config.labels.length;
+  const rawIndex = ((state.hoverX - geom.left) / geom.width) * (length - 1);
+  const index = Math.max(0, Math.min(length - 1, Math.round(rawIndex)));
 
-    const value = values[index];
-    if (!Number.isFinite(value)) continue;
+  let cumulativeLower = 0;
 
-    const x = geom.left + getX(index, values.length, geom.width);
-    const y = geom.top + getY(value, geom.minY, geom.maxY, geom.height);
+  for (const area of areas) {
+    const value = Number(area.values?.[index] || 0);
+    const cumulativeUpper = cumulativeLower + value;
 
-    const dx = state.hoverX - x;
-    const dy = state.hoverY - y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const yTop = geom.top + getY(cumulativeUpper, geom.minY, geom.maxY, geom.height);
+    const yBottom = geom.top + getY(cumulativeLower, geom.minY, geom.maxY, geom.height);
 
-    if (distance <= hoverRadius + 2) {
+    if (state.hoverY >= yTop && state.hoverY <= yBottom && value > 0) {
+      const x = geom.left + getX(index, length, geom.width);
+      const y = yTop + (yBottom - yTop) / 2;
+
       return {
         x,
         y,
-        title: label,
-        lines: getMarkerDetailLines(label)
+        title: area.label,
+        lines: getAreaDetailLines(area.label)
       };
     }
+
+    cumulativeLower = cumulativeUpper;
   }
 
   return null;
+}
+
+function getGapBandHoverPayload(config, state, geom) {
+  const gapBand = config.gapBand;
+  if (!gapBand || !config.labels?.length) return null;
+
+  if (
+    state.hoverX < geom.left ||
+    state.hoverX > geom.left + geom.width ||
+    state.hoverY < geom.top ||
+    state.hoverY > geom.top + geom.height
+  ) {
+    return null;
+  }
+
+  const length = config.labels.length;
+  const rawIndex = ((state.hoverX - geom.left) / geom.width) * (length - 1);
+  const index = Math.max(0, Math.min(length - 1, Math.round(rawIndex)));
+
+  const upperValue = gapBand.upper?.[index];
+  const lowerValue = gapBand.lower?.[index];
+
+  if (
+    !Number.isFinite(upperValue) ||
+    !Number.isFinite(lowerValue) ||
+    upperValue <= lowerValue
+  ) {
+    return null;
+  }
+
+  const yTop = geom.top + getY(upperValue, geom.minY, geom.maxY, geom.height);
+  const yBottom = geom.top + getY(lowerValue, geom.minY, geom.maxY, geom.height);
+
+  if (state.hoverY >= yTop && state.hoverY <= yBottom) {
+    const x = geom.left + getX(index, length, geom.width);
+    const y = yTop + (yBottom - yTop) / 2;
+
+    return {
+      x,
+      y,
+      title: gapBand.label || 'Spending shortfall',
+      lines: getAreaDetailLines(gapBand.label || 'Spending shortfall')
+    };
+  }
+
+  return null;
+}
+
+function getAreaDetailLines(label) {
+  switch (label) {
+    case 'Other income':
+      return [
+        'This block shows non-pension income available in that year.',
+        'It is used before portfolio withdrawals are needed.'
+      ];
+    case 'State pension income':
+      return [
+        'This block shows guaranteed state pension income in that year.',
+        'It reduces the amount that must come from the portfolio.'
+      ];
+    case 'Withdrawals from portfolio':
+      return [
+        'This block shows the portion of spending funded by investment withdrawals.',
+        'It sits on top of other income and pension to make up total spending.'
+      ];
+    case 'Spending shortfall':
+      return [
+        'This shaded gap shows where planned spending is higher than actual funded spending.',
+        'It represents the amount the plan could not fully deliver in that year.'
+      ];
+    default:
+      return [
+        'This shaded block shows how a component contributes to total spending in that year.'
+      ];
+  }
 }
 
 /* Chart Tooltips */
@@ -1080,13 +1160,30 @@ function drawLegend(ctx, width, height, layout) {
     row.forEach((item) => {
       ctx.save();
 
-      ctx.beginPath();
-      ctx.setLineDash(item.dash || []);
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + layout.markerSize, y);
-      ctx.strokeStyle = item.color;
-      ctx.lineWidth = item.width || 2.5;
-      ctx.stroke();
+      ctx.save();
+
+      if (item.markerType === 'square') {
+        const squareSize = 12;
+        const squareX = x + (layout.markerSize - squareSize) / 2;
+        const squareY = y - squareSize / 2;
+
+        ctx.beginPath();
+        ctx.rect(squareX, squareY, squareSize, squareSize);
+        ctx.fillStyle = item.fillColor || item.color;
+        ctx.fill();
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = item.width || 1.5;
+        ctx.setLineDash([]);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.setLineDash(item.dash || []);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + layout.markerSize, y);
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = item.width || 2.5;
+        ctx.stroke();
+      }
 
       ctx.restore();
 
