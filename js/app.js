@@ -355,16 +355,40 @@ function buildPdfReport(result) {
         </header>
 
         <section class="pdf-report__section">
-          <h2 class="pdf-report__section-title">Initial export test</h2>
+          <h2 class="pdf-report__section-title">Key metrics</h2>
           <div class="pdf-report__grid">
             <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Years</span>
+              <span class="pdf-report__metric-label">Retirement years</span>
               <span class="pdf-report__metric-value">${Number(result?.inputs?.years ?? 0)}</span>
             </article>
-
+        
             <article class="pdf-report__metric">
               <span class="pdf-report__metric-label">Starting portfolio</span>
               <span class="pdf-report__metric-value">${formatCurrency(result?.inputs?.initialPortfolio ?? result?.inputs?.startingPortfolio ?? 0)}</span>
+            </article>
+        
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Plan success rate</span>
+              <span class="pdf-report__metric-value">${
+                Number.isFinite(result?.monteCarlo?.successRate)
+                  ? formatPercent(result.monteCarlo.successRate)
+                  : (result?.summary?.depleted ? 'Depleted' : 'Sustained')
+              }</span>
+            </article>
+        
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Median end portfolio</span>
+              <span class="pdf-report__metric-value">${formatCurrency(
+                result?.summary?.medianEndingPortfolioReal ??
+                result?.summary?.medianEndingPortfolioNominal ??
+                result?.summary?.medianEndingPortfolio ??
+                result?.baseCase?.terminalReal ??
+                result?.baseCase?.terminalNominal ??
+                0
+              )}</span>
+            </article>
+          </div>
+        </section>
             </article>
           </div>
         </section>
