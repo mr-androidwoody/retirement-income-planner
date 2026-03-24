@@ -528,7 +528,7 @@ textarea{
 
 .monte-carlo-runs-control{
   display:grid;
-  grid-template-columns:minmax(150px, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns:140px minmax(0, 1fr);
   gap:12px;
   align-items:stretch;
 }
