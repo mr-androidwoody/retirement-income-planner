@@ -924,17 +924,49 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
   const lines = payload.lines || [];
   if (!title && !lines.length) return;
 
-  const widths = [
-    ctx.measureText(title).width,
-    ...lines.map((line) => ctx.measureText(line).width),
-    140
-  ];
-  const maxTextWidth = Math.max(...widths);
+  ctx.save();
+  ctx.font = '12px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
 
-  const boxWidth = Math.min(340, maxTextWidth + 24);
+  const maxBoxWidth = 340;
+  const boxPaddingX = 12;
+  const boxPaddingTop = 16;
+  const boxPaddingBottom = 12;
   const lineHeight = 16;
   const titleHeight = title ? 18 : 0;
-  const boxHeight = 16 + titleHeight + lines.length * lineHeight + 12;
+
+  const boxWidth = maxBoxWidth;
+  const wrapWidth = boxWidth - boxPaddingX * 2;
+
+  const wrappedLines = [];
+
+  lines.forEach((line) => {
+    const words = String(line).split(' ');
+    let currentLine = '';
+
+    words.forEach((word) => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = ctx.measureText(testLine).width;
+
+      if (testWidth > wrapWidth && currentLine) {
+        wrappedLines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) {
+      wrappedLines.push(currentLine);
+    }
+  });
+
+  const boxHeight =
+    boxPaddingTop +
+    titleHeight +
+    wrappedLines.length * lineHeight +
+    boxPaddingBottom;
 
   const plotBottom = height - padding.bottom;
 
@@ -957,8 +989,6 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
     y = plotBottom - boxHeight - 6;
   }
 
-  ctx.save();
-
   ctx.fillStyle = 'rgba(255,255,255,0.97)';
   roundRect(ctx, x, y, boxWidth, boxHeight, 10);
   ctx.fill();
@@ -968,21 +998,19 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
   roundRect(ctx, x, y, boxWidth, boxHeight, 10);
   ctx.stroke();
 
-  let textY = y + 16;
+  let textY = y + boxPaddingTop;
 
   if (title) {
     ctx.fillStyle = '#0f172a';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText(title, x + 12, textY);
+    ctx.fillText(title, x + boxPaddingX, textY);
     textY += titleHeight;
   }
 
-    ctx.fillStyle = '#475569';
-    lines.forEach((line) => {
-      ctx.fillText(line, x + 12, textY);
-      textY += lineHeight;
-    });
+  ctx.fillStyle = '#475569';
+  wrappedLines.forEach((line) => {
+    ctx.fillText(line, x + boxPaddingX, textY);
+    textY += lineHeight;
+  });
 
   ctx.restore();
 }
