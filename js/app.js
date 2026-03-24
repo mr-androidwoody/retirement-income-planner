@@ -315,6 +315,7 @@ function attachEvents() {
 function initIntroOverlay() {
   const overlay = document.getElementById('introOverlay');
   const startBtn = document.getElementById('introOverlayStart');
+  const closeBtn = document.getElementById('introOverlayClose');
   const dismissCheckbox = document.getElementById('introOverlayDismiss');
 
   if (!overlay || !startBtn || !dismissCheckbox) return;
@@ -351,7 +352,7 @@ function initIntroOverlay() {
 
   dismissCheckbox.addEventListener('change', () => {
     if (dismissCheckbox.checked) {
-      setCookie(COOKIE_NAME, 'true', 0);  // Cookie //
+      setCookie(COOKIE_NAME, 'true', 365);
     } else {
       deleteCookie(COOKIE_NAME);
     }
@@ -363,6 +364,7 @@ function initIntroOverlay() {
   }
 
   startBtn.addEventListener('click', closeOverlay);
+  closeBtn?.addEventListener('click', closeOverlay);
 
   overlay
     .querySelector('.intro-overlay__backdrop')
