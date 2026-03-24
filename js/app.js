@@ -369,12 +369,30 @@ function buildPdfReport(result) {
           </div>
         </section>
 
+        <section class="pdf-report__section">
+          <h2 class="pdf-report__section-title">Portfolio projection</h2>
+          <div class="pdf-report__chart">
+            <img src="${getPortfolioChartImage()}" alt="Portfolio chart" />
+          </div>
+        </section>
+
         <p class="pdf-report__disclaimer">
           This report is for planning purposes only and does not constitute financial advice.
         </p>
       </div>
     </section>
   `;
+}
+
+function getPortfolioChartImage() {
+  const canvas = els.portfolioChart;
+  if (!canvas) return '';
+
+  try {
+    return canvas.toDataURL('image/png', 1.0);
+  } catch {
+    return '';
+  }
 }
 
 function attachAllocationStatusEvents() {
