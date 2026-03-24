@@ -352,7 +352,7 @@ function initIntroOverlay() {
 
   dismissCheckbox.addEventListener('change', () => {
     if (dismissCheckbox.checked) {
-      setCookie(COOKIE_NAME, 'true', 365);
+      setCookie(COOKIE_NAME, 'true', 0);
     } else {
       deleteCookie(COOKIE_NAME);
     }
