@@ -978,11 +978,11 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
     textY += titleHeight;
   }
 
-  ctx.fillStyle = '#475569';
-  lines.forEach((line) => {
-    ctx.fillText(line, x + 12, textY);
-    textY += lineHeight;
-  });
+    ctx.fillStyle = '#475569';
+    lines.forEach((line) => {
+      ctx.fillText(line, x + 12, textY);
+      textY += lineHeight;
+    });
 
   ctx.restore();
 }
