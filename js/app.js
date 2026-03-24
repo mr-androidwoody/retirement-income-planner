@@ -72,6 +72,7 @@ const els = {
   showRealValues: document.getElementById('showRealValues'),
   showFullTable: document.getElementById('showFullTable'),
   showPlanOutlook: document.getElementById('showPlanOutlook'),
+  printPdfBtn: document.getElementById('printPdfBtn'),
 
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
@@ -108,7 +109,8 @@ const els = {
   resultsTableIntro: document.getElementById('resultsTableIntro'),
   resultsTable: document.getElementById('resultsTable'),
   resultsTableNote: document.getElementById('resultsTableNote'),
-  resultsTableLegend: document.getElementById('resultsTableLegend')
+  resultsTableLegend: document.getElementById('resultsTableLegend'),
+  pdfReportRoot: document.getElementById('pdfReportRoot')
 };
 
 let latestResult = null;
@@ -299,13 +301,73 @@ function attachEvents() {
     }, 100)
   );
 
-  if (els.showPlanOutlook) {
+    if (els.showPlanOutlook) {
     els.showPlanOutlook.addEventListener('change', () => {
       togglePlanOutlook();
     });
   }
 
+  if (els.printPdfBtn) {
+    els.printPdfBtn.addEventListener('click', handlePrintPdf);
+  }
+
   attachAllocationStatusEvents();
+}
+
+function handlePrintPdf() {
+  if (!latestResult || !els.pdfReportRoot || !latestResult.inputs) {
+    return;
+  }
+
+  buildPdfReport(latestResult);
+  els.pdfReportRoot.classList.remove('hidden');
+
+  window.requestAnimationFrame(() => {
+    window.setTimeout(() => {
+      window.print();
+
+      window.setTimeout(() => {
+        els.pdfReportRoot.classList.add('hidden');
+      }, 300);
+    }, 50);
+  });
+}
+
+function buildPdfReport(result) {
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const runDate = new Date().toLocaleDateString('en-GB');
+
+  els.pdfReportRoot.innerHTML = `
+    <section class="pdf-report">
+      <div class="pdf-report__inner">
+        <header class="pdf-report__header">
+          <h1 class="pdf-report__title">Retirement Plan Report</h1>
+          <p class="pdf-report__meta">
+            Run date: ${runDate} · Simulation mode: ${mode === 'historical' ? 'Historical scenario' : 'Monte Carlo'}
+          </p>
+        </header>
+
+        <section class="pdf-report__section">
+          <h2 class="pdf-report__section-title">Initial export test</h2>
+          <div class="pdf-report__grid">
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Years</span>
+              <span class="pdf-report__metric-value">${Number(result?.inputs?.years ?? 0)}</span>
+            </article>
+
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Starting portfolio</span>
+              <span class="pdf-report__metric-value">${formatCurrency(result?.inputs?.initialPortfolio ?? result?.inputs?.startingPortfolio ?? 0)}</span>
+            </article>
+          </div>
+        </section>
+
+        <p class="pdf-report__disclaimer">
+          This report is for planning purposes only and does not constitute financial advice.
+        </p>
+      </div>
+    </section>
+  `;
 }
 
 function attachAllocationStatusEvents() {
