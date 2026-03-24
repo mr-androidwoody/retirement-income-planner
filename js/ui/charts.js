@@ -227,10 +227,11 @@ const withdrawalValues = rows.map((r) => {
           strokeColor: '#f59e0b'
         },
         {
+        {
           label: 'Withdrawals from portfolio',
           values: withdrawalValues,
-          color: 'rgba(239,68,68,0.22)',    // red (lighter than gap)
-          strokeColor: '#ef4444'
+          color: 'rgba(59,130,246,0.25)',   // blue fill
+          strokeColor: '#3b82f6'            // blue line
         }
       ],
     
@@ -686,6 +687,72 @@ function drawPointHighlights(ctx, highlights, geom) {
   });
 }
 
+function getHoverPayload(config, state, geom) {
+  if (
+    state.hoverX == null ||
+    state.hoverY == null ||
+    state.hoverX < geom.left ||
+    state.hoverX > geom.left + geom.width ||
+    state.hoverY < geom.top ||
+    state.hoverY > geom.top + geom.height
+  ) {
+    return null;
+  }
+
+  // 1. stacked areas first (this is what you want)
+  const areaPayload = getAreaHoverPayload(config, state, geom);
+  if (areaPayload) return areaPayload;
+
+  // 2. shortfall band
+  const gapPayload = getGapBandHoverPayload(config, state, geom);
+  if (gapPayload) return gapPayload;
+
+  // 3. points
+  const pointHighlights = config.pointHighlights || [];
+  const hoverRadius = 10;
+
+  for (const point of pointHighlights) {
+    const { index, values, label } = point;
+    if (index < 0 || index >= values.length) continue;
+
+    const value = values[index];
+    if (!Number.isFinite(value)) continue;
+
+    const x = geom.left + getX(index, values.length, geom.width);
+    const y = geom.top + getY(value, geom.minY, geom.maxY, geom.height);
+
+    const dx = state.hoverX - x;
+    const dy = state.hoverY - y;
+
+    if (Math.sqrt(dx * dx + dy * dy) <= hoverRadius + 2) {
+      return {
+        x,
+        y,
+        title: label,
+        lines: getMarkerDetailLines(label)
+      };
+    }
+  }
+
+  // 4. vertical markers
+  const markers = config.verticalMarkers || [];
+
+  for (const marker of markers) {
+    const x = geom.left + getX(marker.index, config.labels.length, geom.width);
+
+    if (Math.abs(state.hoverX - x) <= hoverRadius) {
+      return {
+        x,
+        y: geom.top + 16,
+        title: marker.label,
+        lines: getMarkerDetailLines(marker.label)
+      };
+    }
+  }
+
+  return null;
+}
+
 function getAreaHoverPayload(config, state, geom) {
   const areas = config.stackedAreas || [];
   if (!areas.length || !config.labels?.length) return null;
@@ -858,13 +925,19 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
   const lines = payload.lines || [];
   if (!title && !lines.length) return;
 
-  const widths = [ctx.measureText(title).width, ...lines.map((line) => ctx.measureText(line).width), 140];
+  const widths = [
+    ctx.measureText(title).width,
+    ...lines.map((line) => ctx.measureText(line).width),
+    140
+  ];
   const maxTextWidth = Math.max(...widths);
 
   const boxWidth = Math.min(340, maxTextWidth + 24);
   const lineHeight = 16;
   const titleHeight = title ? 18 : 0;
   const boxHeight = 16 + titleHeight + lines.length * lineHeight + 12;
+
+  const plotBottom = height - padding.bottom;
 
   let x = payload.x + 14;
   let y = payload.y - boxHeight - 10;
@@ -879,6 +952,10 @@ function drawHoverOverlay(ctx, payload, width, height, padding) {
 
   if (y < padding.top + 4) {
     y = payload.y + 12;
+  }
+
+  if (y + boxHeight > plotBottom - 6) {
+    y = plotBottom - boxHeight - 6;
   }
 
   ctx.save();
@@ -1158,8 +1235,6 @@ function drawLegend(ctx, width, height, layout) {
     let x = (width - rowWidth) / 2;
 
     row.forEach((item) => {
-      ctx.save();
-
       ctx.save();
 
       if (item.markerType === 'square') {
