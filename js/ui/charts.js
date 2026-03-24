@@ -909,7 +909,7 @@ function getMarkerDetailLines(label) {
       ];
     case 'Worst shortfall':
       return [
-        'The year with the largest £ spending shortfall.',
+        'The year with the largest spending shortfall.',
         'The red shaded band is widest here.'
       ];
     default:
