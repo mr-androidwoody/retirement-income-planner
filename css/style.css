@@ -3466,10 +3466,10 @@ body.intro-overlay-active .page-shell{
 
 .intro-overlay__intro{
   margin:0;
-  max-width:58ch;
-  font-size:0.96rem;
+  max-width:none;
+  font-size:0.89rem;
   line-height:1.42;
-  color:#607089;
+  color:#64748b;
 }
 
 .intro-overlay__micro{
