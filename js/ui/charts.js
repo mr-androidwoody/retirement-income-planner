@@ -850,27 +850,25 @@ function getAreaDetailLines(label) {
   switch (label) {
     case 'Other income':
       return [
-        'This block shows non-pension income available in that year.',
-        'It is used before portfolio withdrawals are needed.'
+        'Non-pension income used before portfolio withdrawals are needed.'
       ];
     case 'State pension income':
       return [
-        'This block shows guaranteed state pension income in that year.',
-        'It reduces the amount that must come from the portfolio.'
+        'State pension income reduces amount drawn from portfolio.'
       ];
     case 'Withdrawals from portfolio':
       return [
-        'This block shows the portion of spending funded by investment withdrawals.',
+        'Sending funded by investment withdrawals.',
         'It sits on top of other income and pension to make up total spending.'
       ];
     case 'Spending shortfall':
       return [
-        'This shaded gap shows where planned spending is higher than actual funded spending.',
-        'It represents the amount the plan could not fully deliver in that year.'
+        'Planned spending is higher than actual funded spending.',
+        'Showing the amount the plan can not fully in this year.'
       ];
     default:
       return [
-        'This shaded block shows how a component contributes to total spending in that year.'
+        'Shows how a component contributes to total spending in that year.'
       ];
   }
 }
@@ -880,14 +878,14 @@ function getAreaDetailLines(label) {
 function getMarkerDetailLines(label) {
   if (/windfall/i.test(label)) {
     return [
-      'This is a one-off cash inflow added to the plan in this year.',
+      'One-off cash inflow added to the plan in this year.',
       'It reduces the need for portfolio withdrawals and can lift the portfolio path.'
     ];
   }
 
   if (/state pension/i.test(label)) {
     return [
-      'This is the year state pension starts for this person.',
+      'Year state pension starts for this person.',
       'From this point, portfolio withdrawals may reduce because guaranteed income increases.'
     ];
   }
@@ -895,23 +893,23 @@ function getMarkerDetailLines(label) {
   switch (label) {
     case 'First cut':
       return [
-        'This is the first year spending is reduced by guardrails.',
+        'First year spending is reduced by guardrails.',
         'Actual spending falls below the planned level.'
       ];
     case 'Worst cut':
       return [
-        'This is the year with the largest guardrail spending cut.',
+        'Year with the largest guardrail spending cut.',
         'The gap to target spending is at its biggest cut percentage.'
       ];
     case 'First shortfall':
     case 'Shortfall begins':
       return [
-        'This is the first year target spending is not fully funded.',
+        'The first year target spending is not fully funded.',
         'Red shading shows the unfunded gap versus planned spending.'
       ];
     case 'Worst shortfall':
       return [
-        'This is the year with the largest £ spending shortfall.',
+        'The year with the largest £ spending shortfall.',
         'The red shaded band is widest here.'
       ];
     default:
