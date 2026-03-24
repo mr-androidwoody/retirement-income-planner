@@ -72,7 +72,6 @@ const els = {
   showRealValues: document.getElementById('showRealValues'),
   showFullTable: document.getElementById('showFullTable'),
   showPlanOutlook: document.getElementById('showPlanOutlook'),
-  printPdfBtn: document.getElementById('printPdfBtn'),
 
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
@@ -109,8 +108,7 @@ const els = {
   resultsTableIntro: document.getElementById('resultsTableIntro'),
   resultsTable: document.getElementById('resultsTable'),
   resultsTableNote: document.getElementById('resultsTableNote'),
-  resultsTableLegend: document.getElementById('resultsTableLegend'),
-  pdfReportRoot: document.getElementById('pdfReportRoot')
+  resultsTableLegend: document.getElementById('resultsTableLegend')
 };
 
 let latestResult = null;
@@ -307,172 +305,7 @@ function attachEvents() {
     });
   }
 
-  if (els.printPdfBtn) {
-    els.printPdfBtn.addEventListener('click', handlePrintPdf);
-  }
-
   attachAllocationStatusEvents();
-}
-
-function handlePrintPdf() {
-  console.log('Print PDF clicked');
-  console.log('latestResult:', latestResult);
-  console.log('pdfReportRoot:', els.pdfReportRoot);
-  console.log('latestResult.inputs:', latestResult?.inputs);
-
-  if (!latestResult || !els.pdfReportRoot || !latestResult.inputs) {
-    return;
-  }
-
-  console.log('About to open print dialog');
-
-  buildPdfReport(latestResult);
-  els.pdfReportRoot.classList.remove('hidden');
-
-  window.requestAnimationFrame(() => {
-    window.setTimeout(() => {
-      window.print();
-
-      window.setTimeout(() => {
-        els.pdfReportRoot.classList.add('hidden');
-      }, 300);
-    }, 50);
-  });
-}
-
-function buildPdfReport(result) {
-  const mode = String(result?.mode ?? '').toLowerCase();
-  const runDate = new Date().toLocaleDateString('en-GB');
-
-  const medianEnd =
-    result?.summary?.medianEndingPortfolio ??
-    result?.summary?.medianEndingPortfolioReal ??
-    result?.monteCarlo?.p50EndingPortfolio ??
-    result?.baseCase?.endingPortfolio ??
-    null;
-
-  const successRate = result?.monteCarlo?.successRate;
-
-  const successRateDisplay = Number.isFinite(successRate)
-    ? formatPercent(successRate)
-    : (result?.summary?.depleted ? 'Plan failed' : 'Plan sustained');
-
-  const chartImage = getPortfolioChartImage();
-
-  const totalSpending =
-    result?.summary?.totalSpending ??
-    result?.summary?.totalSpendingReal ??
-    result?.summary?.totalSpendingNominal ??
-    null;
-
-  const totalWithdrawals =
-    result?.summary?.totalWithdrawals ??
-    result?.summary?.totalWithdrawalsReal ??
-    result?.summary?.totalWithdrawalsNominal ??
-    null;
-
-  const worstShortfall =
-    result?.summary?.worstShortfall ??
-    result?.summary?.worstShortfallReal ??
-    result?.summary?.worstShortfallNominal ??
-    null;
-
-  els.pdfReportRoot.innerHTML = `
-    <section class="pdf-report">
-      <div class="pdf-report__inner">
-        <header class="pdf-report__header">
-          <div>
-            <h1 class="pdf-report__title">Retirement Plan Report</h1>
-            <p class="pdf-report__meta">
-              Run date: ${runDate} · Simulation mode: ${mode === 'historical' ? 'Historical scenario' : 'Monte Carlo'}
-            </p>
-          </div>
-          <div class="pdf-report__brand">Retirement Income Planner</div>
-        </header>
-
-        <section class="pdf-report__section">
-          <h2 class="pdf-report__section-title">Key metrics</h2>
-          <div class="pdf-report__grid">
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Retirement years</span>
-              <span class="pdf-report__metric-value">${Number(result?.inputs?.years ?? 0)}</span>
-            </article>
-
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Starting portfolio</span>
-              <span class="pdf-report__metric-value">${formatCurrency(
-                result?.inputs?.initialPortfolio ?? result?.inputs?.startingPortfolio ?? 0
-              )}</span>
-            </article>
-
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Plan success rate</span>
-              <span class="pdf-report__metric-value">${successRateDisplay}</span>
-            </article>
-
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Median end portfolio</span>
-              <span class="pdf-report__metric-value">${
-                medianEnd !== null ? formatCurrency(medianEnd) : '—'
-              }</span>
-            </article>
-          </div>
-        </section>
-
-        <section class="pdf-report__section">
-          <h2 class="pdf-report__section-title">Portfolio projection</h2>
-          <div class="pdf-report__chart">
-            ${
-              chartImage
-                ? `<img src="${chartImage}" alt="Portfolio chart" />`
-                : `<div class="pdf-report__chart--placeholder">Chart unavailable</div>`
-            }
-          </div>
-        </section>
-
-        <section class="pdf-report__section">
-          <h2 class="pdf-report__section-title">Spending summary</h2>
-          <div class="pdf-report__grid">
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Total spending</span>
-              <span class="pdf-report__metric-value">${
-                totalSpending !== null ? formatCurrency(totalSpending) : '—'
-              }</span>
-            </article>
-
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Total withdrawals</span>
-              <span class="pdf-report__metric-value">${
-                totalWithdrawals !== null ? formatCurrency(totalWithdrawals) : '—'
-              }</span>
-            </article>
-
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Worst spending shortfall</span>
-              <span class="pdf-report__metric-value">${
-                worstShortfall !== null ? formatCurrency(worstShortfall) : '—'
-              }</span>
-            </article>
-          </div>
-        </section>
-
-        <p class="pdf-report__disclaimer">
-          This report is for planning purposes only and does not constitute financial advice.
-        </p>
-      </div>
-    </section>
-  `;
-}
-
-function getPortfolioChartImage() {
-  const canvas = els.portfolioChart;
-  if (!canvas) return '';
-
-  try {
-    return canvas.toDataURL('image/png', 1.0);
-  } catch {
-    return '';
-  }
 }
 
 function attachAllocationStatusEvents() {
