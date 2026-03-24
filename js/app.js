@@ -137,9 +137,9 @@ const advancedForm = createAdvancedForm(els, parsingHelpers);
 initialise();
 
 function initialise() {
-  // setupWorker();
   applyDefaults();
   attachEvents();
+  initIntroOverlay();   // ← ADD THIS
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
@@ -306,6 +306,59 @@ function attachEvents() {
   }
 
   attachAllocationStatusEvents();
+}
+
+/* ========================================
+   Intro overlay (UI only)
+======================================== */
+
+function initIntroOverlay() {
+  const overlay = document.getElementById('introOverlay');
+  const startBtn = document.getElementById('introOverlayStart');
+  const dismissCheckbox = document.getElementById('introOverlayDismiss');
+
+  if (!overlay || !startBtn) return;
+
+  const COOKIE_NAME = 'hideIntroOverlay';
+
+  function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 86400000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+  }
+
+  function getCookie(name) {
+    return document.cookie
+      .split('; ')
+      .find(row => row.startsWith(name + '='))
+      ?.split('=')[1];
+  }
+
+  const shouldHide = getCookie(COOKIE_NAME) === 'true';
+
+  if (shouldHide) {
+    overlay.classList.add('hidden');
+    document.body.classList.remove('intro-overlay-active');
+    return;
+  }
+
+  // show overlay
+  overlay.classList.remove('hidden');
+  document.body.classList.add('intro-overlay-active');
+
+  function closeOverlay() {
+    if (dismissCheckbox?.checked) {
+      setCookie(COOKIE_NAME, 'true', 365);
+    }
+
+    overlay.classList.add('hidden');
+    document.body.classList.remove('intro-overlay-active');
+  }
+
+  startBtn.addEventListener('click', closeOverlay);
+
+  overlay
+    .querySelector('.intro-overlay__backdrop')
+    ?.addEventListener('click', closeOverlay);
 }
 
 function attachAllocationStatusEvents() {
