@@ -344,14 +344,50 @@ function buildPdfReport(result) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const runDate = new Date().toLocaleDateString('en-GB');
 
+  const medianEnd =
+    result?.summary?.medianEndingPortfolio ??
+    result?.summary?.medianEndingPortfolioReal ??
+    result?.monteCarlo?.p50EndingPortfolio ??
+    result?.baseCase?.endingPortfolio ??
+    null;
+
+  const successRate = result?.monteCarlo?.successRate;
+
+  const successRateDisplay = Number.isFinite(successRate)
+    ? formatPercent(successRate)
+    : (result?.summary?.depleted ? 'Plan failed' : 'Plan sustained');
+
+  const chartImage = getPortfolioChartImage();
+
+  const totalSpending =
+    result?.summary?.totalSpending ??
+    result?.summary?.totalSpendingReal ??
+    result?.summary?.totalSpendingNominal ??
+    null;
+
+  const totalWithdrawals =
+    result?.summary?.totalWithdrawals ??
+    result?.summary?.totalWithdrawalsReal ??
+    result?.summary?.totalWithdrawalsNominal ??
+    null;
+
+  const worstShortfall =
+    result?.summary?.worstShortfall ??
+    result?.summary?.worstShortfallReal ??
+    result?.summary?.worstShortfallNominal ??
+    null;
+
   els.pdfReportRoot.innerHTML = `
     <section class="pdf-report">
       <div class="pdf-report__inner">
         <header class="pdf-report__header">
-          <h1 class="pdf-report__title">Retirement Plan Report</h1>
-          <p class="pdf-report__meta">
-            Run date: ${runDate} · Simulation mode: ${mode === 'historical' ? 'Historical scenario' : 'Monte Carlo'}
-          </p>
+          <div>
+            <h1 class="pdf-report__title">Retirement Plan Report</h1>
+            <p class="pdf-report__meta">
+              Run date: ${runDate} · Simulation mode: ${mode === 'historical' ? 'Historical scenario' : 'Monte Carlo'}
+            </p>
+          </div>
+          <div class="pdf-report__brand">Retirement Income Planner</div>
         </header>
 
         <section class="pdf-report__section">
@@ -361,34 +397,24 @@ function buildPdfReport(result) {
               <span class="pdf-report__metric-label">Retirement years</span>
               <span class="pdf-report__metric-value">${Number(result?.inputs?.years ?? 0)}</span>
             </article>
-        
+
             <article class="pdf-report__metric">
               <span class="pdf-report__metric-label">Starting portfolio</span>
-              <span class="pdf-report__metric-value">${formatCurrency(result?.inputs?.initialPortfolio ?? result?.inputs?.startingPortfolio ?? 0)}</span>
-            </article>
-        
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Plan success rate</span>
-              <span class="pdf-report__metric-value">${
-                Number.isFinite(result?.monteCarlo?.successRate)
-                  ? formatPercent(result.monteCarlo.successRate)
-                  : (result?.summary?.depleted ? 'Depleted' : 'Sustained')
-              }</span>
-            </article>
-        
-            <article class="pdf-report__metric">
-              <span class="pdf-report__metric-label">Median end portfolio</span>
               <span class="pdf-report__metric-value">${formatCurrency(
-                result?.summary?.medianEndingPortfolioReal ??
-                result?.summary?.medianEndingPortfolioNominal ??
-                result?.summary?.medianEndingPortfolio ??
-                result?.baseCase?.terminalReal ??
-                result?.baseCase?.terminalNominal ??
-                0
+                result?.inputs?.initialPortfolio ?? result?.inputs?.startingPortfolio ?? 0
               )}</span>
             </article>
-          </div>
-        </section>
+
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Plan success rate</span>
+              <span class="pdf-report__metric-value">${successRateDisplay}</span>
+            </article>
+
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Median end portfolio</span>
+              <span class="pdf-report__metric-value">${
+                medianEnd !== null ? formatCurrency(medianEnd) : '—'
+              }</span>
             </article>
           </div>
         </section>
@@ -396,7 +422,37 @@ function buildPdfReport(result) {
         <section class="pdf-report__section">
           <h2 class="pdf-report__section-title">Portfolio projection</h2>
           <div class="pdf-report__chart">
-            <img src="${getPortfolioChartImage()}" alt="Portfolio chart" />
+            ${
+              chartImage
+                ? `<img src="${chartImage}" alt="Portfolio chart" />`
+                : `<div class="pdf-report__chart--placeholder">Chart unavailable</div>`
+            }
+          </div>
+        </section>
+
+        <section class="pdf-report__section">
+          <h2 class="pdf-report__section-title">Spending summary</h2>
+          <div class="pdf-report__grid">
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Total spending</span>
+              <span class="pdf-report__metric-value">${
+                totalSpending !== null ? formatCurrency(totalSpending) : '—'
+              }</span>
+            </article>
+
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Total withdrawals</span>
+              <span class="pdf-report__metric-value">${
+                totalWithdrawals !== null ? formatCurrency(totalWithdrawals) : '—'
+              }</span>
+            </article>
+
+            <article class="pdf-report__metric">
+              <span class="pdf-report__metric-label">Worst spending shortfall</span>
+              <span class="pdf-report__metric-value">${
+                worstShortfall !== null ? formatCurrency(worstShortfall) : '—'
+              }</span>
+            </article>
           </div>
         </section>
 
