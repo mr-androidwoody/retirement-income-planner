@@ -69,18 +69,16 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
 
   thead.innerHTML = `
     <tr>
-      <th class="col-text">Year</th>
+      <th class="col-text" rowspan="2">Year</th>
+      <th class="col-number" colspan="4">Portfolio</th>
+      <th class="col-number" colspan="2">Market</th>
+    </tr>
+    <tr>
       <th class="col-number">Start (${valueLabel} £)</th>
       <th class="col-number">End (${valueLabel} £)</th>
       <th class="col-number">
         ${renderHeaderLabel(
-          'Market return',
-          'The market movement for that year on the selected path.'
-        )}
-      </th>
-      <th class="col-number">
-        ${renderHeaderLabel(
-          'Portfolio change',
+          'Change',
           'The change in portfolio value from start to end of year, after withdrawals.'
         )}
       </th>
@@ -88,6 +86,12 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
         ${renderHeaderLabel(
           'Drawdown',
           'The fall from the prior end-of-year peak.'
+        )}
+      </th>
+      <th class="col-number">
+        ${renderHeaderLabel(
+          'Return',
+          'The market movement for that year on the selected path.'
         )}
       </th>
       <th class="col-number">
@@ -127,11 +131,6 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
           <td class="col-number">${formatCurrency(end)}</td>
 
           <td class="col-number">
-            ${renderArrow(marketReturn)}
-            ${formatPercent(marketReturn)}
-          </td>
-
-          <td class="col-number">
             ${renderArrow(portfolioChange)}
             ${formatPercent(portfolioChange)}
           </td>
@@ -139,6 +138,11 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
           <td class="col-number">
             ${renderDrawdownDot(drawdown)}
             ${formatPercent(drawdown)}
+          </td>
+
+          <td class="col-number">
+            ${renderArrow(marketReturn)}
+            ${formatPercent(marketReturn)}
           </td>
 
           <td class="col-number">
