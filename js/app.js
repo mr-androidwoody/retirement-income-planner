@@ -137,9 +137,9 @@ const advancedForm = createAdvancedForm(els, parsingHelpers);
 initialise();
 
 function initialise() {
+  initIntroOverlay();
   applyDefaults();
   attachEvents();
-  initIntroOverlay();   // ← ADD THIS
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
