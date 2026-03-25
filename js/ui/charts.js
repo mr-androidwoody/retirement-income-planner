@@ -864,7 +864,7 @@ function getAreaDetailLines(label) {
     case 'Spending shortfall':
       return [
         'Planned spending is higher than actual funded spending.',
-        'Showing the amount the plan can not fully in this year.'
+        'Showing the amount the plan can not fully support in this year.'
       ];
     default:
       return [
