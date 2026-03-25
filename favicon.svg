@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#0c1220"></rect>
+  
+  <!-- Chart line -->
+  <path d="M10 42 L24 30 L34 36 L50 20" stroke="#2d5bff" stroke-width="3" fill="none" stroke-linecap="round"></path>
+  
+  <!-- Pound symbol -->
+  <text x="50%" y="54%" text-anchor="middle" fill="#ffffff" font-size="28" font-family="system-ui, sans-serif">£</text>
+</svg>
