@@ -212,7 +212,7 @@
                   data-step-direction="-1"
                   aria-label="Decrease initial household spending by £1,000"
                 >−</button>
-                <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
+                <input id="initialPortfolio" type="number" step="1000" placeholder="Enter value" required />
                 <button
                   type="button"
                   class="stepper-btn"
@@ -254,7 +254,7 @@
                   data-step-direction="-1"
                   aria-label="Decrease minimum spending level by £1,000"
                 >−</button>
-                <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
+                <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
                 <button
                   type="button"
                   class="stepper-btn"
@@ -482,7 +482,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 1 current age by 1"
                                 >−</button>
-                                <input id="person1Age" type="number" min="18" max="100" step="1" value="57" />
+                                <input id="person1Age" type="number" step="1" placeholder="Enter age" required />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -653,7 +653,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 2 current age by 1"
                                 >−</button>
-                                <input id="person2Age" type="number" min="18" max="100" step="1" value="58" />
+                                <input id="person2Age" type="number" step="1" placeholder="Enter age" required />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1165,7 +1165,7 @@
                                   data-step-size="0.1"
                                   aria-label="Decrease inflation by 0.1 percentage points"
                                 >−</button>
-                                <input id="inflation" type="number" min="0" step="0.1" value="2.8" />
+                                <input id="inflation" type="number" min="0" step="0.1" value="2.7" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
