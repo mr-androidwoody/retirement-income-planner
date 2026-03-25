@@ -108,7 +108,8 @@ const els = {
   resultsTableIntro: document.getElementById('resultsTableIntro'),
   resultsTable: document.getElementById('resultsTable'),
   resultsTableNote: document.getElementById('resultsTableNote'),
-  resultsTableLegend: document.getElementById('resultsTableLegend')
+  resultsTableLegend: document.getElementById('resultsTableLegend'),
+  resultsTabButton: document.querySelector('[data-tab-button="results"]')
 };
 
 let latestResult = null;
@@ -139,7 +140,6 @@ initialise();
 function initialise() {
   applyDefaults();
   attachEvents();
-  initIntroOverlay();   // ← ADD THIS
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
@@ -291,6 +291,7 @@ function attachEvents() {
   attachWithdrawalRateSync();
   attachChartModeEvents();
   attachGuytonKlingerEvents();
+  attachResultsTabGuard();
 
   window.addEventListener(
     'resize',
@@ -306,69 +307,6 @@ function attachEvents() {
   }
 
   attachAllocationStatusEvents();
-}
-
-/* ========================================
-   Intro overlay (UI only)
-======================================== */
-
-function initIntroOverlay() {
-  const overlay = document.getElementById('introOverlay');
-  const startBtn = document.getElementById('introOverlayStart');
-  const closeBtn = document.getElementById('introOverlayClose');
-  const dismissCheckbox = document.getElementById('introOverlayDismiss');
-
-  if (!overlay || !startBtn || !dismissCheckbox) return;
-
-  const COOKIE_NAME = 'hideIntroOverlay';
-
-  function setCookie(name, value, days) {
-    const expires = new Date(Date.now() + days * 86400000).toUTCString();
-    document.cookie = `${name}=${value}; expires=${expires}; path=/`;
-  }
-
-  function getCookie(name) {
-    return document.cookie
-      .split('; ')
-      .find((row) => row.startsWith(`${name}=`))
-      ?.split('=')[1];
-  }
-
-  function deleteCookie(name) {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-  }
-
-  const shouldHide = getCookie(COOKIE_NAME) === 'true';
-
-  dismissCheckbox.checked = shouldHide;
-
-  if (shouldHide) {
-    overlay.classList.add('hidden');
-    document.body.classList.remove('intro-overlay-active');
-  } else {
-    overlay.classList.remove('hidden');
-    document.body.classList.add('intro-overlay-active');
-  }
-
-  dismissCheckbox.addEventListener('change', () => {
-    if (dismissCheckbox.checked) {
-      setCookie(COOKIE_NAME, 'true', 0);
-    } else {
-      deleteCookie(COOKIE_NAME);
-    }
-  });
-
-  function closeOverlay() {
-    overlay.classList.add('hidden');
-    document.body.classList.remove('intro-overlay-active');
-  }
-
-  startBtn.addEventListener('click', closeOverlay);
-  closeBtn?.addEventListener('click', closeOverlay);
-
-  overlay
-    .querySelector('.intro-overlay__backdrop')
-    ?.addEventListener('click', closeOverlay);
 }
 
 function attachAllocationStatusEvents() {
@@ -526,6 +464,28 @@ function attachGuytonKlingerEvents() {
   if (els.guytonKlingerOff) {
     els.guytonKlingerOff.addEventListener('change', rerun);
   }
+}
+
+function attachResultsTabGuard() {
+  if (!els.resultsTabButton) return;
+
+  els.resultsTabButton.addEventListener(
+    'click',
+    (event) => {
+      if (latestResult) {
+        hideError();
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      tabs.setActiveTab('inputs');
+      showError('Before you can view your results, you need to run a simulation.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    true
+  );
 }
 
 function syncInitialWithdrawalRateFromAmount() {
