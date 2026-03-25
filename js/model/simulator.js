@@ -24,6 +24,7 @@ export const DEFAULT_INPUTS = {
   cashlikeAllocation: 10,
   annualFeeRate: 0.27,
   rebalanceToTarget: true,
+
   equityReturn: 7,
   equityVolatility: 16,
   bondReturn: 3,
@@ -37,11 +38,11 @@ export const DEFAULT_INPUTS = {
   person1PensionAge: 67,
   statePensionToday: 12547,
   person1PensionToday: 12547,
+
   person2Name: 'Person 2',
   person2Age: '',
   person2PensionAge: 67,
   person2PensionToday: 12547,
-};
 
   person1OtherIncomeToday: 0,
   person1OtherIncomeYears: 0,
