@@ -1832,6 +1832,24 @@ input[type="checkbox"]{
   text-align:right;
 }
 
+#resultsTable .value{
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-width:0;
+}
+
+#resultsTable .value--pos{
+  color:#16a34a; /* green */
+  font-weight:600;
+}
+
+#resultsTable .value--neg{
+  color:#dc2626; /* red */
+  font-weight:600;
+}
+
 #resultsTable th:nth-child(1),
 #resultsTable td:nth-child(1){
   width:56px;
@@ -1880,18 +1898,6 @@ input[type="checkbox"]{
   justify-content:flex-end;
   gap:4px;
   font-variant-numeric:tabular-nums;
-}
-
-#resultsTable .cell-sub.is-up{
-  color:#16a34a; /* green */
-}
-
-#resultsTable .cell-sub.is-down{
-  color:#dc2626; /* red */
-}
-
-#resultsTable .cell-sub.is-neutral{
-  color:var(--muted);
 }
 
 /* ========================================
