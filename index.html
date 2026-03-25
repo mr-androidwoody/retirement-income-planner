@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <title>Retirement Income Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css" />
   <script type="module" src="js/app.js" defer></script>
 </head>
@@ -152,7 +151,7 @@
                   class="stepper-btn"
                   data-step-target="initialPortfolio"
                   data-step-direction="-1"
-                  data-step-size="10000"
+                  data-step-size="5000"
                   aria-label="Decrease value of investments by £5,000"
                 >−</button>
                 <input
@@ -160,14 +159,14 @@
                   type="text"
                   inputmode="numeric"
                   data-format="integer"
-                  value="400,000"
+                  value="250,000"
                 />
                 <button
                   type="button"
                   class="stepper-btn"
                   data-step-target="initialPortfolio"
                   data-step-direction="1"
-                  data-step-size="10000"
+                  data-step-size="5000"
                   aria-label="Increase value of investments by £5,000"
                 >+</button>
               </div>
@@ -212,7 +211,7 @@
                   data-step-direction="-1"
                   aria-label="Decrease initial household spending by £1,000"
                 >−</button>
-                <input id="initialSpending" type="number" step="1000" placeholder="40,000" />
+                <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
                 <button
                   type="button"
                   class="stepper-btn"
@@ -254,7 +253,7 @@
                   data-step-direction="-1"
                   aria-label="Decrease minimum spending level by £1,000"
                 >−</button>
-                <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
+                <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
                 <button
                   type="button"
                   class="stepper-btn"
@@ -482,7 +481,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 1 current age by 1"
                                 >−</button>
-                                <input id="person1Age" type="number" step="1" placeholder="Enter age" required />
+                                <input id="person1Age" type="number" min="18" max="100" step="1" value="57" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -653,7 +652,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 2 current age by 1"
                                 >−</button>
-                                <input id="person2Age" type="number" step="1" placeholder="Enter age" required />
+                                <input id="person2Age" type="number" min="18" max="100" step="1" value="58" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -836,7 +835,7 @@
                                   type="text"
                                   inputmode="numeric"
                                   data-format="integer"
-                                  value="10,000"
+                                  value="1,000"
                                   aria-label="Monte Carlo runs"
                                 />
                               </div>
@@ -1006,17 +1005,17 @@
                                   class="stepper-btn"
                                   data-step-target="equityReturn"
                                   data-step-direction="-1"
-                                  data-step-size="0.5"
-                                  aria-label="Decrease equity return by 0.5 percentage point"
+                                  data-step-size="1"
+                                  aria-label="Decrease equity return by 1 percentage point"
                                 >−</button>
-                                <input id="equityReturn" type="number" step="0.5" value="7" />
+                                <input id="equityReturn" type="number" step="1" value="7" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
                                   data-step-target="equityReturn"
                                   data-step-direction="1"
-                                  data-step-size="0.5"
-                                  aria-label="Increase equity return by 0.5 percentage point"
+                                  data-step-size="1"
+                                  aria-label="Increase equity return by 1 percentage point"
                                 >+</button>
                               </div>
                               </label>
@@ -1058,17 +1057,17 @@
                                   class="stepper-btn"
                                   data-step-target="bondReturn"
                                   data-step-direction="-1"
-                                  data-step-size="0.5"
-                                  aria-label="Decrease bond return by 0.5 percentage point"
+                                  data-step-size="1"
+                                  aria-label="Decrease bond return by 1 percentage point"
                                 >−</button>
-                                <input id="bondReturn" type="number" step="0.5" value="3" />
+                                <input id="bondReturn" type="number" step="1" value="3" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
                                   data-step-target="bondReturn"
                                   data-step-direction="1"
-                                  data-step-size="0.5"
-                                  aria-label="Increase bond return by 0.5 percentage point"
+                                  data-step-size="1"
+                                  aria-label="Increase bond return by 1 percentage point"
                                 >+</button>
                               </div>
                               </label>
@@ -1110,17 +1109,17 @@
                                   class="stepper-btn"
                                   data-step-target="cashlikeReturn"
                                   data-step-direction="-1"
-                                  data-step-size="0.5"
-                                  aria-label="Decrease cashlike return by 0.5 percentage point"
+                                  data-step-size="1"
+                                  aria-label="Decrease cashlike return by 1 percentage point"
                                 >−</button>
-                                <input id="cashlikeReturn" type="number" step="0.5" value="4" />
+                                <input id="cashlikeReturn" type="number" step="1" value="4" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
                                   data-step-target="cashlikeReturn"
                                   data-step-direction="1"
-                                  data-step-size="0.5"
-                                  aria-label="Increase cashlike return by 0.5 percentage point"
+                                  data-step-size="1"
+                                  aria-label="Increase cashlike return by 1 percentage point"
                                 >+</button>
                               </div>
                               </label>
@@ -1165,7 +1164,7 @@
                                   data-step-size="0.1"
                                   aria-label="Decrease inflation by 0.1 percentage points"
                                 >−</button>
-                                <input id="inflation" type="number" min="0" step="0.1" value="2.7" />
+                                <input id="inflation" type="number" min="0" step="0.1" value="2.8" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1235,17 +1234,7 @@
         </div>
       </div>
 
-      <input id="showFullTable" type="checkbox" hidden checked />
-      <input id="showPlanOutlook" type="checkbox" hidden checked />
-
       <div id="resultsContextBar"></div>
-
-      <div id="planWarnings" class="retirement-outlook-warning hidden"></div>
-
-      <section id="planSummaryPanel" class="panel plan-summary-panel">
-        <div id="retirementOutlookHero" class="retirement-outlook-hero"></div>
-        <div id="planSummaryGrid" class="summary-grid plan-summary-grid"></div>
-      </section>
     </section>
 
     <section class="panel results-charts-panel">
@@ -1534,76 +1523,86 @@
     </div>
   </footer>
 
-<div
-  id="introOverlay"
-  class="intro-overlay"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="introOverlayTitle"
-  aria-describedby="introOverlayDesc"
->
-  <div class="intro-overlay__backdrop"></div>
-
-  <div class="intro-overlay__panel">
-    <button
-      type="button"
-      class="intro-overlay__close"
-      id="introOverlayClose"
-      aria-label="Close introduction"
-    >
-      ×
-    </button>
-
-    <div class="intro-overlay__content">
-      <p class="intro-overlay__eyebrow">Before you start</p>
-
-      <h2 id="introOverlayTitle" class="intro-overlay__title">
-        Plan your retirement with clarity
-      </h2>
-
-      <p id="introOverlayDesc" class="intro-overlay__intro">
-        Before you begin, calculate the total value of your investments by gathering your current balances and asset types across pensions, ISAs, and taxable accounts. You will also need your expected income from work, as well as State Pension, dividends, and any other sources.
-      </p>
-
-      <p class="intro-overlay__supporting">
-        Your savings are likely spread across various accounts and investment types. For example, your pension typically combines equities for potential growth, as well as bonds or gilts for stability. To see your specific mix, check your provider’s breakdown for your personal asset allocation.
-      </p>
-
-        <div class="intro-overlay__section">
-          <h3 class="intro-overlay__section-title">How this tool supports your plan</h3>
+        <div
+          id="introOverlay"
+          class="intro-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="introOverlayTitle"
+          aria-describedby="introOverlayDesc"
+        >
+          <div class="intro-overlay__backdrop"></div>
+        
+          <div class="intro-overlay__panel">
+            <button
+              type="button"
+              class="intro-overlay__close"
+              id="introOverlayClose"
+              aria-label="Close introduction"
+            >
+              ×
+            </button>
+        
+            <div class="intro-overlay__content">
+          <p class="intro-overlay__eyebrow">Before you start</p>
+        
+          <h2 id="introOverlayTitle" class="intro-overlay__title">
+            Plan your retirement with clarity
+          </h2>
+        
+          <p id="introOverlayDesc" class="intro-overlay__intro">
+            Before you begin, calculate the total value of your investments by gathering your current balances and asset types across pensions, ISAs, and taxable accounts. You will also need your expected income, including State Pension, dividends, or any other sources. This will help you understand how your money supports your spending over time and where it may fall short.
+          </p>
         
           <p class="intro-overlay__supporting">
-            This tool models how your specific mix of income and investments behaves over time to identify potential pressure points. It will:
-          </p><p></p>
-        
-          <div class="intro-overlay__feature-list">
-            <div class="intro-feature">
-              <span class="intro-feature__dot" aria-hidden="true"></span>
-              <span class="intro-feature__text">Consolidate your income, spending, and investments into a single timeline.</span>
-            </div>
-        
-            <div class="intro-feature">
-              <span class="intro-feature__dot" aria-hidden="true"></span>
-              <span class="intro-feature__text">Simulate how shifting market conditions affect your long-term outcomes.</span>
-            </div>
-        
-            <div class="intro-feature">
-              <span class="intro-feature__dot" aria-hidden="true"></span>
-              <span class="intro-feature__text">Recalibrate spending automatically to keep your plan on track.</span>
-            </div>
-        
-            <div class="intro-feature">
-              <span class="intro-feature__dot" aria-hidden="true"></span>
-              <span class="intro-feature__text">Identify exactly when your target income may become unsustainable.</span>
-            </div>
+            Your savings are likely spread across various accounts and investment types. For example, your pension typically combines equities for potential growth, as well as bonds or gilts for stability. To see your specific mix, check your provider’s breakdown for your personal asset allocation.
+          </p>
+
+      <div class="intro-overlay__section">
+        <h3 class="intro-overlay__section-title">What this tool does</h3>
+
+        <p class="intro-overlay__supporting">
+          This shows how your plan behaves over time and where pressure builds.
+        </p>
+
+        <div class="intro-overlay__feature-grid">
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Combines income, spending, and investments into a single timeline</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Shows how market conditions affect outcomes</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Adjusts spending when needed to keep the plan on track</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Highlights where income cannot be sustained</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Tracks results year by year</span>
+          </div>
+
+          <div class="intro-feature">
+            <span class="intro-feature__dot" aria-hidden="true"></span>
+            <span class="intro-feature__text">Lets you test different inputs and compare outcomes</span>
           </div>
         </div>
+      </div>
 
       <div class="intro-overlay__section intro-overlay__section--flow">
         <h3 class="intro-overlay__section-title">How it works</h3>
 
         <p class="intro-overlay__supporting">
-          A simple three step flow from your inputs to your results.<p></p>
+          Enter your details, run the model, then review how your income and portfolio evolve over time.
         </p>
 
         <div class="intro-flow" aria-label="How the simulator works">
