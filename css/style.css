@@ -1900,6 +1900,22 @@ input[type="checkbox"]{
   font-variant-numeric:tabular-nums;
 }
 
+/* Positive / negative colouring for yearly table */
+
+#resultsTable .cell-sub.is-up{
+  color:#16a34a; /* green */
+  font-weight:600;
+}
+
+#resultsTable .cell-sub.is-down{
+  color:#dc2626; /* red */
+  font-weight:600;
+}
+
+#resultsTable .cell-sub.is-neutral{
+  color:var(--text-secondary);
+}
+
 /* ========================================
    Status Dots
    ======================================== */
