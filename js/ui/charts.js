@@ -858,13 +858,11 @@ function getAreaDetailLines(label) {
       ];
     case 'Withdrawals from portfolio':
       return [
-        'Spending funded by investment withdrawals.',
-        'It sits on top of other income and pension to make up total spending.'
+        'Spending funded by investment withdrawals.'
       ];
     case 'Spending shortfall':
       return [
-        'Planned spending is higher than actual funded spending.',
-        'Showing the amount the plan can not fully support in this year.'
+        'Planned spending is higher than actual funded spending.'
       ];
     default:
       return [
@@ -878,8 +876,8 @@ function getAreaDetailLines(label) {
 function getMarkerDetailLines(label) {
   if (/windfall/i.test(label)) {
     return [
-      'One-off cash inflow added to the plan in this year.',
-      'It reduces the need for portfolio withdrawals and can lift the portfolio path.'
+      'One-off cash inflow added to the plan in this year.'
+      'It reduces the need for portfolio withdrawals and can lift the portfolio path.
     ];
   }
 
