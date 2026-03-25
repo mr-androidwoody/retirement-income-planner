@@ -58,7 +58,7 @@ export const DEFAULT_INPUTS = {
   lowerGuardrail: 20,
   adjustmentSize: 10,
 
-  monteCarloRuns: 1000,
+  monteCarloRuns: 10000,
   skipInflationAfterNegative: true,
   enableGuardrails: true,
   showRealValues: true,
