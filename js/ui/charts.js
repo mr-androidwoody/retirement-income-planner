@@ -876,8 +876,8 @@ function getAreaDetailLines(label) {
 function getMarkerDetailLines(label) {
   if (/windfall/i.test(label)) {
     return [
-      'One-off cash inflow added to the plan in this year.'
-      'It reduces the need for portfolio withdrawals and can lift the portfolio path.
+      'One-off cash inflow added to the plan in this year.',
+      'It reduces the need for portfolio withdrawals and can lift the portfolio path.'
     ];
   }
 
