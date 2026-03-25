@@ -17,12 +17,12 @@ const DEFAULT_CORRELATIONS = Object.freeze({
 
 export const DEFAULT_INPUTS = {
   years: 30,
-  initialPortfolio: 1000000, // Set vlaue of portfolio //
+  initialPortfolio: 1000000,
   initialSpending: 40000,
   equityAllocation: 60,
   bondAllocation: 30,
   cashlikeAllocation: 10,
-  annualFeeRate: 0.27,
+  annualFeeRate: 0.0027, 
   rebalanceToTarget: true,
 
   equityReturn: 7,
@@ -31,16 +31,16 @@ export const DEFAULT_INPUTS = {
   bondVolatility: 7,
   cashlikeReturn: 4,
   cashlikeVolatility: 1,
-  inflation: 2.7,
+  annualFeeRate: 0.27,
+  inflation: 2.5,
 
   person1Name: 'Person 1',
-  person1Age: '',
+  person1Age: 57,
   person1PensionAge: 67,
   statePensionToday: 12547,
   person1PensionToday: 12547,
-
   person2Name: 'Person 2',
-  person2Age: '',
+  person2Age: 58,
   person2PensionAge: 67,
   person2PensionToday: 12547,
 
@@ -58,7 +58,7 @@ export const DEFAULT_INPUTS = {
   lowerGuardrail: 20,
   adjustmentSize: 10,
 
-  monteCarloRuns: 10000,
+  monteCarloRuns: 1000,
   skipInflationAfterNegative: true,
   enableGuardrails: true,
   showRealValues: true,
