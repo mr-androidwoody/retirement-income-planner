@@ -17,7 +17,7 @@ const DEFAULT_CORRELATIONS = Object.freeze({
 
 export const DEFAULT_INPUTS = {
   years: 30,
-  initialPortfolio: '',
+  initialPortfolio: 1000000, // Set vlaue of portfolio //
   initialSpending: 40000,
   equityAllocation: 60,
   bondAllocation: 30,
