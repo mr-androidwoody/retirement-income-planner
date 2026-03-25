@@ -35,12 +35,12 @@ export const DEFAULT_INPUTS = {
   inflation: 2.5,
 
   person1Name: 'Person 1',
-  person1Age: 57,
+  person1Age: 55,
   person1PensionAge: 67,
   statePensionToday: 12547,
   person1PensionToday: 12547,
   person2Name: 'Person 2',
-  person2Age: 58,
+  person2Age: 55,
   person2PensionAge: 67,
   person2PensionToday: 12547,
 
