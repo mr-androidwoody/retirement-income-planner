@@ -594,6 +594,24 @@ function getResultsOverrideInputs(baseInputs) {
 
 function runSimulation() {
   const inputs = gatherInputs();
+
+  const portfolioValue = String(els.initialPortfolio?.value ?? '').trim();
+  const person1AgeValue = String(els.person1Age?.value ?? '').trim();
+
+  if (!portfolioValue) {
+    showError('Enter a value for investments.');
+    els.initialPortfolio?.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  if (!person1AgeValue) {
+    showError('Enter a current age.');
+    els.person1Age?.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
   const mergedInputs = { ...DEFAULT_INPUTS, ...inputs };
   const errors = validateInputs(mergedInputs);
 
@@ -623,7 +641,7 @@ function runSimulation() {
         inputs: effectiveInputs
       })
     )
-     .then((result) => {
+      .then((result) => {
         latestResult = result;
         planForm.setBusy(false);
         showResults();
