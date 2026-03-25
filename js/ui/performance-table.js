@@ -69,20 +69,28 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
 
   thead.innerHTML = `
     <tr>
-      <th class="col-text" rowspan="2">Year</th>
-      <th class="col-number" colspan="4">Portfolio</th>
-      <th class="col-number" colspan="2">Market</th>
+      <th class="col-text table-group table-group--year" rowspan="2">Year</th>
+
+      <th class="col-number table-group table-group--portfolio" colspan="4">
+        <div class="table-group-label">Portfolio</div>
+        <div class="table-group-subtitle">Your plan values</div>
+      </th>
+
+      <th class="col-number table-group table-group--market" colspan="2">
+        <div class="table-group-label">Market</div>
+        <div class="table-group-subtitle">Benchmark path</div>
+      </th>
     </tr>
     <tr>
       <th class="col-number">Start (${valueLabel} £)</th>
       <th class="col-number">End (${valueLabel} £)</th>
       <th class="col-number">
         ${renderHeaderLabel(
-          'Change',
+          'Net change',
           'The change in portfolio value from start to end of year, after withdrawals.'
         )}
       </th>
-      <th class="col-number">
+      <th class="col-number table-divider-right">
         ${renderHeaderLabel(
           'Drawdown',
           'The fall from the prior end-of-year peak.'
@@ -90,13 +98,13 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
       </th>
       <th class="col-number">
         ${renderHeaderLabel(
-          'Return',
+          'Market return',
           'The market movement for that year on the selected path.'
         )}
       </th>
       <th class="col-number">
         ${renderHeaderLabel(
-          'Rolling 5y',
+          'Market rolling 5y',
           'The annualised change over the last full 5-year period.'
         )}
       </th>
@@ -135,7 +143,7 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
             ${formatPercent(portfolioChange)}
           </td>
 
-          <td class="col-number">
+          <td class="col-number table-divider-right">
             ${renderDrawdownDot(drawdown)}
             ${formatPercent(drawdown)}
           </td>
