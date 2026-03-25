@@ -137,9 +137,9 @@ const advancedForm = createAdvancedForm(els, parsingHelpers);
 initialise();
 
 function initialise() {
-  initIntroOverlay();
   applyDefaults();
   attachEvents();
+  initIntroOverlay();   // ← ADD THIS
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
@@ -352,7 +352,7 @@ function initIntroOverlay() {
 
   dismissCheckbox.addEventListener('change', () => {
     if (dismissCheckbox.checked) {
-      setCookie(COOKIE_NAME, 'true', 365);
+      setCookie(COOKIE_NAME, 'true', 0);
     } else {
       deleteCookie(COOKIE_NAME);
     }
@@ -594,24 +594,6 @@ function getResultsOverrideInputs(baseInputs) {
 
 function runSimulation() {
   const inputs = gatherInputs();
-
-  const portfolioValue = String(els.initialPortfolio?.value ?? '').trim();
-  const person1AgeValue = String(els.person1Age?.value ?? '').trim();
-
-  if (!portfolioValue) {
-    showError('Enter a value for investments.');
-    els.initialPortfolio?.focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  if (!person1AgeValue) {
-    showError('Enter a current age.');
-    els.person1Age?.focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
   const mergedInputs = { ...DEFAULT_INPUTS, ...inputs };
   const errors = validateInputs(mergedInputs);
 
@@ -641,7 +623,7 @@ function runSimulation() {
         inputs: effectiveInputs
       })
     )
-      .then((result) => {
+     .then((result) => {
         latestResult = result;
         planForm.setBusy(false);
         showResults();
