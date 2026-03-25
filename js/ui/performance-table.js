@@ -53,6 +53,22 @@ function renderRolling5Dot(value) {
     : '';
 }
 
+function renderSignedValue(value, markerHtml = '') {
+  if (!Number.isFinite(value)) {
+    return `<span class="value">—</span>`;
+  }
+
+  const valueClass = value >= 0 ? 'value value--pos' : 'value value--neg';
+
+  return `
+    <span class="${valueClass}">
+      ${markerHtml}
+      ${renderArrow(value)}
+      ${formatPercent(value)}
+    </span>
+  `;
+}
+
 export function renderPerformanceTable(table, rows, formatCurrency, options = {}) {
   if (!table || !Array.isArray(rows)) return;
 
@@ -139,23 +155,19 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
           <td class="col-number">${formatCurrency(end)}</td>
 
           <td class="col-number">
-            ${renderArrow(portfolioChange)}
-            ${formatPercent(portfolioChange)}
+            ${renderSignedValue(portfolioChange)}
           </td>
 
           <td class="col-number table-divider-right">
-            ${renderDrawdownDot(drawdown)}
-            ${formatPercent(drawdown)}
+            ${renderSignedValue(drawdown, renderDrawdownDot(drawdown))}
           </td>
 
           <td class="col-number">
-            ${renderArrow(marketReturn)}
-            ${formatPercent(marketReturn)}
+            ${renderSignedValue(marketReturn)}
           </td>
 
           <td class="col-number">
-            ${renderRolling5Dot(rolling5)}
-            ${formatPercent(rolling5)}
+            ${renderSignedValue(rolling5, renderRolling5Dot(rolling5))}
           </td>
         </tr>
       `;
