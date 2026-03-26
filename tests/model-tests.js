@@ -280,4 +280,4 @@ import { runHistoricalScenario, toDecimal } from '../js/model/historical/histori
     '-0.15 stays -0.15',
     Math.abs(toDecimal(-0.15) - (-0.15)) < 1e-9
   );
-})(););
+})();
