@@ -1,6 +1,28 @@
 import { normaliseInputs, simulatePath } from '../js/model/simulator.js';
-import { initialiseBuckets, applyAssetReturns, withdrawFromBuckets, rebalanceBuckets } from '../js/model/cashflow.js';
-import { runHistoricalScenario, toDecimal } from '../js/model/historical/historical-runner.js';
+import {
+  initialiseBuckets,
+  applyAssetReturns,
+  withdrawFromBuckets,
+  rebalanceBuckets
+} from '../js/model/cashflow.js';
+import {
+  runHistoricalScenario,
+  toDecimal
+} from '../js/model/historical/historical-runner.js';
+
+const output = document.getElementById('output');
+
+function log(message) {
+  output.textContent += message + '\n';
+}
+
+function assert(name, condition) {
+  if (condition) {
+    log(`PASS: ${name}`);
+  } else {
+    log(`FAIL: ${name}`);
+  }
+}
 
 /* =========================
    TEST 1 — Normalisation
