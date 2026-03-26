@@ -131,6 +131,8 @@ function assert(name, condition) {
     Math.abs(year2.targetSpendingNominal - 44000) < 1e-9
   );
 
+log(`DEBUG Test 4 year2 target=${year2.targetSpendingNominal} actual=${year2.actualSpendingNominal} marketReturn=${year1.marketReturn}`);
+
   assert(
     'year 2 actual spending skips inflation after negative return',
     Math.abs(year2.actualSpendingNominal - 40000) < 1e-9
