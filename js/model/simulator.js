@@ -22,7 +22,6 @@ export const DEFAULT_INPUTS = {
   equityAllocation: 60,
   bondAllocation: 30,
   cashlikeAllocation: 10,
-  annualFeeRate: 0.0027, 
   rebalanceToTarget: true,
 
   equityReturn: 7,
