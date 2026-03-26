@@ -1,16 +1,16 @@
 import {
   loadHistoricalSeries,
-  generateRollingHistoricalWindows,
-  createHistoricalReturnsProvider
+  generateRollingHistoricalWindows
 } from './historical-returns-provider.js';
 
-import { simulateScenario } from './historical-engine.js';
 import { aggregateScenarioResults } from './historical-aggregator.js';
 import { adaptHistoricalRows } from './historical-adapter.js';
+import { simulatePath, normaliseInputs } from './simulator.js';
 
 export async function runHistoricalScenario(inputs) {
-  const years = Number(inputs.years || inputs.simulationYears || 0);
-  const selectedYear = Number(inputs.historicalScenario || 1929);
+  const normalisedInputs = normaliseInputs(inputs);
+  const years = Number(normalisedInputs.years || 0);
+  const selectedYear = Number(normalisedInputs.historicalScenario || 1929);
 
   const series = await loadHistoricalSeries();
   const windows = generateRollingHistoricalWindows(series, years);
@@ -20,95 +20,34 @@ export async function runHistoricalScenario(inputs) {
     throw new Error(`No historical window found for start year ${selectedYear}`);
   }
 
-  const rawProvider = createHistoricalReturnsProvider(window.rows);
-  const mappedInputs = mapInputs(inputs);
-
-  const returnsProvider = {
-    getYearReturns(yearIndex) {
-      const raw = rawProvider.getYearReturns(yearIndex);
-
-      const equityAllocation = Number(mappedInputs.equityAllocation || 0) / 100;
-      const bondAllocation = Number(mappedInputs.bondAllocation || 0) / 100;
-      const cashAllocation = Number(mappedInputs.cashAllocation || 0) / 100;
-
-      const portfolioReturn =
-        (raw.equities * equityAllocation) +
-        (raw.bonds * bondAllocation) +
-        (raw.cashlike * cashAllocation);
-
-      return {
-        portfolioReturn,
-        inflation: raw.inflation
-      };
-    }
+  const annualReturns = {
+    equities: window.rows.map((row) => Number(row.equities ?? 0)),
+    bonds: window.rows.map((row) => Number(row.bonds ?? 0)),
+    cashlike: window.rows.map((row) => Number(row.cashlike ?? 0)),
+    inflation: window.rows.map((row) => Number(row.inflation ?? 0))
   };
 
-  const scenario = simulateScenario({
-    inputs: mappedInputs,
-    returnsProvider
-  });
+  const scenario = simulatePath(normalisedInputs, annualReturns);
+
+  const rows = adaptHistoricalRows(
+    scenario.yearlyRows || scenario.rows || [],
+    normalisedInputs
+  );
 
   const summary = aggregateScenarioResults([
     {
       ...scenario,
+      yearlyRows: rows,
+      rows,
       startYear: window.startYear,
       endYear: window.endYear
     }
   ]);
 
-  // Cash runway calculation (match simulator.js intent)
-  const initialPortfolio = Number(inputs.initialPortfolio || 0);
-  const cashlikeAllocation = Number(inputs.cashlikeAllocation || 0) / 100;
-  const initialSpending = Number(inputs.initialSpending || 0);
-
-  const sharedPensionToday = Number(
-    inputs.statePensionToday ??
-    inputs.person1PensionToday ??
-    inputs.person2PensionToday ??
-    0
-  );
-
-  const openingCash = initialPortfolio * cashlikeAllocation;
-
-  const firstYearPension =
-    (Number(inputs.person1Age) >= Number(inputs.person1PensionAge)
-      ? Number(inputs.person1PensionToday ?? sharedPensionToday)
-      : 0) +
-    (inputs.includePerson2 &&
-     Number(inputs.person2Age) >= Number(inputs.person2PensionAge)
-      ? Number(inputs.person2PensionToday ?? sharedPensionToday)
-      : 0);
-
-  const firstYearOtherIncome =
-    (Number(inputs.person1OtherIncomeYears) > 0
-      ? Number(inputs.person1OtherIncomeToday || 0)
-      : 0) +
-    (inputs.includePerson2 && Number(inputs.person2OtherIncomeYears) > 0
-      ? Number(inputs.person2OtherIncomeToday || 0)
-      : 0);
-
-  const firstYearWindfall =
-    (Number(inputs.person1WindfallYear) === 1
-      ? Number(inputs.person1WindfallAmount || 0)
-      : 0) +
-    (inputs.includePerson2 && Number(inputs.person2WindfallYear) === 1
-      ? Number(inputs.person2WindfallAmount || 0)
-      : 0);
-
-  const openingNetWithdrawal = Math.max(
-    0,
-    initialSpending - firstYearPension - firstYearOtherIncome - firstYearWindfall
-  );
-
-  const cashRunwayYears =
-    openingNetWithdrawal > 0
-      ? openingCash / openingNetWithdrawal
-      : Number.POSITIVE_INFINITY;
-
-  const rows = adaptHistoricalRows(scenario.yearlyRows, inputs);
+  const cashRunwayYears = calculateCashRunwayYears(normalisedInputs);
 
   return {
-    inputs,
+    inputs: normalisedInputs,
     summary: {
       ...summary,
       cashRunwayYears
@@ -117,62 +56,77 @@ export async function runHistoricalScenario(inputs) {
     yearlyRows: rows,
     pathNominal: scenario.pathNominal || [],
     pathReal: scenario.pathReal || [],
-    terminalNominal: scenario.terminalNominal,
-    terminalReal: scenario.terminalReal,
+    terminalNominal: scenario.pathNominal?.at(-1) ?? scenario.terminalNominal ?? 0,
+    terminalReal: scenario.pathReal?.at(-1) ?? scenario.terminalReal ?? 0,
     startYear: window.startYear,
     endYear: window.endYear,
     label: `${window.startYear} — ${window.endYear}`
   };
 }
 
-function mapInputs(inputs) {
-  return {
-    startingPortfolio: inputs.initialPortfolio,
-    annualSpending: inputs.initialSpending,
-    years: inputs.years,
+function calculateCashRunwayYears(inputs) {
+  const openingCash = inputs.initialPortfolio * inputs.cashlikeAllocation;
+  const firstYearPension = getStatePensionNominal(inputs, 0, 1);
+  const firstYearOtherIncome = getOtherIncomeNominal(inputs, 0, 1);
+  const firstYearWindfall = getWindfallNominal(inputs, 0);
 
-    equityAllocation: inputs.equityAllocation,
-    bondAllocation: inputs.bondAllocation,
-    cashAllocation: inputs.cashlikeAllocation,
+  const openingNetWithdrawal = Math.max(
+    0,
+    inputs.initialSpending - firstYearPension - firstYearOtherIncome - firstYearWindfall
+  );
 
-    fees: inputs.annualFees,
-
-    useGuardrails: inputs.enableGuardrails,
-
-    guardrailFloor: toDecimalPercent(inputs.lowerGuardrail),
-    guardrailCeiling: toDecimalPercent(inputs.upperGuardrail),
-    guardrailCut: toDecimalPercent(inputs.adjustmentSize),
-    guardrailRaise: toDecimalPercent(inputs.adjustmentSize),
-
-    includeStatePension: true,
-    statePensionToday: inputs.statePensionToday,
-
-    people: [
-      {
-        include: true,
-        currentAge: inputs.person1Age,
-        statePensionAge: inputs.person1PensionAge,
-        receivesFullStatePension: inputs.person1GetsFullPension,
-        otherIncome: inputs.person1OtherIncomeToday,
-        incomeYears: inputs.person1OtherIncomeYears,
-        windfallAmount: inputs.person1WindfallAmount,
-        windfallYear: inputs.person1WindfallYear
-      },
-      {
-        include: inputs.includePerson2,
-        currentAge: inputs.person2Age,
-        statePensionAge: inputs.person2PensionAge,
-        receivesFullStatePension: inputs.person2GetsFullPension,
-        otherIncome: inputs.person2OtherIncomeToday,
-        incomeYears: inputs.person2OtherIncomeYears,
-        windfallAmount: inputs.person2WindfallAmount,
-        windfallYear: inputs.person2WindfallYear
-      }
-    ]
-  };
+  return openingNetWithdrawal > 0
+    ? openingCash / openingNetWithdrawal
+    : Number.POSITIVE_INFINITY;
 }
 
-function toDecimalPercent(value) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number / 100 : 0;
+function getStatePensionNominal(inputs, yearIndex, inflationIndex) {
+  const person1Eligible = inputs.person1Age + yearIndex >= inputs.person1PensionAge;
+  const person2Eligible = inputs.person2Age + yearIndex >= inputs.person2PensionAge;
+
+  let total = 0;
+
+  if (person1Eligible) {
+    total += inputs.person1PensionToday * inflationIndex;
+  }
+
+  if (person2Eligible) {
+    total += inputs.person2PensionToday * inflationIndex;
+  }
+
+  return total;
+}
+
+function getOtherIncomeNominal(inputs, yearIndex, inflationIndex) {
+  let total = 0;
+
+  if (yearIndex >= 0 && yearIndex < inputs.person1OtherIncomeYears) {
+    total += inputs.person1OtherIncomeToday * inflationIndex;
+  }
+
+  if (yearIndex >= 0 && yearIndex < inputs.person2OtherIncomeYears) {
+    total += inputs.person2OtherIncomeToday * inflationIndex;
+  }
+
+  return total;
+}
+
+function getWindfallNominal(inputs, yearIndex) {
+  let total = 0;
+
+  if (
+    inputs.person1WindfallYear > 0 &&
+    yearIndex + 1 === inputs.person1WindfallYear
+  ) {
+    total += inputs.person1WindfallAmount;
+  }
+
+  if (
+    inputs.person2WindfallYear > 0 &&
+    yearIndex + 1 === inputs.person2WindfallYear
+  ) {
+    total += inputs.person2WindfallAmount;
+  }
+
+  return total;
 }

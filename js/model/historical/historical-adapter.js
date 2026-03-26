@@ -1,7 +1,6 @@
 export function adaptHistoricalRows(rows, inputs = {}) {
   const person1Age = toFiniteNumber(inputs.person1Age);
   const person2Age = toFiniteNumber(inputs.person2Age);
-  const includePerson2 = Boolean(inputs.includePerson2);
 
   let inflationIndex = 1;
 
