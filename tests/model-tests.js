@@ -24,6 +24,16 @@ function assert(name, condition) {
   }
 }
 
+function assertEqual(name, actual, expected, tolerance = 1e-9) {
+  const pass = Math.abs(actual - expected) <= tolerance;
+
+  if (pass) {
+    log(`PASS: ${name}`);
+  } else {
+    log(`FAIL: ${name} (expected ${expected}, got ${actual})`);
+  }
+}
+
 /* =========================
    TEST 1 — Normalisation
 ========================= */
@@ -32,9 +42,10 @@ function assert(name, condition) {
   const a = normaliseInputs({ equityReturn: 7 });
   const b = normaliseInputs({ equityReturn: 0.07 });
 
-  assert(
+  assertEqual(
     'equityReturn normalises correctly',
-    Math.abs(a.equityReturn - b.equityReturn) < 1e-9
+    a.equityReturn,
+    b.equityReturn
   );
 })();
 
@@ -51,10 +62,10 @@ function assert(name, condition) {
 
   const withdrawn = withdrawFromBuckets(buckets, 150);
 
-  assert('withdrawal amount correct', withdrawn === 150);
-  assert('cash used first', buckets.cashlike === 0);
-  assert('bonds used second', buckets.bonds === 50);
-  assert('equities untouched', buckets.equities === 100);
+  assertEqual('withdrawal amount correct', withdrawn, 150);
+  assertEqual('cash used first', buckets.cashlike, 0);
+  assertEqual('bonds used second', buckets.bonds, 50);
+  assertEqual('equities untouched', buckets.equities, 100);
 })();
 
 /* =========================
@@ -124,19 +135,22 @@ function assert(name, condition) {
   const year1 = result.yearlyRows[0];
   const year2 = result.yearlyRows[1];
 
-  assert(
+  assertEqual(
     'year 1 target spending starts at 40000',
-    Math.abs(year1.targetSpendingNominal - 40000) < 1e-9
+    year1.targetSpendingNominal,
+    40000
   );
 
-  assert(
+  assertEqual(
     'year 2 target spending still shows inflation uplift',
-    Math.abs(year2.targetSpendingNominal - 44000) < 1e-9
+    year2.targetSpendingNominal,
+    44000
   );
 
-  assert(
+  assertEqual(
     'year 2 actual spending skips inflation after negative return',
-    Math.abs(year2.actualSpendingNominal - 40000) < 1e-9
+    year2.actualSpendingNominal,
+    40000
   );
 })();
 
@@ -182,9 +196,10 @@ function assert(name, condition) {
     result.yearlyRows[0].depleted === true
   );
 
-  assert(
+  assertEqual(
     'end portfolio is zero after first year',
-    Math.abs(result.yearlyRows[0].endPortfolioNominal) < 1e-9
+    result.yearlyRows[0].endPortfolioNominal,
+    0
   );
 
   assert(
@@ -235,9 +250,10 @@ function assert(name, condition) {
   const result = simulatePath(inputs, annualReturns);
   const year2 = result.yearlyRows[1];
 
-  assert(
+  assertEqual(
     'year 2 actual spending is cut by upper guardrail',
-    Math.abs(year2.actualSpendingNominal - 36000) < 1e-9
+    year2.actualSpendingNominal,
+    36000
   );
 })();
 
@@ -262,19 +278,22 @@ function assert(name, condition) {
 
   buckets = rebalanceBuckets(buckets, allocations);
 
-  assert(
+  assertEqual(
     'equities rebalanced to 60%',
-    Math.abs(buckets.equities - 1300 * 0.6) < 1e-9
+    buckets.equities,
+    1300 * 0.6
   );
 
-  assert(
+  assertEqual(
     'bonds rebalanced to 30%',
-    Math.abs(buckets.bonds - 1300 * 0.3) < 1e-9
+    buckets.bonds,
+    1300 * 0.3
   );
 
-  assert(
+  assertEqual(
     'cashlike rebalanced to 10%',
-    Math.abs(buckets.cashlike - 1300 * 0.1) < 1e-9
+    buckets.cashlike,
+    1300 * 0.1
   );
 })();
 
@@ -283,24 +302,28 @@ function assert(name, condition) {
 ========================= */
 
 (function testHistoricalToDecimal() {
-  assert(
+  assertEqual(
     '20 converts to 0.20',
-    Math.abs(toDecimal(20) - 0.20) < 1e-9
+    toDecimal(20),
+    0.20
   );
 
-  assert(
+  assertEqual(
     '0.20 stays 0.20',
-    Math.abs(toDecimal(0.20) - 0.20) < 1e-9
+    toDecimal(0.20),
+    0.20
   );
 
-  assert(
+  assertEqual(
     '-15 converts to -0.15',
-    Math.abs(toDecimal(-15) - (-0.15)) < 1e-9
+    toDecimal(-15),
+    -0.15
   );
 
-  assert(
+  assertEqual(
     '-0.15 stays -0.15',
-    Math.abs(toDecimal(-0.15) - (-0.15)) < 1e-9
+    toDecimal(-0.15),
+    -0.15
   );
 })();
 
@@ -353,18 +376,21 @@ function assert(name, condition) {
   const result = simulatePath(inputs, annualReturns);
   const year1 = result.yearlyRows[0];
 
-  assert(
+  assertEqual(
     'surplus income means no portfolio withdrawal',
-    Math.abs(year1.withdrawalNominal - 0) < 1e-9
+    year1.withdrawalNominal,
+    0
   );
 
-  assert(
+  assertEqual(
     'actual spending is fully funded',
-    Math.abs(year1.actualSpendingNominal - 100) < 1e-9
+    year1.actualSpendingNominal,
+    100
   );
 
-  assert(
+  assertEqual(
     'end portfolio increases by surplus income',
-    Math.abs(year1.endPortfolioNominal - 1050) < 1e-9
+    year1.endPortfolioNominal,
+    1050
   );
 })();
