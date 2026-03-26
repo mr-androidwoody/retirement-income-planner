@@ -557,7 +557,7 @@ export function simulatePath(inputs, annualReturns) {
 
     const shouldSkipInflation =
       inputs.skipInflationAfterNegative &&
-      previousMarketReturn !== null &&
+      realisedReturn < 0;
       previousMarketReturn < 0;
 
     const nextTargetSpendingNominal =
