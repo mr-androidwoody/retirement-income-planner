@@ -5,7 +5,7 @@ import {
 
 import { aggregateScenarioResults } from './historical-aggregator.js';
 import { adaptHistoricalRows } from './historical-adapter.js';
-import { simulatePath, normaliseInputs } from './simulator.js';
+import { simulatePath, normaliseInputs } from '../simulator.js';
 
 export async function runHistoricalScenario(inputs) {
   const normalisedInputs = normaliseInputs(inputs);
