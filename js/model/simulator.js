@@ -496,6 +496,8 @@ export function simulatePath(inputs, annualReturns) {
     const windfallReal = windfallNominal / inflationIndex;
     const withdrawalReal = actualWithdrawalNominal / inflationIndex;
 
+    const depletedThisYear = endPortfolioNominal <= 0.01;
+
     rows.push({
       year,
       age1: inputs.person1Age + yearIndex,
@@ -540,7 +542,7 @@ export function simulatePath(inputs, annualReturns) {
         targetSpendingNominal > 0
           ? Math.max(0, 1 - actualSpendingNominal / targetSpendingNominal)
           : 0,
-      depleted,
+      depleted: depletedThisYear,
 
       endPortfolioNominal,
       endPortfolioReal
@@ -549,7 +551,7 @@ export function simulatePath(inputs, annualReturns) {
     pathNominal.push(endPortfolioNominal);
     pathReal.push(endPortfolioReal);
 
-    if (endPortfolioNominal <= 0.01) {
+    if (depletedThisYear) {
       depleted = true;
     }
 
