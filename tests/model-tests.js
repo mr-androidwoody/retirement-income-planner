@@ -68,3 +68,56 @@ function assert(name, condition) {
     console.error(e);
   }
 })();
+
+/* =========================
+   TEST 5 — Depletion timing
+========================= */
+
+(function testDepletionTiming() {
+  const inputs = normaliseInputs({
+    years: 3,
+    initialPortfolio: 100,
+    initialSpending: 100,
+    equityAllocation: 0,
+    bondAllocation: 0,
+    cashlikeAllocation: 100,
+    equityReturn: 0,
+    bondReturn: 0,
+    cashlikeReturn: 0,
+    annualFeeRate: 0,
+    inflation: 0,
+    enableGuardrails: false,
+    person1Age: 55,
+    person1PensionAge: 99,
+    person2Age: 55,
+    person2PensionAge: 99,
+    person1OtherIncomeToday: 0,
+    person1OtherIncomeYears: 0,
+    person2OtherIncomeToday: 0,
+    person2OtherIncomeYears: 0
+  });
+
+  const annualReturns = {
+    equities: [0, 0, 0],
+    bonds: [0, 0, 0],
+    cashlike: [0, 0, 0],
+    inflation: [0, 0, 0]
+  };
+
+  const result = simulatePath(inputs, annualReturns);
+
+  assert(
+    'portfolio is depleted in first year',
+    result.yearlyRows[0].depleted === true
+  );
+
+  assert(
+    'end portfolio is zero after first year',
+    Math.abs(result.yearlyRows[0].endPortfolioNominal) < 1e-9
+  );
+
+  assert(
+    'overall result marked depleted',
+    result.depleted === true
+  );
+})();
