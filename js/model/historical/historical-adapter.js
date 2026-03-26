@@ -12,7 +12,7 @@ export function adaptHistoricalRows(rows, inputs = {}) {
       year: index + 1,
 
       age1: person1Age > 0 ? person1Age + index : '—',
-      age2: includePerson2 && person2Age > 0 ? person2Age + index : '',
+      age2: person2Age > 0 ? person2Age + index : '',
 
       startPortfolioNominal: toFiniteNumber(row.startPortfolio),
       endPortfolioNominal: toFiniteNumber(row.endPortfolio),
