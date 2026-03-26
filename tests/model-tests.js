@@ -303,3 +303,68 @@ function assert(name, condition) {
     Math.abs(toDecimal(-0.15) - (-0.15)) < 1e-9
   );
 })();
+
+/* =========================
+   TEST 9 — Surplus income is added to cashlike
+========================= */
+
+(function testSurplusIncomeAddedToCashlike() {
+  const inputs = normaliseInputs({
+    years: 1,
+    initialPortfolio: 1000,
+    initialSpending: 100,
+    equityAllocation: 0,
+    bondAllocation: 0,
+    cashlikeAllocation: 100,
+    equityReturn: 0,
+    bondReturn: 0,
+    cashlikeReturn: 0,
+    annualFeeRate: 0,
+    inflation: 0,
+    enableGuardrails: false,
+
+    person1Age: 67,
+    person1PensionAge: 67,
+    person2Age: 55,
+    person2PensionAge: 99,
+
+    statePensionToday: 150,
+    person1PensionToday: 150,
+    person2PensionToday: 150,
+
+    person1OtherIncomeToday: 0,
+    person1OtherIncomeYears: 0,
+    person2OtherIncomeToday: 0,
+    person2OtherIncomeYears: 0,
+
+    person1WindfallAmount: 0,
+    person1WindfallYear: 0,
+    person2WindfallAmount: 0,
+    person2WindfallYear: 0
+  });
+
+  const annualReturns = {
+    equities: [0],
+    bonds: [0],
+    cashlike: [0],
+    inflation: [0]
+  };
+
+  const result = simulatePath(inputs, annualReturns);
+  const year1 = result.yearlyRows[0];
+
+  assert(
+    'surplus income means no portfolio withdrawal',
+    Math.abs(year1.withdrawalNominal - 0) < 1e-9
+  );
+
+  assert(
+    'actual spending is fully funded',
+    Math.abs(year1.actualSpendingNominal - 100) < 1e-9
+  );
+
+  assert(
+    'end portfolio increases by surplus income',
+    Math.abs(year1.endPortfolioNominal - 1050) < 1e-9
+  );
+})();
