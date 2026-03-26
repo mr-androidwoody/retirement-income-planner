@@ -7,6 +7,10 @@ import { aggregateScenarioResults } from './historical-aggregator.js';
 import { adaptHistoricalRows } from './historical-adapter.js';
 import { simulatePath, normaliseInputs } from '../simulator.js';
 
+function toDecimal(value) {
+  return Math.abs(value) > 1 ? value / 100 : value;
+}
+
 export async function runHistoricalScenario(inputs) {
   const normalisedInputs = normaliseInputs(inputs);
   const years = Number(normalisedInputs.years || 0);
@@ -21,10 +25,18 @@ export async function runHistoricalScenario(inputs) {
   }
 
   const annualReturns = {
-    equities: window.rows.map((row) => Number(row.equities ?? 0)),
-    bonds: window.rows.map((row) => Number(row.bonds ?? 0)),
-    cashlike: window.rows.map((row) => Number(row.cashlike ?? 0)),
-    inflation: window.rows.map((row) => Number(row.inflation ?? 0))
+    equities: window.rows.map((row) =>
+      toDecimal(Number(row.returns?.equities ?? 0))
+    ),
+    bonds: window.rows.map((row) =>
+      toDecimal(Number(row.returns?.bonds ?? 0))
+    ),
+    cashlike: window.rows.map((row) =>
+      toDecimal(Number(row.returns?.cashlike ?? 0))
+    ),
+    inflation: window.rows.map((row) =>
+      toDecimal(Number(row.inflation ?? 0))
+    )
   };
 
   const scenario = simulatePath(normalisedInputs, annualReturns);
@@ -60,8 +72,10 @@ export async function runHistoricalScenario(inputs) {
     yearlyRows: rows,
     pathNominal: scenario.pathNominal || [],
     pathReal: scenario.pathReal || [],
-    terminalNominal: scenario.pathNominal?.at(-1) ?? scenario.terminalNominal ?? 0,
-    terminalReal: scenario.pathReal?.at(-1) ?? scenario.terminalReal ?? 0,
+    terminalNominal:
+      scenario.pathNominal?.at(-1) ?? scenario.terminalNominal ?? 0,
+    terminalReal:
+      scenario.pathReal?.at(-1) ?? scenario.terminalReal ?? 0,
     startYear: window.startYear,
     endYear: window.endYear,
     label: `${window.startYear} — ${window.endYear}`
