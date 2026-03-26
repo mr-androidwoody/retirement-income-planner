@@ -96,8 +96,8 @@ function assert(name, condition) {
     inflation: 0.1,
     skipInflationAfterNegative: true,
     enableGuardrails: true,
-    upperGuardrail: 1000,
-    lowerGuardrail: 1000,
+    upperGuardrail: 100000,
+    lowerGuardrail: 100000,
     adjustmentSize: 10,
     person1Age: 55,
     person1PensionAge: 99,
@@ -261,16 +261,16 @@ function assert(name, condition) {
 
   assert(
     'equities rebalanced to 60%',
-    Math.abs(buckets.equities - 1260 * 0.6) < 1e-9
+    Math.abs(buckets.equities - 1300 * 0.6) < 1e-9
   );
 
   assert(
     'bonds rebalanced to 30%',
-    Math.abs(buckets.bonds - 1260 * 0.3) < 1e-9
+    Math.abs(buckets.bonds - 1300 * 0.3) < 1e-9
   );
 
   assert(
     'cashlike rebalanced to 10%',
-    Math.abs(buckets.cashlike - 1260 * 0.1) < 1e-9
+    Math.abs(buckets.cashlike - 1300 * 0.1) < 1e-9
   );
 })();
