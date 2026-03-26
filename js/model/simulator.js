@@ -374,7 +374,7 @@ function runStressScenarios(inputs) {
   );
 }
 
-export function simulatePath(inputs, annualReturns) {
+function simulatePath(inputs, annualReturns) {
   const allocations = {
     equities: inputs.equityAllocation,
     bonds: inputs.bondAllocation,
