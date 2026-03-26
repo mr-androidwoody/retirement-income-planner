@@ -1,30 +1,6 @@
 import { normaliseInputs, simulatePath } from '../js/model/simulator.js';
-
-import {
-  initialiseBuckets,
-  applyAssetReturns,
-  withdrawFromBuckets,
-  rebalanceBuckets
-} from '../js/model/cashflow.js';
-
-import {
-  runHistoricalScenario,
-  toDecimal
-} fro
-
-const output = document.getElementById('output');
-
-function log(message) {
-  output.textContent += message + '\n';
-}
-
-function assert(name, condition) {
-  if (condition) {
-    log(`PASS: ${name}`);
-  } else {
-    log(`FAIL: ${name}`);
-  }
-}
+import { initialiseBuckets, applyAssetReturns, withdrawFromBuckets, rebalanceBuckets } from '../js/model/cashflow.js';
+import { runHistoricalScenario, toDecimal } from '../js/model/historical/historical-runner.js';
 
 /* =========================
    TEST 1 — Normalisation
@@ -304,4 +280,4 @@ function assert(name, condition) {
     '-0.15 stays -0.15',
     Math.abs(toDecimal(-0.15) - (-0.15)) < 1e-9
   );
-})();
+})(););
