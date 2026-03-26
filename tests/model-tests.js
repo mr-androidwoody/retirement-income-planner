@@ -1,11 +1,16 @@
 import { normaliseInputs, simulatePath } from '../js/model/simulator.js';
+
 import {
   initialiseBuckets,
   applyAssetReturns,
   withdrawFromBuckets,
   rebalanceBuckets
 } from '../js/model/cashflow.js';
-import { runHistoricalScenario } from '../js/model/historical/historical-runner.js';
+
+import {
+  runHistoricalScenario,
+  toDecimal
+} fro
 
 const output = document.getElementById('output');
 
@@ -272,5 +277,31 @@ function assert(name, condition) {
   assert(
     'cashlike rebalanced to 10%',
     Math.abs(buckets.cashlike - 1300 * 0.1) < 1e-9
+  );
+})();
+
+/* =========================
+   TEST 8 — Historical percent-to-decimal conversion
+========================= */
+
+(function testHistoricalToDecimal() {
+  assert(
+    '20 converts to 0.20',
+    Math.abs(toDecimal(20) - 0.20) < 1e-9
+  );
+
+  assert(
+    '0.20 stays 0.20',
+    Math.abs(toDecimal(0.20) - 0.20) < 1e-9
+  );
+
+  assert(
+    '-15 converts to -0.15',
+    Math.abs(toDecimal(-15) - (-0.15)) < 1e-9
+  );
+
+  assert(
+    '-0.15 stays -0.15',
+    Math.abs(toDecimal(-0.15) - (-0.15)) < 1e-9
   );
 })();
