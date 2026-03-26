@@ -70,6 +70,66 @@ function assert(name, condition) {
 })();
 
 /* =========================
+   TEST 4 — Guardrail inflation skip after negative return
+========================= */
+
+(function testGuardrailInflationSkip() {
+  const inputs = normaliseInputs({
+    years: 2,
+    initialPortfolio: 1000000,
+    initialSpending: 40000,
+    equityAllocation: 100,
+    bondAllocation: 0,
+    cashlikeAllocation: 0,
+    equityReturn: 0,
+    bondReturn: 0,
+    cashlikeReturn: 0,
+    annualFeeRate: 0,
+    inflation: 0.1,
+    skipInflationAfterNegative: true,
+    enableGuardrails: true,
+    upperGuardrail: 20,
+    lowerGuardrail: 20,
+    adjustmentSize: 10,
+    person1Age: 55,
+    person1PensionAge: 99,
+    person2Age: 55,
+    person2PensionAge: 99,
+    person1OtherIncomeToday: 0,
+    person1OtherIncomeYears: 0,
+    person2OtherIncomeToday: 0,
+    person2OtherIncomeYears: 0
+  });
+
+  const annualReturns = {
+    equities: [-0.20, 0],
+    bonds: [0, 0],
+    cashlike: [0, 0],
+    inflation: [0.10, 0.10]
+  };
+
+  const result = simulatePath(inputs, annualReturns);
+
+  const year1 = result.yearlyRows[0];
+  const year2 = result.yearlyRows[1];
+
+  assert(
+    'year 1 target spending inflated to 44000',
+    Math.abs(year1.targetSpendingNominal - 40000) < 1e-9
+  );
+
+  assert(
+    'year 2 target spending still shows inflation uplift',
+    Math.abs(year2.targetSpendingNominal - 44000) < 1e-9
+  );
+
+  assert(
+    'year 2 actual spending skips inflation after negative return',
+    Math.abs(year2.actualSpendingNominal - 40000) < 1e-9
+  );
+})();
+
+/* =========================
    TEST 5 — Depletion timing
 ========================= */
 
