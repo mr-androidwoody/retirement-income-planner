@@ -7,7 +7,7 @@ import { aggregateScenarioResults } from './historical-aggregator.js';
 import { adaptHistoricalRows } from './historical-adapter.js';
 import { simulatePath, normaliseInputs } from '../simulator.js';
 
-function toDecimal(value) {
+export function toDecimal(value) {
   return Math.abs(value) > 1 ? value / 100 : value;
 }
 
