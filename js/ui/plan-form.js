@@ -74,7 +74,7 @@ export function createPlanForm(
 
   const MONTE_CARLO_PRESET_VALUES = [1000, 5000, 10000, 20000];
   const MONTE_CARLO_RUNS_MIN = 1;
-  const MONTE_CARLO_RUNS_MAX = 100000;
+  const MONTE_CARLO_RUNS_MAX = 50000;
 
   function clampMonteCarloRuns(value) {
     const parsed = parseLooseInteger(value);
