@@ -399,10 +399,17 @@ export function simulatePath(inputs, annualReturns) {
     inputs.initialSpending - initialPensionNominal - initialOtherIncomeNominal
   );
 
-  const initialWithdrawalRate =
-    inputs.initialPortfolio > 0
-      ? initialNetWithdrawalNominal / inputs.initialPortfolio
-      : 0;
+    const initialPensionNominal = getStatePensionNominal(inputs, 0, 1);
+    const initialOtherIncomeNominal = getOtherIncomeNominal(inputs, 0, 1);
+    const initialNetWithdrawalNominal = Math.max(
+      0,
+      inputs.initialSpending - initialPensionNominal - initialOtherIncomeNominal
+    );
+    
+    const initialWithdrawalRate =
+      inputs.initialPortfolio > 0
+        ? initialNetWithdrawalNominal / inputs.initialPortfolio
+        : 0;
 
   let previousMarketReturn = null;
 
@@ -587,6 +594,25 @@ export function simulatePath(inputs, annualReturns) {
           projectedNextOtherIncomeNominal
       );
 
+      const projectedNextPensionNominal = getStatePensionNominal(
+        inputs,
+        yearIndex + 1,
+        nextInflationIndex
+      );
+    
+      const projectedNextOtherIncomeNominal = getOtherIncomeNominal(
+        inputs,
+        yearIndex + 1,
+        nextInflationIndex
+      );
+    
+      const nextPlannedPortfolioWithdrawal = Math.max(
+        0,
+        nextPlannedSpendingNominal -
+          projectedNextPensionNominal -
+          projectedNextOtherIncomeNominal
+      );
+    
       const nextWithdrawalRate =
         endPortfolioNominal > 0
           ? nextPlannedPortfolioWithdrawal / endPortfolioNominal
