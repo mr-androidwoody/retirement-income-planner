@@ -39,6 +39,10 @@ export async function runHistoricalScenario(inputs) {
       ...scenario,
       yearlyRows: rows,
       rows,
+      terminalNominal:
+        scenario.pathNominal?.at(-1) ?? scenario.terminalNominal ?? 0,
+      terminalReal:
+        scenario.pathReal?.at(-1) ?? scenario.terminalReal ?? 0,
       startYear: window.startYear,
       endYear: window.endYear
     }

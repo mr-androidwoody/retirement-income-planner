@@ -2,50 +2,43 @@ export function adaptHistoricalRows(rows, inputs = {}) {
   const person1Age = toFiniteNumber(inputs.person1Age);
   const person2Age = toFiniteNumber(inputs.person2Age);
 
-  let inflationIndex = 1;
+  return rows.map((row, index) => ({
+    year: toFiniteNumber(row.year) || index + 1,
 
-  return rows.map((row, index) => {
-    const inflation = 1 + toFiniteNumber(row.inflation);
-    const safeInflationIndex = inflationIndex > 0 ? inflationIndex : 1;
+    age1: person1Age > 0 ? person1Age + index : '—',
+    age2: person2Age > 0 ? person2Age + index : '',
 
-    const adaptedRow = {
-      year: index + 1,
+    startPortfolioNominal: toFiniteNumber(row.startPortfolioNominal),
+    endPortfolioNominal: toFiniteNumber(row.endPortfolioNominal),
 
-      age1: person1Age > 0 ? person1Age + index : '—',
-      age2: person2Age > 0 ? person2Age + index : '',
+    startPortfolioReal: toFiniteNumber(row.startPortfolioReal),
+    endPortfolioReal: toFiniteNumber(row.endPortfolioReal),
 
-      startPortfolioNominal: toFiniteNumber(row.startPortfolio),
-      endPortfolioNominal: toFiniteNumber(row.endPortfolio),
+    targetSpendingNominal: toFiniteNumber(row.targetSpendingNominal),
+    spendingNominal: toFiniteNumber(
+      row.actualSpendingNominal ?? row.spendingNominal
+    ),
 
-      startPortfolioReal: toFiniteNumber(row.startPortfolio) / safeInflationIndex,
-      endPortfolioReal: toFiniteNumber(row.endPortfolio) / safeInflationIndex,
+    targetSpendingReal: toFiniteNumber(row.targetSpendingReal),
+    spendingReal: toFiniteNumber(
+      row.actualSpendingReal ?? row.spendingReal
+    ),
 
-      targetSpendingNominal: toFiniteNumber(row.targetSpending),
-      spendingNominal: toFiniteNumber(row.actualSpending),
+    withdrawalNominal: toFiniteNumber(row.withdrawalNominal),
+    withdrawalReal: toFiniteNumber(row.withdrawalReal),
 
-      targetSpendingReal: toFiniteNumber(row.targetSpending) / safeInflationIndex,
-      spendingReal: toFiniteNumber(row.actualSpending) / safeInflationIndex,
+    statePensionNominal: toFiniteNumber(row.statePensionNominal),
+    statePensionReal: toFiniteNumber(row.statePensionReal),
 
-      withdrawalNominal: toFiniteNumber(row.portfolioWithdrawal),
-      withdrawalReal: toFiniteNumber(row.portfolioWithdrawal) / safeInflationIndex,
+    otherIncomeNominal: toFiniteNumber(row.otherIncomeNominal),
+    otherIncomeReal: toFiniteNumber(row.otherIncomeReal),
 
-      statePensionNominal: toFiniteNumber(row.statePension),
-      statePensionReal: toFiniteNumber(row.statePension) / safeInflationIndex,
+    windfallNominal: toFiniteNumber(row.windfallNominal),
+    windfallReal: toFiniteNumber(row.windfallReal),
 
-      otherIncomeNominal: toFiniteNumber(row.otherIncome),
-      otherIncomeReal: toFiniteNumber(row.otherIncome) / safeInflationIndex,
-
-      windfallNominal: toFiniteNumber(row.windfall),
-      windfallReal: toFiniteNumber(row.windfall) / safeInflationIndex,
-
-      spendingCutPercent: toFiniteNumber(row.cut),
-      depleted: Boolean(row.depleted)
-    };
-
-    inflationIndex *= inflation > 0 ? inflation : 1;
-
-    return adaptedRow;
-  });
+    spendingCutPercent: toFiniteNumber(row.spendingCutPercent),
+    depleted: Boolean(row.depleted)
+  }));
 }
 
 function toFiniteNumber(value) {
