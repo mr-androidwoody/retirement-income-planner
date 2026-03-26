@@ -1,5 +1,10 @@
 import { normaliseInputs, simulatePath } from '../js/model/simulator.js';
-import { withdrawFromBuckets } from '../js/model/cashflow.js';
+import {
+  initialiseBuckets,
+  applyAssetReturns,
+  withdrawFromBuckets,
+  rebalanceBuckets
+} from '../js/model/cashflow.js';
 import { runHistoricalScenario } from '../js/model/historical/historical-runner.js';
 
 const output = document.getElementById('output');
@@ -62,7 +67,10 @@ function assert(name, condition) {
 
     assert('historical returns rows exist', Array.isArray(result.yearlyRows));
     assert('historical has paths', Array.isArray(result.pathNominal));
-    assert('historical has terminal value', typeof result.terminalNominal === 'number');
+    assert(
+      'historical has terminal value',
+      typeof result.terminalNominal === 'number'
+    );
   } catch (e) {
     assert('historical run did not throw', false);
     console.error(e);
@@ -88,8 +96,8 @@ function assert(name, condition) {
     inflation: 0.1,
     skipInflationAfterNegative: true,
     enableGuardrails: true,
-    upperGuardrail: 20,
-    lowerGuardrail: 20,
+    upperGuardrail: 1000,
+    lowerGuardrail: 1000,
     adjustmentSize: 10,
     person1Age: 55,
     person1PensionAge: 99,
@@ -114,7 +122,7 @@ function assert(name, condition) {
   const year2 = result.yearlyRows[1];
 
   assert(
-    'year 1 target spending inflated to 44000',
+    'year 1 target spending starts at 40000',
     Math.abs(year1.targetSpendingNominal - 40000) < 1e-9
   );
 
@@ -179,5 +187,90 @@ function assert(name, condition) {
   assert(
     'overall result marked depleted',
     result.depleted === true
+  );
+})();
+
+/* =========================
+   TEST 6 — Upper guardrail cuts spending
+========================= */
+
+(function testUpperGuardrailCut() {
+  const inputs = normaliseInputs({
+    years: 2,
+    initialPortfolio: 1000000,
+    initialSpending: 40000,
+    equityAllocation: 100,
+    bondAllocation: 0,
+    cashlikeAllocation: 0,
+    equityReturn: 0,
+    bondReturn: 0,
+    cashlikeReturn: 0,
+    annualFeeRate: 0,
+    inflation: 0,
+    skipInflationAfterNegative: false,
+    enableGuardrails: true,
+    upperGuardrail: 20,
+    lowerGuardrail: 20,
+    adjustmentSize: 10,
+    person1Age: 55,
+    person1PensionAge: 99,
+    person2Age: 55,
+    person2PensionAge: 99,
+    person1OtherIncomeToday: 0,
+    person1OtherIncomeYears: 0,
+    person2OtherIncomeToday: 0,
+    person2OtherIncomeYears: 0
+  });
+
+  const annualReturns = {
+    equities: [-0.40, 0],
+    bonds: [0, 0],
+    cashlike: [0, 0],
+    inflation: [0, 0]
+  };
+
+  const result = simulatePath(inputs, annualReturns);
+  const year2 = result.yearlyRows[1];
+
+  assert(
+    'year 2 actual spending is cut by upper guardrail',
+    Math.abs(year2.actualSpendingNominal - 36000) < 1e-9
+  );
+})();
+
+/* =========================
+   TEST 7 — Rebalancing restores target allocations
+========================= */
+
+(function testRebalancingRestoresTargets() {
+  const allocations = {
+    equities: 0.6,
+    bonds: 0.3,
+    cashlike: 0.1
+  };
+
+  let buckets = initialiseBuckets(1000, allocations);
+
+  applyAssetReturns(buckets, {
+    equities: 0.50,
+    bonds: 0,
+    cashlike: 0
+  });
+
+  buckets = rebalanceBuckets(buckets, allocations);
+
+  assert(
+    'equities rebalanced to 60%',
+    Math.abs(buckets.equities - 1260 * 0.6) < 1e-9
+  );
+
+  assert(
+    'bonds rebalanced to 30%',
+    Math.abs(buckets.bonds - 1260 * 0.3) < 1e-9
+  );
+
+  assert(
+    'cashlike rebalanced to 10%',
+    Math.abs(buckets.cashlike - 1260 * 0.1) < 1e-9
   );
 })();
