@@ -1,9 +1,9 @@
-import { DEFAULT_INPUTS, validateInputs } from './js/model/simulator.js';
-import { runSimulationByMode } from './js/model/run-simulation-by-mode.js';
-import { initialiseTabs } from './js/ui/tabs.js';
-import { renderResultsView } from './js/ui/results-view.js';
-import { createPlanForm } from './js/ui/plan-form.js';
-import { createAdvancedForm } from './js/ui/advanced-form.js';
+import { DEFAULT_INPUTS, validateInputs } from './model/simulator.js';
+import { runSimulationByMode } from './model/run-simulation-by-mode.js';
+import { initialiseTabs } from './ui/tabs.js';
+import { renderResultsView } from './ui/results-view.js';
+import { createPlanForm } from './ui/plan-form.js';
+import { createAdvancedForm } from './ui/advanced-form.js';
 
 const els = {
   years: document.getElementById('years'),
@@ -242,7 +242,7 @@ function resetResultsHeader() {
 
 function setupWorker() {
   try {
-    worker = new Worker(new URL('./js/worker/worker.js', import.meta.url), { type: 'module' });
+    worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
 
     worker.onmessage = (event) => {
       planForm.setBusy(false);
