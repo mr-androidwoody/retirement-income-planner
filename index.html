@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <title>Retirement Income Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="css/style.css" />  
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
   <script type="module" src="js/app.js" defer></script>
 </head>
 <body>
@@ -20,55 +19,58 @@
             <span
               class="metric-heading-with-tooltip"
               tabindex="0"
-              data-tooltip="Runs your plan across many possible future market paths (Monte Carlo), showing a range of outcomes and likelihood of success.">
+              data-tooltip="Runs your plan across many possible future market paths (Monte Carlo), showing a range of outcomes and likelihood of success."
+            >
               <strong>simulations</strong>
             </span>,
             <span
               class="metric-heading-with-tooltip"
               tabindex="0"
-              data-tooltip="Runs your plan through real past market periods using actual returns, showing how it performed during crashes, inflation, and recoveries.">
+              data-tooltip="Runs your plan through real past market periods using actual returns, showing how it performed during crashes, inflation, and recoveries."
+            >
               <strong>historical scenarios</strong>
             </span>, and
             <span
               class="metric-heading-with-tooltip"
               tabindex="0"
-              data-tooltip="Adjusts your withdrawals up or down based on portfolio performance (Guyton-Klinger), helping sustain income while reducing the risk of running out.">
+              data-tooltip="Adjusts your withdrawals up or down based on portfolio performance (Guyton-Klinger), helping sustain income while reducing the risk of running out."
+            >
               <strong>dynamic spending guardrails</strong>
             </span>,
             alongside two-person state pension offsets and cashlike buffers. Enter your assumptions and run the model to explore portfolio outcomes, spending sustainability, and how withdrawals adjust over time.
           </p>
         </div>
-          
+
         <div class="top-header__controls">
-            <nav class="top-header__tabs tab-nav" aria-label="Simulator sections" role="tablist">
-              <button
-                class="tab-button is-active"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                data-tab-button="portfolio"
-              >
-                Portfolio
-              </button>
-              <button
-                class="tab-button"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                data-tab-button="assumptions"
-              >
-                Assumptions
-              </button>
-              <button
-                class="tab-button"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                data-tab-button="results"
-              >
-                Results
-              </button>
-            </nav>
+          <nav class="top-header__tabs tab-nav" aria-label="Simulator sections" role="tablist">
+            <button
+              class="tab-button is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-tab-button="portfolio"
+            >
+              Portfolio
+            </button>
+            <button
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-tab-button="assumptions"
+            >
+              Assumptions
+            </button>
+            <button
+              class="tab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-tab-button="results"
+            >
+              Results
+            </button>
+          </nav>
 
           <div class="top-header__actions action-row action-row--top-chrome">
             <button id="runSimulationBtn" class="btn btn-primary" type="button">Run simulation</button>
@@ -84,186 +86,201 @@
           <article class="summary-card" id="summarySuccessRateCard">
             <div class="summary-label" id="summarySuccessRateLabel">Plan success rate</div>
             <div class="summary-value" id="summarySuccessRate">—</div>
-            <div class="summary-desc" id="summarySuccessRateDesc">Share of simulated paths that avoid depletion across the full plan.</div>
+            <div class="summary-desc" id="summarySuccessRateDesc">
+              Share of simulated paths that avoid depletion across the full plan.
+            </div>
           </article>
 
           <article class="summary-card">
             <div class="summary-label" id="summaryMedianEndLabel">Median end portfolio</div>
             <div class="summary-value" id="summaryMedianEnd">—</div>
-            <div class="summary-desc" id="summaryMedianEndDesc">Middle simulated outcome at the end of the retirement horizon.</div>
+            <div class="summary-desc" id="summaryMedianEndDesc">
+              Middle simulated outcome at the end of the retirement horizon.
+            </div>
           </article>
 
           <article class="summary-card">
             <div class="summary-label" id="summaryWorstStressLabel">Worst stress scenario</div>
             <div class="summary-value" id="summaryWorstStress">—</div>
-            <div class="summary-desc" id="summaryWorstStressDesc">Lowest ending portfolio across the deterministic stress paths.</div>
+            <div class="summary-desc" id="summaryWorstStressDesc">
+              Lowest ending portfolio across the deterministic stress paths.
+            </div>
           </article>
 
           <article class="summary-card">
             <div class="summary-label" id="summaryCashRunwayLabel">Cash runway at start</div>
             <div class="summary-value" id="summaryCashRunway">—</div>
-            <div class="summary-desc" id="summaryCashRunwayDesc">Years the opening cashlike bucket could fund net withdrawals before refill.</div>
+            <div class="summary-desc" id="summaryCashRunwayDesc">
+              Years the opening cashlike bucket could fund net withdrawals before refill.
+            </div>
           </article>
         </div>
       </section>
 
-      <div class="tab-panels">   
-          
-           <section class="tab-panel is-active" data-tab-panel="portfolio">
-              <div class="tab-layout single-column">
-                <section class="panel input-shell-panel page-panel">
-                  <div class="panel-header panel-header-tight">
-                    <div>
-                      <h2>Portfolio setup</h2>
-                      <p>Define the accounts you hold, the value in each, and the asset mix inside them. These values will feed the locked investment section on Assumptions.</p>
+      <div class="tab-panels">
+        <!-- Portfolio -->
+        <section class="tab-panel is-active" data-tab-panel="portfolio">
+          <div class="tab-layout single-column">
+            <section class="panel input-shell-panel page-panel">
+              <div class="panel-header panel-header-tight">
+                <div>
+                  <h2>Portfolio setup</h2>
+                  <p>
+                    Define the accounts you hold, the value in each, and the asset mix inside them.
+                    These values will feed the locked investment section on Assumptions.
+                  </p>
+                </div>
+              </div>
+
+              <div class="portfolio-shell">
+                <!-- Portfolio top row -->
+                <div class="portfolio-top-row">
+                  <!-- People -->
+                  <section class="input-group-card card-block portfolio-people-card">
+                    <div class="section-heading">
+                      <h3>People</h3>
+                      <p>Name the people in this plan. These names will carry through to Assumptions.</p>
                     </div>
+
+                    <div class="portfolio-people-strip">
+                      <div class="portfolio-people-field">
+                        <label for="portfolioPerson1Name">Person 1</label>
+                        <input
+                          id="portfolioPerson1Name"
+                          type="text"
+                          placeholder="Person 1"
+                          maxlength="30"
+                        />
+                      </div>
+
+                      <div class="portfolio-people-field">
+                        <label for="portfolioPerson2Name">Person 2</label>
+                        <input
+                          id="portfolioPerson2Name"
+                          type="text"
+                          placeholder="Person 2"
+                          maxlength="30"
+                        />
+                      </div>
+
+                      <div class="portfolio-people-toggle">
+                        <span class="portfolio-people-toggle__label">Include person 2</span>
+                        <label class="switch-control">
+                          <input id="portfolioHasPerson2" type="checkbox" checked />
+                          <span class="switch-slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </section>
+
+                  <!-- Total portfolio -->
+                  <section class="input-group-card card-block portfolio-total-card">
+                    <div class="section-heading">
+                      <h3>Total portfolio</h3>
+                      <p>Live aggregate based on the accounts entered above.</p>
+                    </div>
+
+                    <div class="portfolio-total-value" id="portfolioTotalValue">£0</div>
+                  </section>
+                </div>
+
+                <!-- Accounts -->
+                <section class="input-group-card card-block">
+                  <div class="section-heading">
+                    <h3>Accounts</h3>
+                    <p>
+                      Add each account, wrapper, owner, value, and asset mix.
+                      Allocation per account must total 100%.
+                    </p>
                   </div>
-            
-                  <div class="portfolio-shell">
-            
-                    <!-- Top row: People + Total portfolio -->
-                    <div class="portfolio-top-row">
-            
-                      <!-- People -->
-                      <section class="input-group-card card-block portfolio-people-card">
-                        <div class="section-heading">
-                          <h3>People</h3>
-                          <p>Name the people in this plan. These names will carry through to Assumptions.</p>
-                        </div>
-            
-                        <div class="portfolio-people-strip">
-                          <div class="portfolio-people-field">
-                            <label for="portfolioPerson1Name">Person 1</label>
-                            <input
-                              id="portfolioPerson1Name"
-                              type="text"
-                              placeholder="Person 1"
-                              maxlength="30"
-                            />
-                          </div>
-            
-                          <div class="portfolio-people-field">
-                            <label for="portfolioPerson2Name">Person 2</label>
-                            <input
-                              id="portfolioPerson2Name"
-                              type="text"
-                              placeholder="Person 2"
-                              maxlength="30"
-                            />
-                          </div>
-            
-                          <div class="portfolio-people-toggle">
-                            <span class="portfolio-people-toggle__label">Include person 2</span>
-                            <label class="switch-control">
-                              <input id="portfolioHasPerson2" type="checkbox" checked />
-                              <span class="switch-slider"></span>
-                            </label>
-                          </div>
-                        </div>
-                      </section>
-            
-                      <!-- Total portfolio -->
-                      <section class="input-group-card card-block portfolio-total-card">
-                        <div class="section-heading">
-                          <h3>Total portfolio</h3>
-                          <p>Live aggregate based on the accounts entered above.</p>
-                        </div>
-            
-                        <div class="portfolio-total-value" id="portfolioTotalValue">£0</div>
-                      </section>
-            
-                    </div>
-            
-                    <!-- Accounts -->
-                    <section class="input-group-card card-block">
-                      <div class="section-heading">
-                        <h3>Accounts</h3>
-                        <p>Add each account, wrapper, owner, value, and asset mix. Allocation per account must total 100%.</p>
-                      </div>
-            
-                      <div class="portfolio-table-wrap">
-                        <table class="portfolio-table" id="portfolioTable">
-                          <thead>
-                            <tr>
-                              <th>Account name</th>
-                              <th>Wrapper</th>
-                              <th>Owner</th>
-                              <th>Value (£)</th>
-                              <th>Equity %</th>
-                              <th>Bond %</th>
-                              <th>Cashlike %</th>
-                              <th>Cash %</th>
-                              <th>Total</th>
-                              <th></th>
-                            </tr>
-                          </thead>
-                          <tbody id="portfolioTableBody">
-                            <tr class="portfolio-row-empty">
-                              <td colspan="10">No accounts added yet.</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-            
-                      <div class="action-row portfolio-actions-row">
-                        <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">Add account</button>
-                      </div>
-                    </section>
-            
-                    <!-- Summary -->
-                    <div class="portfolio-summary-grid">
-                      <section class="input-group-card card-block">
-                        <div class="section-heading">
-                          <h3>Wrapper totals</h3>
-                          <p>Totals by account wrapper.</p>
-                        </div>
-            
-                        <div id="portfolioWrapperTotals" class="portfolio-summary-list">
-                          <div class="portfolio-summary-empty">No portfolio data yet.</div>
-                        </div>
-                      </section>
-            
-                      <section class="input-group-card card-block">
-                        <div class="section-heading">
-                          <h3>Overall asset allocation</h3>
-                          <p>Weighted asset mix across the whole portfolio.</p>
-                        </div>
-            
-                        <div id="portfolioAllocationTotals" class="portfolio-summary-list">
-                          <div class="portfolio-summary-empty">No portfolio data yet.</div>
-                        </div>
-                      </section>
-                    </div>
-            
-                    <!-- Next step -->
-                    <section class="input-group-card card-block">
-                      <div class="section-heading">
-                        <h3>Next step</h3>
-                        <p>Continue to Assumptions once your accounts and asset mix are in place.</p>
-                      </div>
-            
-                      <div
-                        id="portfolioValidationStatus"
-                        class="portfolio-validation-status"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        Portfolio ready
-                      </div>
-            
-                      <div class="action-row">
-                        <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">Continue to assumptions</button>
-                        <button id="savePortfolioBtn" class="btn btn-secondary" type="button">Save portfolio</button>
-                      </div>
-                    </section>
-            
+
+                  <div class="portfolio-table-wrap">
+                    <table class="portfolio-table" id="portfolioTable">
+                      <thead>
+                        <tr>
+                          <th>Account name</th>
+                          <th>Wrapper</th>
+                          <th>Owner</th>
+                          <th>Value (£)</th>
+                          <th>Equity %</th>
+                          <th>Bond %</th>
+                          <th>Cashlike %</th>
+                          <th>Cash %</th>
+                          <th>Total</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="portfolioTableBody">
+                        <tr class="portfolio-row-empty">
+                          <td colspan="10">No accounts added yet.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="action-row portfolio-actions-row">
+                    <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">
+                      Add account
+                    </button>
                   </div>
                 </section>
+
+                <!-- Portfolio summary + next step -->
+                <div class="portfolio-summary-grid">
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Wrapper totals</h3>
+                      <p>Totals by account wrapper.</p>
+                    </div>
+
+                    <div id="portfolioWrapperTotals" class="portfolio-summary-list">
+                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                    </div>
+                  </section>
+
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Overall asset allocation</h3>
+                      <p>Weighted asset mix across the whole portfolio.</p>
+                    </div>
+
+                    <div id="portfolioAllocationTotals" class="portfolio-summary-list">
+                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                    </div>
+                  </section>
+
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Next step</h3>
+                      <p>Continue to Assumptions once your accounts and asset mix are in place.</p>
+                    </div>
+
+                    <div
+                      id="portfolioValidationStatus"
+                      class="portfolio-validation-status"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Portfolio ready
+                    </div>
+
+                    <div class="action-row">
+                      <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">
+                        Continue to assumptions
+                      </button>
+                      <button id="savePortfolioBtn" class="btn btn-secondary" type="button">
+                        Save portfolio
+                      </button>
+                    </div>
+                  </section>
+                </div>
               </div>
-            </section>   
-          
-          
-          <section class="tab-panel" data-tab-panel="assumptions">
+            </section>
+          </div>
+        </section>
+
+        <!-- Assumptions -->
+        <section class="tab-panel" data-tab-panel="assumptions">
           <div class="tab-layout single-column">
             <section class="panel input-shell-panel page-panel">
               <div class="panel-header panel-header-tight">
@@ -275,303 +292,309 @@
 
               <div id="errorBox" class="error-box" role="alert" aria-live="polite"></div>
 
-                <div class="input-shell">
-                  <div class="input-grid-top">
-       <section class="input-group-card card-block">
-          <div class="section-heading">
-            <h3>Core assumptions</h3>
-            <p>To see how your income adapts over time, enter your retirement timeline and current portfolio value. Define your spending targets by setting an initial ideal budget, a comfort level for tighter years, and a minimum essential floor.</p>
-            <p>Portfolio value and asset mix are locked here and synced from the Portfolio tab.</p>
-          </div>
-        
-          <div class="field-grid field-grid-3">
-            <label class="field">
-              <span class="field-label">Retirement years</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="years"
-                  data-step-direction="-1"
-                  data-step-size="1"
-                  aria-label="Decrease retirement years by 1"
-                >−</button>
-                <input id="years" type="number" min="1" max="80" step="1" value="30" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="years"
-                  data-step-direction="1"
-                  data-step-size="1"
-                  aria-label="Increase retirement years by 1"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field">
-              <span class="field-label">Value of investments</span>
-              <input
-                id="initialPortfolio"
-                type="text"
-                inputmode="numeric"
-                data-format="integer"
-                value="1,000,000"
-                readonly
-              />
-            </label>
-        
-            <label class="field">
-              <span class="field-label">Initial withdrawal rate (%)</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="initialWithdrawalRate"
-                  data-step-direction="-1"
-                  data-step-size="0.1"
-                  aria-label="Decrease initial withdrawal rate by 0.1%"
-                >−</button>
-                <input
-                  id="initialWithdrawalRate"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value="4"
-                />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="initialWithdrawalRate"
-                  data-step-direction="1"
-                  data-step-size="0.1"
-                  aria-label="Increase initial withdrawal rate by 0.1%"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field">
-              <span class="field-label">Initial household spending (£)</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="initialSpending"
-                  data-step-direction="-1"
-                  aria-label="Decrease initial household spending by £1,000"
-                >−</button>
-                <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="initialSpending"
-                  data-step-direction="1"
-                  aria-label="Increase initial household spending by £1,000"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field">
-              <span class="field-label">Comfort spending level (£)</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="comfortSpending"
-                  data-step-direction="-1"
-                  aria-label="Decrease comfort spending level by £1,000"
-                >−</button>
-                <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" value="36,000" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="comfortSpending"
-                  data-step-direction="1"
-                  aria-label="Increase comfort spending level by £1,000"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field">
-              <span class="field-label">Minimum spending level (£)</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="minimumSpending"
-                  data-step-direction="-1"
-                  aria-label="Decrease minimum spending level by £1,000"
-                >−</button>
-                <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="minimumSpending"
-                  data-step-direction="1"
-                  aria-label="Increase minimum spending level by £1,000"
-                >+</button>
-              </div>
-            </label>
-          </div>
-        
-          <div class="section-subnote">
-            Enter either how much you plan to spend each year or the withdrawal rate you want to start with. Comfort and minimum spending levels default to <strong>90%</strong> and <strong>75%</strong> of household spending unless you override them.
-          </div>
-        
-          <div class="field-grid field-grid-4">
-            <label class="field">
-              <span class="field-label">
-                <span
-                  class="metric-heading-with-tooltip"
-                  tabindex="0"
-                  data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
-                >Equity allocation %</span>
-              </span>
-              <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" readonly />
-            </label>
-        
-            <label class="field">
-              <span class="field-label">
-                <span
-                  class="metric-heading-with-tooltip"
-                  tabindex="0"
-                  data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
-                >Bond allocation %</span>
-              </span>
-              <input id="bondAllocation" type="number" min="0" max="100" step="1" value="30" readonly />
-            </label>
-        
-            <label class="field">
-              <span class="field-label">
-                <span
-                  class="metric-heading-with-tooltip"
-                  tabindex="0"
-                  data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
-                >Cashlike %</span>
-              </span>
-              <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="10" readonly />
-            </label>
-        
-            <label class="field">
-              <span class="field-label">
-                <span
-                  class="metric-heading-with-tooltip"
-                  tabindex="0"
-                  data-tooltip="Cash represents actual liquid cash holdings, separate from cashlike instruments used as buffers."
-                >Cash %</span>
-              </span>
-              <input id="cashAllocation" type="number" min="0" max="100" step="1" value="0" readonly />
-            </label>
-          </div>
-        
-          <div
-            id="allocationStatus"
-            class="allocation-status allocation-status--balanced"
-            role="status"
-            aria-live="polite"
-          >
-            <div class="allocation-status__row">
-              <span class="allocation-status__label">Allocation total</span>
-              <span id="allocationStatusTotal" class="allocation-status__total">100%</span>
-            </div>
-            <div class="allocation-status__message-row">
-              <span class="allocation-status__dot" aria-hidden="true"></span>
-              <span id="allocationStatusMessage" class="allocation-status__message">Balanced</span>
-            </div>
-          </div>
-        
-          <div class="core-assumptions-bottom-row">
-            <label class="field">
-              <span class="field-label">Annual portfolio fees (%)</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="annualFeeRate"
-                  data-step-direction="-1"
-                  data-step-size="0.01"
-                  aria-label="Decrease annual portfolio fees by 0.01%"
-                >−</button>
-        
-                <input
-                  id="annualFeeRate"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value="0.27"
-                  inputmode="decimal"
-                />
-        
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="annualFeeRate"
-                  data-step-direction="1"
-                  data-step-size="0.01"
-                  aria-label="Increase annual portfolio fees by 0.01%"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field people-pension-inline-field">
-              <span class="field-label">Full state pension: today's value</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="statePensionToday"
-                  data-step-direction="-1"
-                  data-step-size="500"
-                >−</button>
-        
-                <input
-                  id="statePensionToday"
-                  type="text"
-                  inputmode="numeric"
-                  data-format="integer"
-                  value="12,547"
-                />
-        
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="statePensionToday"
-                  data-step-direction="1"
-                  data-step-size="500"
-                >+</button>
-              </div>
-            </label>
-        
-            <label class="field field-inline field-inline-wide core-rebalance-field">
-              <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
-              <label class="switch-control">
-                <input id="rebalanceToTarget" type="checkbox" checked />
-                <span class="switch-slider"></span>
-              </label>
-            </label>
-          </div>
-        </section>               
-                    <section class="input-group-card people-pensions-card card-block">
-                      <div class="section-heading">
-                        <h3>Fixed income</h3>
-                        <p>Incorporate guaranteed income, like your State Pension, earnings, or windfalls, to see how these additional sources of income reduce the amount you need to withdraw from your investments.</p>
+              <div class="input-shell">
+                <div class="input-grid-top">
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Core assumptions</h3>
+                      <p>
+                        To see how your income adapts over time, enter your retirement timeline and current portfolio value.
+                        Define your spending targets by setting an initial ideal budget, a comfort level for tighter years,
+                        and a minimum essential floor.
+                      </p>
+                      <p>Portfolio value and asset mix are locked here and synced from the Portfolio tab.</p>
+                    </div>
+
+                    <div class="field-grid field-grid-3">
+                      <label class="field">
+                        <span class="field-label">Retirement years</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="years"
+                            data-step-direction="-1"
+                            data-step-size="1"
+                            aria-label="Decrease retirement years by 1"
+                          >−</button>
+                          <input id="years" type="number" min="1" max="80" step="1" value="30" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="years"
+                            data-step-direction="1"
+                            data-step-size="1"
+                            aria-label="Increase retirement years by 1"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">Value of investments</span>
+                        <input
+                          id="initialPortfolio"
+                          type="text"
+                          inputmode="numeric"
+                          data-format="integer"
+                          value="1,000,000"
+                          readonly
+                        />
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">Initial withdrawal rate (%)</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="initialWithdrawalRate"
+                            data-step-direction="-1"
+                            data-step-size="0.1"
+                            aria-label="Decrease initial withdrawal rate by 0.1%"
+                          >−</button>
+                          <input
+                            id="initialWithdrawalRate"
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value="4"
+                          />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="initialWithdrawalRate"
+                            data-step-direction="1"
+                            data-step-size="0.1"
+                            aria-label="Increase initial withdrawal rate by 0.1%"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">Initial household spending (£)</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="initialSpending"
+                            data-step-direction="-1"
+                            aria-label="Decrease initial household spending by £1,000"
+                          >−</button>
+                          <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="initialSpending"
+                            data-step-direction="1"
+                            aria-label="Increase initial household spending by £1,000"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">Comfort spending level (£)</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="comfortSpending"
+                            data-step-direction="-1"
+                            aria-label="Decrease comfort spending level by £1,000"
+                          >−</button>
+                          <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" value="36,000" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="comfortSpending"
+                            data-step-direction="1"
+                            aria-label="Increase comfort spending level by £1,000"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">Minimum spending level (£)</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="minimumSpending"
+                            data-step-direction="-1"
+                            aria-label="Decrease minimum spending level by £1,000"
+                          >−</button>
+                          <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="minimumSpending"
+                            data-step-direction="1"
+                            aria-label="Increase minimum spending level by £1,000"
+                          >+</button>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div class="section-subnote">
+                      Enter either how much you plan to spend each year or the withdrawal rate you want to start with.
+                      Comfort and minimum spending levels default to <strong>90%</strong> and <strong>75%</strong>
+                      of household spending unless you override them.
+                    </div>
+
+                    <div class="field-grid field-grid-4">
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
+                          >Equity allocation %</span>
+                        </span>
+                        <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" readonly />
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
+                          >Bond allocation %</span>
+                        </span>
+                        <input id="bondAllocation" type="number" min="0" max="100" step="1" value="30" readonly />
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
+                          >Cashlike %</span>
+                        </span>
+                        <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="10" readonly />
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="Cash represents actual liquid cash holdings, separate from cashlike instruments used as buffers."
+                          >Cash %</span>
+                        </span>
+                        <input id="cashAllocation" type="number" min="0" max="100" step="1" value="0" readonly />
+                      </label>
+                    </div>
+
+                    <div
+                      id="allocationStatus"
+                      class="allocation-status allocation-status--balanced"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      <div class="allocation-status__row">
+                        <span class="allocation-status__label">Allocation total</span>
+                        <span id="allocationStatusTotal" class="allocation-status__total">100%</span>
                       </div>
-                
-                      <div class="people-panels">
-                        <section class="person-panel person-panel--person1">
-                          <div class="person-panel__header">
-                            <div class="person-panel__title">Person 1</div>
-                          </div>
-                
-                          <div class="person-panel__body">
-                            <div class="field-grid field-grid-3">
-                              <label class="field person-name-field">
-                                <span class="field-label">Name</span>
-                                <input id="person1Name" type="text" placeholder="Enter name" maxlength="9" />
-                              </label>
-                
-                              <label class="field person-age-field">
-                                <span class="field-label">Current age</span>
-                                <div class="stepper-input">
+                      <div class="allocation-status__message-row">
+                        <span class="allocation-status__dot" aria-hidden="true"></span>
+                        <span id="allocationStatusMessage" class="allocation-status__message">Balanced</span>
+                      </div>
+                    </div>
+
+                    <div class="core-assumptions-bottom-row">
+                      <label class="field">
+                        <span class="field-label">Annual portfolio fees (%)</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="annualFeeRate"
+                            data-step-direction="-1"
+                            data-step-size="0.01"
+                            aria-label="Decrease annual portfolio fees by 0.01%"
+                          >−</button>
+                          <input
+                            id="annualFeeRate"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="0.27"
+                            inputmode="decimal"
+                          />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="annualFeeRate"
+                            data-step-direction="1"
+                            data-step-size="0.01"
+                            aria-label="Increase annual portfolio fees by 0.01%"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field people-pension-inline-field">
+                        <span class="field-label">Full state pension: today's value</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="statePensionToday"
+                            data-step-direction="-1"
+                            data-step-size="500"
+                          >−</button>
+                          <input
+                            id="statePensionToday"
+                            type="text"
+                            inputmode="numeric"
+                            data-format="integer"
+                            value="12,547"
+                          />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="statePensionToday"
+                            data-step-direction="1"
+                            data-step-size="500"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field field-inline field-inline-wide core-rebalance-field">
+                        <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
+                        <label class="switch-control">
+                          <input id="rebalanceToTarget" type="checkbox" checked />
+                          <span class="switch-slider"></span>
+                        </label>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section class="input-group-card people-pensions-card card-block">
+                    <div class="section-heading">
+                      <h3>Fixed income</h3>
+                      <p>
+                        Incorporate guaranteed income, like your State Pension, earnings, or windfalls, to see how
+                        these additional sources of income reduce the amount you need to withdraw from your investments.
+                      </p>
+                    </div>
+
+                    <div class="people-panels">
+                      <section class="person-panel person-panel--person1">
+                        <div class="person-panel__header">
+                          <div class="person-panel__title">Person 1</div>
+                        </div>
+
+                        <div class="person-panel__body">
+                          <div class="field-grid field-grid-3">
+                            <label class="field person-name-field">
+                              <span class="field-label">Name</span>
+                              <input id="person1Name" type="text" placeholder="Enter name" maxlength="9" />
+                            </label>
+
+                            <label class="field person-age-field">
+                              <span class="field-label">Current age</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -590,11 +613,11 @@
                                   aria-label="Increase person 1 current age by 1"
                                 >+</button>
                               </div>
-                              </label>
-                
-                              <label class="field person-pension-age-field">
-                                <span class="field-label">State pension age</span>
-                                <div class="stepper-input">
+                            </label>
+
+                            <label class="field person-pension-age-field">
+                              <span class="field-label">State pension age</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -613,136 +636,152 @@
                                   aria-label="Increase person 1 state pension age by 1"
                                 >+</button>
                               </div>
-                              </label>
-                            </div>
-                
-                            <label class="field field-inline field-inline-wide person-pension-checkbox inline-switch">
-                              <span class="field-label field-label-inline">Receives full state pension</span>
-                              <span class="switch-control">
-                                <input id="person1GetsFullPension" type="checkbox" checked />
-                                <span class="switch-slider" aria-hidden="true"></span>
-                              </span>
-                            </label>
-                
-                            <div class="field-grid field-grid-4 person-income-row">
-                              <label class="field">
-                                <span class="field-label">Other income</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1OtherIncomeToday"
-                                    data-step-direction="-1"
-                                    data-step-size="1000"
-                                    aria-label="Decrease person 1 other income by £1,000"
-                                  >−</button>
-                                  <input id="person1OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1OtherIncomeToday"
-                                    data-step-direction="1"
-                                    data-step-size="1000"
-                                    aria-label="Increase person 1 other income by £1,000"
-                                  >+</button>
-                                </div>
-                              </label>
-                            
-                              <label class="field">
-                                <span class="field-label">How many years</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1OtherIncomeYears"
-                                    data-step-direction="-1"
-                                    data-step-size="1"
-                                    aria-label="Decrease person 1 other income years by 1"
-                                  >−</button>
-                                  <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1OtherIncomeYears"
-                                    data-step-direction="1"
-                                    data-step-size="1"
-                                    aria-label="Increase person 1 other income years by 1"
-                                  >+</button>
-                                </div>
-                              </label>
-                            
-                              <label class="field">
-                                <span class="field-label">Windfall amount</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1WindfallAmount"
-                                    data-step-direction="-1"
-                                    data-step-size="1000"
-                                    aria-label="Decrease person 1 windfall amount by £1,000"
-                                  >−</button>
-                                  <input id="person1WindfallAmount" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1WindfallAmount"
-                                    data-step-direction="1"
-                                    data-step-size="1000"
-                                    aria-label="Increase person 1 windfall amount by £1,000"
-                                  >+</button>
-                                </div>
-                              </label>
-                            
-                              <label class="field">
-                                <span class="field-label">Years after retirement</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1WindfallYear"
-                                    data-step-direction="-1"
-                                    data-step-size="1"
-                                    aria-label="Decrease person 1 windfall year by 1"
-                                  >−</button>
-                                  <input id="person1WindfallYear" type="number" min="0" max="80" step="1" value="0" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person1WindfallYear"
-                                    data-step-direction="1"
-                                    data-step-size="1"
-                                    aria-label="Increase person 1 windfall year by 1"
-                                  >+</button>
-                                </div>
-                              </label>
-                            </div>
-                          </div>
-                        </section>
-                
-                        <section class="person-panel person-panel--person2" id="person2Panel">
-                          <div class="person-panel__header person-panel__header--with-toggle">
-                            <div class="person-panel__title">Person 2</div>
-                
-                            <label class="person-toggle inline-switch">
-                              <span>Include person 2</span>
-                              <span class="switch-control">
-                                <input id="includePerson2" type="checkbox" checked />
-                                <span class="switch-slider" aria-hidden="true"></span>
-                              </span>
                             </label>
                           </div>
-                
-                          <div class="person-panel__body" id="person2PanelBody">
-                            <div class="field-grid field-grid-3">
-                              <label class="field person-name-field">
-                                <span class="field-label">Name</span>
-                                <input id="person2Name" type="text" placeholder="Enter name" maxlength="9" />
-                              </label>
-                
-                              <label class="field person-age-field">
-                                <span class="field-label">Current age</span>
-                                <div class="stepper-input">
+
+                          <label class="field field-inline field-inline-wide person-pension-checkbox inline-switch">
+                            <span class="field-label field-label-inline">Receives full state pension</span>
+                            <span class="switch-control">
+                              <input id="person1GetsFullPension" type="checkbox" checked />
+                              <span class="switch-slider" aria-hidden="true"></span>
+                            </span>
+                          </label>
+
+                          <div class="field-grid field-grid-4 person-income-row">
+                            <label class="field">
+                              <span class="field-label">Other income</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeToday"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 1 other income by £1,000"
+                                >−</button>
+                                <input
+                                  id="person1OtherIncomeToday"
+                                  type="text"
+                                  inputmode="numeric"
+                                  data-format="integer"
+                                  value="0"
+                                  onfocus="if(this.value==='0')this.value='';"
+                                  onblur="if(this.value==='')this.value='0';"
+                                />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeToday"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 1 other income by £1,000"
+                                >+</button>
+                              </div>
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">How many years</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeYears"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 1 other income years by 1"
+                                >−</button>
+                                <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1OtherIncomeYears"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 1 other income years by 1"
+                                >+</button>
+                              </div>
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Windfall amount</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallAmount"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 1 windfall amount by £1,000"
+                                >−</button>
+                                <input
+                                  id="person1WindfallAmount"
+                                  type="text"
+                                  inputmode="numeric"
+                                  data-format="integer"
+                                  value="0"
+                                  onfocus="if(this.value==='0')this.value='';"
+                                  onblur="if(this.value==='')this.value='0';"
+                                />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallAmount"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 1 windfall amount by £1,000"
+                                >+</button>
+                              </div>
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Years after retirement</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallYear"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 1 windfall year by 1"
+                                >−</button>
+                                <input id="person1WindfallYear" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person1WindfallYear"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 1 windfall year by 1"
+                                >+</button>
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                      </section>
+
+                      <section class="person-panel person-panel--person2" id="person2Panel">
+                        <div class="person-panel__header person-panel__header--with-toggle">
+                          <div class="person-panel__title">Person 2</div>
+
+                          <label class="person-toggle inline-switch">
+                            <span>Include person 2</span>
+                            <span class="switch-control">
+                              <input id="includePerson2" type="checkbox" checked />
+                              <span class="switch-slider" aria-hidden="true"></span>
+                            </span>
+                          </label>
+                        </div>
+
+                        <div class="person-panel__body" id="person2PanelBody">
+                          <div class="field-grid field-grid-3">
+                            <label class="field person-name-field">
+                              <span class="field-label">Name</span>
+                              <input id="person2Name" type="text" placeholder="Enter name" maxlength="9" />
+                            </label>
+
+                            <label class="field person-age-field">
+                              <span class="field-label">Current age</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -761,11 +800,11 @@
                                   aria-label="Increase person 2 current age by 1"
                                 >+</button>
                               </div>
-                              </label>
-                
-                              <label class="field person-pension-age-field">
-                                <span class="field-label">State pension age</span>
-                                <div class="stepper-input">
+                            </label>
+
+                            <label class="field person-pension-age-field">
+                              <span class="field-label">State pension age</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -784,321 +823,348 @@
                                   aria-label="Increase person 2 state pension age by 1"
                                 >+</button>
                               </div>
-                              </label>
-                            </div>
-                
-                            <label class="field field-inline field-inline-wide person-pension-checkbox inline-switch">
-                              <span class="field-label field-label-inline">Receives full state pension</span>
-                              <span class="switch-control">
-                                <input id="person2GetsFullPension" type="checkbox" checked />
-                                <span class="switch-slider" aria-hidden="true"></span>
-                              </span>
                             </label>
-                
-                            <div class="field-grid field-grid-4 person-income-row">
-                              <label class="field">
-                                <span class="field-label">Other income</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2OtherIncomeToday"
-                                    data-step-direction="-1"
-                                    data-step-size="1000"
-                                    aria-label="Decrease person 2 other income by £1,000"
-                                  >−</button>
-                                  <input id="person2OtherIncomeToday" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2OtherIncomeToday"
-                                    data-step-direction="1"
-                                    data-step-size="1000"
-                                    aria-label="Increase person 2 other income by £1,000"
-                                  >+</button>
-                                </div>
-                              </label>
-                            
-                              <label class="field">
-                                <span class="field-label">How many years</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2OtherIncomeYears"
-                                    data-step-direction="-1"
-                                    data-step-size="1"
-                                    aria-label="Decrease person 2 other income years by 1"
-                                  >−</button>
-                                  <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2OtherIncomeYears"
-                                    data-step-direction="1"
-                                    data-step-size="1"
-                                    aria-label="Increase person 2 other income years by 1"
-                                  >+</button>
-                                </div>
-                              </label>
-                            
-                              <label class="field">
-                                <span class="field-label">Windfall amount</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2WindfallAmount"
-                                    data-step-direction="-1"
-                                    data-step-size="1000"
-                                    aria-label="Decrease person 2 windfall amount by £1,000"
-                                  >−</button>
-                                  <input id="person2WindfallAmount" type="text" inputmode="numeric" data-format="integer" value="0" onfocus="if(this.value==='0')this.value='';" onblur="if(this.value==='')this.value='0';" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2WindfallAmount"
-                                    data-step-direction="1"
-                                    data-step-size="1000"
-                                    aria-label="Increase person 2 windfall amount by £1,000"
-                                  >+</button>
-                                </div>
-                              </label>
-                            
-                              <label class="field">
-                                <span class="field-label">Years after retirement</span>
-                                <div class="stepper-input">
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2WindfallYear"
-                                    data-step-direction="-1"
-                                    data-step-size="1"
-                                    aria-label="Decrease person 2 windfall year by 1"
-                                  >−</button>
-                                  <input id="person2WindfallYear" type="number" min="0" max="80" step="1" value="0" />
-                                  <button
-                                    type="button"
-                                    class="stepper-btn"
-                                    data-step-target="person2WindfallYear"
-                                    data-step-direction="1"
-                                    data-step-size="1"
-                                    aria-label="Increase person 2 windfall year by 1"
-                                  >+</button>
-                                </div>
-                              </label>
-                            </div>
                           </div>
-                        </section>
-                      </div>
-                    </section>
-                  </div>
-                
-                    <div class="input-grid-bottom">
-                      <section class="input-group-card card-block">
-                        <div class="section-heading">
-                          <h3>Plan settings</h3>
-                          <p>Validate your retirement strategy by simulating thousands of potential market scenarios to determine a probability of success. Or, benchmark your plan against real-world history to ensure your spending remains sustainable through past periods of high volatility.</p>
-                        </div>
-                    
-                        <div class="plan-settings-grid">
-                          <label class="field">
-                            <span class="field-label">Simulation mode</span>
-                            <select id="simulationMode">
-                              <option value="monteCarlo" selected>Stress Test Modelling</option>
-                              <option value="historical">Historical Modelling</option>
-                            </select>
+
+                          <label class="field field-inline field-inline-wide person-pension-checkbox inline-switch">
+                            <span class="field-label field-label-inline">Receives full state pension</span>
+                            <span class="switch-control">
+                              <input id="person2GetsFullPension" type="checkbox" checked />
+                              <span class="switch-slider" aria-hidden="true"></span>
+                            </span>
                           </label>
-                    
-                          <div id="monteCarloRunsRow" class="plan-settings-dynamic-field">
+
+                          <div class="field-grid field-grid-4 person-income-row">
                             <label class="field">
-                              <span class="field-label">
-                                <span
-                                  class="metric-heading-with-tooltip"
-                                  tabindex="0"
-                                  data-tooltip="The number of simulated market paths. Increasing the sample size provides greater statistical stability and a smoother forecast"
-                                >Iteration Count</span>
-                              </span>
-                    
-                              <div class="monte-carlo-runs-control">
-                                <select id="monteCarloRunsPreset" aria-label="Monte Carlo run presets">
-                                  <option value="1000" selected>1,000</option>
-                                  <option value="5000">5,000</option>
-                                  <option value="10000">10,000</option>
-                                  <option value="20000">20,000</option>
-                                  <option value="custom">Custom</option>
-                                </select>
-                    
+                              <span class="field-label">Other income</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeToday"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 2 other income by £1,000"
+                                >−</button>
                                 <input
-                                  id="monteCarloRuns"
+                                  id="person2OtherIncomeToday"
                                   type="text"
                                   inputmode="numeric"
                                   data-format="integer"
-                                  value="1,000"
-                                  aria-label="Monte Carlo runs"
+                                  value="0"
+                                  onfocus="if(this.value==='0')this.value='';"
+                                  onblur="if(this.value==='')this.value='0';"
                                 />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeToday"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 2 other income by £1,000"
+                                >+</button>
                               </div>
-                    
-                              <div class="field-help-text">Choose a preset number or type your own value up to 50,000.</div>
                             </label>
-                          </div>
-                    
-                          <div id="historicalScenarioRow" class="plan-settings-dynamic-field hidden">
-                            <label class="field">
-                              <span class="field-label">Historical scenario</span>
-                              <select id="historicalScenario">
-                                <optgroup label="Stress - crashes">
-                                  <option value="1907">1907 - banking crisis</option>
-                                  <option value="1929">1929 - Great Depression</option>                                  
-                                  <option value="1940">1940 - WWII wartime shock</option>
-                                </optgroup>
-                    
-                                <optgroup label="Stress - inflation">
-                                  <option value="1966">1966 - inflation shock</option>
-                                  <option value="1973">1973 - stagflation shock</option>
-                                  <option value="1979">1979 - high inflation peak</option>
-                                </optgroup>
-                    
-                                <optgroup label="Stress - prolonged downturns">
-                                  <option value="1914">1914 - WWI disruption</option>
-                                  <option value="1937">1937 - recession within recovery</option>
-                                  <option value="1972">1972 - inflation then market slump</option>
-                                </optgroup>
 
-                                <optgroup label="Positive - strong growth">
-                                  <option value="1950">1950 - post-war expansion</option>
-                                  <option value="1987">1987 - post-crash recovery</option>
-                                  <option value="1991">1991 - early-cycle expansion</option>
-                                </optgroup>
-                              </select>
+                            <label class="field">
+                              <span class="field-label">How many years</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeYears"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 2 other income years by 1"
+                                >−</button>
+                                <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2OtherIncomeYears"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 2 other income years by 1"
+                                >+</button>
+                              </div>
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Windfall amount</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallAmount"
+                                  data-step-direction="-1"
+                                  data-step-size="1000"
+                                  aria-label="Decrease person 2 windfall amount by £1,000"
+                                >−</button>
+                                <input
+                                  id="person2WindfallAmount"
+                                  type="text"
+                                  inputmode="numeric"
+                                  data-format="integer"
+                                  value="0"
+                                  onfocus="if(this.value==='0')this.value='';"
+                                  onblur="if(this.value==='')this.value='0';"
+                                />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallAmount"
+                                  data-step-direction="1"
+                                  data-step-size="1000"
+                                  aria-label="Increase person 2 windfall amount by £1,000"
+                                >+</button>
+                              </div>
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Years after retirement</span>
+                              <div class="stepper-input">
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallYear"
+                                  data-step-direction="-1"
+                                  data-step-size="1"
+                                  aria-label="Decrease person 2 windfall year by 1"
+                                >−</button>
+                                <input id="person2WindfallYear" type="number" min="0" max="80" step="1" value="0" />
+                                <button
+                                  type="button"
+                                  class="stepper-btn"
+                                  data-step-target="person2WindfallYear"
+                                  data-step-direction="1"
+                                  data-step-size="1"
+                                  aria-label="Increase person 2 windfall year by 1"
+                                >+</button>
+                              </div>
                             </label>
                           </div>
                         </div>
                       </section>
-                
-                    <section class="input-group-card card-block spending-rules-card">
-                      <div class="section-heading">
-                        <h3>Spending adjustment rules</h3>
-                        <p>Variable Guardrails implement Guyton-Klinger rules to align withdrawals with market trends. This approach optimises retirement income and inflation adjustments to keep your spending plan resilient through any market cycle.</p>
-                      </div>
-                
-                      <div class="field-grid field-grid-3">
+                    </div>
+                  </section>
+                </div>
+
+                <div class="input-grid-bottom">
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Plan settings</h3>
+                      <p>
+                        Validate your retirement strategy by simulating thousands of potential market scenarios to
+                        determine a probability of success. Or, benchmark your plan against real-world history to
+                        ensure your spending remains sustainable through past periods of high volatility.
+                      </p>
+                    </div>
+
+                    <div class="plan-settings-grid">
+                      <label class="field">
+                        <span class="field-label">Simulation mode</span>
+                        <select id="simulationMode">
+                          <option value="monteCarlo" selected>Stress Test Modelling</option>
+                          <option value="historical">Historical Modelling</option>
+                        </select>
+                      </label>
+
+                      <div id="monteCarloRunsRow" class="plan-settings-dynamic-field">
                         <label class="field">
                           <span class="field-label">
                             <span
                               class="metric-heading-with-tooltip"
                               tabindex="0"
-                              data-tooltip="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size."
-                            >Upper guardrail %</span>
+                              data-tooltip="The number of simulated market paths. Increasing the sample size provides greater statistical stability and a smoother forecast"
+                            >Iteration Count</span>
                           </span>
-                          <div class="stepper-input">
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="upperGuardrail"
-                                  data-step-direction="-1"
-                                  data-step-size="1"
-                                  aria-label="Decrease upper guardrail by 1 percentage point"
-                                >−</button>
-                                <input id="upperGuardrail" type="number" min="0" step="1" value="20" />
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="upperGuardrail"
-                                  data-step-direction="1"
-                                  data-step-size="1"
-                                  aria-label="Increase upper guardrail by 1 percentage point"
-                                >+</button>
-                              </div>
+
+                          <div class="monte-carlo-runs-control">
+                            <select id="monteCarloRunsPreset" aria-label="Monte Carlo run presets">
+                              <option value="1000" selected>1,000</option>
+                              <option value="5000">5,000</option>
+                              <option value="10000">10,000</option>
+                              <option value="20000">20,000</option>
+                              <option value="custom">Custom</option>
+                            </select>
+
+                            <input
+                              id="monteCarloRuns"
+                              type="text"
+                              inputmode="numeric"
+                              data-format="integer"
+                              value="1,000"
+                              aria-label="Monte Carlo runs"
+                            />
+                          </div>
+
+                          <div class="field-help-text">Choose a preset number or type your own value up to 50,000.</div>
                         </label>
-                
+                      </div>
+
+                      <div id="historicalScenarioRow" class="plan-settings-dynamic-field hidden">
                         <label class="field">
-                          <span class="field-label">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size."
-                            >Lower guardrail %</span>
-                          </span>
-                          <div class="stepper-input">
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="lowerGuardrail"
-                                  data-step-direction="-1"
-                                  data-step-size="1"
-                                  aria-label="Decrease lower guardrail by 1 percentage point"
-                                >−</button>
-                                <input id="lowerGuardrail" type="number" min="0" step="1" value="20" />
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="lowerGuardrail"
-                                  data-step-direction="1"
-                                  data-step-size="1"
-                                  aria-label="Increase lower guardrail by 1 percentage point"
-                                >+</button>
-                              </div>
-                        </label>
-                
-                        <label class="field">
-                          <span class="field-label">
-                            <span
-                              class="metric-heading-with-tooltip"
-                              tabindex="0"
-                              data-tooltip="The percentage change applied to spending when a guardrail is breached."
-                            >Adjustment size %</span>
-                          </span>
-                          <div class="stepper-input">
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="adjustmentSize"
-                                  data-step-direction="-1"
-                                  data-step-size="1"
-                                  aria-label="Decrease adjustment size by 1 percentage point"
-                                >−</button>
-                                <input id="adjustmentSize" type="number" min="0" step="1" value="10" />
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="adjustmentSize"
-                                  data-step-direction="1"
-                                  data-step-size="1"
-                                  aria-label="Increase adjustment size by 1 percentage point"
-                                >+</button>
-                              </div>
+                          <span class="field-label">Historical scenario</span>
+                          <select id="historicalScenario">
+                            <optgroup label="Stress - crashes">
+                              <option value="1907">1907 - banking crisis</option>
+                              <option value="1929">1929 - Great Depression</option>
+                              <option value="1940">1940 - WWII wartime shock</option>
+                            </optgroup>
+
+                            <optgroup label="Stress - inflation">
+                              <option value="1966">1966 - inflation shock</option>
+                              <option value="1973">1973 - stagflation shock</option>
+                              <option value="1979">1979 - high inflation peak</option>
+                            </optgroup>
+
+                            <optgroup label="Stress - prolonged downturns">
+                              <option value="1914">1914 - WWI disruption</option>
+                              <option value="1937">1937 - recession within recovery</option>
+                              <option value="1972">1972 - inflation then market slump</option>
+                            </optgroup>
+
+                            <optgroup label="Positive - strong growth">
+                              <option value="1950">1950 - post-war expansion</option>
+                              <option value="1987">1987 - post-crash recovery</option>
+                              <option value="1991">1991 - early-cycle expansion</option>
+                            </optgroup>
+                          </select>
                         </label>
                       </div>
-                
-                      <div class="spending-toggle-row">
-                        <label class="field field-inline field-inline-wide inline-switch spending-toggle-field">
-                          <span class="field-label field-label-inline">
-                            Skip the inflation increase to spending after a negative market year
-                          </span>
-                          <span class="switch-control">
-                            <input id="skipInflationAfterNegative" type="checkbox" checked />
-                            <span class="switch-slider" aria-hidden="true"></span>
-                          </span>
-                        </label>
-                      </div>
-                    </section>
-                
-                    <section class="input-group-card card-block market-assumptions-card">
-                      <div class="section-heading">
-                        <h3>Market assumptions</h3>
-                        <p>Choose the market return, volatility, and inflation assumptions used to estimate how your investments may perform over time.</p>
-                      </div>
-                    
-                      <div class="market-assumptions-layout">
-                        <div class="market-grid">
-                          <section class="mini-market-card mini-market-card--equities">
-                            <div class="mini-market-card__title">Equities</div>
-                    
-                            <div class="field-grid">
-                              <label class="field">
-                                <span class="field-label">Return</span>
-                                <div class="stepper-input">
+                    </div>
+                  </section>
+
+                  <section class="input-group-card card-block spending-rules-card">
+                    <div class="section-heading">
+                      <h3>Spending adjustment rules</h3>
+                      <p>
+                        Variable Guardrails implement Guyton-Klinger rules to align withdrawals with market trends.
+                        This approach optimises retirement income and inflation adjustments to keep your spending
+                        plan resilient through any market cycle.
+                      </p>
+                    </div>
+
+                    <div class="field-grid field-grid-3">
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="If the current withdrawal rate rises above this percentage over the starting withdrawal rate, spending is cut by the adjustment size."
+                          >Upper guardrail %</span>
+                        </span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="upperGuardrail"
+                            data-step-direction="-1"
+                            data-step-size="1"
+                            aria-label="Decrease upper guardrail by 1 percentage point"
+                          >−</button>
+                          <input id="upperGuardrail" type="number" min="0" step="1" value="20" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="upperGuardrail"
+                            data-step-direction="1"
+                            data-step-size="1"
+                            aria-label="Increase upper guardrail by 1 percentage point"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="If the current withdrawal rate falls below this percentage under the starting withdrawal rate, spending is increased by the adjustment size."
+                          >Lower guardrail %</span>
+                        </span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="lowerGuardrail"
+                            data-step-direction="-1"
+                            data-step-size="1"
+                            aria-label="Decrease lower guardrail by 1 percentage point"
+                          >−</button>
+                          <input id="lowerGuardrail" type="number" min="0" step="1" value="20" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="lowerGuardrail"
+                            data-step-direction="1"
+                            data-step-size="1"
+                            aria-label="Increase lower guardrail by 1 percentage point"
+                          >+</button>
+                        </div>
+                      </label>
+
+                      <label class="field">
+                        <span class="field-label">
+                          <span
+                            class="metric-heading-with-tooltip"
+                            tabindex="0"
+                            data-tooltip="The percentage change applied to spending when a guardrail is breached."
+                          >Adjustment size %</span>
+                        </span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="adjustmentSize"
+                            data-step-direction="-1"
+                            data-step-size="1"
+                            aria-label="Decrease adjustment size by 1 percentage point"
+                          >−</button>
+                          <input id="adjustmentSize" type="number" min="0" step="1" value="10" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-step-target="adjustmentSize"
+                            data-step-direction="1"
+                            data-step-size="1"
+                            aria-label="Increase adjustment size by 1 percentage point"
+                          >+</button>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div class="spending-toggle-row">
+                      <label class="field field-inline field-inline-wide inline-switch spending-toggle-field">
+                        <span class="field-label field-label-inline">
+                          Skip the inflation increase to spending after a negative market year
+                        </span>
+                        <span class="switch-control">
+                          <input id="skipInflationAfterNegative" type="checkbox" checked />
+                          <span class="switch-slider" aria-hidden="true"></span>
+                        </span>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section class="input-group-card card-block market-assumptions-card">
+                    <div class="section-heading">
+                      <h3>Market assumptions</h3>
+                      <p>
+                        Choose the market return, volatility, and inflation assumptions used to estimate how your
+                        investments may perform over time.
+                      </p>
+                    </div>
+
+                    <div class="market-assumptions-layout">
+                      <div class="market-grid">
+                        <section class="mini-market-card mini-market-card--equities">
+                          <div class="mini-market-card__title">Equities</div>
+
+                          <div class="field-grid">
+                            <label class="field">
+                              <span class="field-label">Return</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1117,11 +1183,11 @@
                                   aria-label="Increase equity return by 1 percentage point"
                                 >+</button>
                               </div>
-                              </label>
-                    
-                              <label class="field">
-                                <span class="field-label">Volatility</span>
-                                <div class="stepper-input">
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Volatility</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1140,17 +1206,17 @@
                                   aria-label="Increase equity volatility by 1 percentage point"
                                 >+</button>
                               </div>
-                              </label>
-                            </div>
-                          </section>
-                    
-                          <section class="mini-market-card mini-market-card--bonds">
-                            <div class="mini-market-card__title">Bonds</div>
-                    
-                            <div class="field-grid">
-                              <label class="field">
-                                <span class="field-label">Return</span>
-                                <div class="stepper-input">
+                            </label>
+                          </div>
+                        </section>
+
+                        <section class="mini-market-card mini-market-card--bonds">
+                          <div class="mini-market-card__title">Bonds</div>
+
+                          <div class="field-grid">
+                            <label class="field">
+                              <span class="field-label">Return</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1169,11 +1235,11 @@
                                   aria-label="Increase bond return by 1 percentage point"
                                 >+</button>
                               </div>
-                              </label>
-                    
-                              <label class="field">
-                                <span class="field-label">Volatility</span>
-                                <div class="stepper-input">
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Volatility</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1192,17 +1258,17 @@
                                   aria-label="Increase bond volatility by 1 percentage point"
                                 >+</button>
                               </div>
-                              </label>
-                            </div>
-                          </section>
-                    
-                          <section class="mini-market-card mini-market-card--cashlike">
-                            <div class="mini-market-card__title">Cashlike</div>
-                    
-                            <div class="field-grid">
-                              <label class="field">
-                                <span class="field-label">Return</span>
-                                <div class="stepper-input">
+                            </label>
+                          </div>
+                        </section>
+
+                        <section class="mini-market-card mini-market-card--cashlike">
+                          <div class="mini-market-card__title">Cashlike</div>
+
+                          <div class="field-grid">
+                            <label class="field">
+                              <span class="field-label">Return</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1221,11 +1287,11 @@
                                   aria-label="Increase cashlike return by 1 percentage point"
                                 >+</button>
                               </div>
-                              </label>
-                    
-                              <label class="field">
-                                <span class="field-label">Volatility</span>
-                                <div class="stepper-input">
+                            </label>
+
+                            <label class="field">
+                              <span class="field-label">Volatility</span>
+                              <div class="stepper-input">
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1244,181 +1310,182 @@
                                   aria-label="Increase cashlike volatility by 1 percentage point"
                                 >+</button>
                               </div>
-                              </label>
-                            </div>
-                          </section>
-                        </div>
-                    
-                        <section class="inflation-panel">
-                          <div class="inflation-panel__label">Inflation rate (CPI)</div>
-                    
-                          <div class="inflation-panel__row">
-                            <div class="inflation-panel__field">
-                              <div class="stepper-input">
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="inflation"
-                                  data-step-direction="-1"
-                                  data-step-size="0.1"
-                                  aria-label="Decrease inflation by 0.1 percentage points"
-                                >−</button>
-                                <input id="inflation" type="number" min="0" step="0.1" value="2.8" />
-                                <button
-                                  type="button"
-                                  class="stepper-btn"
-                                  data-step-target="inflation"
-                                  data-step-direction="1"
-                                  data-step-size="0.1"
-                                  aria-label="Increase inflation by 0.1 percentage points"
-                                >+</button>
-                              </div>
-                            </div>
-                    
-                            <p class="inflation-panel__text">
-                              Adjust how future spending and income are translated into today’s purchasing power.
-                            </p>
+                            </label>
                           </div>
                         </section>
                       </div>
-                    </section>
-  </div>
-</div>
+
+                      <section class="inflation-panel">
+                        <div class="inflation-panel__label">Inflation rate (CPI)</div>
+
+                        <div class="inflation-panel__row">
+                          <div class="inflation-panel__field">
+                            <div class="stepper-input">
+                              <button
+                                type="button"
+                                class="stepper-btn"
+                                data-step-target="inflation"
+                                data-step-direction="-1"
+                                data-step-size="0.1"
+                                aria-label="Decrease inflation by 0.1 percentage points"
+                              >−</button>
+                              <input id="inflation" type="number" min="0" step="0.1" value="2.8" />
+                              <button
+                                type="button"
+                                class="stepper-btn"
+                                data-step-target="inflation"
+                                data-step-direction="1"
+                                data-step-size="0.1"
+                                aria-label="Increase inflation by 0.1 percentage points"
+                              >+</button>
+                            </div>
+                          </div>
+
+                          <p class="inflation-panel__text">
+                            Adjust how future spending and income are translated into today’s purchasing power.
+                          </p>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                </div>
+              </div>
             </section>
           </div>
         </section>
 
-<section class="tab-panel" data-tab-panel="results" hidden>
-  <div class="tab-layout single-column">
-    <section class="panel results-meta-panel">
-      <div class="panel-header results-meta-header">
-        <div>
-          <h2 id="resultsPanelTitle">Results</h2>
-        </div>
-      </div>
+        <!-- Results -->
+        <section class="tab-panel" data-tab-panel="results" hidden>
+          <div class="tab-layout single-column">
+            <section class="panel results-meta-panel">
+              <div class="panel-header results-meta-header">
+                <div>
+                  <h2 id="resultsPanelTitle">Results</h2>
+                </div>
+              </div>
 
-      <div class="results-toolbar">
-        <div class="chart-mode-group" role="group" aria-label="Chart mode">
-          <div class="chart-mode-label">Chart mode</div>
-          <div class="mode-switch">
-            <label class="mode-option">
-              <input id="chartModeReal" type="radio" name="chartMode" checked />
-              <span>Real</span>
-            </label>
-            <label class="mode-option">
-              <input id="chartModeNominal" type="radio" name="chartMode" />
-              <span>Nominal</span>
-            </label>
-          </div>
-          <input id="showRealValues" type="checkbox" hidden checked />
-        </div>
+              <div class="results-toolbar">
+                <div class="chart-mode-group" role="group" aria-label="Chart mode">
+                  <div class="chart-mode-label">Chart mode</div>
+                  <div class="mode-switch">
+                    <label class="mode-option">
+                      <input id="chartModeReal" type="radio" name="chartMode" checked />
+                      <span>Real</span>
+                    </label>
+                    <label class="mode-option">
+                      <input id="chartModeNominal" type="radio" name="chartMode" />
+                      <span>Nominal</span>
+                    </label>
+                  </div>
+                  <input id="showRealValues" type="checkbox" hidden checked />
+                </div>
 
-        <div class="chart-mode-group" role="group" aria-label="Guardrails mode">
-          <div class="chart-mode-label">Guardrails</div>
-          <div class="mode-switch">
-            <label class="mode-option">
-              <input id="guytonKlingerOn" type="radio" name="guytonKlingerMode" checked />
-              <span>On</span>
-            </label>
-            <label class="mode-option">
-              <input id="guytonKlingerOff" type="radio" name="guytonKlingerMode" />
-              <span>Off</span>
-            </label>
-          </div>
-        </div>
+                <div class="chart-mode-group" role="group" aria-label="Guardrails mode">
+                  <div class="chart-mode-label">Guardrails</div>
+                  <div class="mode-switch">
+                    <label class="mode-option">
+                      <input id="guytonKlingerOn" type="radio" name="guytonKlingerMode" checked />
+                      <span>On</span>
+                    </label>
+                    <label class="mode-option">
+                      <input id="guytonKlingerOff" type="radio" name="guytonKlingerMode" />
+                      <span>Off</span>
+                    </label>
+                  </div>
+                </div>
 
-        <div class="results-explainer">
-          <p><strong>Real</strong> values strip out inflation to show true sustainability. By focusing on constant purchasing power, you can see if your savings actually cover your lifestyle.</p>
-          <p><strong>Nominal</strong> values show future cash totals including inflation; while the figures grow, rising prices mean they don’t necessarily represent increased real-world purchasing power.</p>
-        </div>
-      </div>
+                <div class="results-explainer">
+                  <p><strong>Real</strong> values strip out inflation to show true sustainability. By focusing on constant purchasing power, you can see if your savings actually cover your lifestyle.</p>
+                  <p><strong>Nominal</strong> values show future cash totals including inflation; while the figures grow, rising prices mean they don’t necessarily represent increased real-world purchasing power.</p>
+                </div>
+              </div>
 
-      <div id="resultsContextBar"></div>
-    </section>
+              <div id="resultsContextBar"></div>
+            </section>
 
-    <section class="panel results-charts-panel">
-      <div class="panel-header results-section-header">
-        <div>
-          <h2>Charts</h2>
-        </div>
+            <section class="panel results-charts-panel">
+              <div class="panel-header results-section-header">
+                <div>
+                  <h2>Charts</h2>
+                </div>
 
-        <div class="results-context-header-actions">
-          <div class="plan-outlook-path-selector table-view-selector">
-            <div class="table-view-selector-group" id="chartsViewSelector"></div>
-          </div>
-        </div>
-      </div>
+                <div class="results-context-header-actions">
+                  <div class="plan-outlook-path-selector table-view-selector">
+                    <div class="table-view-selector-group" id="chartsViewSelector"></div>
+                  </div>
+                </div>
+              </div>
 
-      <div class="results-chart-grid">
-        <section class="chart-card">
-          <div class="card-header chart-card-header">
-            <div class="card-title-block">
-              <h2>Investment projection</h2>
-              <p>Shows the central outcome, the likely range of outcomes, and the base-case path.</p>
-            </div>
-          </div>
-          <div class="chart-canvas-wrap">
-            <canvas id="portfolioChart" height="260"></canvas>
-            <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
+              <div class="results-chart-grid">
+                <section class="chart-card">
+                  <div class="card-header chart-card-header">
+                    <div class="card-title-block">
+                      <h2>Investment projection</h2>
+                      <p>Shows the central outcome, the likely range of outcomes, and the base-case path.</p>
+                    </div>
+                  </div>
+                  <div class="chart-canvas-wrap">
+                    <canvas id="portfolioChart" height="260"></canvas>
+                    <div id="portfolioHorizonSummary" class="chart-horizon-summary"></div>
+                  </div>
+                </section>
+
+                <section class="chart-card">
+                  <div class="card-header chart-card-header">
+                    <div class="card-title-block">
+                      <h2>Spending path</h2>
+                      <p>Shows spending, pension income, and investment withdrawals.</p>
+                    </div>
+                  </div>
+                  <div class="chart-canvas-wrap">
+                    <canvas id="spendingChart" height="260"></canvas>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <section class="table-card" id="tableCard">
+              <div class="results-table-header">
+                <div class="panel-header results-section-header">
+                  <div>
+                    <h2 id="resultsTableTitle">Yearly results view</h2>
+                  </div>
+
+                  <div class="results-context-header-actions">
+                    <div class="plan-outlook-path-selector table-view-selector">
+                      <div class="table-view-selector-group" id="tableHeaderViewSelector"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="results-table-description-row">
+                  <p id="resultsTableIntro" class="results-table-intro">
+                    A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.
+                  </p>
+                </div>
+
+                <div class="results-table-mode-row">
+                  <div id="tableModeSelector" class="results-table-mode-selector"></div>
+                  <div id="tableDescriptionActions" class="results-table-description-actions"></div>
+                </div>
+
+                <div class="results-table-controls-row">
+                  <div id="resultsTableLegend" class="results-table-legend hidden"></div>
+                  <div id="tableViewSelector" class="table-view-selector hidden"></div>
+                </div>
+              </div>
+
+              <p id="resultsTableNote" class="results-table-note hidden"></p>
+
+              <div class="table-wrap">
+                <table id="resultsTable">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
           </div>
         </section>
-
-        <section class="chart-card">
-          <div class="card-header chart-card-header">
-            <div class="card-title-block">
-              <h2>Spending path</h2>
-              <p>Shows spending, pension income, and investment withdrawals.</p>
-            </div>
-          </div>
-          <div class="chart-canvas-wrap">
-            <canvas id="spendingChart" height="260"></canvas>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <section class="table-card" id="tableCard">
-      <div class="results-table-header">
-        <div class="panel-header results-section-header">
-          <div>
-            <h2 id="resultsTableTitle">Yearly results view</h2>
-          </div>
-
-          <div class="results-context-header-actions">
-            <div class="plan-outlook-path-selector table-view-selector">
-              <div class="table-view-selector-group" id="tableHeaderViewSelector"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="results-table-description-row">
-          <p id="resultsTableIntro" class="results-table-intro">
-            A year-by-year view of your plan showing how spending, income, and withdrawals interact with your portfolio.
-          </p>
-        </div>
-
-        <div class="results-table-mode-row">
-          <div id="tableModeSelector" class="results-table-mode-selector"></div>
-          <div id="tableDescriptionActions" class="results-table-description-actions"></div>
-        </div>
-
-        <div class="results-table-controls-row">
-          <div id="resultsTableLegend" class="results-table-legend hidden"></div>
-          <div id="tableViewSelector" class="table-view-selector hidden"></div>
-        </div>
-      </div>
-
-      <p id="resultsTableNote" class="results-table-note hidden"></p>
-
-      <div class="table-wrap">
-        <table id="resultsTable">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-</section>
       </div>
     </main>
   </div>
@@ -1621,6 +1688,5 @@
       <p>Understand your plan. Test your assumptions. See what holds up.</p>
     </div>
   </footer>
-    
 </body>
 </html>
