@@ -495,10 +495,6 @@ textarea{
    Portfolio Screen
    ======================================== */
 
-/* ========================================
-   Portfolio Screen
-   ======================================== */
-
 .portfolio-shell{
   display:grid;
   gap:16px;
@@ -565,12 +561,14 @@ textarea{
   box-shadow:none;
   display:flex;
   flex-direction:column;
+  justify-content:flex-start;
 }
 
 .portfolio-summary-grid > .input-group-card .section-heading,
 .portfolio-summary-grid > .panel .section-heading,
 .portfolio-summary-grid > .portfolio-summary-card .section-heading{
-  margin-bottom:0;
+  margin-bottom:0 !important;
+  min-height:auto;
 }
 
 .portfolio-summary-grid > .input-group-card h3,
@@ -601,6 +599,12 @@ textarea{
   line-height:1;
   letter-spacing:-0.04em;
   color:#22314d;
+  padding-top:10px;
+}
+
+#portfolioTotalValue{
+  display:flex;
+  align-items:flex-start;
 }
 
 .portfolio-summary-list{
@@ -608,6 +612,7 @@ textarea{
   flex-direction:column;
   gap:8px;
   margin-top:14px;
+  width:100%;
 }
 
 .portfolio-summary-list > div,
@@ -617,10 +622,12 @@ textarea{
   justify-content:space-between;
   gap:12px;
   min-height:40px;
+  width:100%;
   padding:10px 12px;
   background:#f7faff;
   border:1px solid #dbe6f3;
   border-radius:10px;
+  box-sizing:border-box;
 }
 
 .portfolio-summary-list > div span:first-child,
@@ -639,6 +646,7 @@ textarea{
   line-height:1.2;
   text-align:right;
   white-space:nowrap;
+  margin-left:auto;
 }
 
 .portfolio-summary-empty{
