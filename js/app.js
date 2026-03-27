@@ -18,7 +18,7 @@ const els = {
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
   cashlikeAllocation: document.getElementById('cashlikeAllocation'),
-  cashAllocation: document.getElementById('cashAllocation'), 
+  cashAllocation: document.getElementById('cashAllocation'),
   allocationStatus: document.getElementById('allocationStatus'),
   allocationStatusTotal: document.getElementById('allocationStatusTotal'),
   allocationStatusMessage: document.getElementById('allocationStatusMessage'),
@@ -33,6 +33,9 @@ const els = {
   inflation: document.getElementById('inflation'),
 
   person1Name: document.getElementById('person1Name'),
+  portfolioPerson1Name: document.getElementById('portfolioPerson1Name'),
+  portfolioPerson2Name: document.getElementById('portfolioPerson2Name'),
+  portfolioHasPerson2: document.getElementById('portfolioHasPerson2'),
   person1Age: document.getElementById('person1Age'),
   person1PensionAge: document.getElementById('person1PensionAge'),
 
@@ -74,7 +77,7 @@ const els = {
   showFullTable: document.getElementById('showFullTable'),
   showPlanOutlook: document.getElementById('showPlanOutlook'),
 
-  continueToAssumptionsBtn: document.getElementById('continueToAssumptionsBtn'),  
+  continueToAssumptionsBtn: document.getElementById('continueToAssumptionsBtn'),
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
@@ -121,8 +124,18 @@ let withdrawalInputMode = 'amount';
 let currentTableView = 'median';
 let currentTableMode = 'plan';
 let portfolioAccounts = [];
+let portfolioConfig = {
+  hasPerson2: true
+};
+let portfolioPeople = {
+  person1Name: '',
+  person2Name: ''
+};
 
 const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
+const PORTFOLIO_CONFIG_STORAGE_KEY = 'retirement_portfolio_config_v1';
+const PORTFOLIO_PEOPLE_STORAGE_KEY = 'retirement_portfolio_people_v1';
+
 
 function savePortfolioToStorage() {
   localStorage.setItem(
@@ -164,14 +177,78 @@ const advancedForm = createAdvancedForm(els, parsingHelpers);
 
 initialise();
 
+function savePortfolioConfigToStorage() {
+  localStorage.setItem(
+    PORTFOLIO_CONFIG_STORAGE_KEY,
+    JSON.stringify(portfolioConfig)
+  );
+}
+
+function loadPortfolioConfigFromStorage() {
+  const saved = localStorage.getItem(PORTFOLIO_CONFIG_STORAGE_KEY);
+  if (!saved) return;
+
+  try {
+    const parsed = JSON.parse(saved);
+
+    if (parsed && typeof parsed === 'object') {
+      portfolioConfig = {
+        hasPerson2: Boolean(parsed.hasPerson2)
+      };
+    }
+  } catch (error) {
+    console.warn('Failed to load portfolio config', error);
+  }
+}
+
+function savePortfolioPeopleToStorage() {
+  localStorage.setItem(
+    PORTFOLIO_PEOPLE_STORAGE_KEY,
+    JSON.stringify(portfolioPeople)
+  );
+}
+
+function loadPortfolioPeopleFromStorage() {
+  const saved = localStorage.getItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+  if (!saved) return;
+
+  try {
+    const parsed = JSON.parse(saved);
+
+    if (parsed && typeof parsed === 'object') {
+      portfolioPeople = {
+        person1Name: String(parsed.person1Name || ''),
+        person2Name: String(parsed.person2Name || '')
+      };
+    }
+  } catch (error) {
+    console.warn('Failed to load portfolio people from storage', error);
+  }
+}
+
+function renderPortfolioPeopleFields() {
+  if (els.portfolioPerson1Name) {
+    els.portfolioPerson1Name.value = portfolioPeople.person1Name || '';
+  }
+
+  if (els.portfolioPerson2Name) {
+    els.portfolioPerson2Name.value = portfolioPeople.person2Name || '';
+  }
+}
+
 function initialise() {
+  setupWorker();
   applyDefaults();
   loadPortfolioFromStorage();
+  loadPortfolioConfigFromStorage();
+  loadPortfolioPeopleFromStorage();  
   attachEvents();
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
+  renderPortfolioPeopleFields();
   renderPortfolioTable();
+  applyPerson2PortfolioRules();
   tabs.setActiveTab('portfolio');
 }
 
@@ -288,7 +365,45 @@ function setResultsViewDefaults() {
 }
 
 function attachEvents() {
-    if (els.continueToAssumptionsBtn) {
+  if (els.portfolioHasPerson2) {
+    els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
+
+    els.portfolioHasPerson2.addEventListener('change', (e) => {
+      portfolioConfig.hasPerson2 = Boolean(e.target.checked);
+      savePortfolioConfigToStorage();
+
+      applyPerson2PortfolioRules();
+      renderPortfolioTable();
+    });
+  }
+
+  if (els.portfolioPerson1Name) {
+    els.portfolioPerson1Name.addEventListener('input', (e) => {
+      portfolioPeople.person1Name = e.target.value;
+      savePortfolioPeopleToStorage();
+    });
+  }
+
+  if (els.portfolioPerson2Name) {
+    els.portfolioPerson2Name.addEventListener('input', (e) => {
+      portfolioPeople.person2Name = e.target.value;
+      savePortfolioPeopleToStorage();
+    });
+  }
+
+  if (els.includePerson2) {
+    els.includePerson2.addEventListener('change', () => {
+      if (!portfolioConfig.hasPerson2) {
+        els.includePerson2.checked = false;
+      }
+
+      if (els.person2Panel) {
+        els.person2Panel.style.display = els.includePerson2.checked ? '' : 'none';
+      }
+    });
+  }
+
+  if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
       const totals = calculatePortfolioTotals(portfolioAccounts);
       const mappedInputs = mapPortfolioToInputs(totals);
@@ -324,6 +439,8 @@ function attachEvents() {
   if (savePortfolioBtn) {
     savePortfolioBtn.addEventListener('click', () => {
       savePortfolioToStorage();
+      savePortfolioConfigToStorage();
+      savePortfolioPeopleToStorage();
 
       const originalLabel = savePortfolioBtn.textContent;
       savePortfolioBtn.textContent = 'Saved';
@@ -343,6 +460,8 @@ function attachEvents() {
       applyDefaults();
       setResultsViewDefaults();
       updateAllocationStatus();
+      applyPerson2PortfolioRules();
+      renderPortfolioPeopleFields();
 
       latestResult = null;
       latestBaseInputs = null;
@@ -917,7 +1036,7 @@ function updatePortfolioAccount(id, field, value) {
 
   savePortfolioToStorage();
   renderPortfolioTable();
-}
+  }
 
 function removePortfolioAccount(id) {
   portfolioAccounts = portfolioAccounts.filter((item) => item.id !== id);
@@ -987,6 +1106,56 @@ function calculatePortfolioTotals(portfolioAccounts) {
   }
 
   return totals;
+}
+
+function mapPortfolioToInputs(totals) {
+  return {
+    initialPortfolio: totals.totalValue,
+    equityAllocation: totals.allocations.equities,
+    bondAllocation: totals.allocations.bonds,
+    cashlikeAllocation: totals.allocations.cashlike,
+    cashAllocation: totals.allocations.cash,
+    hasPerson2: portfolioConfig.hasPerson2,
+    includePerson2: portfolioConfig.hasPerson2,
+    person1Name: String(portfolioPeople.person1Name || '').trim(),
+    person2Name: String(portfolioPeople.person2Name || '').trim()
+  };
+}
+
+function applyPortfolioInputsToAssumptions(mapped) {
+  if (els.initialPortfolio) {
+    els.initialPortfolio.value = formatInteger(Math.round(mapped.initialPortfolio || 0));
+  }
+
+  if (els.equityAllocation) els.equityAllocation.value = Math.round(mapped.equityAllocation || 0);
+  if (els.bondAllocation) els.bondAllocation.value = Math.round(mapped.bondAllocation || 0);
+  if (els.cashlikeAllocation) els.cashlikeAllocation.value = Math.round(mapped.cashlikeAllocation || 0);
+  if (els.cashAllocation) els.cashAllocation.value = Math.round(mapped.cashAllocation || 0);
+
+  if (els.person1Name) {
+    els.person1Name.value = mapped.person1Name || '';
+  }
+
+  if (els.person2Name) {
+    els.person2Name.value = mapped.person2Name || '';
+  }
+
+  if (els.includePerson2) {
+    els.includePerson2.checked = mapped.includePerson2;
+    els.includePerson2.disabled = !mapped.hasPerson2;
+  }
+
+  if (els.person2Panel) {
+    els.person2Panel.style.display = mapped.includePerson2 ? '' : 'none';
+  }
+
+  updateAllocationStatus();
+
+  if (withdrawalInputMode === 'rate') {
+    syncInitialSpendingFromRate();
+  } else {
+    syncInitialWithdrawalRateFromAmount();
+  }
 }
 
 function updatePortfolioSummaryCards() {
@@ -1067,7 +1236,9 @@ function renderPortfolioTable() {
       <td>
         <select data-id="${account.id}" data-field="owner">
           <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>Person 1</option>
+        ${portfolioConfig.hasPerson2 ? `
           <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>Person 2</option>
+        ` : ''}
           <option value="Joint" ${account.owner === 'Joint' ? 'selected' : ''}>Joint</option>
         </select>
       </td>
@@ -1139,6 +1310,32 @@ function renderPortfolioTable() {
 
   attachPortfolioTableRowEvents();
   updatePortfolioSummaryCards();
+}
+
+function applyPerson2PortfolioRules() {
+  const hasPerson2 = portfolioConfig.hasPerson2;
+
+  // Sync assumptions toggle
+  if (els.includePerson2) {
+    els.includePerson2.checked = hasPerson2;
+    els.includePerson2.disabled = !hasPerson2;
+  }
+
+  // Show / hide panel
+  if (els.person2Panel) {
+    els.person2Panel.style.display = hasPerson2 ? '' : 'none';
+  }
+
+  // Clean invalid account owners
+  if (!hasPerson2) {
+    portfolioAccounts.forEach((account) => {
+      if (account.owner === 'Person 2') {
+        account.owner = 'Person 1';
+      }
+    });
+
+    savePortfolioToStorage();
+  }
 }
 
 function attachPortfolioTableRowEvents() {
