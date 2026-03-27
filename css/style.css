@@ -605,6 +605,15 @@ textarea{
   }
 }
 
+.portfolio-row-warning {
+  background: rgba(255, 193, 7, 0.12);
+}
+
+.portfolio-cell-warning {
+  color: #b26a00;
+  font-weight: 600;
+}
+
 /* ========================================
    Input Shell / Form Layout
    ======================================== */
