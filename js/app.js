@@ -370,7 +370,17 @@ function attachEvents() {
 
     els.portfolioHasPerson2.addEventListener('change', (e) => {
       portfolioConfig.hasPerson2 = Boolean(e.target.checked);
+
+      if (!portfolioConfig.hasPerson2) {
+        portfolioPeople.person2Name = '';
+
+        if (els.portfolioPerson2Name) {
+          els.portfolioPerson2Name.value = '';
+        }
+      }
+
       savePortfolioConfigToStorage();
+      savePortfolioPeopleToStorage();
 
       applyPerson2PortfolioRules();
       renderPortfolioTable();
@@ -405,7 +415,31 @@ function attachEvents() {
 
   if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
-      const totals = calculatePortfolioTotals(portfolioAccounts);
+      if (!portfolioAccounts.length) {
+        showError('Add at least one account before continuing.');
+        return;
+      }
+
+      const hasInvalidRow = portfolioAccounts.some((account) => !isPortfolioRowValid(account));
+
+      if (hasInvalidRow) {
+        showError('Each portfolio row must have a valid value and allocation totalling 100% before continuing.');
+        return;
+      }
+
+      const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
+      const roundedPortfolioTotal =
+        Math.round(portfolioTotals.allocations.equities) +
+        Math.round(portfolioTotals.allocations.bonds) +
+        Math.round(portfolioTotals.allocations.cashlike) +
+        Math.round(portfolioTotals.allocations.cash);
+
+      if (roundedPortfolioTotal < 99 || roundedPortfolioTotal > 101) {
+        showError('Portfolio totals could not be mapped cleanly to Assumptions. Check your account allocations.');
+        return;
+      }
+        
+      const totals = portfolioTotals;
       const mappedInputs = mapPortfolioToInputs(totals);
 
       const currentInputs = {
@@ -419,10 +453,12 @@ function attachEvents() {
       };
 
       applyPortfolioInputsToAssumptions(mappedInputs);
-
       tabs.setActiveTab('assumptions');
-      hideError();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      requestAnimationFrame(() => {
+        hideError();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     });
   }
 
@@ -516,16 +552,6 @@ function attachAllocationStatusEvents() {
     input.addEventListener('change', updateAllocationStatus);
   });
 
-    document.querySelectorAll(`
-      [data-step-target="equityAllocation"],
-      [data-step-target="bondAllocation"],
-      [data-step-target="cashlikeAllocation"],
-      [data-step-target="cashAllocation"]
-    `).forEach((button) => {
-      button.addEventListener('click', () => {
-        requestAnimationFrame(updateAllocationStatus);
-      });
-    });
 }
 
 function updateAllocationStatus() {
@@ -1036,7 +1062,7 @@ function updatePortfolioAccount(id, field, value) {
 
   savePortfolioToStorage();
   renderPortfolioTable();
-  }
+}
 
 function removePortfolioAccount(id) {
   portfolioAccounts = portfolioAccounts.filter((item) => item.id !== id);
@@ -1157,11 +1183,15 @@ function applyPortfolioInputsToAssumptions(mapped) {
   updateAllocationStatus();
   hideError();
 
+  updateAllocationStatus();
+
   if (withdrawalInputMode === 'rate') {
     syncInitialSpendingFromRate();
   } else {
     syncInitialWithdrawalRateFromAmount();
   }
+
+  hideError();
 }
 
 function updatePortfolioSummaryCards() {
@@ -1341,6 +1371,7 @@ function applyPerson2PortfolioRules() {
     });
 
     savePortfolioToStorage();
+    renderPortfolioTable();
   }
 }
 
