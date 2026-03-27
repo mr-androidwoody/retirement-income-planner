@@ -781,6 +781,17 @@ function getResultsOverrideInputs(baseInputs) {
 function runSimulation() {
   const inputs = gatherInputs();
   const mergedInputs = { ...DEFAULT_INPUTS, ...inputs };
+
+  const equity = Math.round(parseLooseNumber(els.equityAllocation?.value) || 0);
+  const bond = Math.round(parseLooseNumber(els.bondAllocation?.value) || 0);
+  const cashlike = Math.round(parseLooseNumber(els.cashlikeAllocation?.value) || 0);
+  const cash = 100 - equity - bond - cashlike;
+
+  mergedInputs.equityAllocation = equity;
+  mergedInputs.bondAllocation = bond;
+  mergedInputs.cashlikeAllocation = cashlike;
+  mergedInputs.cashAllocation = cash;
+
   const errors = validateInputs(mergedInputs);
 
   if (errors.length > 0) {
@@ -809,7 +820,7 @@ function runSimulation() {
         inputs: effectiveInputs
       })
     )
-     .then((result) => {
+      .then((result) => {
         latestResult = result;
         planForm.setBusy(false);
         showResults();
@@ -1156,7 +1167,7 @@ function applyPortfolioInputsToAssumptions(mapped) {
   const equity = Math.round(mapped.equityAllocation || 0);
   const bond = Math.round(mapped.bondAllocation || 0);
   const cashlike = Math.round(mapped.cashlikeAllocation || 0);
-  const cash = Math.max(0, 100 - equity - bond - cashlike);
+  const cash = 100 - equity - bond - cashlike;
 
   if (els.equityAllocation) els.equityAllocation.value = equity;
   if (els.bondAllocation) els.bondAllocation.value = bond;
@@ -1179,9 +1190,6 @@ function applyPortfolioInputsToAssumptions(mapped) {
   if (els.person2Panel) {
     els.person2Panel.style.display = mapped.includePerson2 ? '' : 'none';
   }
-
-  updateAllocationStatus();
-  hideError();
 
   updateAllocationStatus();
 
