@@ -462,6 +462,33 @@
                 >+</button>
               </div>
             </label>
+
+            <label class="field">
+              <span class="field-label">
+                <span
+                  class="metric-heading-with-tooltip"
+                  tabindex="0"
+                  data-tooltip="Cash represents actual liquid cash holdings, separate from cashlike instruments used as buffers."
+                >Cash %</span>
+              </span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="cashAllocation"
+                  data-step-direction="-1"
+                  data-step-size="1"
+                >−</button>
+                <input id="cashAllocation" type="number" min="0" max="100" step="1" value="0" />
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="cashAllocation"
+                  data-step-direction="1"
+                  data-step-size="1"
+                >+</button>
+              </div>
+            </label>              
           </div>
         
           <div
