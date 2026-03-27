@@ -3358,6 +3358,11 @@ input[type="checkbox"]{
   color:#ef4444;
 }
 
+.portfolio-table-actions--right{
+  margin-left:auto;
+  justify-content:flex-end;
+}
+
 @media (max-width:900px){
   .chart-horizon-summary{
     grid-template-columns:repeat(2, minmax(0, 1fr));
