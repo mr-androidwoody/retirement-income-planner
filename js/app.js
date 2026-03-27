@@ -164,6 +164,9 @@ const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 const tabs = initialiseTabs({
   defaultTab: 'portfolio',
   onChange: (tabName) => {
+
+    document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
+
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
         renderAll();
@@ -249,6 +252,7 @@ function initialise() {
   renderPortfolioPeopleFields();
   renderPortfolioTable();
   applyPerson2PortfolioRules();
+  document.body.classList.add('is-portfolio');
   tabs.setActiveTab('portfolio');
 }
 
@@ -1720,4 +1724,13 @@ function attachPortfolioTableRowEvents() {
       stepPortfolioAccount(id, field, direction, stepSize);
     });
   });
+}
+
+/* Portfolio: remove global header */
+body.is-portfolio .top-header{
+  display:none;
+}
+
+body.is-portfolio .page-content{
+  padding-top:24px;
 }
