@@ -55,7 +55,6 @@ function assertEqual(name, actual, expected, tolerance = 1e-9) {
 
 (function testWithdrawalOrder() {
   const buckets = {
-    cash: 25,
     cashlike: 100,
     bonds: 100,
     equities: 100
@@ -64,10 +63,9 @@ function assertEqual(name, actual, expected, tolerance = 1e-9) {
   const withdrawn = withdrawFromBuckets(buckets, 150);
 
   assertEqual('withdrawal amount correct', withdrawn, 150);
-  assertEqual('cash used first', buckets.cash, 0);
-  assertEqual('cashlike used second', buckets.cashlike, 0);
-  assertEqual('bonds used third', buckets.bonds, 75);
-  assertEqual('equities untouched', buckets.equities, 100);
+  assertEqual('cashlike used first', buckets.cashlike, 0);
+  assertEqual('bonds used second', buckets.bonds, 50);
+  assertEqual('equities used last', buckets.equities, 100);
 })();
 
 /* =========================
@@ -127,7 +125,7 @@ function assertEqual(name, actual, expected, tolerance = 1e-9) {
   });
 
   const annualReturns = {
-    equities: [-0.20, 0],
+    equities: [-0.50, 0],
     bonds: [0, 0],
     cashlike: [0, 0],
     cash: [0, 0],
