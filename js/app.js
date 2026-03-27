@@ -120,6 +120,7 @@ let worker = null;
 let withdrawalInputMode = 'amount';
 let currentTableView = 'median';
 let currentTableMode = 'plan';
+let portfolioAccounts = [];
 
 const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 
@@ -145,6 +146,7 @@ function initialise() {
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
+  renderPortfolioTable();
   tabs.setActiveTab('portfolio');
 }
 
@@ -265,6 +267,14 @@ function attachEvents() {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
       tabs.setActiveTab('assumptions');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
+
+  if (addPortfolioAccountBtn) {
+    addPortfolioAccountBtn.addEventListener('click', () => {
+      addPortfolioAccount();
     });
   }
 
@@ -815,4 +825,178 @@ function debounce(fn, delay) {
     window.clearTimeout(timeoutId);
     timeoutId = window.setTimeout(() => fn(...args), delay);
   };
+}
+
+function addPortfolioAccount() {
+  portfolioAccounts.push({
+    id: Date.now(),
+    name: 'New account',
+    wrapper: 'ISA',
+    owner: 'Person 1',
+    value: 0,
+    allocation: {
+      equities: 60,
+      bonds: 30,
+      cashlike: 10,
+      cash: 0
+    }
+  });
+
+  renderPortfolioTable();
+}
+
+function updatePortfolioAccount(id, field, value) {
+  const account = portfolioAccounts.find((item) => item.id === id);
+  if (!account) return;
+
+  if (field.startsWith('allocation.')) {
+    const key = field.split('.')[1];
+    account.allocation[key] = Number(value) || 0;
+  } else if (field === 'value') {
+    account.value = parseLooseNumber(value) || 0;
+  } else {
+    account[field] = value;
+  }
+
+  renderPortfolioTable();
+}
+
+function removePortfolioAccount(id) {
+  portfolioAccounts = portfolioAccounts.filter((item) => item.id !== id);
+  renderPortfolioTable();
+}
+
+function renderPortfolioTable() {
+  const tbody = document.getElementById('portfolioTableBody');
+  if (!tbody) return;
+
+  if (portfolioAccounts.length === 0) {
+    tbody.innerHTML = `
+      <tr class="portfolio-row-empty">
+        <td colspan="10">No accounts added yet.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = '';
+
+  portfolioAccounts.forEach((account) => {
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>
+        <input
+          type="text"
+          value="${account.name}"
+          data-id="${account.id}"
+          data-field="name"
+        />
+      </td>
+      <td>
+        <select data-id="${account.id}" data-field="wrapper">
+          <option value="ISA" ${account.wrapper === 'ISA' ? 'selected' : ''}>ISA</option>
+          <option value="SIPP" ${account.wrapper === 'SIPP' ? 'selected' : ''}>SIPP</option>
+          <option value="GIA" ${account.wrapper === 'GIA' ? 'selected' : ''}>GIA</option>
+          <option value="Cash" ${account.wrapper === 'Cash' ? 'selected' : ''}>Cash</option>
+          <option value="QMMF" ${account.wrapper === 'QMMF' ? 'selected' : ''}>QMMF</option>
+        </select>
+      </td>
+      <td>
+        <select data-id="${account.id}" data-field="owner">
+          <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>Person 1</option>
+          <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>Person 2</option>
+          <option value="Joint" ${account.owner === 'Joint' ? 'selected' : ''}>Joint</option>
+        </select>
+      </td>
+      <td>
+        <input
+          type="text"
+          value="${formatInteger(account.value)}"
+          data-id="${account.id}"
+          data-field="value"
+          inputmode="numeric"
+        />
+      </td>
+      <td>
+        <input
+          type="number"
+          value="${account.allocation.equities}"
+          data-id="${account.id}"
+          data-field="allocation.equities"
+          min="0"
+          max="100"
+          step="1"
+        />
+      </td>
+      <td>
+        <input
+          type="number"
+          value="${account.allocation.bonds}"
+          data-id="${account.id}"
+          data-field="allocation.bonds"
+          min="0"
+          max="100"
+          step="1"
+        />
+      </td>
+      <td>
+        <input
+          type="number"
+          value="${account.allocation.cashlike}"
+          data-id="${account.id}"
+          data-field="allocation.cashlike"
+          min="0"
+          max="100"
+          step="1"
+        />
+      </td>
+      <td>
+        <input
+          type="number"
+          value="${account.allocation.cash}"
+          data-id="${account.id}"
+          data-field="allocation.cash"
+          min="0"
+          max="100"
+          step="1"
+        />
+      </td>
+      <td>
+        ${account.allocation.equities + account.allocation.bonds + account.allocation.cashlike + account.allocation.cash}%
+      </td>
+      <td>
+        <button type="button" class="btn btn-secondary" data-action="delete" data-id="${account.id}">
+          Remove
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+
+  attachPortfolioTableRowEvents();
+}
+
+function attachPortfolioTableRowEvents() {
+  const tbody = document.getElementById('portfolioTableBody');
+  if (!tbody) return;
+
+  tbody.querySelectorAll('input, select').forEach((element) => {
+    element.addEventListener('change', (event) => {
+      const target = event.target;
+      const id = Number(target.dataset.id);
+      const field = target.dataset.field;
+      const value = target.value;
+
+      updatePortfolioAccount(id, field, value);
+    });
+  });
+
+  tbody.querySelectorAll('[data-action="delete"]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const id = Number(event.currentTarget.dataset.id);
+      removePortfolioAccount(id);
+    });
+  });
 }
