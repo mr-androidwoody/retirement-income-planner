@@ -585,7 +585,7 @@ textarea{
 /* 3 = Owner */
 .portfolio-table th:nth-child(3),
 .portfolio-table td:nth-child(3){
-  width:12%;
+  width:16%;
 }
 
 /* 4 = Value */
