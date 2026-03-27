@@ -108,100 +108,135 @@
       </section>
 
       <div class="tab-panels">       
-   <section class="tab-panel is-active" data-tab-panel="portfolio">
-      <div class="tab-layout single-column">
-        <section class="panel input-shell-panel page-panel">
-          <div class="panel-header panel-header-tight">
-            <div>
-              <h2>Portfolio setup</h2>
-              <p>Define the accounts you hold, the value in each, and the asset mix inside them. These values will feed the locked investment section on Assumptions.</p>
-            </div>
-          </div>
-    
-          <div class="portfolio-shell">
-            <section class="input-group-card card-block">
-              <div class="section-heading">
-                <h3>Accounts</h3>
-                <p>Add each account, wrapper, owner, value, and asset mix. Allocation per account must total 100%.</p>
+           <section class="tab-panel is-active" data-tab-panel="portfolio">
+          <div class="tab-layout single-column">
+            <section class="panel input-shell-panel page-panel">
+              <div class="panel-header panel-header-tight">
+                <div>
+                  <h2>Portfolio setup</h2>
+                  <p>Define the accounts you hold, the value in each, and the asset mix inside them. These values will feed the locked investment section on Assumptions.</p>
+                </div>
               </div>
-    
-              <div class="portfolio-table-wrap">
-                <table class="portfolio-table" id="portfolioTable">
-                  <thead>
-                    <tr>
-                      <th>Account name</th>
-                      <th>Wrapper</th>
-                      <th>Owner</th>
-                      <th>Value (£)</th>
-                      <th>Equity %</th>
-                      <th>Bond %</th>
-                      <th>Cashlike %</th>
-                      <th>Cash %</th>
-                      <th>Total</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody id="portfolioTableBody">
-                    <tr class="portfolio-row-empty">
-                      <td colspan="10">No accounts added yet.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-    
-              <div class="action-row portfolio-actions-row">
-                <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">Add account</button>
+        
+              <div class="portfolio-shell">
+        
+                <!-- People -->
+                <section class="input-group-card card-block">
+                  <div class="section-heading">
+                    <h3>People</h3>
+                    <p>Name the people in this plan. These names will carry through to Assumptions.</p>
+                  </div>
+        
+                  <div class="field-grid field-grid-2">
+                    <label class="field">
+                      <span class="field-label">Person 1 name</span>
+                      <input
+                        id="portfolioPerson1Name"
+                        type="text"
+                        placeholder="Person 1"
+                        maxlength="30"
+                      />
+                    </label>
+        
+                    <label class="field">
+                      <span class="field-label">Person 2 name</span>
+                      <input
+                        id="portfolioPerson2Name"
+                        type="text"
+                        placeholder="Person 2"
+                        maxlength="30"
+                      />
+                    </label>
+                  </div>
+                </section>
+        
+                <!-- Accounts -->
+                <section class="input-group-card card-block">
+                  <div class="section-heading">
+                    <h3>Accounts</h3>
+                    <p>Add each account, wrapper, owner, value, and asset mix. Allocation per account must total 100%.</p>
+                  </div>
+        
+                  <div class="portfolio-table-wrap">
+                    <table class="portfolio-table" id="portfolioTable">
+                      <thead>
+                        <tr>
+                          <th>Account name</th>
+                          <th>Wrapper</th>
+                          <th>Owner</th>
+                          <th>Value (£)</th>
+                          <th>Equity %</th>
+                          <th>Bond %</th>
+                          <th>Cashlike %</th>
+                          <th>Cash %</th>
+                          <th>Total</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="portfolioTableBody">
+                        <tr class="portfolio-row-empty">
+                          <td colspan="10">No accounts added yet.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+        
+                  <div class="action-row portfolio-actions-row">
+                    <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">Add account</button>
+                  </div>
+                </section>
+        
+                <!-- Summary -->
+                <div class="portfolio-summary-grid">
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Total portfolio</h3>
+                      <p>Live aggregate based on the accounts entered above.</p>
+                    </div>
+        
+                    <div class="portfolio-total-value" id="portfolioTotalValue">£0</div>
+                  </section>
+        
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Wrapper totals</h3>
+                      <p>Totals by account wrapper.</p>
+                    </div>
+        
+                    <div id="portfolioWrapperTotals" class="portfolio-summary-list">
+                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                    </div>
+                  </section>
+        
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Overall asset allocation</h3>
+                      <p>Weighted asset mix across the whole portfolio.</p>
+                    </div>
+        
+                    <div id="portfolioAllocationTotals" class="portfolio-summary-list">
+                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                    </div>
+                  </section>
+                </div>
+        
+                <!-- Next step -->
+                <section class="input-group-card card-block">
+                  <div class="section-heading">
+                    <h3>Next step</h3>
+                    <p>Continue to Assumptions once your accounts and asset mix are in place.</p>
+                  </div>
+        
+                  <div class="action-row">
+                    <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">Continue to assumptions</button>
+                    <button id="savePortfolioBtn" class="btn btn-secondary" type="button">Save portfolio</button>
+                  </div>
+                </section>
+        
               </div>
             </section>
-    
-            <div class="portfolio-summary-grid">
-              <section class="input-group-card card-block">
-                <div class="section-heading">
-                  <h3>Total portfolio</h3>
-                  <p>Live aggregate based on the accounts entered above.</p>
-                </div>
-    
-                <div class="portfolio-total-value" id="portfolioTotalValue">£0</div>
-              </section>
-    
-              <section class="input-group-card card-block">
-                <div class="section-heading">
-                  <h3>Wrapper totals</h3>
-                  <p>Totals by account wrapper.</p>
-                </div>
-    
-                <div id="portfolioWrapperTotals" class="portfolio-summary-list">
-                  <div class="portfolio-summary-empty">No portfolio data yet.</div>
-                </div>
-              </section>
-    
-              <section class="input-group-card card-block">
-                <div class="section-heading">
-                  <h3>Overall asset allocation</h3>
-                  <p>Weighted asset mix across the whole portfolio.</p>
-                </div>
-    
-                <div id="portfolioAllocationTotals" class="portfolio-summary-list">
-                  <div class="portfolio-summary-empty">No portfolio data yet.</div>
-                </div>
-              </section>
-            </div>
-    
-            <section class="input-group-card card-block">
-              <div class="section-heading">
-                <h3>Next step</h3>
-                <p>Continue to Assumptions once your accounts and asset mix are in place.</p>
-              </div>
-    
-              <div class="action-row">
-                <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">Continue to assumptions</button>
-                <button id="savePortfolioBtn" class="btn btn-secondary" type="button">Save portfolio</button>
-              </div>
-            </section>
           </div>
-        </section>
-      </div>
-    </section>       
+        </section>   
           
           
           <section class="tab-panel" data-tab-panel="assumptions">
