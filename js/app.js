@@ -1130,7 +1130,7 @@ function applyPortfolioInputsToAssumptions(mapped) {
   const equity = Math.round(mapped.equityAllocation || 0);
   const bond = Math.round(mapped.bondAllocation || 0);
   const cashlike = Math.round(mapped.cashlikeAllocation || 0);
-  const cash = 100 - equity - bond - cashlike;
+  const cash = Math.max(0, 100 - equity - bond - cashlike);
 
   if (els.equityAllocation) els.equityAllocation.value = equity;
   if (els.bondAllocation) els.bondAllocation.value = bond;
@@ -1146,7 +1146,7 @@ function applyPortfolioInputsToAssumptions(mapped) {
   }
 
   if (els.includePerson2) {
-    els.includePerson2.checked = mapped.includePerson2;
+    els.includePerson2.checked = Boolean(mapped.includePerson2);
     els.includePerson2.disabled = !mapped.hasPerson2;
   }
 
@@ -1155,6 +1155,7 @@ function applyPortfolioInputsToAssumptions(mapped) {
   }
 
   updateAllocationStatus();
+  hideError();
 
   if (withdrawalInputMode === 'rate') {
     syncInitialSpendingFromRate();
