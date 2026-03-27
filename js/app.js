@@ -1725,12 +1725,3 @@ function attachPortfolioTableRowEvents() {
     });
   });
 }
-
-/* Portfolio: remove global header */
-body.is-portfolio .top-header{
-  display:none;
-}
-
-body.is-portfolio .page-content{
-  padding-top:24px;
-}
