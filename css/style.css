@@ -518,6 +518,7 @@ textarea{
   width:100%;
   min-width:1080px;
   border-collapse:collapse;
+  table-layout:fixed;
 }
 
 .portfolio-table th,
@@ -556,7 +557,7 @@ textarea{
 
 .portfolio-table th:nth-child(4),
 .portfolio-table td:nth-child(4){
-  width:130px;
+  width:150px;
 }
 
 .portfolio-table th:nth-child(5),
@@ -570,9 +571,20 @@ textarea{
   width:90px;
 }
 
+.portfolio-table th:nth-child(9),
+.portfolio-table td:nth-child(9){
+  width:auto;
+}
+
+.portfolio-table th:nth-child(10),
+.portfolio-table td:nth-child(10){
+  width:110px;
+  text-align:right;
+}
+
 /* Table input sizing */
 .portfolio-table td:nth-child(4) .stepper-input{
-  max-width:140px;
+  max-width:160px;
 }
 
 .portfolio-table td:nth-child(5) .stepper-input,
@@ -580,6 +592,11 @@ textarea{
 .portfolio-table td:nth-child(7) .stepper-input,
 .portfolio-table td:nth-child(8) .stepper-input{
   max-width:90px;
+}
+
+.portfolio-table td:nth-child(10) button{
+  white-space:nowrap;
+  padding:6px 12px;
 }
 
 /* Table row states */
