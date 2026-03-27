@@ -199,9 +199,9 @@
                 </div>
         
                 <!-- Accounts -->
-                <section class="input-group-card card-block">
+                <section class="input-group-card card-block portfolio-accounts-card">
                   <div class="portfolio-section-header">
-                    <div class="section-heading">
+                    <div class="section-heading portfolio-section-heading">
                       <h3>Accounts</h3>
                       <p>
                         Add each account, wrapper, owner, value, and asset mix.
@@ -226,13 +226,21 @@
                     </div>
                   </div>
         
-                  <div
-                    id="portfolioValidationStatus"
-                    class="portfolio-validation-status"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    Portfolio ready
+                  <div class="portfolio-table-toolbar">
+                    <div
+                      id="portfolioValidationStatus"
+                      class="portfolio-validation-status"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Portfolio ready
+                    </div>
+        
+                    <div class="action-row portfolio-table-actions">
+                      <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">
+                        Add account
+                      </button>
+                    </div>
                   </div>
         
                   <div class="portfolio-table-wrap">
@@ -257,12 +265,6 @@
                         </tr>
                       </tbody>
                     </table>
-                  </div>
-        
-                  <div class="action-row portfolio-actions-row">
-                    <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">
-                      Add account
-                    </button>
                   </div>
                 </section>
               </div>
