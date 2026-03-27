@@ -122,6 +122,30 @@ let currentTableView = 'median';
 let currentTableMode = 'plan';
 let portfolioAccounts = [];
 
+const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
+
+function savePortfolioToStorage() {
+  localStorage.setItem(
+    PORTFOLIO_STORAGE_KEY,
+    JSON.stringify(portfolioAccounts)
+  );
+}
+
+function loadPortfolioFromStorage() {
+  const saved = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
+  if (!saved) return;
+
+  try {
+    const parsed = JSON.parse(saved);
+
+    if (Array.isArray(parsed)) {
+      portfolioAccounts = parsed;
+    }
+  } catch (error) {
+    console.warn('Failed to load portfolio from storage', error);
+  }
+}
+
 const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 
 const tabs = initialiseTabs({
@@ -142,6 +166,7 @@ initialise();
 
 function initialise() {
   applyDefaults();
+  loadPortfolioFromStorage();
   attachEvents();
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
@@ -275,6 +300,21 @@ function attachEvents() {
   if (addPortfolioAccountBtn) {
     addPortfolioAccountBtn.addEventListener('click', () => {
       addPortfolioAccount();
+    });
+  }
+
+  const savePortfolioBtn = document.getElementById('savePortfolioBtn');
+
+  if (savePortfolioBtn) {
+    savePortfolioBtn.addEventListener('click', () => {
+      savePortfolioToStorage();
+
+      const originalLabel = savePortfolioBtn.textContent;
+      savePortfolioBtn.textContent = 'Saved';
+
+      window.setTimeout(() => {
+        savePortfolioBtn.textContent = originalLabel;
+      }, 1200);
     });
   }
 
@@ -842,6 +882,7 @@ function addPortfolioAccount() {
     }
   });
 
+  savePortfolioToStorage();
   renderPortfolioTable();
 }
 
@@ -858,11 +899,13 @@ function updatePortfolioAccount(id, field, value) {
     account[field] = value;
   }
 
+  savePortfolioToStorage();
   renderPortfolioTable();
 }
 
 function removePortfolioAccount(id) {
   portfolioAccounts = portfolioAccounts.filter((item) => item.id !== id);
+  savePortfolioToStorage();
   renderPortfolioTable();
 }
 
