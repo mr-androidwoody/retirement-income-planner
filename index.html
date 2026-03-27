@@ -40,26 +40,35 @@
         </div>
           
         <div class="top-header__controls">
-          <nav class="top-header__tabs tab-nav" aria-label="Simulator sections" role="tablist">
-            <button
-              class="tab-button is-active"
-              type="button"
-              role="tab"
-              aria-selected="true"
-              data-tab-button="inputs"
-            >
-              Inputs
-            </button>
-            <button
-              class="tab-button"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              data-tab-button="results"
-            >
-              Results
-            </button>
-          </nav>
+            <nav class="top-header__tabs tab-nav" aria-label="Simulator sections" role="tablist">
+              <button
+                class="tab-button is-active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                data-tab-button="portfolio"
+              >
+                Portfolio
+              </button>
+              <button
+                class="tab-button"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-tab-button="assumptions"
+              >
+                Assumptions
+              </button>
+              <button
+                class="tab-button"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-tab-button="results"
+              >
+                Results
+              </button>
+            </nav>
 
           <div class="top-header__actions action-row action-row--top-chrome">
             <button id="runSimulationBtn" class="btn btn-primary" type="button">Run simulation</button>
@@ -98,14 +107,110 @@
         </div>
       </section>
 
-      <div class="tab-panels">
-        <section class="tab-panel is-active" data-tab-panel="inputs">
+      <div class="tab-panels">       
+   <section class="tab-panel is-active" data-tab-panel="portfolio">
+      <div class="tab-layout single-column">
+        <section class="panel input-shell-panel page-panel">
+          <div class="panel-header panel-header-tight">
+            <div>
+              <h2>Portfolio setup</h2>
+              <p>Define the accounts you hold, the value in each, and the asset mix inside them. These values will feed the locked investment section on Assumptions.</p>
+            </div>
+          </div>
+    
+          <div class="portfolio-shell">
+            <section class="input-group-card card-block">
+              <div class="section-heading">
+                <h3>Accounts</h3>
+                <p>Add each account, wrapper, owner, value, and asset mix. Allocation per account must total 100%.</p>
+              </div>
+    
+              <div class="portfolio-table-wrap">
+                <table class="portfolio-table" id="portfolioTable">
+                  <thead>
+                    <tr>
+                      <th>Account name</th>
+                      <th>Wrapper</th>
+                      <th>Owner</th>
+                      <th>Value (£)</th>
+                      <th>Equity %</th>
+                      <th>Bond %</th>
+                      <th>Cashlike %</th>
+                      <th>Cash %</th>
+                      <th>Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="portfolioTableBody">
+                    <tr class="portfolio-row-empty">
+                      <td colspan="10">No accounts added yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+    
+              <div class="action-row portfolio-actions-row">
+                <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">Add account</button>
+              </div>
+            </section>
+    
+            <div class="portfolio-summary-grid">
+              <section class="input-group-card card-block">
+                <div class="section-heading">
+                  <h3>Total portfolio</h3>
+                  <p>Live aggregate based on the accounts entered above.</p>
+                </div>
+    
+                <div class="portfolio-total-value" id="portfolioTotalValue">£0</div>
+              </section>
+    
+              <section class="input-group-card card-block">
+                <div class="section-heading">
+                  <h3>Wrapper totals</h3>
+                  <p>Totals by account wrapper.</p>
+                </div>
+    
+                <div id="portfolioWrapperTotals" class="portfolio-summary-list">
+                  <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                </div>
+              </section>
+    
+              <section class="input-group-card card-block">
+                <div class="section-heading">
+                  <h3>Overall asset allocation</h3>
+                  <p>Weighted asset mix across the whole portfolio.</p>
+                </div>
+    
+                <div id="portfolioAllocationTotals" class="portfolio-summary-list">
+                  <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                </div>
+              </section>
+            </div>
+    
+            <section class="input-group-card card-block">
+              <div class="section-heading">
+                <h3>Next step</h3>
+                <p>Continue to Assumptions once your accounts and asset mix are in place.</p>
+              </div>
+    
+              <div class="action-row">
+                <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">Continue to assumptions</button>
+                <button id="savePortfolioBtn" class="btn btn-secondary" type="button">Save portfolio</button>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>       
+          
+          
+          <section class="tab-panel" data-tab-panel="assumptions">
           <div class="tab-layout single-column">
             <section class="panel input-shell-panel page-panel">
               <div class="panel-header panel-header-tight">
                 <div>
-                  <h2>Plan assumptions</h2>
-                  <p>Set portfolio size, spending, income sources and market assumptions before running the simulation.</p>
+                  <h2>Assumptions</h2>
+                  <p>Set spending, income sources and market assumptions before running the simulation.</p>
                 </div>
               </div>
 
