@@ -22,6 +22,7 @@ export const DEFAULT_INPUTS = {
   equityAllocation: 60,
   bondAllocation: 30,
   cashlikeAllocation: 10,
+  cashAllocation: 0,
   rebalanceToTarget: true,
 
   equityReturn: 7,
@@ -136,10 +137,11 @@ export function validateInputs(rawInputs = {}) {
   const allocationTotal =
     inputs.equityAllocation +
     inputs.bondAllocation +
-    inputs.cashlikeAllocation;
+    inputs.cashlikeAllocation +
+    (inputs.cashAllocation ?? 0);
 
   if (Math.abs(allocationTotal - 1) > 0.001) {
-    errors.push('Equity, bond and cashlike allocations must total 100%.');
+    errors.push('Equity, bond, cashlike and cash allocations must total 100%.');
   }
 
   if (
@@ -190,7 +192,9 @@ export function normaliseInputs(rawInputs = {}) {
 
     equityAllocation: toRatio(merged.equityAllocation),
     bondAllocation: toRatio(merged.bondAllocation),
-    cashlikeAllocation: toRatio(merged.cashlikeAllocation),
+    cashlikeAllocation:
+      toRatio(merged.cashlikeAllocation) + toRatio(merged.cashAllocation ?? 0),
+    cashAllocation: toRatio(merged.cashAllocation ?? 0),
     rebalanceToTarget: Boolean(merged.rebalanceToTarget),
 
     equityReturn: toRate(merged.equityReturn),
@@ -557,7 +561,7 @@ export function simulatePath(inputs, annualReturns) {
 
     const shouldSkipInflation =
       inputs.skipInflationAfterNegative &&
-      realisedReturn < 0;
+      previousMarketReturn !== null &&
       previousMarketReturn < 0;
 
     const nextTargetSpendingNominal =
