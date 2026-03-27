@@ -86,6 +86,20 @@ export function createPlanForm(
     );
   }
 
+  function normaliseAllocationInputs(elements, parseLooseNumber) {
+  const equity = Math.round(parseLooseNumber(elements.equityAllocation?.value) || 0);
+  const bond = Math.round(parseLooseNumber(elements.bondAllocation?.value) || 0);
+  const cashlike = Math.round(parseLooseNumber(elements.cashlikeAllocation?.value) || 0);
+  const cash = 100 - equity - bond - cashlike;
+
+  return {
+    equityAllocation: equity,
+    bondAllocation: bond,
+    cashlikeAllocation: cashlike,
+    cashAllocation: cash
+  };
+}  
+
   function syncMonteCarloRunsPreset() {
     if (!elements.monteCarloRunsPreset || !elements.monteCarloRuns) return;
 
@@ -487,6 +501,7 @@ export function createPlanForm(
       : 0;
 
     const monteCarloRuns = clampMonteCarloRuns(elements.monteCarloRuns?.value);
+    const allocations = normaliseAllocationInputs(elements, parseLooseNumber);
 
     return {
       years: parseLooseInteger(elements.years?.value),
@@ -495,10 +510,10 @@ export function createPlanForm(
       annualFeeRate: parseLooseNumber(elements.annualFeeRate?.value),
       comfortSpending: parseLooseNumber(elements.comfortSpending?.value),
       minimumSpending: parseLooseNumber(elements.minimumSpending?.value),
-      equityAllocation: parseLooseNumber(elements.equityAllocation?.value),
-      bondAllocation: parseLooseNumber(elements.bondAllocation?.value),
-      cashlikeAllocation: parseLooseNumber(elements.cashlikeAllocation?.value),
-      cashAllocation: parseLooseNumber(elements.cashAllocation?.value),
+      equityAllocation: allocations.equityAllocation,
+      bondAllocation: allocations.bondAllocation,
+      cashlikeAllocation: allocations.cashlikeAllocation,
+      cashAllocation: allocations.cashAllocation,
       rebalanceToTarget: Boolean(elements.rebalanceToTarget?.checked),
 
       statePensionToday: fullStatePensionToday,
