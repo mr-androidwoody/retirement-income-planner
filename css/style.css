@@ -685,6 +685,108 @@ textarea{
   font-weight:600;
 }
 
+.portfolio-row-invalid{
+  background:rgba(255, 242, 242, 0.72);
+}
+
+.portfolio-row-invalid td{
+  background:transparent;
+}
+
+.portfolio-table .stepper-input--table{
+  grid-template-columns:20px minmax(64px, 1fr) 20px;
+  grid-template-rows:40px;
+  align-items:stretch;
+}
+
+.portfolio-table .stepper-input--table input{
+  grid-column:2;
+  grid-row:1;
+  border-right:1px solid #94a8c7;
+  border-left:none;
+  border-radius:0;
+  text-align:right;
+  padding:0 10px;
+}
+
+.portfolio-table .stepper-input--table .stepper-btn{
+  width:20px;
+  height:40px;
+  font-size:0.8rem;
+}
+
+.portfolio-table .stepper-input--table .stepper-btn[data-step-direction="-1"]{
+  grid-column:1;
+  grid-row:1;
+  border-radius:8px 0 0 8px;
+  border-right:none;
+}
+
+.portfolio-table .stepper-input--table .stepper-btn[data-step-direction="1"]{
+  grid-column:3;
+  grid-row:1;
+  border-radius:0 8px 8px 0;
+  border-left:none;
+  border-bottom:1px solid #94a8c7;
+}
+
+.portfolio-total-cell{
+  min-width:140px;
+}
+
+.portfolio-total-cell__value{
+  font-weight:800;
+  line-height:1.2;
+}
+
+.portfolio-total-cell-invalid .portfolio-total-cell__value{
+  color:#b42318;
+}
+
+.portfolio-row-error{
+  margin-top:4px;
+  color:#b42318;
+  font-size:0.74rem;
+  line-height:1.35;
+}
+
+.portfolio-row-ok{
+  margin-top:4px;
+  color:#087443;
+  font-size:0.74rem;
+  line-height:1.35;
+}
+
+.portfolio-validation-status{
+  margin-bottom:12px;
+  padding:10px 12px;
+  border:1px solid #dbe6f3;
+  border-radius:10px;
+  background:#f7faff;
+  color:#44536b;
+  font-size:0.84rem;
+  font-weight:700;
+  line-height:1.3;
+}
+
+.portfolio-validation-status.is-valid{
+  background:#ecfdf3;
+  border-color:#b7ebc6;
+  color:#067647;
+}
+
+.portfolio-validation-status.is-invalid{
+  background:#fff4f4;
+  border-color:#f1c5cb;
+  color:#b42318;
+}
+
+#continueToAssumptionsBtn[disabled]{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
 /* ========================================
    Input Shell / Form Layout
    ======================================== */
