@@ -514,7 +514,7 @@ textarea{
 
 .portfolio-top-row{
   display:grid;
-  grid-template-columns:minmax(0, 2fr) minmax(260px, 1fr);
+  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:16px;
   align-items:stretch;
 }
@@ -561,16 +561,6 @@ textarea{
   color:#50627f;
   font-size:0.74rem;
   font-weight:700;
-}
-
-/* ----------------------------------------
-   Total portfolio card behaviour
-   ---------------------------------------- */
-
-.portfolio-total-card{
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
 }
 
 /* ----------------------------------------
