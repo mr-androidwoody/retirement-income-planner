@@ -4274,3 +4274,7 @@ body.is-portfolio .panel-header {
 body.is-portfolio .page-panel {
   padding-top: 16px;
 }
+
+body.is-portfolio .top-header {
+  display: none;
+}
