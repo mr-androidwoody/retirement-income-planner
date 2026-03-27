@@ -866,6 +866,101 @@ function removePortfolioAccount(id) {
   renderPortfolioTable();
 }
 
+function getPortfolioRowAllocationTotal(account) {
+  return (
+    (Number(account.allocation?.equities) || 0) +
+    (Number(account.allocation?.bonds) || 0) +
+    (Number(account.allocation?.cashlike) || 0) +
+    (Number(account.allocation?.cash) || 0)
+  );
+}
+
+function isPortfolioRowValid(account) {
+  const value = Number(account.value);
+  const allocationTotal = getPortfolioRowAllocationTotal(account);
+
+  return value >= 0 && allocationTotal === 100;
+}
+
+function calculatePortfolioTotals(portfolioAccounts) {
+  const totals = {
+    totalValue: 0,
+    allocations: {
+      equities: 0,
+      bonds: 0,
+      cashlike: 0,
+      cash: 0
+    },
+    wrappers: {
+      ISA: 0,
+      SIPP: 0,
+      GIA: 0,
+      Cash: 0,
+      QMMF: 0
+    }
+  };
+
+  let weightedEquities = 0;
+  let weightedBonds = 0;
+  let weightedCashlike = 0;
+  let weightedCash = 0;
+
+  portfolioAccounts.forEach((account) => {
+    const value = Number(account.value) || 0;
+
+    totals.totalValue += value;
+
+    if (Object.prototype.hasOwnProperty.call(totals.wrappers, account.wrapper)) {
+      totals.wrappers[account.wrapper] += value;
+    }
+
+    weightedEquities += value * ((Number(account.allocation?.equities) || 0) / 100);
+    weightedBonds += value * ((Number(account.allocation?.bonds) || 0) / 100);
+    weightedCashlike += value * ((Number(account.allocation?.cashlike) || 0) / 100);
+    weightedCash += value * ((Number(account.allocation?.cash) || 0) / 100);
+  });
+
+  if (totals.totalValue > 0) {
+    totals.allocations.equities = (weightedEquities / totals.totalValue) * 100;
+    totals.allocations.bonds = (weightedBonds / totals.totalValue) * 100;
+    totals.allocations.cashlike = (weightedCashlike / totals.totalValue) * 100;
+    totals.allocations.cash = (weightedCash / totals.totalValue) * 100;
+  }
+
+  return totals;
+}
+
+function updatePortfolioSummaryCards() {
+  const totals = calculatePortfolioTotals(portfolioAccounts);
+
+  const investmentValueEl = document.getElementById('portfolioTotalValue');
+  const allocationEl = document.getElementById('portfolioAllocationTotals');
+  const wrappersEl = document.getElementById('portfolioWrapperTotals');
+
+  if (investmentValueEl) {
+    investmentValueEl.textContent = formatCurrency(totals.totalValue);
+  }
+
+  if (allocationEl) {
+    allocationEl.innerHTML = `
+      <div>Equities: ${totals.allocations.equities.toFixed(1)}%</div>
+      <div>Bonds: ${totals.allocations.bonds.toFixed(1)}%</div>
+      <div>Cashlike: ${totals.allocations.cashlike.toFixed(1)}%</div>
+      <div>Cash: ${totals.allocations.cash.toFixed(1)}%</div>
+    `;
+  }
+
+  if (wrappersEl) {
+    wrappersEl.innerHTML = `
+      <div>ISA: ${formatCurrency(totals.wrappers.ISA)}</div>
+      <div>SIPP: ${formatCurrency(totals.wrappers.SIPP)}</div>
+      <div>GIA: ${formatCurrency(totals.wrappers.GIA)}</div>
+      <div>Cash: ${formatCurrency(totals.wrappers.Cash)}</div>
+      <div>QMMF: ${formatCurrency(totals.wrappers.QMMF)}</div>
+    `;
+  }
+}
+
 function renderPortfolioTable() {
   const tbody = document.getElementById('portfolioTableBody');
   if (!tbody) return;
@@ -876,6 +971,7 @@ function renderPortfolioTable() {
         <td colspan="10">No accounts added yet.</td>
       </tr>
     `;
+    updatePortfolioSummaryCards();
     return;
   }
 
@@ -883,6 +979,12 @@ function renderPortfolioTable() {
 
   portfolioAccounts.forEach((account) => {
     const row = document.createElement('tr');
+    const allocationTotal = getPortfolioRowAllocationTotal(account);
+    const isValid = isPortfolioRowValid(account);
+
+    if (!isValid) {
+      row.classList.add('portfolio-row-warning');
+    }
 
     row.innerHTML = `
       <td>
@@ -962,8 +1064,8 @@ function renderPortfolioTable() {
           step="1"
         />
       </td>
-      <td>
-        ${account.allocation.equities + account.allocation.bonds + account.allocation.cashlike + account.allocation.cash}%
+      <td class="${isValid ? '' : 'portfolio-cell-warning'}">
+        ${allocationTotal}%
       </td>
       <td>
         <button type="button" class="btn btn-secondary" data-action="delete" data-id="${account.id}">
@@ -976,6 +1078,7 @@ function renderPortfolioTable() {
   });
 
   attachPortfolioTableRowEvents();
+  updatePortfolioSummaryCards();
 }
 
 function attachPortfolioTableRowEvents() {
