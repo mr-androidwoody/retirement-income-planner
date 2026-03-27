@@ -495,7 +495,10 @@ textarea{
    Portfolio Screen
    ======================================== */
 
-/* Layout */
+/* ----------------------------------------
+   Overall Portfolio tab layout
+   ---------------------------------------- */
+
 .portfolio-shell{
   display:grid;
   gap:16px;
@@ -505,7 +508,12 @@ textarea{
   margin-top:14px;
 }
 
-/* Table shell */
+/* ----------------------------------------
+   Portfolio table outer shell
+   - wraps the full accounts table
+   - keeps rounded border and horizontal scroll if needed
+   ---------------------------------------- */
+
 .portfolio-table-wrap{
   width:100%;
   overflow-x:auto;
@@ -513,6 +521,12 @@ textarea{
   border-radius:14px;
   background:#fff;
 }
+
+/* ----------------------------------------
+   Portfolio table base
+   - fixed layout is critical so columns obey width rules
+   - min-width keeps structure stable on narrower screens
+   ---------------------------------------- */
 
 .portfolio-table{
   width:100%;
@@ -523,6 +537,7 @@ textarea{
 
 .portfolio-table th,
 .portfolio-table td{
+  min-width:0;
   padding:12px 10px;
   border-bottom:1px solid #e2e8f2;
   text-align:left;
@@ -549,17 +564,37 @@ textarea{
   text-align:center;
 }
 
-/* Table column widths */
+/* ----------------------------------------
+   Portfolio table column widths
+   - define ALL columns so the browser does not guess
+   - this is what lets Total use spare space properly
+   ---------------------------------------- */
+
+/* 1 = Account name */
+.portfolio-table th:nth-child(1),
+.portfolio-table td:nth-child(1){
+  width:18%;
+}
+
+/* 2 = Wrapper */
+.portfolio-table th:nth-child(2),
+.portfolio-table td:nth-child(2){
+  width:12%;
+}
+
+/* 3 = Owner */
 .portfolio-table th:nth-child(3),
 .portfolio-table td:nth-child(3){
-  width:150px;
+  width:12%;
 }
 
+/* 4 = Value */
 .portfolio-table th:nth-child(4),
 .portfolio-table td:nth-child(4){
-  width:150px;
+  width:12%;
 }
 
+/* 5–8 = Allocation columns */
 .portfolio-table th:nth-child(5),
 .portfolio-table td:nth-child(5),
 .portfolio-table th:nth-child(6),
@@ -568,38 +603,60 @@ textarea{
 .portfolio-table td:nth-child(7),
 .portfolio-table th:nth-child(8),
 .portfolio-table td:nth-child(8){
-  width:90px;
+  width:7%;
 }
 
+/* 9 = Total / row validation state */
 .portfolio-table th:nth-child(9),
 .portfolio-table td:nth-child(9){
-  width:auto;
+  width:10%;
 }
 
+/* 10 = Remove button */
 .portfolio-table th:nth-child(10),
 .portfolio-table td:nth-child(10){
-  width:110px;
+  width:10%;
   text-align:right;
 }
 
-/* Table input sizing */
+/* ----------------------------------------
+   Portfolio table input sizing
+   - force controls to fit their columns
+   - stop steppers from blowing out the layout
+   ---------------------------------------- */
+
+.portfolio-table .stepper-input{
+  width:100%;
+  max-width:100%;
+}
+
 .portfolio-table td:nth-child(4) .stepper-input{
-  max-width:160px;
+  max-width:100%;
 }
 
 .portfolio-table td:nth-child(5) .stepper-input,
 .portfolio-table td:nth-child(6) .stepper-input,
 .portfolio-table td:nth-child(7) .stepper-input,
 .portfolio-table td:nth-child(8) .stepper-input{
-  max-width:90px;
+  max-width:100%;
+}
+
+.portfolio-table td:nth-child(10){
+  padding-right:8px;
 }
 
 .portfolio-table td:nth-child(10) button{
+  width:auto;
   white-space:nowrap;
-  padding:6px 12px;
+  padding:6px 10px;
 }
 
-/* Table row states */
+/* ----------------------------------------
+   Portfolio row state styles
+   - warning = cautionary row state
+   - invalid = hard validation error state
+   ---------------------------------------- */
+
 .portfolio-row-warning{
   background:rgba(255, 193, 7, 0.12);
 }
@@ -617,7 +674,12 @@ textarea{
   background:transparent;
 }
 
-/* Table steppers */
+/* ----------------------------------------
+   Portfolio table steppers
+   - matches Assumptions screen pattern
+   - input on left, vertical +/- controls on right
+   ---------------------------------------- */
+
 .portfolio-table .stepper-input--table{
   display:grid;
   grid-template-columns:minmax(0, 1fr) 18px;
@@ -665,9 +727,13 @@ textarea{
   border-radius:0 0 8px 0;
 }
 
-/* Validation / status */
+/* ----------------------------------------
+   Portfolio row validation / total column
+   - used for 100% total + inline Ready / error text
+   ---------------------------------------- */
+
 .portfolio-total-cell{
-  min-width:140px;
+  min-width:0;
 }
 
 .portfolio-total-cell__value{
@@ -692,6 +758,12 @@ textarea{
   font-size:0.74rem;
   line-height:1.35;
 }
+
+/* ----------------------------------------
+   Portfolio-level validation status
+   - sits above Continue to assumptions button
+   - flips between valid / invalid states live
+   ---------------------------------------- */
 
 .portfolio-validation-status{
   margin-bottom:12px;
@@ -723,7 +795,13 @@ textarea{
   transform:none;
 }
 
-/* Summary cards */
+/* ----------------------------------------
+   Portfolio summary cards
+   - total portfolio
+   - wrapper totals
+   - overall asset allocation
+   ---------------------------------------- */
+
 .portfolio-summary-grid{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -842,7 +920,11 @@ textarea{
   line-height:1.4;
 }
 
-/* Responsive */
+/* ----------------------------------------
+   Responsive summary layout
+   - stack summary cards on narrower screens
+   ---------------------------------------- */
+
 @media (max-width: 1100px){
   .portfolio-summary-grid{
     grid-template-columns:1fr;
