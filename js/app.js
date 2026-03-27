@@ -1125,23 +1125,53 @@ function renderPortfolioTable() {
 }
 
 function attachPortfolioTableRowEvents() {
-  const tbody = document.getElementById('portfolioTableBody');
-  if (!tbody) return;
+  const inputs = document.querySelectorAll('#portfolioTableBody input');
+  const selects = document.querySelectorAll('#portfolioTableBody select');
+  const buttons = document.querySelectorAll('#portfolioTableBody button[data-action="delete"]');
 
-  tbody.querySelectorAll('input, select').forEach((element) => {
-    element.addEventListener('change', (event) => {
-      const target = event.target;
-      const id = Number(target.dataset.id);
-      const field = target.dataset.field;
-      const value = target.value;
+  // INPUTS (clear on focus, save on blur)
+  inputs.forEach((input) => {
+    let originalValue = input.value;
+
+    input.addEventListener('focus', () => {
+      originalValue = input.value;
+      input.select();
+    });
+
+    input.addEventListener('blur', (e) => {
+      const id = Number(e.target.dataset.id);
+      const field = e.target.dataset.field;
+      const value = e.target.value.trim();
+
+      if (value === '') {
+        // restore original if user didn't type anything
+        input.value = originalValue;
+        return;
+      }
+
+      updatePortfolioAccount(id, field, value);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.target.blur();
+      }
+    });
+  });
+
+  selects.forEach((select) => {
+    select.addEventListener('change', (e) => {
+      const id = Number(e.target.dataset.id);
+      const field = e.target.dataset.field;
+      const value = e.target.value;
 
       updatePortfolioAccount(id, field, value);
     });
   });
 
-  tbody.querySelectorAll('[data-action="delete"]').forEach((button) => {
-    button.addEventListener('click', (event) => {
-      const id = Number(event.currentTarget.dataset.id);
+  buttons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const id = Number(e.target.dataset.id);
       removePortfolioAccount(id);
     });
   });
