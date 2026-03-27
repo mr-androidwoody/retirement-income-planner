@@ -4262,3 +4262,15 @@ body.intro-overlay-active .page-shell{
     display:none;
   }
 }
+
+/* Portfolio: make header behave like page intro */
+body.is-portfolio .panel-header {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+body.is-portfolio .page-panel {
+  padding-top: 16px;
+}
