@@ -570,10 +570,10 @@ textarea{
    - this is what lets Total use spare space properly
    ---------------------------------------- */
 
-/* 1 = Account name */
+/* 1 = Account name (slightly wider) */
 .portfolio-table th:nth-child(1),
 .portfolio-table td:nth-child(1){
-  width:18%;
+  width:20%;
 }
 
 /* 2 = Wrapper */
@@ -603,19 +603,19 @@ textarea{
 .portfolio-table td:nth-child(7),
 .portfolio-table th:nth-child(8),
 .portfolio-table td:nth-child(8){
-  width:7%;
+  width:6%;
 }
 
-/* 9 = Total / row validation state */
+/* 9 = Total (tightened) */
 .portfolio-table th:nth-child(9),
 .portfolio-table td:nth-child(9){
-  width:10%;
+  width:8%;
 }
 
-/* 10 = Remove button */
+/* 10 = Remove (tightest) */
 .portfolio-table th:nth-child(10),
 .portfolio-table td:nth-child(10){
-  width:10%;
+  width:6%;
   text-align:right;
 }
 
