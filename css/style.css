@@ -539,12 +539,12 @@ textarea{
 /* Control Portfolio column widths */
 .portfolio-table th:nth-child(3),
 .portfolio-table td:nth-child(3){
-  width:160px; /* Owner (Person) – wider */
+  width:150px; /* Owner (Person) – wider */
 }
 
 .portfolio-table th:nth-child(4),
 .portfolio-table td:nth-child(4){
-  width:120px; /* Value – reduced ~40% */
+  width:130px; /* Value – reduced ~40% */
 }
 
 .portfolio-row-empty td{
