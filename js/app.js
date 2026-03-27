@@ -1033,7 +1033,8 @@ function renderPortfolioTable() {
       <td>
         <input
           type="text"
-          value="${account.name}"
+          value="${account.name || ''}"
+          placeholder="Enter account name"
           data-id="${account.id}"
           data-field="name"
         />
@@ -1129,13 +1130,26 @@ function attachPortfolioTableRowEvents() {
   const selects = document.querySelectorAll('#portfolioTableBody select');
   const buttons = document.querySelectorAll('#portfolioTableBody button[data-action="delete"]');
 
-  // INPUTS (clear on focus, save on blur)
   inputs.forEach((input) => {
     let originalValue = input.value;
+    let userChangedValue = false;
 
     input.addEventListener('focus', () => {
       originalValue = input.value;
-      input.select();
+      userChangedValue = false;
+
+      if (input.dataset.field === 'name') {
+        if (input.value.trim() !== '') {
+          input.value = '';
+        }
+        return;
+      }
+
+      input.value = '';
+    });
+
+    input.addEventListener('input', () => {
+      userChangedValue = true;
     });
 
     input.addEventListener('blur', (e) => {
@@ -1143,8 +1157,7 @@ function attachPortfolioTableRowEvents() {
       const field = e.target.dataset.field;
       const value = e.target.value.trim();
 
-      if (value === '') {
-        // restore original if user didn't type anything
+      if (!userChangedValue || value === '') {
         input.value = originalValue;
         return;
       }
