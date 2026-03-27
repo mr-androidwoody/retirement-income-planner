@@ -603,7 +603,7 @@ textarea{
 .portfolio-table td:nth-child(7),
 .portfolio-table th:nth-child(8),
 .portfolio-table td:nth-child(8){
-  width:6%;
+  width:8%;
 }
 
 /* 9 = Total / row validation state */
