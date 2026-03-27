@@ -18,6 +18,7 @@ const els = {
   equityAllocation: document.getElementById('equityAllocation'),
   bondAllocation: document.getElementById('bondAllocation'),
   cashlikeAllocation: document.getElementById('cashlikeAllocation'),
+  cashAllocation: document.getElementById('cashAllocation'), 
   allocationStatus: document.getElementById('allocationStatus'),
   allocationStatusTotal: document.getElementById('allocationStatusTotal'),
   allocationStatusMessage: document.getElementById('allocationStatusMessage'),
@@ -73,6 +74,7 @@ const els = {
   showFullTable: document.getElementById('showFullTable'),
   showPlanOutlook: document.getElementById('showPlanOutlook'),
 
+  continueToAssumptionsBtn: document.getElementById('continueToAssumptionsBtn'),  
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
@@ -320,7 +322,8 @@ function attachAllocationStatusEvents() {
   const allocationInputs = [
     els.equityAllocation,
     els.bondAllocation,
-    els.cashlikeAllocation
+    els.cashlikeAllocation,
+    els.cashAllocation  
   ].filter(Boolean);
 
   allocationInputs.forEach((input) => {
@@ -329,7 +332,10 @@ function attachAllocationStatusEvents() {
   });
 
   document.querySelectorAll(
-    '[data-step-target="equityAllocation"], [data-step-target="bondAllocation"], [data-step-target="cashlikeAllocation"]'
+    '[data-step-target="equityAllocation"], 
+     [data-step-target="bondAllocation"], 
+     [data-step-target="cashlikeAllocation"], 
+     [data-step-target="cashAllocation"]'
   ).forEach((button) => {
     button.addEventListener('click', () => {
       requestAnimationFrame(updateAllocationStatus);
@@ -345,11 +351,13 @@ function updateAllocationStatus() {
   const equity = parseLooseNumber(els.equityAllocation?.value);
   const bond = parseLooseNumber(els.bondAllocation?.value);
   const cashlike = parseLooseNumber(els.cashlikeAllocation?.value);
+  const cash = parseLooseNumber(els.cashAllocation?.value);
 
   const total =
     (Number.isFinite(equity) ? equity : 0) +
     (Number.isFinite(bond) ? bond : 0) +
-    (Number.isFinite(cashlike) ? cashlike : 0);
+    (Number.isFinite(cashlike) ? cashlike : 0) +
+    (Number.isFinite(cash) ? cash : 0);
 
   const roundedTotal = Math.round(total);
 
