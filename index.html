@@ -131,7 +131,7 @@
                   </p>
                 </div>
               </div>
-
+        
               <div class="portfolio-shell">
                 <!-- Portfolio top row -->
                 <div class="portfolio-top-row">
@@ -141,7 +141,7 @@
                       <h3>People</h3>
                       <p>Name the people in this plan. These names will carry through to Assumptions.</p>
                     </div>
-
+        
                     <div class="portfolio-people-strip">
                       <div class="portfolio-people-field">
                         <label for="portfolioPerson1Name">Person 1</label>
@@ -152,7 +152,7 @@
                           maxlength="30"
                         />
                       </div>
-
+        
                       <div class="portfolio-people-field">
                         <label for="portfolioPerson2Name">Person 2</label>
                         <input
@@ -162,7 +162,7 @@
                           maxlength="30"
                         />
                       </div>
-
+        
                       <div class="portfolio-people-toggle">
                         <span class="portfolio-people-toggle__label">Include person 2</span>
                         <label class="switch-control">
@@ -172,28 +172,73 @@
                       </div>
                     </div>
                   </section>
-
+        
                   <!-- Total portfolio -->
                   <section class="input-group-card card-block portfolio-total-card">
                     <div class="section-heading">
                       <h3>Total portfolio</h3>
                       <p>Live aggregate based on the accounts entered above.</p>
                     </div>
-
+        
                     <div class="portfolio-total-value" id="portfolioTotalValue">£0</div>
                   </section>
                 </div>
-
+        
+                <!-- Portfolio summary -->
+                <div class="portfolio-summary-grid">
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Wrapper totals</h3>
+                      <p>Totals by account wrapper.</p>
+                    </div>
+        
+                    <div id="portfolioWrapperTotals" class="portfolio-summary-list">
+                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                    </div>
+                  </section>
+        
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Overall asset allocation</h3>
+                      <p>Weighted asset mix across the whole portfolio.</p>
+                    </div>
+        
+                    <div id="portfolioAllocationTotals" class="portfolio-summary-list">
+                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
+                    </div>
+                  </section>
+                </div>
+        
                 <!-- Accounts -->
                 <section class="input-group-card card-block">
-                  <div class="section-heading">
-                    <h3>Accounts</h3>
-                    <p>
-                      Add each account, wrapper, owner, value, and asset mix.
-                      Allocation per account must total 100%.
-                    </p>
+                  <div class="portfolio-section-header">
+                    <div class="section-heading">
+                      <h3>Accounts</h3>
+                      <p>
+                        Add each account, wrapper, owner, value, and asset mix.
+                        Allocation per account must total 100%.
+                      </p>
+                    </div>
+        
+                    <div class="action-row portfolio-section-actions">
+                      <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">
+                        Continue to assumptions
+                      </button>
+                      <button id="savePortfolioBtn" class="btn btn-secondary" type="button">
+                        Save portfolio
+                      </button>
+                    </div>
                   </div>
-
+        
+                  <div
+                    id="portfolioValidationStatus"
+                    class="portfolio-validation-status"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    Portfolio ready
+                  </div>
+        
                   <div class="portfolio-table-wrap">
                     <table class="portfolio-table" id="portfolioTable">
                       <thead>
@@ -217,63 +262,13 @@
                       </tbody>
                     </table>
                   </div>
-
+        
                   <div class="action-row portfolio-actions-row">
                     <button id="addPortfolioAccountBtn" class="btn btn-secondary" type="button">
                       Add account
                     </button>
                   </div>
                 </section>
-
-                <!-- Portfolio summary + next step -->
-                <div class="portfolio-summary-grid">
-                  <section class="input-group-card card-block">
-                    <div class="section-heading">
-                      <h3>Wrapper totals</h3>
-                      <p>Totals by account wrapper.</p>
-                    </div>
-
-                    <div id="portfolioWrapperTotals" class="portfolio-summary-list">
-                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
-                    </div>
-                  </section>
-
-                  <section class="input-group-card card-block">
-                    <div class="section-heading">
-                      <h3>Overall asset allocation</h3>
-                      <p>Weighted asset mix across the whole portfolio.</p>
-                    </div>
-
-                    <div id="portfolioAllocationTotals" class="portfolio-summary-list">
-                      <div class="portfolio-summary-empty">No portfolio data yet.</div>
-                    </div>
-                  </section>
-
-                  <section class="input-group-card card-block">
-                    <div class="section-heading">
-                      <h3>Next step</h3>
-                      <p>Continue to Assumptions once your accounts and asset mix are in place.</p>
-                    </div>
-
-                    <div
-                      id="portfolioValidationStatus"
-                      class="portfolio-validation-status"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      Portfolio ready
-                    </div>
-
-                    <div class="action-row">
-                      <button id="continueToAssumptionsBtn" class="btn btn-primary" type="button">
-                        Continue to assumptions
-                      </button>
-                      <button id="savePortfolioBtn" class="btn btn-secondary" type="button">
-                        Save portfolio
-                      </button>
-                    </div>
-                  </section>
-                </div>
               </div>
             </section>
           </div>
