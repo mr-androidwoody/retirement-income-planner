@@ -530,9 +530,9 @@ textarea{
 
 .portfolio-people-strip{
   display:grid;
-  grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) auto;
-  gap:16px;
-  align-items:end;
+  grid-template-columns:1fr;
+  gap:12px;
+  align-items:stretch;
 }
 
 .portfolio-people-field{
@@ -552,9 +552,8 @@ textarea{
 .portfolio-people-toggle{
   display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:10px;
-  min-height:40px;
-  white-space:nowrap;
 }
 
 .portfolio-people-toggle__label{
