@@ -262,11 +262,11 @@
 
                 <div class="input-shell">
                   <div class="input-grid-top">
-        <section class="input-group-card card-block">
+       <section class="input-group-card card-block">
           <div class="section-heading">
             <h3>Core assumptions</h3>
             <p>To see how your income adapts over time, enter your retirement timeline and current portfolio value. Define your spending targets by setting an initial ideal budget, a comfort level for tighter years, and a minimum essential floor.</p>
-<p>Finally, provide your asset mix of equities, bonds, and cash.</p>
+            <p>Portfolio value and asset mix are locked here and synced from the Portfolio tab.</p>
           </div>
         
           <div class="field-grid field-grid-3">
@@ -295,31 +295,14 @@
         
             <label class="field">
               <span class="field-label">Value of investments</span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="initialPortfolio"
-                  data-step-direction="-1"
-                  data-step-size="5000"
-                  aria-label="Decrease value of investments by £5,000"
-                >−</button>
-                <input
-                  id="initialPortfolio"
-                  type="text"
-                  inputmode="numeric"
-                  data-format="integer"
-                  value="1,000,000"
-                />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="initialPortfolio"
-                  data-step-direction="1"
-                  data-step-size="5000"
-                  aria-label="Increase value of investments by £5,000"
-                >+</button>
-              </div>
+              <input
+                id="initialPortfolio"
+                type="text"
+                inputmode="numeric"
+                data-format="integer"
+                value="1,000,000"
+                readonly
+              />
             </label>
         
             <label class="field">
@@ -428,25 +411,7 @@
                   data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
                 >Equity allocation %</span>
               </span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="equityAllocation"
-                  data-step-direction="-1"
-                  data-step-size="1"
-                  aria-label="Decrease equity allocation by 1 percentage point"
-                >−</button>
-                <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="equityAllocation"
-                  data-step-direction="1"
-                  data-step-size="1"
-                  aria-label="Increase equity allocation by 1 percentage point"
-                >+</button>
-              </div>
+              <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" readonly />
             </label>
         
             <label class="field">
@@ -457,25 +422,7 @@
                   data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
                 >Bond allocation %</span>
               </span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="bondAllocation"
-                  data-step-direction="-1"
-                  data-step-size="1"
-                  aria-label="Decrease bond allocation by 1 percentage point"
-                >−</button>
-                <input id="bondAllocation" type="number" min="0" max="100" step="1" value="30" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="bondAllocation"
-                  data-step-direction="1"
-                  data-step-size="1"
-                  aria-label="Increase bond allocation by 1 percentage point"
-                >+</button>
-              </div>
+              <input id="bondAllocation" type="number" min="0" max="100" step="1" value="30" readonly />
             </label>
         
             <label class="field">
@@ -486,27 +433,9 @@
                   data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
                 >Cashlike %</span>
               </span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="cashlikeAllocation"
-                  data-step-direction="-1"
-                  data-step-size="1"
-                  aria-label="Decrease cashlike allocation by 1 percentage point"
-                >−</button>
-                <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="10" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="cashlikeAllocation"
-                  data-step-direction="1"
-                  data-step-size="1"
-                  aria-label="Increase cashlike allocation by 1 percentage point"
-                >+</button>
-              </div>
+              <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="10" readonly />
             </label>
-
+        
             <label class="field">
               <span class="field-label">
                 <span
@@ -515,24 +444,8 @@
                   data-tooltip="Cash represents actual liquid cash holdings, separate from cashlike instruments used as buffers."
                 >Cash %</span>
               </span>
-              <div class="stepper-input">
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="cashAllocation"
-                  data-step-direction="-1"
-                  data-step-size="1"
-                >−</button>
-                <input id="cashAllocation" type="number" min="0" max="100" step="1" value="0" />
-                <button
-                  type="button"
-                  class="stepper-btn"
-                  data-step-target="cashAllocation"
-                  data-step-direction="1"
-                  data-step-size="1"
-                >+</button>
-              </div>
-            </label>              
+              <input id="cashAllocation" type="number" min="0" max="100" step="1" value="0" readonly />
+            </label>
           </div>
         
           <div
@@ -551,82 +464,76 @@
             </div>
           </div>
         
-            <div class="core-assumptions-bottom-row">
-            
-              <!-- Fees -->
-              <label class="field">
-                <span class="field-label">Annual portfolio fees (%)</span>
-            
-                <div class="stepper-input">
-                  <button
-                    type="button"
-                    class="stepper-btn"
-                    data-step-target="annualFeeRate"
-                    data-step-direction="-1"
-                    data-step-size="0.01"
-                    aria-label="Decrease annual portfolio fees by 0.01%"
-                  >−</button>
-                
-                  <input
-                    id="annualFeeRate"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value="0.27"
-                    inputmode="decimal"
-                  />
-                
-                  <button
-                    type="button"
-                    class="stepper-btn"
-                    data-step-target="annualFeeRate"
-                    data-step-direction="1"
-                    data-step-size="0.01"
-                    aria-label="Increase annual portfolio fees by 0.01%"
-                  >+</button>
-                  </div>
+          <div class="core-assumptions-bottom-row">
+            <label class="field">
+              <span class="field-label">Annual portfolio fees (%)</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="annualFeeRate"
+                  data-step-direction="-1"
+                  data-step-size="0.01"
+                  aria-label="Decrease annual portfolio fees by 0.01%"
+                >−</button>
+        
+                <input
+                  id="annualFeeRate"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value="0.27"
+                  inputmode="decimal"
+                />
+        
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="annualFeeRate"
+                  data-step-direction="1"
+                  data-step-size="0.01"
+                  aria-label="Increase annual portfolio fees by 0.01%"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field people-pension-inline-field">
+              <span class="field-label">Full state pension: today's value</span>
+              <div class="stepper-input">
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="statePensionToday"
+                  data-step-direction="-1"
+                  data-step-size="500"
+                >−</button>
+        
+                <input
+                  id="statePensionToday"
+                  type="text"
+                  inputmode="numeric"
+                  data-format="integer"
+                  value="12,547"
+                />
+        
+                <button
+                  type="button"
+                  class="stepper-btn"
+                  data-step-target="statePensionToday"
+                  data-step-direction="1"
+                  data-step-size="500"
+                >+</button>
+              </div>
+            </label>
+        
+            <label class="field field-inline field-inline-wide core-rebalance-field">
+              <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
+              <label class="switch-control">
+                <input id="rebalanceToTarget" type="checkbox" checked />
+                <span class="switch-slider"></span>
               </label>
-            
-              <!-- State pension -->
-              <label class="field people-pension-inline-field">
-                <span class="field-label">Full state pension: today's value</span>
-                <div class="stepper-input">
-                  <button
-                    type="button"
-                    class="stepper-btn"
-                    data-step-target="statePensionToday"
-                    data-step-direction="-1"
-                    data-step-size="500"
-                  >−</button>
-            
-                  <input
-                    id="statePensionToday"
-                    type="text"
-                    inputmode="numeric"
-                    data-format="integer"
-                    value="12,547"
-                  />
-            
-                  <button
-                    type="button"
-                    class="stepper-btn"
-                    data-step-target="statePensionToday"
-                    data-step-direction="1"
-                    data-step-size="500"
-                  >+</button>
-                </div>
-              </label>
-            
-              <!-- Rebalance -->
-              <label class="field field-inline field-inline-wide core-rebalance-field">
-                <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
-                <label class="switch-control">
-                  <input id="rebalanceToTarget" type="checkbox" checked />
-                  <span class="switch-slider"></span>
-                </label>
-              </label>
-            
-            </div>
+            </label>
+          </div>
         </section>               
                     <section class="input-group-card people-pensions-card card-block">
                       <div class="section-heading">
