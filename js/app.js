@@ -1127,10 +1127,15 @@ function applyPortfolioInputsToAssumptions(mapped) {
     els.initialPortfolio.value = formatInteger(Math.round(mapped.initialPortfolio || 0));
   }
 
-  if (els.equityAllocation) els.equityAllocation.value = Math.round(mapped.equityAllocation || 0);
-  if (els.bondAllocation) els.bondAllocation.value = Math.round(mapped.bondAllocation || 0);
-  if (els.cashlikeAllocation) els.cashlikeAllocation.value = Math.round(mapped.cashlikeAllocation || 0);
-  if (els.cashAllocation) els.cashAllocation.value = Math.round(mapped.cashAllocation || 0);
+  const equity = Math.round(mapped.equityAllocation || 0);
+  const bond = Math.round(mapped.bondAllocation || 0);
+  const cashlike = Math.round(mapped.cashlikeAllocation || 0);
+  const cash = 100 - equity - bond - cashlike;
+
+  if (els.equityAllocation) els.equityAllocation.value = equity;
+  if (els.bondAllocation) els.bondAllocation.value = bond;
+  if (els.cashlikeAllocation) els.cashlikeAllocation.value = cashlike;
+  if (els.cashAllocation) els.cashAllocation.value = cash;
 
   if (els.person1Name) {
     els.person1Name.value = mapped.person1Name || '';
