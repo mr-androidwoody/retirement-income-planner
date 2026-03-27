@@ -756,7 +756,10 @@ textarea{
 }
 
 /* ----------------------------------------
-   UPDATED: Summary (2 columns now)
+   Portfolio summary row
+   - wrapper totals
+   - overall asset allocation
+   - next step
    ---------------------------------------- */
 
 .portfolio-summary-grid{
@@ -766,46 +769,133 @@ textarea{
   align-items:stretch;
 }
 
-.portfolio-summary-grid > .input-group-card{
+.portfolio-summary-grid > .input-group-card,
+.portfolio-summary-grid > .panel,
+.portfolio-summary-grid > .portfolio-summary-card{
   display:flex;
   flex-direction:column;
-  min-height:220px;
+  justify-content:flex-start;
+  min-width:0;
+  min-height:210px;
   padding:18px 20px;
   background:#f8fafc;
   border:1px solid #d8e0ea;
   border-radius:14px;
+  box-shadow:none;
 }
 
-/* ----------------------------------------
-   Summary content
-   ---------------------------------------- */
-
-.portfolio-total-value{
-  margin-top:18px;
-  font-size:2.35rem;
-  font-weight:800;
+.portfolio-summary-grid > .input-group-card .section-heading,
+.portfolio-summary-grid > .panel .section-heading,
+.portfolio-summary-grid > .portfolio-summary-card .section-heading{
+  margin-bottom:10px !important;
+  min-height:auto;
 }
 
+.portfolio-summary-grid > .input-group-card h3,
+.portfolio-summary-grid > .panel h3,
+.portfolio-summary-grid > .portfolio-summary-card h3{
+  margin:0;
+  color:#1f2937;
+  font-size:0.92rem;
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:-0.01em;
+}
+
+.portfolio-summary-grid > .input-group-card p,
+.portfolio-summary-grid > .panel p,
+.portfolio-summary-grid > .portfolio-summary-card p{
+  margin:4px 0 0;
+  color:#6b7280;
+  font-size:0.76rem;
+  line-height:1.35;
+}
+
+/* Summary list content */
 .portfolio-summary-list{
   display:flex;
   flex-direction:column;
   gap:8px;
-  margin-top:14px;
+  width:100%;
+  margin-top:8px;
 }
 
+.portfolio-summary-list > div,
 .portfolio-summary-item{
   display:flex;
+  align-items:center;
   justify-content:space-between;
-  padding:10px 12px;
+  gap:12px;
+  width:100%;
+  min-height:36px;
+  padding:8px 10px;
+  box-sizing:border-box;
   background:#f7faff;
   border:1px solid #dbe6f3;
   border-radius:10px;
 }
 
+.portfolio-summary-list > div span:first-child,
+.portfolio-summary-label{
+  color:#50627f;
+  font-size:0.78rem;
+  font-weight:700;
+  line-height:1.2;
+}
+
+.portfolio-summary-list > div .value,
+.portfolio-summary-value{
+  margin-left:auto;
+  color:var(--text);
+  font-size:0.84rem;
+  font-weight:800;
+  line-height:1.2;
+  text-align:right;
+  white-space:nowrap;
+}
+
 .portfolio-summary-empty{
+  margin-top:8px;
   padding:10px 12px;
+  background:#f7faff;
   border:1px dashed #d2dceb;
   border-radius:10px;
+  color:var(--muted);
+  font-size:0.8rem;
+  line-height:1.4;
+}
+
+/* Total portfolio value card */
+.portfolio-total-value,
+#portfolioTotalValue{
+  margin-top:18px;
+  padding-top:10px;
+  color:#22314d;
+  font-size:2.35rem;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:-0.04em;
+}
+
+#portfolioTotalValue{
+  display:flex;
+  align-items:flex-start;
+}
+
+/* Next step card inside summary row */
+.portfolio-summary-grid .portfolio-validation-status{
+  margin-top:8px;
+  margin-bottom:12px;
+}
+
+.portfolio-summary-grid .action-row{
+  margin-top:auto;
+  gap:10px;
+}
+
+.portfolio-summary-grid #continueToAssumptionsBtn,
+.portfolio-summary-grid #savePortfolioBtn{
+  min-height:40px;
 }
 
 /* ----------------------------------------
