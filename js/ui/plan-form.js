@@ -219,6 +219,7 @@ export function createPlanForm(
     setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
     setFieldValue(elements, 'bondAllocation', defaults.bondAllocation);
     setFieldValue(elements, 'cashlikeAllocation', defaults.cashlikeAllocation);
+    setFieldValue(elements, 'cashAllocation', defaults.cashAllocation ?? 0);  
 
     if (elements.rebalanceToTarget) {
       elements.rebalanceToTarget.checked = Boolean(defaults.rebalanceToTarget);
@@ -497,6 +498,7 @@ export function createPlanForm(
       equityAllocation: parseLooseNumber(elements.equityAllocation?.value),
       bondAllocation: parseLooseNumber(elements.bondAllocation?.value),
       cashlikeAllocation: parseLooseNumber(elements.cashlikeAllocation?.value),
+      cashAllocation: parseLooseNumber(elements.cashAllocation?.value),
       rebalanceToTarget: Boolean(elements.rebalanceToTarget?.checked),
 
       statePensionToday: fullStatePensionToday,
