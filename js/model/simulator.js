@@ -192,8 +192,7 @@ export function normaliseInputs(rawInputs = {}) {
 
     equityAllocation: toRatio(merged.equityAllocation),
     bondAllocation: toRatio(merged.bondAllocation),
-    cashlikeAllocation:
-      toRatio(merged.cashlikeAllocation) + toRatio(merged.cashAllocation ?? 0),
+    cashlikeAllocation: toRatio(merged.cashlikeAllocation),
     cashAllocation: toRatio(merged.cashAllocation ?? 0),
     rebalanceToTarget: Boolean(merged.rebalanceToTarget),
 
