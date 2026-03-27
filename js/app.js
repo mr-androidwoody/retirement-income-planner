@@ -288,9 +288,25 @@ function setResultsViewDefaults() {
 }
 
 function attachEvents() {
-  if (els.continueToAssumptionsBtn) {
+    if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
+      const totals = calculatePortfolioTotals(portfolioAccounts);
+      const mappedInputs = mapPortfolioToInputs(totals);
+
+      const currentInputs = {
+        ...DEFAULT_INPUTS,
+        ...gatherInputs()
+      };
+
+      latestBaseInputs = {
+        ...currentInputs,
+        ...mappedInputs
+      };
+
+      applyPortfolioInputsToAssumptions(mappedInputs);
+
       tabs.setActiveTab('assumptions');
+      hideError();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
