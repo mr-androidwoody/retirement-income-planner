@@ -331,16 +331,16 @@ function attachAllocationStatusEvents() {
     input.addEventListener('change', updateAllocationStatus);
   });
 
-  document.querySelectorAll(
-    '[data-step-target="equityAllocation"], 
-     [data-step-target="bondAllocation"], 
-     [data-step-target="cashlikeAllocation"], 
-     [data-step-target="cashAllocation"]'
-  ).forEach((button) => {
-    button.addEventListener('click', () => {
-      requestAnimationFrame(updateAllocationStatus);
+    document.querySelectorAll(`
+      [data-step-target="equityAllocation"],
+      [data-step-target="bondAllocation"],
+      [data-step-target="cashlikeAllocation"],
+      [data-step-target="cashAllocation"]
+    `).forEach((button) => {
+      button.addEventListener('click', () => {
+        requestAnimationFrame(updateAllocationStatus);
+      });
     });
-  });
 }
 
 function updateAllocationStatus() {
