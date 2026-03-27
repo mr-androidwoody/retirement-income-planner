@@ -694,40 +694,50 @@ textarea{
 }
 
 .portfolio-table .stepper-input--table{
-  grid-template-columns:20px minmax(64px, 1fr) 20px;
-  grid-template-rows:40px;
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) 18px;
+  grid-template-rows:20px 20px;
+  gap:0;
   align-items:stretch;
+  width:100%;
+  min-width:0;
 }
 
 .portfolio-table .stepper-input--table input{
-  grid-column:2;
-  grid-row:1;
-  border-right:1px solid #94a8c7;
-  border-left:none;
-  border-radius:0;
+  grid-column:1;
+  grid-row:1 / span 2;
+  width:100%;
+  min-width:0;
+  height:40px;
+  padding:0 12px;
+  border:1px solid #94a8c7;
+  border-right:none;
+  border-radius:8px 0 0 8px;
+  background:rgba(255, 255, 255, 0.92);
+  color:var(--text);
   text-align:right;
-  padding:0 10px;
+  font-variant-numeric:tabular-nums;
+  outline:none;
 }
 
 .portfolio-table .stepper-input--table .stepper-btn{
-  width:20px;
-  height:40px;
-  font-size:0.8rem;
-}
-
-.portfolio-table .stepper-input--table .stepper-btn[data-step-direction="-1"]{
-  grid-column:1;
-  grid-row:1;
-  border-radius:8px 0 0 8px;
-  border-right:none;
+  width:18px;
+  height:20px;
+  padding:0;
+  font-size:0.62rem;
 }
 
 .portfolio-table .stepper-input--table .stepper-btn[data-step-direction="1"]{
-  grid-column:3;
+  grid-column:2;
   grid-row:1;
-  border-radius:0 8px 8px 0;
-  border-left:none;
-  border-bottom:1px solid #94a8c7;
+  border-radius:0 8px 0 0;
+  border-bottom:none;
+}
+
+.portfolio-table .stepper-input--table .stepper-btn[data-step-direction="-1"]{
+  grid-column:2;
+  grid-row:2;
+  border-radius:0 0 8px 0;
 }
 
 .portfolio-total-cell{
