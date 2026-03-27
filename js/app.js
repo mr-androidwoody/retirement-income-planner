@@ -995,7 +995,7 @@ function updatePortfolioSummaryCards() {
 
   if (wrappersEl) {
     wrappersEl.innerHTML = `
-      <div>ISA: ${formatCurrency(totals.wrappers.ISA)}</div>
+      <div><span>ISA</span><span class="value">${formatCurrency(totals.wrappers.ISA)}</span></div>
       <div>SIPP: ${formatCurrency(totals.wrappers.SIPP)}</div>
       <div>GIA: ${formatCurrency(totals.wrappers.GIA)}</div>
       <div>Cash: ${formatCurrency(totals.wrappers.Cash)}</div>
