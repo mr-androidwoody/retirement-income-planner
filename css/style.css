@@ -609,7 +609,9 @@ textarea{
 /* 9 = Total / row validation state */
 .portfolio-table th:nth-child(9),
 .portfolio-table td:nth-child(9){
-  width:8%;
+  width:10%;
+  text-align:center;        /* horizontal centering */
+  vertical-align:middle;    /* vertical centering */
 }
 
 /* 10 = Remove button */
