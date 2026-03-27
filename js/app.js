@@ -778,20 +778,27 @@ function getResultsOverrideInputs(baseInputs) {
   };
 }
 
-function runSimulation() {
-  const inputs = gatherInputs();
-  const mergedInputs = { ...DEFAULT_INPUTS, ...inputs };
-
-  const equity = Math.round(parseLooseNumber(els.equityAllocation?.value) || 0);
-  const bond = Math.round(parseLooseNumber(els.bondAllocation?.value) || 0);
-  const cashlike = Math.round(parseLooseNumber(els.cashlikeAllocation?.value) || 0);
+function normaliseAllocationInputsForSimulation(inputs) {
+  const equity = Math.round(Number(inputs.equityAllocation) || 0);
+  const bond = Math.round(Number(inputs.bondAllocation) || 0);
+  const cashlike = Math.round(Number(inputs.cashlikeAllocation) || 0);
   const cash = 100 - equity - bond - cashlike;
 
-  mergedInputs.equityAllocation = equity;
-  mergedInputs.bondAllocation = bond;
-  mergedInputs.cashlikeAllocation = cashlike;
-  mergedInputs.cashAllocation = cash;
+  return {
+    ...inputs,
+    equityAllocation: equity,
+    bondAllocation: bond,
+    cashlikeAllocation: cashlike,
+    cashAllocation: cash
+  };
+}
 
+function runSimulation() {
+  const inputs = gatherInputs();
+  const mergedInputs = normaliseAllocationInputsForSimulation({
+    ...DEFAULT_INPUTS,
+    ...inputs
+  });
   const errors = validateInputs(mergedInputs);
 
   if (errors.length > 0) {
@@ -840,7 +847,9 @@ function runSimulation() {
 function rerunResultsWithCurrentOptions() {
   if (!latestBaseInputs) return;
 
-  const effectiveInputs = getResultsOverrideInputs(latestBaseInputs);
+  const effectiveInputs = getResultsOverrideInputs(
+    normaliseAllocationInputsForSimulation(latestBaseInputs)
+  );
   const errors = validateInputs(effectiveInputs);
 
   if (errors.length > 0) {
