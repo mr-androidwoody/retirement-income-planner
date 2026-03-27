@@ -415,17 +415,19 @@ function attachEvents() {
 
   if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
-      if (!portfolioAccounts.length) {
-        showError('Add at least one account before continuing.');
-        return;
-      }
+      const validationState = getPortfolioValidationState();
 
-      const hasInvalidRow = portfolioAccounts.some((account) => !isPortfolioRowValid(account));
-
-      if (hasInvalidRow) {
-        showError('Each portfolio row must have a valid value and allocation totalling 100% before continuing.');
-        return;
-      }
+    if (!portfolioAccounts.length) {
+      showError('Add at least one account before continuing.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
+    
+    if (!validationState.isReady) {
+      showError('Fix the highlighted portfolio issues before continuing.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
 
       const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
       const roundedPortfolioTotal =
@@ -968,6 +970,110 @@ function formatInteger(value) {
   return new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 }).format(value);
 }
 
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function normalisePortfolioValue(value) {
+  const parsed = parseLooseNumber(value);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.round(parsed));
+}
+
+function normalisePortfolioPercent(value) {
+  const parsed = parseLooseNumber(value);
+  if (!Number.isFinite(parsed)) return 0;
+  return clampNumber(Math.round(parsed), 0, 100);
+}
+
+function getPortfolioRowIssues(account) {
+  const issues = [];
+  const value = Number(account.value);
+  const allocationTotal = getPortfolioRowAllocationTotal(account);
+
+  if (!Number.isFinite(value) || value < 0) {
+    issues.push('Value must be £0 or more');
+  }
+
+  if (allocationTotal !== 100) {
+    if (allocationTotal < 100) {
+      issues.push(`Allocate ${100 - allocationTotal}% more`);
+    } else {
+      issues.push(`Reduce allocation by ${allocationTotal - 100}%`);
+    }
+  }
+
+  return issues;
+}
+
+function getPortfolioValidationState() {
+  if (!portfolioAccounts.length) {
+    return {
+      isReady: false,
+      issueCount: 1,
+      message: 'Add at least one account'
+    };
+  }
+
+  let issueCount = 0;
+
+  portfolioAccounts.forEach((account) => {
+    issueCount += getPortfolioRowIssues(account).length;
+  });
+
+  if (issueCount === 0) {
+    return {
+      isReady: true,
+      issueCount: 0,
+      message: 'Portfolio ready'
+    };
+  }
+
+  return {
+    isReady: false,
+    issueCount,
+    message: `Fix ${issueCount} issue${issueCount === 1 ? '' : 's'}`
+  };
+}
+
+function updatePortfolioValidationUI() {
+  const statusEl = els.portfolioValidationStatus;
+  const continueBtn = els.continueToAssumptionsBtn;
+  const state = getPortfolioValidationState();
+
+  if (statusEl) {
+    statusEl.textContent = state.message;
+    statusEl.classList.toggle('is-valid', state.isReady);
+    statusEl.classList.toggle('is-invalid', !state.isReady);
+  }
+
+  if (continueBtn) {
+    continueBtn.disabled = !state.isReady;
+    continueBtn.setAttribute('aria-disabled', String(!state.isReady));
+  }
+}
+
+function stepPortfolioAccount(id, field, direction, stepSize) {
+  const account = portfolioAccounts.find((item) => item.id === id);
+  if (!account) return;
+
+  const step = Number(stepSize) || 1;
+  const delta = direction * step;
+
+  if (field === 'value') {
+    const nextValue = (Number(account.value) || 0) + delta;
+    updatePortfolioAccount(id, field, Math.max(0, nextValue));
+    return;
+  }
+
+  if (field.startsWith('allocation.')) {
+    const key = field.split('.')[1];
+    const currentValue = Number(account.allocation?.[key]) || 0;
+    const nextValue = clampNumber(currentValue + delta, 0, 100);
+    updatePortfolioAccount(id, field, nextValue);
+  }
+}
+
 function formatRate(value) {
   if (!Number.isFinite(value)) return '';
   return Number(value.toFixed(2)).toString();
@@ -1073,9 +1179,9 @@ function updatePortfolioAccount(id, field, value) {
 
   if (field.startsWith('allocation.')) {
     const key = field.split('.')[1];
-    account.allocation[key] = Number(value) || 0;
+    account.allocation[key] = normalisePortfolioPercent(value);
   } else if (field === 'value') {
-    account.value = parseLooseNumber(value) || 0;
+    account.value = normalisePortfolioValue(value);
   } else {
     account[field] = value;
   }
@@ -1103,7 +1209,7 @@ function isPortfolioRowValid(account) {
   const value = Number(account.value);
   const allocationTotal = getPortfolioRowAllocationTotal(account);
 
-  return value >= 0 && allocationTotal === 100;
+  return Number.isFinite(value) && value >= 0 && allocationTotal === 100;
 }
 
 function calculatePortfolioTotals(portfolioAccounts) {
@@ -1253,6 +1359,7 @@ function renderPortfolioTable() {
       </tr>
     `;
     updatePortfolioSummaryCards();
+    updatePortfolioValidationUI();
     return;
   }
 
@@ -1261,11 +1368,10 @@ function renderPortfolioTable() {
   portfolioAccounts.forEach((account) => {
     const row = document.createElement('tr');
     const allocationTotal = getPortfolioRowAllocationTotal(account);
-    const isValid = isPortfolioRowValid(account);
+    const rowIssues = getPortfolioRowIssues(account);
+    const isValid = rowIssues.length === 0;
 
-    if (!isValid) {
-      row.classList.add('portfolio-row-warning');
-    }
+    row.className = `portfolio-row ${isValid ? '' : 'portfolio-row-invalid'}`;
 
     row.innerHTML = `
       <td>
@@ -1277,6 +1383,7 @@ function renderPortfolioTable() {
           data-field="name"
         />
       </td>
+
       <td>
         <select data-id="${account.id}" data-field="wrapper">
           <option value="ISA" ${account.wrapper === 'ISA' ? 'selected' : ''}>ISA</option>
@@ -1286,71 +1393,194 @@ function renderPortfolioTable() {
           <option value="QMMF" ${account.wrapper === 'QMMF' ? 'selected' : ''}>QMMF</option>
         </select>
       </td>
+
       <td>
         <select data-id="${account.id}" data-field="owner">
           <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>Person 1</option>
-        ${portfolioConfig.hasPerson2 ? `
-          <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>Person 2</option>
-        ` : ''}
+          ${portfolioConfig.hasPerson2 ? `
+            <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>Person 2</option>
+          ` : ''}
           <option value="Joint" ${account.owner === 'Joint' ? 'selected' : ''}>Joint</option>
         </select>
       </td>
+
       <td>
-        <input
-          type="text"
-          value="${formatInteger(account.value)}"
-          data-id="${account.id}"
-          data-field="value"
-          inputmode="numeric"
-        />
+        <div class="stepper-input stepper-input--table">
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="value"
+            data-step-direction="-1"
+            data-step-size="5000"
+            aria-label="Decrease value by £5,000"
+          >−</button>
+          <input
+            type="text"
+            value="${formatInteger(account.value)}"
+            data-id="${account.id}"
+            data-field="value"
+            inputmode="numeric"
+          />
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="value"
+            data-step-direction="1"
+            data-step-size="5000"
+            aria-label="Increase value by £5,000"
+          >+</button>
+        </div>
       </td>
+
       <td>
-        <input
-          type="number"
-          value="${account.allocation.equities}"
-          data-id="${account.id}"
-          data-field="allocation.equities"
-          min="0"
-          max="100"
-          step="1"
-        />
+        <div class="stepper-input stepper-input--table">
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.equities"
+            data-step-direction="-1"
+            data-step-size="1"
+            aria-label="Decrease equity allocation by 1%"
+          >−</button>
+          <input
+            type="number"
+            value="${account.allocation.equities}"
+            data-id="${account.id}"
+            data-field="allocation.equities"
+            min="0"
+            max="100"
+            step="1"
+          />
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.equities"
+            data-step-direction="1"
+            data-step-size="1"
+            aria-label="Increase equity allocation by 1%"
+          >+</button>
+        </div>
       </td>
+
       <td>
-        <input
-          type="number"
-          value="${account.allocation.bonds}"
-          data-id="${account.id}"
-          data-field="allocation.bonds"
-          min="0"
-          max="100"
-          step="1"
-        />
+        <div class="stepper-input stepper-input--table">
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.bonds"
+            data-step-direction="-1"
+            data-step-size="1"
+            aria-label="Decrease bond allocation by 1%"
+          >−</button>
+          <input
+            type="number"
+            value="${account.allocation.bonds}"
+            data-id="${account.id}"
+            data-field="allocation.bonds"
+            min="0"
+            max="100"
+            step="1"
+          />
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.bonds"
+            data-step-direction="1"
+            data-step-size="1"
+            aria-label="Increase bond allocation by 1%"
+          >+</button>
+        </div>
       </td>
+
       <td>
-        <input
-          type="number"
-          value="${account.allocation.cashlike}"
-          data-id="${account.id}"
-          data-field="allocation.cashlike"
-          min="0"
-          max="100"
-          step="1"
-        />
+        <div class="stepper-input stepper-input--table">
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.cashlike"
+            data-step-direction="-1"
+            data-step-size="1"
+            aria-label="Decrease cashlike allocation by 1%"
+          >−</button>
+          <input
+            type="number"
+            value="${account.allocation.cashlike}"
+            data-id="${account.id}"
+            data-field="allocation.cashlike"
+            min="0"
+            max="100"
+            step="1"
+          />
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.cashlike"
+            data-step-direction="1"
+            data-step-size="1"
+            aria-label="Increase cashlike allocation by 1%"
+          >+</button>
+        </div>
       </td>
+
       <td>
-        <input
-          type="number"
-          value="${account.allocation.cash}"
-          data-id="${account.id}"
-          data-field="allocation.cash"
-          min="0"
-          max="100"
-          step="1"
-        />
+        <div class="stepper-input stepper-input--table">
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.cash"
+            data-step-direction="-1"
+            data-step-size="1"
+            aria-label="Decrease cash allocation by 1%"
+          >−</button>
+          <input
+            type="number"
+            value="${account.allocation.cash}"
+            data-id="${account.id}"
+            data-field="allocation.cash"
+            min="0"
+            max="100"
+            step="1"
+          />
+          <button
+            type="button"
+            class="stepper-btn"
+            data-action="portfolio-step"
+            data-id="${account.id}"
+            data-field="allocation.cash"
+            data-step-direction="1"
+            data-step-size="1"
+            aria-label="Increase cash allocation by 1%"
+          >+</button>
+        </div>
       </td>
-      <td class="${isValid ? '' : 'portfolio-cell-warning'}">
-        ${allocationTotal}%
+
+      <td class="${isValid ? 'portfolio-total-cell' : 'portfolio-total-cell portfolio-total-cell-invalid'}">
+        <div class="portfolio-total-cell__value">${allocationTotal}%</div>
+        ${rowIssues.length ? `
+          <div class="portfolio-row-error">${rowIssues.join(' · ')}</div>
+        ` : `
+          <div class="portfolio-row-ok">Ready</div>
+        `}
       </td>
+
       <td>
         <button type="button" class="btn btn-secondary" data-action="delete" data-id="${account.id}">
           Remove
@@ -1363,6 +1593,7 @@ function renderPortfolioTable() {
 
   attachPortfolioTableRowEvents();
   updatePortfolioSummaryCards();
+  updatePortfolioValidationUI();
 }
 
 function applyPerson2PortfolioRules() {
@@ -1393,48 +1624,74 @@ function applyPerson2PortfolioRules() {
 }
 
 function attachPortfolioTableRowEvents() {
-  const inputs = document.querySelectorAll('#portfolioTableBody input');
-  const selects = document.querySelectorAll('#portfolioTableBody select');
-  const buttons = document.querySelectorAll('#portfolioTableBody button[data-action="delete"]');
+  const tbody = document.getElementById('portfolioTableBody');
+  if (!tbody) return;
+
+  const inputs = tbody.querySelectorAll('input');
+  const selects = tbody.querySelectorAll('select');
+  const deleteButtons = tbody.querySelectorAll('button[data-action="delete"]');
+  const stepButtons = tbody.querySelectorAll('button[data-action="portfolio-step"]');
 
   inputs.forEach((input) => {
-    let originalValue = input.value;
-    let userChangedValue = false;
-
     input.addEventListener('focus', () => {
-      originalValue = input.value;
-      userChangedValue = false;
-
-      if (input.dataset.field === 'name') {
-        if (input.value.trim() !== '') {
-          input.value = '';
-        }
-        return;
+      if (input.dataset.field === 'value') {
+        const numericValue = parseLooseNumber(input.value);
+        input.value = Number.isFinite(numericValue) ? String(Math.round(numericValue)) : '';
       }
-
-      input.value = '';
     });
 
     input.addEventListener('input', () => {
-      userChangedValue = true;
+      const id = Number(input.dataset.id);
+      const field = input.dataset.field;
+      if (!field) return;
+
+      if (field.startsWith('allocation.')) {
+        const clamped = normalisePortfolioPercent(input.value);
+        updatePortfolioAccount(id, field, clamped);
+      }
     });
 
-    input.addEventListener('blur', (e) => {
-      const id = Number(e.target.dataset.id);
-      const field = e.target.dataset.field;
-      const value = e.target.value.trim();
+    input.addEventListener('blur', () => {
+      const id = Number(input.dataset.id);
+      const field = input.dataset.field;
+      const rawValue = input.value.trim();
 
-      if (!userChangedValue || value === '') {
-        input.value = originalValue;
+      if (!field) return;
+
+      if (field === 'name') {
+        updatePortfolioAccount(id, field, rawValue);
         return;
       }
 
-      updatePortfolioAccount(id, field, value);
+      if (field === 'value') {
+        updatePortfolioAccount(id, field, rawValue);
+        return;
+      }
+
+      if (field.startsWith('allocation.')) {
+        updatePortfolioAccount(id, field, normalisePortfolioPercent(rawValue));
+      }
     });
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.target.blur();
+    input.addEventListener('change', () => {
+      const id = Number(input.dataset.id);
+      const field = input.dataset.field;
+      const rawValue = input.value.trim();
+
+      if (!field) return;
+
+      if (field === 'name') {
+        updatePortfolioAccount(id, field, rawValue);
+        return;
+      }
+
+      if (field === 'value') {
+        updatePortfolioAccount(id, field, rawValue);
+        return;
+      }
+
+      if (field.startsWith('allocation.')) {
+        updatePortfolioAccount(id, field, normalisePortfolioPercent(rawValue));
       }
     });
   });
@@ -1443,16 +1700,24 @@ function attachPortfolioTableRowEvents() {
     select.addEventListener('change', (e) => {
       const id = Number(e.target.dataset.id);
       const field = e.target.dataset.field;
-      const value = e.target.value;
-
-      updatePortfolioAccount(id, field, value);
+      updatePortfolioAccount(id, field, e.target.value);
     });
   });
 
-  buttons.forEach((button) => {
+  deleteButtons.forEach((button) => {
     button.addEventListener('click', (e) => {
-      const id = Number(e.target.dataset.id);
-      removePortfolioAccount(id);
+      removePortfolioAccount(Number(e.currentTarget.dataset.id));
+    });
+  });
+
+  stepButtons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const id = Number(e.currentTarget.dataset.id);
+      const field = e.currentTarget.dataset.field;
+      const direction = Number(e.currentTarget.dataset.stepDirection);
+      const stepSize = Number(e.currentTarget.dataset.stepSize);
+
+      stepPortfolioAccount(id, field, direction, stepSize);
     });
   });
 }
