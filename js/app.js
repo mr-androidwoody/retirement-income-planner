@@ -986,20 +986,20 @@ function updatePortfolioSummaryCards() {
 
   if (allocationEl) {
     allocationEl.innerHTML = `
-      <div>Equities: ${totals.allocations.equities.toFixed(1)}%</div>
-      <div>Bonds: ${totals.allocations.bonds.toFixed(1)}%</div>
-      <div>Cashlike: ${totals.allocations.cashlike.toFixed(1)}%</div>
-      <div>Cash: ${totals.allocations.cash.toFixed(1)}%</div>
+      <div><span>Equities</span><span class="value">${totals.allocations.equities.toFixed(1)}%</span></div>
+      <div><span>Bonds</span><span class="value">${totals.allocations.bonds.toFixed(1)}%</span></div>
+      <div><span>Cashlike</span><span class="value">${totals.allocations.cashlike.toFixed(1)}%</span></div>
+      <div><span>Cash</span><span class="value">${totals.allocations.cash.toFixed(1)}%</span></div>
     `;
   }
 
   if (wrappersEl) {
     wrappersEl.innerHTML = `
       <div><span>ISA</span><span class="value">${formatCurrency(totals.wrappers.ISA)}</span></div>
-      <div>SIPP: ${formatCurrency(totals.wrappers.SIPP)}</div>
-      <div>GIA: ${formatCurrency(totals.wrappers.GIA)}</div>
-      <div>Cash: ${formatCurrency(totals.wrappers.Cash)}</div>
-      <div>QMMF: ${formatCurrency(totals.wrappers.QMMF)}</div>
+      <div><span>SIPP</span><span class="value">${formatCurrency(totals.wrappers.SIPP)}</span></div>
+      <div><span>GIA</span><span class="value">${formatCurrency(totals.wrappers.GIA)}</span></div>
+      <div><span>Cash</span><span class="value">${formatCurrency(totals.wrappers.Cash)}</span></div>
+      <div><span>QMMF</span><span class="value">${formatCurrency(totals.wrappers.QMMF)}</span></div>
     `;
   }
 }
