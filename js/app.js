@@ -122,7 +122,7 @@ let currentTableMode = 'plan';
 const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 
 const tabs = initialiseTabs({
-  defaultTab: 'inputs',
+  defaultTab: 'portfolio',
   onChange: (tabName) => {
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
@@ -143,7 +143,7 @@ function initialise() {
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
-  tabs.setActiveTab('inputs');
+  tabs.setActiveTab('portfolio');
 }
 
 function resetResultsHeader() {
@@ -259,6 +259,13 @@ function setResultsViewDefaults() {
 }
 
 function attachEvents() {
+  if (els.continueToAssumptionsBtn) {
+    els.continueToAssumptionsBtn.addEventListener('click', () => {
+      tabs.setActiveTab('assumptions');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   planForm.attachFormatting();
   advancedForm.attachFormatting();
 
@@ -277,7 +284,7 @@ function attachEvents() {
       resetResultsHeader();
 
       hideError();
-      tabs.setActiveTab('inputs');
+      tabs.setActiveTab('portfolio');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
@@ -480,7 +487,7 @@ function attachResultsTabGuard() {
       event.preventDefault();
       event.stopImmediatePropagation();
 
-      tabs.setActiveTab('inputs');
+      tabs.setActiveTab('portfolio');
       showError('Before you can view your results, you need to run a simulation.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
