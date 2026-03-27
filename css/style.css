@@ -536,6 +536,17 @@ textarea{
   border-bottom:none;
 }
 
+/* Control Portfolio column widths */
+.portfolio-table th:nth-child(3),
+.portfolio-table td:nth-child(3){
+  width:160px; /* Owner (Person) – wider */
+}
+
+.portfolio-table th:nth-child(4),
+.portfolio-table td:nth-child(4){
+  width:120px; /* Value – reduced ~40% */
+}
+
 .portfolio-row-empty td{
   padding:20px 12px;
   color:var(--muted);
@@ -738,6 +749,11 @@ textarea{
   grid-column:2;
   grid-row:2;
   border-radius:0 0 8px 0;
+}
+
+/* Prevent value field from stretching */
+.portfolio-table td:nth-child(4) .stepper-input{
+  max-width:140px;
 }
 
 .portfolio-total-cell{
