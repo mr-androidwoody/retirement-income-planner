@@ -536,11 +536,30 @@ function attachEvents() {
 
   if (els.runSimulationBtn) {
   els.runSimulationBtn.addEventListener('click', () => {
+
     if (!portfolioAccounts.length) {
       showError('Build your portfolio first - add at least one account to run a simulation.');
       tabs.setActiveTab('portfolio');
       return;
     }
+
+    const validationState = getPortfolioValidationState();
+
+    if (!validationState.isReady) {
+      showError('Fix the highlighted portfolio issues before running a simulation.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
+
+    // Map portfolio → assumptions before running
+    const totals = calculatePortfolioTotals(portfolioAccounts);
+    const mappedInputs = mapPortfolioToInputs(totals);
+    applyPortfolioInputsToAssumptions(mappedInputs);
+
+    hideError();
+    runSimulation();
+  });
+}
 
     const validationState = getPortfolioValidationState();
 
@@ -1067,14 +1086,14 @@ function applySuccessRateTone(successRate) {
 
 function showError(message) {
   if (!els.errorBox) return;
-  els.errorBox.style.display = 'block';
   els.errorBox.textContent = message;
+  els.errorBox.classList.add('error-box--visible');
 }
 
 function hideError() {
   if (!els.errorBox) return;
-  els.errorBox.style.display = 'none';
   els.errorBox.textContent = '';
+  els.errorBox.classList.remove('error-box--visible');
 }
 
 function parseLooseNumber(value) {
