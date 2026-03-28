@@ -2084,14 +2084,8 @@ function attachPortfolioTableRowEvents() {
     });
 
     input.addEventListener('input', () => {
-      const id = Number(input.dataset.id);
       const field = input.dataset.field;
       if (!field) return;
-
-      if (field.startsWith('allocation.')) {
-        const clamped = normalisePortfolioPercent(input.value);
-        updatePortfolioAccount(id, field, clamped);
-      }
     });
 
     input.addEventListener('blur', () => {
