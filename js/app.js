@@ -535,42 +535,42 @@ function attachEvents() {
   }
 
   if (els.runSimulationBtn) {
-    els.runSimulationBtn.addEventListener('click', () => {
-      const activeAccounts = getActivePortfolioAccounts();
-
-      if (!activeAccounts.length) {
-        showError('Build your portfolio first - add at least one account to run a simulation.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const validationState = getPortfolioValidationState();
-
-      if (!validationState.isReady) {
-        showError('Fix the highlighted portfolio issues before running a simulation.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const totals = calculatePortfolioTotals(portfolioAccounts);
-      const mappedInputs = mapPortfolioToInputs(totals);
+      els.runSimulationBtn.addEventListener('click', () => {
+        const activeAccounts = getActivePortfolioAccounts();
     
-      const currentInputs = {
-        ...DEFAULT_INPUTS,
-        ...gatherInputs()
-      };
-    
-      latestBaseInputs = {
-        ...currentInputs,
-        ...mappedInputs
-      };
-    
-      applyPortfolioInputsToAssumptions(mappedInputs);
-    
-      hideError();
-        runSimulation();
-         });
+        if (!activeAccounts.length) {
+          showError('Build your portfolio first - add at least one account to run a simulation.');
+          tabs.setActiveTab('portfolio');
+          return;
         }
+    
+        const validationState = getPortfolioValidationState();
+    
+        if (!validationState.isReady) {
+          showError('Fix the highlighted portfolio issues before running a simulation.');
+          tabs.setActiveTab('portfolio');
+          return;
+        }
+    
+        const totals = calculatePortfolioTotals(portfolioAccounts);
+        const mappedInputs = mapPortfolioToInputs(totals);
+    
+        const currentInputs = {
+          ...DEFAULT_INPUTS,
+          ...gatherInputs()
+        };
+    
+        latestBaseInputs = {
+          ...currentInputs,
+          ...mappedInputs
+        };
+    
+        applyPortfolioInputsToAssumptions(mappedInputs);
+    
+        hideError();
+        runSimulation();
+      });
+    }
 
   const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
