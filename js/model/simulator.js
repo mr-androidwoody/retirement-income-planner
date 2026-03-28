@@ -382,7 +382,8 @@ export function simulatePath(inputs, annualReturns) {
   const allocations = {
     equities: inputs.equityAllocation,
     bonds: inputs.bondAllocation,
-    cashlike: inputs.cashlikeAllocation
+    cashlike: inputs.cashlikeAllocation,
+    cash: inputs.cashAllocation || 0
   };
 
   let buckets = initialiseBuckets(inputs.initialPortfolio, allocations);
@@ -633,7 +634,10 @@ export function simulatePath(inputs, annualReturns) {
 }
 
 function buildSummary(inputs, baseCase, monteCarlo) {
-  const openingCash = inputs.initialPortfolio * inputs.cashlikeAllocation;
+  const openingCash =
+  inputs.initialPortfolio *
+  ((inputs.cashAllocation || 0) + inputs.cashlikeAllocation);
+    
   const firstYearPension = getStatePensionNominal(inputs, 0, 1);
   const firstYearOtherIncome = getOtherIncomeNominal(inputs, 0, 1);
 
