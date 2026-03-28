@@ -576,6 +576,18 @@ textarea{
   font-weight:700;
 }
 
+.portfolio-person-block-disabled{
+  opacity:0.6;
+  filter:saturate(0.6);
+}
+
+.portfolio-person-block-disabled input,
+.portfolio-person-block-disabled select,
+.portfolio-person-block-disabled textarea,
+.portfolio-person-block-disabled button{
+  cursor:not-allowed;
+}
+
 /* ----------------------------------------
    Accounts section header
    ---------------------------------------- */
