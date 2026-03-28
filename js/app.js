@@ -82,7 +82,6 @@ const els = {
   continueToAssumptionsBtn: document.getElementById('continueToAssumptionsBtn'),
   portfolioValidationStatus: document.getElementById('portfolioValidationStatus'),
   runSimulationBtn: document.getElementById('runSimulationBtn'),
-  resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
 
   summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
@@ -141,6 +140,17 @@ const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
 const PORTFOLIO_CONFIG_STORAGE_KEY = 'retirement_portfolio_config_v1';
 const PORTFOLIO_PEOPLE_STORAGE_KEY = 'retirement_portfolio_people_v1';
 
+function updateRunSimulationButtonState(activeTab) {
+  if (!els.runSimulationBtn) return;
+
+  const isAssumptionsTab = activeTab === 'assumptions';
+
+  els.runSimulationBtn.classList.toggle('btn-primary', isAssumptionsTab);
+  els.runSimulationBtn.classList.toggle('btn-secondary', !isAssumptionsTab);
+  els.runSimulationBtn.classList.toggle('btn-run-simulation--active', isAssumptionsTab);
+  els.runSimulationBtn.classList.toggle('btn-run-simulation--inactive', !isAssumptionsTab);
+  els.runSimulationBtn.setAttribute('aria-disabled', String(!isAssumptionsTab));
+}
 
 function savePortfolioToStorage() {
   const activeAccounts = getActivePortfolioAccounts();
@@ -171,8 +181,8 @@ const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 const tabs = initialiseTabs({
   defaultTab: 'portfolio',
   onChange: (tabName) => {
-
     document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
+    updateRunSimulationButtonState(tabName);
 
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
@@ -291,7 +301,8 @@ function initialise() {
   applyPerson2PortfolioRules();
   document.body.classList.add('is-portfolio');
   tabs.setActiveTab('portfolio');
-}
+  updateRunSimulationButtonState('portfolio');
+  }
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
@@ -557,8 +568,49 @@ function attachEvents() {
   }
 
   if (els.runSimulationBtn) {
-      els.runSimulationBtn.addEventListener('click', () => {
-        const activeAccounts = getActivePortfolioAccounts();
+  els.runSimulationBtn.addEventListener('click', () => {
+    const assumptionsTabButton = document.querySelector('[data-tab-button="assumptions"]');
+    const isAssumptionsTabActive = assumptionsTabButton?.classList.contains('is-active');
+
+    if (!isAssumptionsTabActive) {
+      return;
+    }
+
+    const activeAccounts = getActivePortfolioAccounts();
+
+    if (!activeAccounts.length) {
+      showError('Build your portfolio first - add at least one account to run a simulation.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
+
+    const validationState = getPortfolioValidationState();
+
+    if (!validationState.isReady) {
+      showError('Fix the highlighted portfolio issues before running a simulation.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
+
+    const totals = calculatePortfolioTotals(portfolioAccounts);
+    const mappedInputs = mapPortfolioToInputs(totals);
+
+    const currentInputs = {
+      ...DEFAULT_INPUTS,
+      ...gatherInputs()
+    };
+
+    latestBaseInputs = {
+      ...currentInputs,
+      ...mappedInputs
+    };
+
+    applyPortfolioInputsToAssumptions(mappedInputs);
+
+    hideError();
+    runSimulation();
+  });
+}
     
         if (!activeAccounts.length) {
           showError('Build your portfolio first - add at least one account to run a simulation.');
