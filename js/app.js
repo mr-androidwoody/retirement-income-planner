@@ -1209,26 +1209,43 @@ function showResults() {
 function renderAll() {
   if (!latestResult) return;
 
-  renderResultsView({
-    result: latestResult,
-    elements: els,
-    useReal: Boolean(els.showRealValues?.checked),
-    showFullTable: Boolean(els.showFullTable?.checked),
-    tableView: currentTableView,
-    tableMode: currentTableMode,
-    formatters: {
-      formatCurrency,
-      formatPercent,
-      formatYears
-    }
-  });
+  try {
+    console.log('renderAll start', latestResult);
 
-  applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+    renderResultsView({
+      result: latestResult,
+      elements: els,
+      useReal: Boolean(els.showRealValues?.checked),
+      showFullTable: Boolean(els.showFullTable?.checked),
+      tableView: currentTableView,
+      tableMode: currentTableMode,
+      formatters: {
+        formatCurrency,
+        formatPercent,
+        formatYears
+      }
+    });
 
-  attachTableModeSelector();
-  attachTableViewSelector();
-  togglePlanOutlook();
+    console.log('renderResultsView done');
+
+    applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+    console.log('applySuccessRateTone done');
+
+    attachTableModeSelector();
+    console.log('attachTableModeSelector done');
+
+    attachTableViewSelector();
+    console.log('attachTableViewSelector done');
+
+    togglePlanOutlook();
+    console.log('togglePlanOutlook done');
+  } catch (error) {
+    console.error('renderAll failed', error);
+    showError(error instanceof Error ? error.message : 'Results rendering failed.');
+  }
 }
+
+
 
 function applySuccessRateTone(successRate) {
   if (!els.summarySuccessRateCard) return;
