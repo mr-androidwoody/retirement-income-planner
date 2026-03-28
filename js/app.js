@@ -1677,7 +1677,7 @@ function applyPerson2PortfolioRules() {
   // Sync assumptions toggle
   if (els.includePerson2) {
     els.includePerson2.checked = hasPerson2;
-    els.includePerson2.disabled = !hasPerson2;
+    els.includePerson2.disabled = false;
   }
 
   // Keep assumptions panel visible, but dull it when person 2 is excluded
