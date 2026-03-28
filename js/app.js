@@ -441,6 +441,7 @@ function attachEvents() {
     els.portfolioPerson1Name.addEventListener('input', (e) => {
       portfolioPeople.person1Name = e.target.value;
       savePortfolioPeopleToStorage();
+      renderPortfolioTable();
     });
   }
 
@@ -448,6 +449,7 @@ function attachEvents() {
     els.portfolioPerson2Name.addEventListener('input', (e) => {
       portfolioPeople.person2Name = e.target.value;
       savePortfolioPeopleToStorage();
+      renderPortfolioTable();
     });
   }
 
@@ -1646,6 +1648,18 @@ function updatePortfolioSummaryCards() {
   }
 }
 
+function getPortfolioOwnerLabel(owner) {
+  if (owner === 'Person 1') {
+    return (portfolioPeople.person1Name || '').trim() || 'Person 1';
+  }
+
+  if (owner === 'Person 2') {
+    return (portfolioPeople.person2Name || '').trim() || 'Person 2';
+  }
+
+  return owner;
+}
+
 function renderPortfolioTable() {
   const tbody = document.getElementById('portfolioTableBody');
   if (!tbody) return;
@@ -1694,9 +1708,9 @@ function renderPortfolioTable() {
 
       <td>
         <select data-id="${account.id}" data-field="owner">
-          <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>Person 1</option>
+          <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>${getPortfolioOwnerLabel('Person 1')}</option>
           ${portfolioConfig.hasPerson2 ? `
-            <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>Person 2</option>
+            <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>${getPortfolioOwnerLabel('Person 2')}</option>
           ` : ''}
           <option value="Joint" ${account.owner === 'Joint' ? 'selected' : ''}>Joint</option>
         </select>
