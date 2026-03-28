@@ -576,6 +576,18 @@ textarea{
   font-weight:700;
 }
 
+.portfolio-person-block-disabled{
+  opacity:0.6;
+  filter:saturate(0.6);
+}
+
+.portfolio-person-block-disabled input,
+.portfolio-person-block-disabled select,
+.portfolio-person-block-disabled textarea,
+.portfolio-person-block-disabled button{
+  cursor:not-allowed;
+}
+
 /* ----------------------------------------
    Accounts section header
    ---------------------------------------- */
@@ -588,7 +600,7 @@ textarea{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
-  gap:20px;
+  gap:16px;
   margin-bottom:12px;
   flex-wrap:wrap;
 }
@@ -596,28 +608,36 @@ textarea{
 .portfolio-section-heading{
   margin-bottom:0;
   min-width:0;
-  flex:1 1 420px;
+  flex:1 1 calc((((100% - 32px) / 3) * 2) + 16px);
 }
 
 .portfolio-section-header-meta{
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
+  align-items:stretch;
   gap:10px;
-  flex:0 0 auto;
-  min-width:280px;
+  flex:0 0 calc((100% - 32px) / 3) * 0.9);
+  min-width:0;
+  margin-left:auto;
 }
 
 .portfolio-section-total{
   display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:4px;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+  min-height:36px;
+  padding:8px 10px;
+  box-sizing:border-box;
+  background:#f7faff;
+  border:1px solid #dbe6f3;
+  border-radius:10px;
 }
 
 .portfolio-section-total__label{
   color:#50627f;
-  font-size:0.74rem;
+  font-size:0.78rem;
   font-weight:700;
   line-height:1.2;
 }
@@ -625,8 +645,13 @@ textarea{
 .portfolio-section-total #portfolioTotalValue{
   margin-top:0;
   padding-top:0;
-  font-size:1.8rem;
-  line-height:1;
+  margin-left:auto;
+  color:var(--text);
+  font-size:1.26rem;
+  font-weight:800;
+  line-height:1.2;
+  text-align:right;
+  white-space:nowrap;
 }
 
 .portfolio-section-actions{
@@ -716,20 +741,20 @@ textarea{
 }
 
 /* ----------------------------------------
-   Column widths
+   Column widths (balanced to 100%)
    ---------------------------------------- */
 
 .portfolio-table th:nth-child(1),
-.portfolio-table td:nth-child(1){ width:20%; }
+.portfolio-table td:nth-child(1){ width:18%; }
 
 .portfolio-table th:nth-child(2),
-.portfolio-table td:nth-child(2){ width:12%; }
+.portfolio-table td:nth-child(2){ width:11%; }
 
 .portfolio-table th:nth-child(3),
-.portfolio-table td:nth-child(3){ width:16%; }
+.portfolio-table td:nth-child(3){ width:14%; }
 
 .portfolio-table th:nth-child(4),
-.portfolio-table td:nth-child(4){ width:12%; }
+.portfolio-table td:nth-child(4){ width:11%; }
 
 .portfolio-table th:nth-child(5),
 .portfolio-table td:nth-child(5),
@@ -739,7 +764,7 @@ textarea{
 .portfolio-table td:nth-child(7),
 .portfolio-table th:nth-child(8),
 .portfolio-table td:nth-child(8){
-  width:8%;
+  width:7%;
 }
 
 .portfolio-table th:nth-child(9),
@@ -753,9 +778,11 @@ textarea{
 .portfolio-table td:nth-child(10){
   width:8%;
   text-align:center;
+  padding-left:0;
   padding-right:0;
 }
 
+/* Centre Remove button */
 .portfolio-table td:nth-child(10) .btn{
   display:block;
   margin:0 auto;
@@ -948,6 +975,26 @@ textarea{
   line-height:1.4;
 }
 
+.portfolio-summary-total-row{
+  border-style:solid;
+  border-width:1px;
+  border-color:#c6d4ea;
+  background:#eef4ff;
+}
+
+.portfolio-summary-total-row span:first-child,
+.portfolio-summary-total-row .value{
+  font-weight:800;
+}
+
+.portfolio-summary-total-row.is-balanced .value{
+  color:#166534;
+}
+
+.portfolio-summary-total-row.is-off .value{
+  color:#92400e;
+}
+
 /* ----------------------------------------
    Total portfolio value display
    ---------------------------------------- */
@@ -956,7 +1003,7 @@ textarea{
 #portfolioTotalValue{
   color:#22314d;
   font-weight:800;
-  letter-spacing:-0.04em;
+  letter-spacing:-0.02em;
 }
 
 #portfolioTotalValue{
@@ -995,8 +1042,9 @@ textarea{
   }
 
   .portfolio-section-total{
-    align-items:flex-start;
-  }
+  align-items:center;
+  justify-content:space-between;
+}
 
   .portfolio-section-actions{
     justify-content:flex-start;
