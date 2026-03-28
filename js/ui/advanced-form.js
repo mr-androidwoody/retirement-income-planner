@@ -41,17 +41,17 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
 
   function readValues() {
   return {
-    equityReturn: parseLooseNumber(elements.equityReturn.value) / 100,
-    equityVolatility: parseLooseNumber(elements.equityVolatility.value) / 100,
-    bondReturn: parseLooseNumber(elements.bondReturn.value) / 100,
-    bondVolatility: parseLooseNumber(elements.bondVolatility.value) / 100,
-    cashlikeReturn: parseLooseNumber(elements.cashlikeReturn.value) / 100,
-    cashlikeVolatility: parseLooseNumber(elements.cashlikeVolatility.value) / 100,
-    inflation: parseLooseNumber(elements.inflation.value) / 100,
+    equityReturn: parseLooseNumber(elements.equityReturn.value),
+    equityVolatility: parseLooseNumber(elements.equityVolatility.value),
+    bondReturn: parseLooseNumber(elements.bondReturn.value),
+    bondVolatility: parseLooseNumber(elements.bondVolatility.value),
+    cashlikeReturn: parseLooseNumber(elements.cashlikeReturn.value),
+    cashlikeVolatility: parseLooseNumber(elements.cashlikeVolatility.value),
+    inflation: parseLooseNumber(elements.inflation.value),
 
-    upperGuardrail: parseLooseNumber(elements.upperGuardrail.value) / 100,
-    lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value) / 100,
-    adjustmentSize: parseLooseNumber(elements.adjustmentSize.value) / 100,
+    upperGuardrail: parseLooseNumber(elements.upperGuardrail.value),
+    lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value),
+    adjustmentSize: parseLooseNumber(elements.adjustmentSize.value),
 
     monteCarloRuns: parseLooseInteger(elements.monteCarloRuns.value),
 
