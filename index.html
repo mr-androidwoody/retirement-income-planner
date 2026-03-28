@@ -41,42 +41,57 @@
           </p>
         </div>
 
-        <div class="top-header__controls">
-          <nav class="top-header__tabs tab-nav" aria-label="Simulator sections" role="tablist">
-            <button
-              class="tab-button is-active"
-              type="button"
-              role="tab"
-              aria-selected="true"
-              data-tab-button="portfolio"
-            >
-              Portfolio
-            </button>
-            <button
-              class="tab-button"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              data-tab-button="assumptions"
-            >
-              Assumptions
-            </button>
-            <button
-              class="tab-button"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              data-tab-button="results"
-            >
-              Results
-            </button>
-          </nav>
-
-          <div class="top-header__actions action-row action-row--top-chrome">
-            <button id="runSimulationBtn" class="btn btn-primary" type="button">Run simulation</button>
-            <button id="resetDefaultsBtn" class="btn btn-secondary" type="button">Reset defaults</button>
-          </div>
-        </div>
+            <div class="top-header__controls">
+              <nav class="top-header__tabs tab-nav" aria-label="Planner workflow" role="tablist">
+                <button
+                  class="tab-button is-active"
+                  type="button"
+                  role="tab"
+                  aria-selected="true"
+                  data-tab-button="portfolio"
+                >
+                  <span class="tab-button__roundel" aria-hidden="true">1</span>
+                  <span class="tab-button__label">Portfolio</span>
+                </button>
+            
+                <span class="tab-workflow-separator" aria-hidden="true"></span>
+            
+                <button
+                  class="tab-button"
+                  type="button"
+                  role="tab"
+                  aria-selected="false"
+                  data-tab-button="assumptions"
+                >
+                  <span class="tab-button__roundel" aria-hidden="true">2</span>
+                  <span class="tab-button__label">Assumptions</span>
+                </button>
+            
+                <span class="tab-workflow-separator" aria-hidden="true"></span>
+            
+                <button
+                  class="tab-button"
+                  type="button"
+                  role="tab"
+                  aria-selected="false"
+                  data-tab-button="results"
+                >
+                  <span class="tab-button__roundel" aria-hidden="true">3</span>
+                  <span class="tab-button__label">Results</span>
+                </button>
+              </nav>
+            
+              <div class="top-header__actions action-row action-row--top-chrome">
+                <button
+                  id="runSimulationBtn"
+                  class="btn btn-secondary btn-run-simulation btn-run-simulation--inactive"
+                  type="button"
+                  aria-disabled="true"
+                >
+                  Run simulation
+                </button>
+              </div>
+            </div>
       </div>
     </header>
 
