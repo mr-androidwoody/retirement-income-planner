@@ -533,7 +533,7 @@ function attachEvents() {
     });
   }
 
-  const savePortfolioBtn = document.getElementById('savePortfolioBtn');
+    const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
   if (savePortfolioBtn) {
     savePortfolioBtn.addEventListener('click', () => {
@@ -547,6 +547,25 @@ function attachEvents() {
       window.setTimeout(() => {
         savePortfolioBtn.textContent = originalLabel;
       }, 1200);
+    });
+  }
+
+  const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
+
+  if (deletePortfolioBtn) {
+    deletePortfolioBtn.addEventListener('click', () => {
+      const confirmed = window.confirm('Delete entire portfolio? This cannot be undone.');
+      if (!confirmed) return;
+
+      portfolioAccounts.length = 0;
+      latestBaseInputs = null;
+
+      localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
+      localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
+      localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+
+      hideError();
+      renderPortfolioTable();
     });
   }
 
