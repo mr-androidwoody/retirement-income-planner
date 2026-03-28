@@ -445,11 +445,9 @@ function attachEvents() {
     els.includePerson2.addEventListener('change', () => {
       if (!portfolioConfig.hasPerson2) {
         els.includePerson2.checked = false;
-      }
+       }
 
-      if (els.person2Panel) {
-        els.person2Panel.style.display = els.includePerson2.checked ? '' : 'none';
-      }
+      applyPerson2PortfolioRules();
     });
   }
 
@@ -1651,16 +1649,49 @@ function renderPortfolioTable() {
 function applyPerson2PortfolioRules() {
   const hasPerson2 = portfolioConfig.hasPerson2;
 
+  const portfolioPerson2Block = els.portfolioPerson2Name?.closest('.portfolio-person-block');
+
   // Sync assumptions toggle
   if (els.includePerson2) {
     els.includePerson2.checked = hasPerson2;
     els.includePerson2.disabled = !hasPerson2;
   }
 
-  // Show / hide panel
+  // Keep assumptions panel visible, but dull it when person 2 is excluded
   if (els.person2Panel) {
-    els.person2Panel.style.display = hasPerson2 ? '' : 'none';
+    els.person2Panel.classList.toggle('person-panel-disabled', !hasPerson2);
+    els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
   }
+
+  // Make portfolio person 2 block go dull too
+  if (portfolioPerson2Block) {
+    portfolioPerson2Block.classList.toggle('portfolio-person-block-disabled', !hasPerson2);
+    portfolioPerson2Block.setAttribute('aria-disabled', String(!hasPerson2));
+  }
+
+  // Lock / unlock person 2 assumption fields
+  [
+    els.person2Name,
+    els.person2Age,
+    els.person2PensionAge,
+    els.person2GetsFullPension,
+    els.person2OtherIncomeToday,
+    els.person2OtherIncomeYears,
+    els.person2WindfallAmount,
+    els.person2WindfallYear
+  ].forEach((field) => {
+    if (!field) return;
+    field.disabled = !hasPerson2;
+  });
+
+  // Lock / unlock portfolio person 2 fields
+  [
+    els.portfolioPerson2Name,
+    els.portfolioPerson2Age
+  ].forEach((field) => {
+    if (!field) return;
+    field.disabled = !hasPerson2;
+  });
 
   // Clean invalid account owners
   if (!hasPerson2) {
