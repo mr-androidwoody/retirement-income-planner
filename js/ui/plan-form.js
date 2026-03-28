@@ -86,19 +86,19 @@ export function createPlanForm(
     );
   }
 
-  function normaliseAllocationInputs(elements, parseLooseNumber) {
-  const equity = Math.round(parseLooseNumber(elements.equityAllocation?.value) || 0);
-  const bond = Math.round(parseLooseNumber(elements.bondAllocation?.value) || 0);
-  const cashlike = Math.round(parseLooseNumber(elements.cashlikeAllocation?.value) || 0);
-  const cash = 100 - equity - bond - cashlike;
+  function normaliseAllocationInputs(elementsRef, parseNumber) {
+    const equity = Math.round(parseNumber(elementsRef.equityAllocation?.value) || 0);
+    const bond = Math.round(parseNumber(elementsRef.bondAllocation?.value) || 0);
+    const cashlike = Math.round(parseNumber(elementsRef.cashlikeAllocation?.value) || 0);
+    const cash = 100 - equity - bond - cashlike;
 
-  return {
-    equityAllocation: equity,
-    bondAllocation: bond,
-    cashlikeAllocation: cashlike,
-    cashAllocation: cash
-  };
-}  
+    return {
+      equityAllocation: equity,
+      bondAllocation: bond,
+      cashlikeAllocation: cashlike,
+      cashAllocation: cash
+    };
+  }
 
   function syncMonteCarloRunsPreset() {
     if (!elements.monteCarloRunsPreset || !elements.monteCarloRuns) return;
@@ -229,11 +229,16 @@ export function createPlanForm(
       formatInteger
     );
 
-    setFieldValue(elements, 'initialWithdrawalRate', '');
+    setFieldValue(
+      elements,
+      'initialWithdrawalRate',
+      defaults.initialWithdrawalRate ?? ''
+    );
+
     setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
     setFieldValue(elements, 'bondAllocation', defaults.bondAllocation);
     setFieldValue(elements, 'cashlikeAllocation', defaults.cashlikeAllocation);
-    setFieldValue(elements, 'cashAllocation', defaults.cashAllocation ?? 0);  
+    setFieldValue(elements, 'cashAllocation', defaults.cashAllocation ?? 0);
 
     if (elements.rebalanceToTarget) {
       elements.rebalanceToTarget.checked = Boolean(defaults.rebalanceToTarget);
@@ -255,7 +260,7 @@ export function createPlanForm(
       formatInteger
     );
 
-    setFieldValue(elements, 'person1Name', '');
+    setFieldValue(elements, 'person1Name', defaults.person1Name ?? '');
     setFieldValue(elements, 'person1Age', defaults.person1Age);
     setFieldValue(elements, 'person1PensionAge', defaults.person1PensionAge);
 
@@ -296,7 +301,7 @@ export function createPlanForm(
       elements.includePerson2.checked = resolveIncludePerson2(defaults);
     }
 
-    setFieldValue(elements, 'person2Name', '');
+    setFieldValue(elements, 'person2Name', defaults.person2Name ?? '');
     setFieldValue(elements, 'person2Age', defaults.person2Age);
     setFieldValue(elements, 'person2PensionAge', defaults.person2PensionAge);
 
