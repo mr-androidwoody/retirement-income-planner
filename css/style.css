@@ -2568,15 +2568,19 @@ input[type="checkbox"]{
 
 .error-box{
   display:none;
-  margin-top:16px;
-  margin-bottom:16px;
-  padding:12px 14px;
-  background:#fff2f2;
-  color:#8f1824;
-  border:1px solid #f1c5cb;
+  padding:14px 16px;
+  margin:0 0 16px;
+  background:#f8d7da;
+  border:1px solid #f1aeb5;
   border-radius:14px;
-  font-size:0.92rem;
-  line-height:1.5;
+  color:#842029;
+  font-size:1rem;
+  font-weight:600;
+  line-height:1.35;
+}
+
+.error-box.error-box--visible{
+  display:block;
 }
 
 /* ========================================
