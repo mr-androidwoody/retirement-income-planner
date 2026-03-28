@@ -123,7 +123,7 @@ const els = {
 let latestResult = null;
 let latestBaseInputs = null;
 let worker = null;
-let withdrawalInputMode = 'amount';
+let withdrawalInputMode = 'rate';
 let currentTableView = 'median';
 let currentTableMode = 'plan';
 let portfolioAccounts = [];
@@ -296,7 +296,7 @@ function initialise() {
   loadPortfolioPeopleFromStorage();
   attachEvents();
   setResultsViewDefaults();
-  syncInitialWithdrawalRateFromAmount();
+  syncInitialSpendingFromRate();
   updateAllocationStatus();
   renderPortfolioPeopleFields();
   renderPortfolioTable();
@@ -410,10 +410,15 @@ function applyDefaults() {
   planForm.applyDefaults(DEFAULT_INPUTS);
   advancedForm.applyDefaults(DEFAULT_INPUTS);
   latestBaseInputs = null;
-  withdrawalInputMode = 'amount';
+  withdrawalInputMode = 'rate';
   currentTableView = 'median';
   currentTableMode = 'plan';
-  syncInitialWithdrawalRateFromAmount();
+
+  if (els.initialWithdrawalRate && !String(els.initialWithdrawalRate.value || '').trim()) {
+    els.initialWithdrawalRate.value = '4';
+  }
+
+  syncInitialSpendingFromRate();
 }
 
 function clearAssumptionsUi() {
@@ -482,9 +487,14 @@ function clearAssumptionsUi() {
   }
 
   latestBaseInputs = null;
-  withdrawalInputMode = 'amount';
+  withdrawalInputMode = 'rate';
+
+  if (els.initialWithdrawalRate && !String(els.initialWithdrawalRate.value || '').trim()) {
+    els.initialWithdrawalRate.value = '4';
+  }
+
   updateAllocationStatus();
-}
+  }
 
 function setResultsViewDefaults() {
   if (els.chartModeNominal) els.chartModeNominal.checked = false;
@@ -1669,9 +1679,13 @@ function applyPortfolioInputsToAssumptions(inputs) {
   }
 
   if (els.initialWithdrawalRate) {
-    els.initialWithdrawalRate.value = Number.isFinite(Number(inputs.initialWithdrawalRate))
-      ? formatRate(Number(inputs.initialWithdrawalRate))
-      : '';
+    const nextRate = Number(inputs.initialWithdrawalRate);
+
+    if (Number.isFinite(nextRate)) {
+      els.initialWithdrawalRate.value = formatRate(nextRate);
+    } else if (!String(els.initialWithdrawalRate.value || '').trim()) {
+      els.initialWithdrawalRate.value = '4';
+    }
   }
 
   if (els.initialSpending) {
