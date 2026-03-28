@@ -569,7 +569,7 @@ function continueToAssumptions() {
   const mappedInputs = mapPortfolioToInputs(portfolioTotals);
   const currentInputs = {
     ...DEFAULT_INPUTS,
-    ...gatherInputs()
+    ...sanitiseInputs(gatherInputs())
   };
 
   latestBaseInputs = {
@@ -697,17 +697,10 @@ function attachEvents() {
   }
 
   if (els.runSimulationBtn) {
-    els.runSimulationBtn.addEventListener('click', () => {
-      const assumptionsTabButton = document.querySelector('[data-tab-button="assumptions"]');
-      const isAssumptionsTabActive = assumptionsTabButton?.classList.contains('is-active');
-
-      if (!isAssumptionsTabActive) {
-        return;
-      }
-
-      prepareAndRunSimulation();
-    });
-  }
+      els.runSimulationBtn.addEventListener('click', () => {
+        prepareAndRunSimulation();
+      });
+    }
 
   const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
