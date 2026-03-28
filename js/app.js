@@ -377,24 +377,31 @@ function setupWorker() {
     worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
 
     worker.onmessage = (event) => {
+      console.log('worker response', event.data);
+
       planForm.setBusy(false);
 
       if (!event.data?.ok) {
+        console.error('worker error', event.data);
         showError(event.data?.error || 'Simulation failed.');
         return;
       }
 
       latestResult = event.data.result;
+      console.log('latestResult set', latestResult);
+
       hideError();
       showResults();
     };
 
-    worker.onerror = () => {
+    worker.onerror = (error) => {
+      console.error('worker.onerror', error);
       worker = null;
       planForm.setBusy(false);
       showError('Web Worker failed to load. Falling back to main-thread simulation.');
     };
-  } catch {
+  } catch (error) {
+    console.error('setupWorker failed', error);
     worker = null;
   }
 }
