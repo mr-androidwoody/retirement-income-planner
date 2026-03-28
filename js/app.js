@@ -1124,7 +1124,20 @@ function runSimulation() {
     console.log('runSimulation mergedInputs', mergedInputs);
 
     const errors = validateInputs(mergedInputs);
-    console.log('runSimulation validation errors', errors, mergedInputs);
+    console.log('runSimulation validation errors JSON', JSON.stringify(errors, null, 2));
+    console.log('runSimulation mergedInputs JSON', JSON.stringify(mergedInputs, null, 2));
+    
+    if (errors.length > 0) {
+      console.error('Validation failed');
+      errors.forEach((error, index) => {
+        console.error(`Error ${index + 1}:`, error);
+      });
+      console.log('Merged inputs snapshot:', mergedInputs);
+    
+      showError(errors.join(' '));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     if (errors.length > 0) {
       showError(errors.join(' '));
