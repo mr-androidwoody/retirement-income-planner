@@ -974,6 +974,14 @@ textarea{
   font-weight:800;
 }
 
+.portfolio-summary-total-row.is-balanced .value{
+  color:#166534;
+}
+
+.portfolio-summary-total-row.is-off .value{
+  color:#92400e;
+}
+
 /* ----------------------------------------
    Total portfolio value display
    ---------------------------------------- */
