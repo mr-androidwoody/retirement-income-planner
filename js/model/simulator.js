@@ -815,10 +815,10 @@ function toInt(value) {
 
 function toRate(value) {
   const numeric = toNumber(value);
-  return Math.abs(numeric) > 1 ? numeric / 100 : numeric;
+  return Math.abs(numeric) >= 1 ? numeric / 100 : numeric;
 }
 
 function toRatio(value) {
   const numeric = toNumber(value);
-  return Math.abs(numeric) > 1 ? numeric / 100 : numeric;
+  return Math.abs(numeric) >= 1 ? numeric / 100 : numeric;
 }
