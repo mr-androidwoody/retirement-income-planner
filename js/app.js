@@ -416,6 +416,42 @@ function setResultsViewDefaults() {
   if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
 
+function prepareAndRunSimulation() {
+  const activeAccounts = getActivePortfolioAccounts();
+
+  if (!activeAccounts.length) {
+    showError('Build your portfolio first - add at least one account to run a simulation.');
+    tabs.setActiveTab('portfolio');
+    return;
+  }
+
+  const validationState = getPortfolioValidationState();
+
+  if (!validationState.isReady) {
+    showError('Fix the highlighted portfolio issues before running a simulation.');
+    tabs.setActiveTab('portfolio');
+    return;
+  }
+
+  const totals = calculatePortfolioTotals(portfolioAccounts);
+  const mappedInputs = mapPortfolioToInputs(totals);
+
+  const currentInputs = {
+    ...DEFAULT_INPUTS,
+    ...gatherInputs()
+  };
+
+  latestBaseInputs = {
+    ...currentInputs,
+    ...mappedInputs
+  };
+
+  applyPortfolioInputsToAssumptions(mappedInputs);
+
+  hideError();
+  runSimulation();
+}
+
 function attachEvents() {
   if (els.portfolioHasPerson2) {
     els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
@@ -568,83 +604,17 @@ function attachEvents() {
   }
 
   if (els.runSimulationBtn) {
-  els.runSimulationBtn.addEventListener('click', () => {
-    const assumptionsTabButton = document.querySelector('[data-tab-button="assumptions"]');
-    const isAssumptionsTabActive = assumptionsTabButton?.classList.contains('is-active');
+    els.runSimulationBtn.addEventListener('click', () => {
+      const assumptionsTabButton = document.querySelector('[data-tab-button="assumptions"]');
+      const isAssumptionsTabActive = assumptionsTabButton?.classList.contains('is-active');
 
-    if (!isAssumptionsTabActive) {
-      return;
-    }
+      if (!isAssumptionsTabActive) {
+        return;
+      }
 
-    const activeAccounts = getActivePortfolioAccounts();
-
-    if (!activeAccounts.length) {
-      showError('Build your portfolio first - add at least one account to run a simulation.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
-
-    const validationState = getPortfolioValidationState();
-
-    if (!validationState.isReady) {
-      showError('Fix the highlighted portfolio issues before running a simulation.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
-
-    const totals = calculatePortfolioTotals(portfolioAccounts);
-    const mappedInputs = mapPortfolioToInputs(totals);
-
-    const currentInputs = {
-      ...DEFAULT_INPUTS,
-      ...gatherInputs()
-    };
-
-    latestBaseInputs = {
-      ...currentInputs,
-      ...mappedInputs
-    };
-
-    applyPortfolioInputsToAssumptions(mappedInputs);
-
-    hideError();
-    runSimulation();
-  });
-}
-    
-        if (!activeAccounts.length) {
-          showError('Build your portfolio first - add at least one account to run a simulation.');
-          tabs.setActiveTab('portfolio');
-          return;
-        }
-    
-        const validationState = getPortfolioValidationState();
-    
-        if (!validationState.isReady) {
-          showError('Fix the highlighted portfolio issues before running a simulation.');
-          tabs.setActiveTab('portfolio');
-          return;
-        }
-    
-        const totals = calculatePortfolioTotals(portfolioAccounts);
-        const mappedInputs = mapPortfolioToInputs(totals);
-    
-        const currentInputs = {
-          ...DEFAULT_INPUTS,
-          ...gatherInputs()
-        };
-    
-        latestBaseInputs = {
-          ...currentInputs,
-          ...mappedInputs
-        };
-    
-        applyPortfolioInputsToAssumptions(mappedInputs);
-    
-        hideError();
-        runSimulation();
-      });
-    }
+      prepareAndRunSimulation();
+    });
+  }
 
   const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
@@ -710,40 +680,7 @@ function attachEvents() {
 
   planForm.bindActions({
     onRun: () => {
-      const activeAccounts = getActivePortfolioAccounts();
-
-      if (!activeAccounts.length) {
-        showError('Build your portfolio first - add at least one account to run a simulation.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const validationState = getPortfolioValidationState();
-
-      if (!validationState.isReady) {
-        showError('Fix the highlighted portfolio issues before running a simulation.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const totals = calculatePortfolioTotals(portfolioAccounts);
-      const mappedInputs = mapPortfolioToInputs(totals);
-    
-      const currentInputs = {
-        ...DEFAULT_INPUTS,
-        ...gatherInputs()
-      };
-    
-      latestBaseInputs = {
-        ...currentInputs,
-        ...mappedInputs
-      };
-    
-      applyPortfolioInputsToAssumptions(mappedInputs);
-    
-      hideError();
-      runSimulation();
-        
+      prepareAndRunSimulation();
     },
     onReset: () => {
       applyDefaults();
@@ -767,7 +704,9 @@ function attachEvents() {
 
   advancedForm.bindDisplayEvents({
     onViewChange: () => {
-      if (latestResult) renderAll();
+      if (latestResult) {
+        renderAll();
+      }
     }
   });
 
@@ -779,7 +718,9 @@ function attachEvents() {
   window.addEventListener(
     'resize',
     debounce(() => {
-      if (latestResult) renderAll();
+      if (latestResult) {
+        renderAll();
+      }
     }, 100)
   );
 
