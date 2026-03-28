@@ -668,6 +668,10 @@ textarea{
   min-height:40px;
 }
 
+#deletePortfolioBtn{
+  min-height:40px;
+}
+
 /* ----------------------------------------
    Table toolbar
    ---------------------------------------- */
@@ -686,6 +690,11 @@ textarea{
   align-items:center;
   gap:10px;
   flex:0 0 auto;
+}
+
+.portfolio-table-footer-actions{
+  justify-content:flex-end;
+  margin-top:12px;
 }
 
 /* ----------------------------------------
@@ -1083,9 +1092,11 @@ textarea{
 
   .portfolio-section-actions #continueToAssumptionsBtn,
   .portfolio-section-actions #savePortfolioBtn,
-  .portfolio-table-actions #addPortfolioAccountBtn{
+  .portfolio-table-actions #addPortfolioAccountBtn,
+  .portfolio-table-footer-actions #deletePortfolioBtn{
     width:100%;
-  }
+}
+    
 }
 
 /* ========================================
