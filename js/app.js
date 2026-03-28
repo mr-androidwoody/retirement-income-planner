@@ -116,6 +116,7 @@ const els = {
   resultsTable: document.getElementById('resultsTable'),
   resultsTableNote: document.getElementById('resultsTableNote'),
   resultsTableLegend: document.getElementById('resultsTableLegend'),
+  assumptionsTabButton: document.querySelector('[data-tab-button="assumptions"]'),
   resultsTabButton: document.querySelector('[data-tab-button="results"]')
 };
 
@@ -135,6 +136,7 @@ let portfolioPeople = {
   person1Age: 55,
   person2Age: 55
 };
+let hasMappedPortfolioToAssumptions = false;
 
 const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
 const PORTFOLIO_CONFIG_STORAGE_KEY = 'retirement_portfolio_config_v1';
@@ -289,6 +291,7 @@ function renderPortfolioPeopleFields() {
 function initialise() {
   setupWorker();
   applyDefaults();
+  clearAssumptionsUi();
   loadPortfolioFromStorage();
   loadPortfolioConfigFromStorage();
   loadPortfolioPeopleFromStorage();
@@ -302,7 +305,8 @@ function initialise() {
   document.body.classList.add('is-portfolio');
   tabs.setActiveTab('portfolio');
   updateRunSimulationButtonState('portfolio');
-  }
+  hasMappedPortfolioToAssumptions = false;
+}
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
@@ -406,6 +410,76 @@ function applyDefaults() {
   syncInitialWithdrawalRateFromAmount();
 }
 
+function clearAssumptionsUi() {
+  const textLikeFields = [
+    els.years,
+    els.initialPortfolio,
+    els.initialWithdrawalRate,
+    els.initialSpending,
+    els.comfortSpending,
+    els.minimumSpending,
+    els.annualFeeRate,
+    els.equityAllocation,
+    els.bondAllocation,
+    els.cashlikeAllocation,
+    els.cashAllocation,
+    els.equityReturn,
+    els.equityVolatility,
+    els.bondReturn,
+    els.bondVolatility,
+    els.cashlikeReturn,
+    els.cashlikeVolatility,
+    els.inflation,
+    els.person1Name,
+    els.person1Age,
+    els.person1PensionAge,
+    els.person2Name,
+    els.person2Age,
+    els.person2PensionAge,
+    els.statePensionToday,
+    els.person1OtherIncomeToday,
+    els.person1OtherIncomeYears,
+    els.person1WindfallAmount,
+    els.person1WindfallYear,
+    els.person2OtherIncomeToday,
+    els.person2OtherIncomeYears,
+    els.person2WindfallAmount,
+    els.person2WindfallYear,
+    els.upperGuardrail,
+    els.lowerGuardrail,
+    els.adjustmentSize,
+    els.monteCarloRuns
+  ].filter(Boolean);
+
+  textLikeFields.forEach((field) => {
+    field.value = '';
+  });
+
+  const checkboxFields = [
+    els.rebalanceToTarget,
+    els.includePerson2,
+    els.person1GetsFullPension,
+    els.person2GetsFullPension,
+    els.skipInflationAfterNegative
+  ].filter(Boolean);
+
+  checkboxFields.forEach((field) => {
+    field.checked = false;
+  });
+
+  if (els.simulationMode) {
+    els.simulationMode.selectedIndex = 0;
+  }
+
+  if (els.historicalScenario) {
+    els.historicalScenario.selectedIndex = 0;
+  }
+
+  latestBaseInputs = null;
+  withdrawalInputMode = 'amount';
+  updateAllocationStatus();
+}
+
 function setResultsViewDefaults() {
   if (els.chartModeNominal) els.chartModeNominal.checked = false;
   if (els.chartModeReal) els.chartModeReal.checked = true;
@@ -441,15 +515,68 @@ function prepareAndRunSimulation() {
     ...gatherInputs()
   };
 
+    latestBaseInputs = {
+    ...currentInputs,
+    ...mappedInputs
+   };
+
+    applyPortfolioInputsToAssumptions(mappedInputs);
+    hasMappedPortfolioToAssumptions = true;
+
+    hideError();
+    runSimulation();
+}
+
+function continueToAssumptions() {
+  const activeAccounts = getActivePortfolioAccounts();
+  const validationState = getPortfolioValidationState();
+
+  if (!activeAccounts.length) {
+    showError('Add at least one account before continuing.');
+    tabs.setActiveTab('portfolio');
+    return false;
+  }
+
+  if (!validationState.isReady) {
+    showError('Fix the highlighted portfolio issues before continuing.');
+    tabs.setActiveTab('portfolio');
+    return false;
+  }
+
+  const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
+  const roundedPortfolioTotal =
+    Math.round(portfolioTotals.allocations.equities) +
+    Math.round(portfolioTotals.allocations.bonds) +
+    Math.round(portfolioTotals.allocations.cashlike) +
+    Math.round(portfolioTotals.allocations.cash);
+
+  if (roundedPortfolioTotal < 99 || roundedPortfolioTotal > 101) {
+    showError('Portfolio totals could not be mapped cleanly to Assumptions. Check your account allocations.');
+    tabs.setActiveTab('portfolio');
+    return false;
+  }
+
+  const mappedInputs = mapPortfolioToInputs(portfolioTotals);
+  const currentInputs = {
+    ...DEFAULT_INPUTS,
+    ...gatherInputs()
+  };
+
   latestBaseInputs = {
     ...currentInputs,
     ...mappedInputs
   };
 
   applyPortfolioInputsToAssumptions(mappedInputs);
+  hasMappedPortfolioToAssumptions = true;
+  tabs.setActiveTab('assumptions');
 
-  hideError();
-  runSimulation();
+  requestAnimationFrame(() => {
+    hideError();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  return true;
 }
 
 function attachEvents() {
@@ -547,51 +674,7 @@ function attachEvents() {
 
   if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
-      const activeAccounts = getActivePortfolioAccounts();
-      const validationState = getPortfolioValidationState();
-
-      if (!activeAccounts.length) {
-        showError('Add at least one account before continuing.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      if (!validationState.isReady) {
-        showError('Fix the highlighted portfolio issues before continuing.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
-      const roundedPortfolioTotal =
-        Math.round(portfolioTotals.allocations.equities) +
-        Math.round(portfolioTotals.allocations.bonds) +
-        Math.round(portfolioTotals.allocations.cashlike) +
-        Math.round(portfolioTotals.allocations.cash);
-
-      if (roundedPortfolioTotal < 99 || roundedPortfolioTotal > 101) {
-        showError('Portfolio totals could not be mapped cleanly to Assumptions. Check your account allocations.');
-        return;
-      }
-
-      const mappedInputs = mapPortfolioToInputs(portfolioTotals);
-      const currentInputs = {
-        ...DEFAULT_INPUTS,
-        ...gatherInputs()
-      };
-
-      latestBaseInputs = {
-        ...currentInputs,
-        ...mappedInputs
-      };
-
-      applyPortfolioInputsToAssumptions(mappedInputs);
-      tabs.setActiveTab('assumptions');
-
-      requestAnimationFrame(() => {
-        hideError();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+      continueToAssumptions();
     });
   }
 
@@ -662,6 +745,7 @@ function attachEvents() {
     confirmDeleteBtn.addEventListener('click', () => {
       portfolioAccounts.length = 0;
       latestBaseInputs = null;
+      hasMappedPortfolioToAssumptions = false;
 
       localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
       localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
@@ -684,10 +768,12 @@ function attachEvents() {
     },
     onReset: () => {
       applyDefaults();
+      clearAssumptionsUi();
       setResultsViewDefaults();
       updateAllocationStatus();
       applyPerson2PortfolioRules();
       renderPortfolioPeopleFields();
+      hasMappedPortfolioToAssumptions = false;
 
       latestResult = null;
       latestBaseInputs = null;
@@ -714,6 +800,7 @@ function attachEvents() {
   attachChartModeEvents();
   attachGuytonKlingerEvents();
   attachResultsTabGuard();
+  attachAssumptionsTabGuard();
 
   window.addEventListener(
     'resize',
@@ -903,6 +990,26 @@ function attachResultsTabGuard() {
       tabs.setActiveTab('portfolio');
       showError('Before you can view your results, you need to run a simulation.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    true
+  );
+}
+
+function attachAssumptionsTabGuard() {
+  if (!els.assumptionsTabButton) return;
+
+  els.assumptionsTabButton.addEventListener(
+    'click',
+    (event) => {
+      if (hasMappedPortfolioToAssumptions) {
+        hideError();
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      continueToAssumptions();
     },
     true
   );
