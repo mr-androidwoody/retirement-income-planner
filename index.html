@@ -136,42 +136,110 @@
               <!-- Portfolio top row -->
               <div class="portfolio-top-row">
                 <!-- People -->
-                <section class="input-group-card card-block portfolio-people-card">
-                  <div class="section-heading">
-                    <h3>People</h3>
-                    <p>Name the people in this plan. These names will carry through to Assumptions.</p>
-                  </div>
-        
-                  <div class="portfolio-people-strip">
-                    <div class="portfolio-people-field">
-                      <label for="portfolioPerson1Name">Person 1</label>
+            <section class="input-group-card card-block portfolio-people-card">
+              <div class="section-heading">
+                <h3>People</h3>
+                <p>Name the people in this plan. These names will carry through to Assumptions.</p>
+              </div>
+            
+              <div class="portfolio-people-strip">
+                <div class="portfolio-person-block">
+                  <div class="portfolio-person-row">
+                    <label class="portfolio-people-field">
+                      <span class="portfolio-people-field__label">Person 1</span>
                       <input
                         id="portfolioPerson1Name"
                         type="text"
-                        placeholder="Person 1"
+                        placeholder="Enter name"
                         maxlength="30"
                       />
-                    </div>
-        
-                    <div class="portfolio-people-field">
-                      <label for="portfolioPerson2Name">Person 2</label>
+                    </label>
+            
+                    <label class="portfolio-people-field portfolio-people-field--age">
+                      <span class="portfolio-people-field__label">Current age</span>
+                      <div class="stepper-input">
+                        <button
+                          type="button"
+                          class="stepper-btn"
+                          data-step-target="portfolioPerson1Age"
+                          data-step-direction="-1"
+                          data-step-size="1"
+                          aria-label="Decrease person 1 current age by 1"
+                        >−</button>
+                        <input
+                          id="portfolioPerson1Age"
+                          type="number"
+                          min="18"
+                          max="100"
+                          step="1"
+                          value="55"
+                        />
+                        <button
+                          type="button"
+                          class="stepper-btn"
+                          data-step-target="portfolioPerson1Age"
+                          data-step-direction="1"
+                          data-step-size="1"
+                          aria-label="Increase person 1 current age by 1"
+                        >+</button>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+            
+                <div class="portfolio-person-block">
+                  <div class="portfolio-person-row">
+                    <label class="portfolio-people-field">
+                      <span class="portfolio-people-field__label">Person 2</span>
                       <input
                         id="portfolioPerson2Name"
                         type="text"
-                        placeholder="Person 2"
+                        placeholder="Enter name"
                         maxlength="30"
                       />
-                    </div>
-        
-                    <div class="portfolio-people-toggle">
-                      <span class="portfolio-people-toggle__label">Include person 2</span>
-                      <label class="switch-control">
-                        <input id="portfolioHasPerson2" type="checkbox" checked />
-                        <span class="switch-slider"></span>
-                      </label>
-                    </div>
+                    </label>
+            
+                    <label class="portfolio-people-field portfolio-people-field--age">
+                      <span class="portfolio-people-field__label">Current age</span>
+                      <div class="stepper-input">
+                        <button
+                          type="button"
+                          class="stepper-btn"
+                          data-step-target="portfolioPerson2Age"
+                          data-step-direction="-1"
+                          data-step-size="1"
+                          aria-label="Decrease person 2 current age by 1"
+                        >−</button>
+                        <input
+                          id="portfolioPerson2Age"
+                          type="number"
+                          min="18"
+                          max="100"
+                          step="1"
+                          value="55"
+                        />
+                        <button
+                          type="button"
+                          class="stepper-btn"
+                          data-step-target="portfolioPerson2Age"
+                          data-step-direction="1"
+                          data-step-size="1"
+                          aria-label="Increase person 2 current age by 1"
+                        >+</button>
+                      </div>
+                    </label>
                   </div>
-                </section>
+                </div>
+            
+                <div class="portfolio-people-toggle">
+                  <span class="portfolio-people-toggle__label">Include person 2</span>
+                  <label class="switch-control">
+                    <input id="portfolioHasPerson2" type="checkbox" checked />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </section>
         
                 <!-- Wrapper totals -->
                 <section class="input-group-card card-block">
