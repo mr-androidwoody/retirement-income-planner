@@ -534,13 +534,25 @@ function attachEvents() {
     });
   }
 
-  const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
+  if (els.runSimulationBtn) {
+  els.runSimulationBtn.addEventListener('click', () => {
+    if (!portfolioAccounts.length) {
+      showError('Build your portfolio first - add at least one account to run a simulation.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
 
-  if (addPortfolioAccountBtn) {
-    addPortfolioAccountBtn.addEventListener('click', () => {
-      addPortfolioAccount();
-    });
-  }
+    const validationState = getPortfolioValidationState();
+
+    if (!validationState.isReady) {
+      showError('Fix the highlighted portfolio issues before running a simulation.');
+      tabs.setActiveTab('portfolio');
+      return;
+    }
+
+    runSimulation();
+  });
+}
 
     const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
