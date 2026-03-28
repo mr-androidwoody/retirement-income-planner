@@ -35,6 +35,8 @@ const els = {
   person1Name: document.getElementById('person1Name'),
   portfolioPerson1Name: document.getElementById('portfolioPerson1Name'),
   portfolioPerson2Name: document.getElementById('portfolioPerson2Name'),
+  portfolioPerson1Age: document.getElementById('portfolioPerson1Age'),
+  portfolioPerson2Age: document.getElementById('portfolioPerson2Age'),
   portfolioHasPerson2: document.getElementById('portfolioHasPerson2'),
   person1Age: document.getElementById('person1Age'),
   person1PensionAge: document.getElementById('person1PensionAge'),
@@ -78,6 +80,7 @@ const els = {
   showPlanOutlook: document.getElementById('showPlanOutlook'),
 
   continueToAssumptionsBtn: document.getElementById('continueToAssumptionsBtn'),
+  portfolioValidationStatus: document.getElementById('portfolioValidationStatus'),
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
@@ -129,7 +132,9 @@ let portfolioConfig = {
 };
 let portfolioPeople = {
   person1Name: '',
-  person2Name: ''
+  person2Name: '',
+  person1Age: 55,
+  person2Age: 55
 };
 
 const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
@@ -221,7 +226,9 @@ function loadPortfolioPeopleFromStorage() {
     if (parsed && typeof parsed === 'object') {
       portfolioPeople = {
         person1Name: String(parsed.person1Name || ''),
-        person2Name: String(parsed.person2Name || '')
+        person2Name: String(parsed.person2Name || ''),
+        person1Age: Number.isFinite(Number(parsed.person1Age)) ? Number(parsed.person1Age) : 55,
+        person2Age: Number.isFinite(Number(parsed.person2Age)) ? Number(parsed.person2Age) : 55
       };
     }
   } catch (error) {
@@ -237,6 +244,14 @@ function renderPortfolioPeopleFields() {
   if (els.portfolioPerson2Name) {
     els.portfolioPerson2Name.value = portfolioPeople.person2Name || '';
   }
+
+  if (els.portfolioPerson1Age) {
+    els.portfolioPerson1Age.value = portfolioPeople.person1Age ?? 55;
+  }
+
+  if (els.portfolioPerson2Age) {
+    els.portfolioPerson2Age.value = portfolioPeople.person2Age ?? 55;
+  }  
 }
 
 function initialise() {
@@ -377,9 +392,14 @@ function attachEvents() {
 
       if (!portfolioConfig.hasPerson2) {
         portfolioPeople.person2Name = '';
+        portfolioPeople.person2Age = 55;
 
         if (els.portfolioPerson2Name) {
           els.portfolioPerson2Name.value = '';
+        }
+
+        if (els.portfolioPerson2Age) {
+          els.portfolioPerson2Age.value = 55;
         }
       }
 
@@ -405,6 +425,22 @@ function attachEvents() {
     });
   }
 
+  if (els.portfolioPerson1Age) {
+    els.portfolioPerson1Age.addEventListener('input', (e) => {
+      const nextAge = Number.parseInt(e.target.value, 10);
+      portfolioPeople.person1Age = Number.isFinite(nextAge) ? nextAge : 55;
+      savePortfolioPeopleToStorage();
+    });
+  }
+
+  if (els.portfolioPerson2Age) {
+    els.portfolioPerson2Age.addEventListener('input', (e) => {
+      const nextAge = Number.parseInt(e.target.value, 10);
+      portfolioPeople.person2Age = Number.isFinite(nextAge) ? nextAge : 55;
+      savePortfolioPeopleToStorage();
+    });
+  }
+
   if (els.includePerson2) {
     els.includePerson2.addEventListener('change', () => {
       if (!portfolioConfig.hasPerson2) {
@@ -421,17 +457,17 @@ function attachEvents() {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
       const validationState = getPortfolioValidationState();
 
-    if (!portfolioAccounts.length) {
-      showError('Add at least one account before continuing.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
-    
-    if (!validationState.isReady) {
-      showError('Fix the highlighted portfolio issues before continuing.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
+      if (!portfolioAccounts.length) {
+        showError('Add at least one account before continuing.');
+        tabs.setActiveTab('portfolio');
+        return;
+      }
+
+      if (!validationState.isReady) {
+        showError('Fix the highlighted portfolio issues before continuing.');
+        tabs.setActiveTab('portfolio');
+        return;
+      }
 
       const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
       const roundedPortfolioTotal =
@@ -444,7 +480,7 @@ function attachEvents() {
         showError('Portfolio totals could not be mapped cleanly to Assumptions. Check your account allocations.');
         return;
       }
-        
+
       const totals = portfolioTotals;
       const mappedInputs = mapPortfolioToInputs(totals);
 
@@ -1274,7 +1310,9 @@ function mapPortfolioToInputs(totals) {
     hasPerson2: portfolioConfig.hasPerson2,
     includePerson2: portfolioConfig.hasPerson2,
     person1Name: String(portfolioPeople.person1Name || '').trim(),
-    person2Name: String(portfolioPeople.person2Name || '').trim()
+    person2Name: String(portfolioPeople.person2Name || '').trim(),
+    person1Age: Number(portfolioPeople.person1Age) || 55,
+    person2Age: Number(portfolioPeople.person2Age) || 55
   };
 }
 
@@ -1309,6 +1347,16 @@ function applyPortfolioInputsToAssumptions(mapped) {
   if (els.person2Panel) {
     els.person2Panel.style.display = mapped.includePerson2 ? '' : 'none';
   }
+
+    if (els.person1Age) {
+    els.person1Age.value = mapped.person1Age || 55;
+    els.person1Age.readOnly = true;
+  }
+
+  if (els.person2Age) {
+    els.person2Age.value = mapped.includePerson2 ? (mapped.person2Age || 55) : '';
+    els.person2Age.readOnly = true;
+  }  
 
   updateAllocationStatus();
 
