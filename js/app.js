@@ -259,13 +259,22 @@ function initialise() {
   applyDefaults();
   loadPortfolioFromStorage();
   loadPortfolioConfigFromStorage();
-  loadPortfolioPeopleFromStorage();  
+  loadPortfolioPeopleFromStorage();
   attachEvents();
   setResultsViewDefaults();
   syncInitialWithdrawalRateFromAmount();
   updateAllocationStatus();
   renderPortfolioPeopleFields();
   renderPortfolioTable();
+
+  if (portfolioAccounts.length) {
+    const totals = calculatePortfolioTotals(portfolioAccounts);
+    const mappedInputs = mapPortfolioToInputs(totals);
+    applyPortfolioInputsToAssumptions(mappedInputs);
+  } else {
+    clearPortfolioInputsFromAssumptions();
+  }
+
   applyPerson2PortfolioRules();
   document.body.classList.add('is-portfolio');
   tabs.setActiveTab('portfolio');
@@ -1378,56 +1387,44 @@ function mapPortfolioToInputs(totals) {
   };
 }
 
-function applyPortfolioInputsToAssumptions(mapped) {
+function clearPortfolioInputsFromAssumptions() {
   if (els.initialPortfolio) {
-    els.initialPortfolio.value = formatInteger(Math.round(mapped.initialPortfolio || 0));
+    els.initialPortfolio.value = '';
   }
 
-  const equity = Math.round(mapped.equityAllocation || 0);
-  const bond = Math.round(mapped.bondAllocation || 0);
-  const cashlike = Math.round(mapped.cashlikeAllocation || 0);
-  const cash = 100 - equity - bond - cashlike;
-
-  if (els.equityAllocation) els.equityAllocation.value = equity;
-  if (els.bondAllocation) els.bondAllocation.value = bond;
-  if (els.cashlikeAllocation) els.cashlikeAllocation.value = cashlike;
-  if (els.cashAllocation) els.cashAllocation.value = cash;
+  if (els.equityAllocation) els.equityAllocation.value = '';
+  if (els.bondAllocation) els.bondAllocation.value = '';
+  if (els.cashlikeAllocation) els.cashlikeAllocation.value = '';
+  if (els.cashAllocation) els.cashAllocation.value = '';
 
   if (els.person1Name) {
-    els.person1Name.value = mapped.person1Name || '';
+    els.person1Name.value = '';
   }
 
   if (els.person2Name) {
-    els.person2Name.value = mapped.person2Name || '';
+    els.person2Name.value = '';
   }
 
-  if (els.includePerson2) {
-    els.includePerson2.checked = Boolean(mapped.includePerson2);
-    els.includePerson2.disabled = !mapped.hasPerson2;
-  }
-
-  if (els.person2Panel) {
-    els.person2Panel.style.display = mapped.includePerson2 ? '' : 'none';
-  }
-
-    if (els.person1Age) {
-    els.person1Age.value = mapped.person1Age || 55;
+  if (els.person1Age) {
+    els.person1Age.value = '';
     els.person1Age.readOnly = true;
   }
 
   if (els.person2Age) {
-    els.person2Age.value = mapped.includePerson2 ? (mapped.person2Age || 55) : '';
+    els.person2Age.value = '';
     els.person2Age.readOnly = true;
-  }  
-
-  updateAllocationStatus();
-
-  if (withdrawalInputMode === 'rate') {
-    syncInitialSpendingFromRate();
-  } else {
-    syncInitialWithdrawalRateFromAmount();
   }
 
+  if (els.includePerson2) {
+    els.includePerson2.checked = Boolean(portfolioConfig.hasPerson2);
+    els.includePerson2.disabled = true;
+  }
+
+  if (els.person2Panel) {
+    els.person2Panel.style.display = portfolioConfig.hasPerson2 ? '' : 'none';
+  }
+
+  updateAllocationStatus();
   hideError();
 }
 
