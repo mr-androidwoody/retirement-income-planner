@@ -614,7 +614,7 @@ textarea{
 .portfolio-section-header-meta{
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
+  align-items:stretch;
   gap:10px;
   flex:0 0 auto;
   min-width:280px;
@@ -622,14 +622,20 @@ textarea{
 
 .portfolio-section-total{
   display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:4px;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:36px;
+  padding:8px 10px;
+  box-sizing:border-box;
+  background:#f7faff;
+  border:1px solid #dbe6f3;
+  border-radius:10px;
 }
 
 .portfolio-section-total__label{
   color:#50627f;
-  font-size:0.74rem;
+  font-size:0.78rem;
   font-weight:700;
   line-height:1.2;
 }
@@ -637,8 +643,13 @@ textarea{
 .portfolio-section-total #portfolioTotalValue{
   margin-top:0;
   padding-top:0;
-  font-size:1.8rem;
-  line-height:1;
+  margin-left:auto;
+  color:var(--text);
+  font-size:1.26rem;
+  font-weight:800;
+  line-height:1.2;
+  text-align:right;
+  white-space:nowrap;
 }
 
 .portfolio-section-actions{
