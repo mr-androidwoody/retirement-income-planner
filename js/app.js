@@ -1172,13 +1172,10 @@ function getActivePortfolioAccounts() {
   return portfolioAccounts.filter((account) => account.owner !== 'Person 2');
 }
 
-function getActivePortfolioAccounts() {
-  return portfolioAccounts.filter((account) => !account.isPlaceholder);
-}
-
 function getPortfolioRowIssues(account) {
   const issues = [];
-  const value = Number(account.value);
+
+  const value = Number(account?.value);
   const allocationTotal = getPortfolioRowAllocationTotal(account);
 
   if (!Number.isFinite(value) || value < 0) {
@@ -1388,10 +1385,6 @@ function removePortfolioAccount(id) {
   portfolioAccounts = portfolioAccounts.filter((item) => item.id !== id);
   savePortfolioToStorage();
   renderPortfolioTable();
-}
-
-function getActivePortfolioAccounts() {
-  return portfolioAccounts.filter((account) => !account.isPlaceholder);
 }
 
 function getPortfolioRowAllocationTotal(account) {
