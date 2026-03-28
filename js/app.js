@@ -535,79 +535,61 @@ function attachEvents() {
 
     const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
-  if (savePortfolioBtn) {
-    savePortfolioBtn.addEventListener('click', () => {
-      savePortfolioToStorage();
-      savePortfolioConfigToStorage();
-      savePortfolioPeopleToStorage();
+if (savePortfolioBtn) {
+  savePortfolioBtn.addEventListener('click', () => {
+    savePortfolioToStorage();
+    savePortfolioConfigToStorage();
+    savePortfolioPeopleToStorage();
 
-      const originalLabel = savePortfolioBtn.textContent;
+    const originalLabel = savePortfolioBtn.textContent;
 
-        savePortfolioBtn.textContent = 'Saved';
-        savePortfolioBtn.classList.remove('btn-secondary');
-        savePortfolioBtn.classList.add('btn-success');
-        
-        window.setTimeout(() => {
-          savePortfolioBtn.textContent = originalLabel;
-          savePortfolioBtn.classList.remove('btn-success');
-          savePortfolioBtn.classList.add('btn-secondary');
-        }, 1200);
+    savePortfolioBtn.textContent = 'Saved';
+    savePortfolioBtn.classList.remove('btn-secondary');
+    savePortfolioBtn.classList.add('btn-success');
 
-      window.setTimeout(() => {
-        savePortfolioBtn.textContent = originalLabel;
-      }, 1200);
-    });
-  }
+    window.setTimeout(() => {
+      savePortfolioBtn.textContent = originalLabel;
+      savePortfolioBtn.classList.remove('btn-success');
+      savePortfolioBtn.classList.add('btn-secondary');
+    }, 1200);
+  });
+}
 
-  const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
-    const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
-    const confirmDeleteBtn = document.getElementById('confirmDeletePortfolioBtn');
-    const cancelDeleteBtn = document.getElementById('cancelDeletePortfolioBtn');
-    
-    if (deletePortfolioBtn && deleteConfirmEl) {
-      deletePortfolioBtn.addEventListener('click', () => {
-        deleteConfirmEl.classList.remove('hidden');
-        deletePortfolioBtn.classList.add('hidden');
-      });
-    }
-    
-    if (cancelDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
-      cancelDeleteBtn.addEventListener('click', () => {
-        deleteConfirmEl.classList.add('hidden');
-        deletePortfolioBtn.classList.remove('hidden');
-      });
-    }
-    
-    if (confirmDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
-      confirmDeleteBtn.addEventListener('click', () => {
-        portfolioAccounts.length = 0;
-        latestBaseInputs = null;
-    
-        localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
-        localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
-        localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
-    
-        hideError();
-        renderPortfolioTable();
-    
-        deleteConfirmEl.classList.add('hidden');
-        deletePortfolioBtn.classList.remove('hidden');
-      });
-    }
+const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
+const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
+const confirmDeleteBtn = document.getElementById('confirmDeletePortfolioBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeletePortfolioBtn');
 
+if (deletePortfolioBtn && deleteConfirmEl) {
+  deletePortfolioBtn.addEventListener('click', () => {
+    deleteConfirmEl.classList.remove('hidden');
+    deletePortfolioBtn.classList.add('hidden');
+  });
+}
 
-        
-      portfolioAccounts.length = 0;
-      latestBaseInputs = null;
+if (cancelDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
+  cancelDeleteBtn.addEventListener('click', () => {
+    deleteConfirmEl.classList.add('hidden');
+    deletePortfolioBtn.classList.remove('hidden');
+  });
+}
 
-      localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
-      localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
-      localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+if (confirmDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
+  confirmDeleteBtn.addEventListener('click', () => {
+    portfolioAccounts.length = 0;
+    latestBaseInputs = null;
 
-      hideError();
-      renderPortfolioTable();
-    });
-  }
+    localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
+    localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
+    localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+
+    hideError();
+    renderPortfolioTable();
+
+    deleteConfirmEl.classList.add('hidden');
+    deletePortfolioBtn.classList.remove('hidden');
+  });
+}
 
   planForm.attachFormatting();
   advancedForm.attachFormatting();
