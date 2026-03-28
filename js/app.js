@@ -1225,7 +1225,6 @@ function renderAll() {
         formatYears
       }
     });
-
     console.log('renderResultsView done');
 
     applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
@@ -1244,7 +1243,6 @@ function renderAll() {
     showError(error instanceof Error ? error.message : 'Results rendering failed.');
   }
 }
-
 
 
 function applySuccessRateTone(successRate) {
