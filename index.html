@@ -383,20 +383,20 @@
                   <p>Set spending, income sources and market assumptions before running the simulation.</p>
                 </div>
               </div>
-
+        
               <div class="input-shell">
-                  <div class="input-grid-top">
-                    <section class="input-group-card card-block">
-                      <div class="section-heading">
-                        <h3>Core assumptions</h3>
-                        <p>
-                          To see how your income adapts over time, enter your retirement timeline and current portfolio value.
-                          Define your spending targets by setting an initial ideal budget, a comfort level for tighter years,
-                          and a minimum essential floor.
-                        </p>
-                        <p>Portfolio value and asset mix are locked here and synced from the Portfolio tab.</p>
-                      </div>
-
+                <div class="input-grid-top">
+                  <section class="input-group-card card-block">
+                    <div class="section-heading">
+                      <h3>Core assumptions</h3>
+                      <p>
+                        To see how your income adapts over time, enter your retirement timeline and current portfolio value.
+                        Define your spending targets by setting an initial ideal budget, a comfort level for tighter years,
+                        and a minimum essential floor.
+                      </p>
+                      <p>Portfolio value and asset mix are locked here and synced from the Portfolio tab.</p>
+                    </div>
+        
                     <div class="field-grid field-grid-3">
                       <label class="field">
                         <span class="field-label">Retirement years</span>
@@ -409,7 +409,7 @@
                             data-step-size="1"
                             aria-label="Decrease retirement years by 1"
                           >−</button>
-                          <input id="years" type="number" min="1" max="80" step="1" value="30" />
+                          <input id="years" type="number" min="1" max="80" step="1" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -420,7 +420,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">Value of investments</span>
                         <input
@@ -428,11 +428,10 @@
                           type="text"
                           inputmode="numeric"
                           data-format="integer"
-                          value="1,000,000"
                           readonly
                         />
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">Initial withdrawal rate (%)</span>
                         <div class="stepper-input">
@@ -449,7 +448,6 @@
                             type="number"
                             min="0"
                             step="0.1"
-                            value="4"
                           />
                           <button
                             type="button"
@@ -461,7 +459,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">Initial household spending (£)</span>
                         <div class="stepper-input">
@@ -472,7 +470,7 @@
                             data-step-direction="-1"
                             aria-label="Decrease initial household spending by £1,000"
                           >−</button>
-                          <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" value="40,000" />
+                          <input id="initialSpending" type="text" inputmode="numeric" data-format="integer" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -482,7 +480,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">Comfort spending level (£)</span>
                         <div class="stepper-input">
@@ -493,7 +491,7 @@
                             data-step-direction="-1"
                             aria-label="Decrease comfort spending level by £1,000"
                           >−</button>
-                          <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" value="36,000" />
+                          <input id="comfortSpending" type="text" inputmode="numeric" data-format="integer" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -503,7 +501,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">Minimum spending level (£)</span>
                         <div class="stepper-input">
@@ -514,7 +512,7 @@
                             data-step-direction="-1"
                             aria-label="Decrease minimum spending level by £1,000"
                           >−</button>
-                          <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" value="30,000" />
+                          <input id="minimumSpending" type="text" inputmode="numeric" data-format="integer" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -525,13 +523,13 @@
                         </div>
                       </label>
                     </div>
-
+        
                     <div class="section-subnote">
                       Enter either how much you plan to spend each year or the withdrawal rate you want to start with.
                       Comfort and minimum spending levels default to <strong>90%</strong> and <strong>75%</strong>
                       of household spending unless you override them.
                     </div>
-
+        
                     <div class="field-grid field-grid-4">
                       <label class="field">
                         <span class="field-label">
@@ -541,9 +539,9 @@
                             data-tooltip="The percentage of your portfolio invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
                           >Equity allocation %</span>
                         </span>
-                        <input id="equityAllocation" type="number" min="0" max="100" step="1" value="60" readonly />
+                        <input id="equityAllocation" type="number" min="0" max="100" step="1" readonly />
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">
                           <span
@@ -552,9 +550,9 @@
                             data-tooltip="The percentage of your portfolio invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
                           >Bond allocation %</span>
                         </span>
-                        <input id="bondAllocation" type="number" min="0" max="100" step="1" value="30" readonly />
+                        <input id="bondAllocation" type="number" min="0" max="100" step="1" readonly />
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">
                           <span
@@ -563,9 +561,9 @@
                             data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
                           >Cashlike %</span>
                         </span>
-                        <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" value="10" readonly />
+                        <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" readonly />
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">
                           <span
@@ -574,10 +572,10 @@
                             data-tooltip="Cash represents actual liquid cash holdings, separate from cashlike instruments used as buffers."
                           >Cash %</span>
                         </span>
-                        <input id="cashAllocation" type="number" min="0" max="100" step="1" value="0" readonly />
+                        <input id="cashAllocation" type="number" min="0" max="100" step="1" readonly />
                       </label>
                     </div>
-
+        
                     <div
                       id="allocationStatus"
                       class="allocation-status allocation-status--balanced"
@@ -593,7 +591,7 @@
                         <span id="allocationStatusMessage" class="allocation-status__message">Balanced</span>
                       </div>
                     </div>
-
+        
                     <div class="core-assumptions-bottom-row">
                       <label class="field">
                         <span class="field-label">Annual portfolio fees (%)</span>
@@ -611,7 +609,6 @@
                             type="number"
                             min="0"
                             step="0.01"
-                            value="0.27"
                             inputmode="decimal"
                           />
                           <button
@@ -624,7 +621,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field people-pension-inline-field">
                         <span class="field-label">Full state pension: today's value</span>
                         <div class="stepper-input">
@@ -640,7 +637,6 @@
                             type="text"
                             inputmode="numeric"
                             data-format="integer"
-                            value="12,547"
                           />
                           <button
                             type="button"
@@ -651,7 +647,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field field-inline field-inline-wide core-rebalance-field">
                         <span class="field-label">Rebalance your investments to the chosen allocations each year</span>
                         <label class="switch-control">
@@ -661,7 +657,7 @@
                       </label>
                     </div>
                   </section>
-
+        
                   <section class="input-group-card people-pensions-card card-block">
                     <div class="section-heading">
                       <h3>Fixed income</h3>
@@ -670,25 +666,25 @@
                         these additional sources of income reduce the amount you need to withdraw from your investments.
                       </p>
                     </div>
-
+        
                     <div class="people-panels">
                       <section class="person-panel person-panel--person1">
                         <div class="person-panel__header">
                           <div class="person-panel__title">Person 1</div>
                         </div>
-
+        
                         <div class="person-panel__body">
                           <div class="field-grid field-grid-3">
                             <label class="field person-name-field">
                               <span class="field-label">Name</span>
                               <input id="person1Name" type="text" placeholder="Enter name" maxlength="9" />
                             </label>
-
+        
                             <label class="field person-age-field">
                               <span class="field-label">Current age</span>
-                              <input id="person1Age" type="number" min="18" max="100" step="1" value="55" readonly />
+                              <input id="person1Age" type="number" min="18" max="100" step="1" readonly />
                             </label>
-
+        
                             <label class="field person-pension-age-field">
                               <span class="field-label">State pension age</span>
                               <div class="stepper-input">
@@ -700,7 +696,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 1 state pension age by 1"
                                 >−</button>
-                                <input id="person1PensionAge" type="number" min="18" max="100" step="1" value="67" />
+                                <input id="person1PensionAge" type="number" min="18" max="100" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -712,7 +708,7 @@
                               </div>
                             </label>
                           </div>
-
+        
                           <label class="field field-inline field-inline-wide person-pension-checkbox inline-switch">
                             <span class="field-label field-label-inline">Receives full state pension</span>
                             <span class="switch-control">
@@ -720,7 +716,7 @@
                               <span class="switch-slider" aria-hidden="true"></span>
                             </span>
                           </label>
-
+        
                           <div class="field-grid field-grid-4 person-income-row">
                             <label class="field">
                               <span class="field-label">Other income</span>
@@ -738,9 +734,6 @@
                                   type="text"
                                   inputmode="numeric"
                                   data-format="integer"
-                                  value="0"
-                                  onfocus="if(this.value==='0')this.value='';"
-                                  onblur="if(this.value==='')this.value='0';"
                                 />
                                 <button
                                   type="button"
@@ -752,7 +745,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">How many years</span>
                               <div class="stepper-input">
@@ -764,7 +757,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 1 other income years by 1"
                                 >−</button>
-                                <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
+                                <input id="person1OtherIncomeYears" type="number" min="0" max="80" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -775,7 +768,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Windfall amount</span>
                               <div class="stepper-input">
@@ -792,9 +785,6 @@
                                   type="text"
                                   inputmode="numeric"
                                   data-format="integer"
-                                  value="0"
-                                  onfocus="if(this.value==='0')this.value='';"
-                                  onblur="if(this.value==='')this.value='0';"
                                 />
                                 <button
                                   type="button"
@@ -806,7 +796,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Years after retirement</span>
                               <div class="stepper-input">
@@ -818,7 +808,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 1 windfall year by 1"
                                 >−</button>
-                                <input id="person1WindfallYear" type="number" min="0" max="80" step="1" value="0" />
+                                <input id="person1WindfallYear" type="number" min="0" max="80" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -832,11 +822,11 @@
                           </div>
                         </div>
                       </section>
-
+        
                       <section class="person-panel person-panel--person2" id="person2Panel">
                         <div class="person-panel__header person-panel__header--with-toggle">
                           <div class="person-panel__title">Person 2</div>
-
+        
                           <label class="person-toggle inline-switch">
                             <span>Include person 2</span>
                             <span class="switch-control">
@@ -845,19 +835,19 @@
                             </span>
                           </label>
                         </div>
-
+        
                         <div class="person-panel__body" id="person2PanelBody">
                           <div class="field-grid field-grid-3">
                             <label class="field person-name-field">
                               <span class="field-label">Name</span>
                               <input id="person2Name" type="text" placeholder="Enter name" maxlength="9" />
                             </label>
-
+        
                             <label class="field person-age-field">
                               <span class="field-label">Current age</span>
-                              <input id="person2Age" type="number" min="18" max="100" step="1" value="55" readonly />
+                              <input id="person2Age" type="number" min="18" max="100" step="1" readonly />
                             </label>
-
+        
                             <label class="field person-pension-age-field">
                               <span class="field-label">State pension age</span>
                               <div class="stepper-input">
@@ -869,7 +859,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 2 state pension age by 1"
                                 >−</button>
-                                <input id="person2PensionAge" type="number" min="18" max="100" step="1" value="67" />
+                                <input id="person2PensionAge" type="number" min="18" max="100" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -881,7 +871,7 @@
                               </div>
                             </label>
                           </div>
-
+        
                           <label class="field field-inline field-inline-wide person-pension-checkbox inline-switch">
                             <span class="field-label field-label-inline">Receives full state pension</span>
                             <span class="switch-control">
@@ -889,7 +879,7 @@
                               <span class="switch-slider" aria-hidden="true"></span>
                             </span>
                           </label>
-
+        
                           <div class="field-grid field-grid-4 person-income-row">
                             <label class="field">
                               <span class="field-label">Other income</span>
@@ -907,9 +897,6 @@
                                   type="text"
                                   inputmode="numeric"
                                   data-format="integer"
-                                  value="0"
-                                  onfocus="if(this.value==='0')this.value='';"
-                                  onblur="if(this.value==='')this.value='0';"
                                 />
                                 <button
                                   type="button"
@@ -921,7 +908,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">How many years</span>
                               <div class="stepper-input">
@@ -933,7 +920,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 2 other income years by 1"
                                 >−</button>
-                                <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" value="0" />
+                                <input id="person2OtherIncomeYears" type="number" min="0" max="80" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -944,7 +931,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Windfall amount</span>
                               <div class="stepper-input">
@@ -961,9 +948,6 @@
                                   type="text"
                                   inputmode="numeric"
                                   data-format="integer"
-                                  value="0"
-                                  onfocus="if(this.value==='0')this.value='';"
-                                  onblur="if(this.value==='')this.value='0';"
                                 />
                                 <button
                                   type="button"
@@ -975,7 +959,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Years after retirement</span>
                               <div class="stepper-input">
@@ -987,7 +971,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease person 2 windfall year by 1"
                                 >−</button>
-                                <input id="person2WindfallYear" type="number" min="0" max="80" step="1" value="0" />
+                                <input id="person2WindfallYear" type="number" min="0" max="80" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1004,7 +988,7 @@
                     </div>
                   </section>
                 </div>
-
+        
                 <div class="input-grid-bottom">
                   <section class="input-group-card card-block">
                     <div class="section-heading">
@@ -1015,7 +999,7 @@
                         ensure your spending remains sustainable through past periods of high volatility.
                       </p>
                     </div>
-
+        
                     <div class="plan-settings-grid">
                       <label class="field">
                         <span class="field-label">Simulation mode</span>
@@ -1024,7 +1008,7 @@
                           <option value="historical">Historical Modelling</option>
                         </select>
                       </label>
-
+        
                       <div id="monteCarloRunsRow" class="plan-settings-dynamic-field">
                         <label class="field">
                           <span class="field-label">
@@ -1034,7 +1018,7 @@
                               data-tooltip="The number of simulated market paths. Increasing the sample size provides greater statistical stability and a smoother forecast"
                             >Iteration Count</span>
                           </span>
-
+        
                           <div class="monte-carlo-runs-control">
                             <select id="monteCarloRunsPreset" aria-label="Monte Carlo run presets">
                               <option value="1000" selected>1,000</option>
@@ -1043,21 +1027,20 @@
                               <option value="20000">20,000</option>
                               <option value="custom">Custom</option>
                             </select>
-
+        
                             <input
                               id="monteCarloRuns"
                               type="text"
                               inputmode="numeric"
                               data-format="integer"
-                              value="1,000"
                               aria-label="Monte Carlo runs"
                             />
                           </div>
-
+        
                           <div class="field-help-text">Choose a preset number or type your own value up to 50,000.</div>
                         </label>
                       </div>
-
+        
                       <div id="historicalScenarioRow" class="plan-settings-dynamic-field hidden">
                         <label class="field">
                           <span class="field-label">Historical scenario</span>
@@ -1067,19 +1050,19 @@
                               <option value="1929">1929 - Great Depression</option>
                               <option value="1940">1940 - WWII wartime shock</option>
                             </optgroup>
-
+        
                             <optgroup label="Stress - inflation">
                               <option value="1966">1966 - inflation shock</option>
                               <option value="1973">1973 - stagflation shock</option>
                               <option value="1979">1979 - high inflation peak</option>
                             </optgroup>
-
+        
                             <optgroup label="Stress - prolonged downturns">
                               <option value="1914">1914 - WWI disruption</option>
                               <option value="1937">1937 - recession within recovery</option>
                               <option value="1972">1972 - inflation then market slump</option>
                             </optgroup>
-
+        
                             <optgroup label="Positive - strong growth">
                               <option value="1950">1950 - post-war expansion</option>
                               <option value="1987">1987 - post-crash recovery</option>
@@ -1090,7 +1073,7 @@
                       </div>
                     </div>
                   </section>
-
+        
                   <section class="input-group-card card-block spending-rules-card">
                     <div class="section-heading">
                       <h3>Spending adjustment rules</h3>
@@ -1100,7 +1083,7 @@
                         plan resilient through any market cycle.
                       </p>
                     </div>
-
+        
                     <div class="field-grid field-grid-3">
                       <label class="field">
                         <span class="field-label">
@@ -1119,7 +1102,7 @@
                             data-step-size="1"
                             aria-label="Decrease upper guardrail by 1 percentage point"
                           >−</button>
-                          <input id="upperGuardrail" type="number" min="0" step="1" value="20" />
+                          <input id="upperGuardrail" type="number" min="0" step="1" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -1130,7 +1113,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">
                           <span
@@ -1148,7 +1131,7 @@
                             data-step-size="1"
                             aria-label="Decrease lower guardrail by 1 percentage point"
                           >−</button>
-                          <input id="lowerGuardrail" type="number" min="0" step="1" value="20" />
+                          <input id="lowerGuardrail" type="number" min="0" step="1" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -1159,7 +1142,7 @@
                           >+</button>
                         </div>
                       </label>
-
+        
                       <label class="field">
                         <span class="field-label">
                           <span
@@ -1177,7 +1160,7 @@
                             data-step-size="1"
                             aria-label="Decrease adjustment size by 1 percentage point"
                           >−</button>
-                          <input id="adjustmentSize" type="number" min="0" step="1" value="10" />
+                          <input id="adjustmentSize" type="number" min="0" step="1" />
                           <button
                             type="button"
                             class="stepper-btn"
@@ -1189,20 +1172,20 @@
                         </div>
                       </label>
                     </div>
-
+        
                     <div class="spending-toggle-row">
                       <label class="field field-inline field-inline-wide inline-switch spending-toggle-field">
                         <span class="field-label field-label-inline">
                           Skip the inflation increase to spending after a negative market year
                         </span>
                         <span class="switch-control">
-                          <input id="skipInflationAfterNegative" type="checkbox" checked />
+                          <input id="skipInflationAfterNegative" type="checkbox" />
                           <span class="switch-slider" aria-hidden="true"></span>
                         </span>
                       </label>
                     </div>
                   </section>
-
+        
                   <section class="input-group-card card-block market-assumptions-card">
                     <div class="section-heading">
                       <h3>Market assumptions</h3>
@@ -1211,12 +1194,12 @@
                         investments may perform over time.
                       </p>
                     </div>
-
+        
                     <div class="market-assumptions-layout">
                       <div class="market-grid">
                         <section class="mini-market-card mini-market-card--equities">
                           <div class="mini-market-card__title">Equities</div>
-
+        
                           <div class="field-grid">
                             <label class="field">
                               <span class="field-label">Return</span>
@@ -1229,7 +1212,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease equity return by 1 percentage point"
                                 >−</button>
-                                <input id="equityReturn" type="number" step="1" value="7" />
+                                <input id="equityReturn" type="number" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1240,7 +1223,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Volatility</span>
                               <div class="stepper-input">
@@ -1252,7 +1235,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease equity volatility by 1 percentage point"
                                 >−</button>
-                                <input id="equityVolatility" type="number" min="0" step="1" value="16" />
+                                <input id="equityVolatility" type="number" min="0" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1265,10 +1248,10 @@
                             </label>
                           </div>
                         </section>
-
+        
                         <section class="mini-market-card mini-market-card--bonds">
                           <div class="mini-market-card__title">Bonds</div>
-
+        
                           <div class="field-grid">
                             <label class="field">
                               <span class="field-label">Return</span>
@@ -1281,7 +1264,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease bond return by 1 percentage point"
                                 >−</button>
-                                <input id="bondReturn" type="number" step="1" value="3" />
+                                <input id="bondReturn" type="number" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1292,7 +1275,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Volatility</span>
                               <div class="stepper-input">
@@ -1304,7 +1287,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease bond volatility by 1 percentage point"
                                 >−</button>
-                                <input id="bondVolatility" type="number" min="0" step="1" value="7" />
+                                <input id="bondVolatility" type="number" min="0" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1317,10 +1300,10 @@
                             </label>
                           </div>
                         </section>
-
+        
                         <section class="mini-market-card mini-market-card--cashlike">
                           <div class="mini-market-card__title">Cashlike</div>
-
+        
                           <div class="field-grid">
                             <label class="field">
                               <span class="field-label">Return</span>
@@ -1333,7 +1316,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease cashlike return by 1 percentage point"
                                 >−</button>
-                                <input id="cashlikeReturn" type="number" step="1" value="4" />
+                                <input id="cashlikeReturn" type="number" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1344,7 +1327,7 @@
                                 >+</button>
                               </div>
                             </label>
-
+        
                             <label class="field">
                               <span class="field-label">Volatility</span>
                               <div class="stepper-input">
@@ -1356,7 +1339,7 @@
                                   data-step-size="1"
                                   aria-label="Decrease cashlike volatility by 1 percentage point"
                                 >−</button>
-                                <input id="cashlikeVolatility" type="number" min="0" step="1" value="1" />
+                                <input id="cashlikeVolatility" type="number" min="0" step="1" />
                                 <button
                                   type="button"
                                   class="stepper-btn"
@@ -1370,10 +1353,10 @@
                           </div>
                         </section>
                       </div>
-
+        
                       <section class="inflation-panel">
                         <div class="inflation-panel__label">Inflation rate (CPI)</div>
-
+        
                         <div class="inflation-panel__row">
                           <div class="inflation-panel__field">
                             <div class="stepper-input">
@@ -1385,7 +1368,7 @@
                                 data-step-size="0.1"
                                 aria-label="Decrease inflation by 0.1 percentage points"
                               >−</button>
-                              <input id="inflation" type="number" min="0" step="0.1" value="2.8" />
+                              <input id="inflation" type="number" min="0" step="0.1" />
                               <button
                                 type="button"
                                 class="stepper-btn"
@@ -1396,7 +1379,7 @@
                               >+</button>
                             </div>
                           </div>
-
+        
                           <p class="inflation-panel__text">
                             Adjust how future spending and income are translated into today’s purchasing power.
                           </p>
