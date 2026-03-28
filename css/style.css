@@ -202,7 +202,7 @@ textarea{
 #summarySuccessRateCard.is-watch{
   background:#fffbeb;
   border:1px solid #fcd34d;
-  color:#842029;
+  color:#b42318;
 }
 
 /* fix internal text colours */
@@ -1023,7 +1023,7 @@ textarea{
 }
 
 .portfolio-summary-total-row.is-off .value{
-  color:#842029;
+  color:#b42318;
 }
 
 /* ----------------------------------------
@@ -1883,7 +1883,7 @@ input[type="checkbox"]{
 
 .allocation-status--under .allocation-status__message,
 .allocation-status--under .allocation-status__total{
-  color:#842029;
+  color:#b42318;
 }
 
 .allocation-status--over{
@@ -2573,7 +2573,7 @@ input[type="checkbox"]{
   background:#f8d7da;
   border:1px solid #f1aeb5;
   border-radius:14px;
-  color:#842029;
+  color:#b42318;
   font-size:1rem;
   font-weight:600;
   line-height:1.35;
@@ -2694,7 +2694,7 @@ input[type="checkbox"]{
 .plan-status-card--watch{
   background:#fffbeb;
   border-color:#fcd34d;
-  color:#842029;
+  color:#b42318;
 }
 
 .plan-status-card--watch .plan-status-icon{
