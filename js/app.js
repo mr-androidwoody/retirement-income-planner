@@ -1106,9 +1106,9 @@ function normaliseAllocationInputsForSimulation(inputs) {
 function runSimulation() {
   const inputs = gatherInputs();
   const mergedInputs = normaliseAllocationInputsForSimulation({
-    ...DEFAULT_INPUTS,
-    ...inputs
-  });
+  ...DEFAULT_INPUTS,
+  ...sanitiseInputs(latestBaseInputs || gatherInputs())
+});
   const errors = validateInputs(mergedInputs);
 
   if (errors.length > 0) {
