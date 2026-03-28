@@ -1120,14 +1120,16 @@ function applySuccessRateTone(successRate) {
 
 function showError(message) {
   if (!els.errorBox) return;
+
   els.errorBox.textContent = message;
-  els.errorBox.classList.add('error-box--visible');
+  els.errorBox.classList.remove('hidden');
 }
 
 function hideError() {
   if (!els.errorBox) return;
+
   els.errorBox.textContent = '';
-  els.errorBox.classList.remove('error-box--visible');
+  els.errorBox.classList.add('hidden');
 }
 
 function parseLooseNumber(value) {
