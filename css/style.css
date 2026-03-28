@@ -537,11 +537,30 @@ textarea{
   min-width:0;
 }
 
-.portfolio-people-field label{
+.portfolio-people-field__label{
   color:#50627f;
   font-size:0.74rem;
   font-weight:700;
   line-height:1.25;
+}
+
+.portfolio-person-block{
+  min-width:0;
+}
+
+.portfolio-person-row{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) 180px;
+  gap:12px;
+  align-items:end;
+}
+
+.portfolio-people-field--age{
+  min-width:0;
+}
+
+.portfolio-people-field--age .stepper-input{
+  width:100%;
 }
 
 .portfolio-people-toggle{
@@ -953,6 +972,10 @@ textarea{
     grid-template-columns:1fr;
     align-items:start;
   }
+
+  .portfolio-person-row{
+    grid-template-columns:minmax(0, 1fr) 180px;
+  }
 }
 
 @media (max-width:980px){
@@ -986,6 +1009,11 @@ textarea{
 
 @media (max-width:760px){
   .portfolio-people-strip{
+    grid-template-columns:1fr;
+    align-items:stretch;
+  }
+
+  .portfolio-person-row{
     grid-template-columns:1fr;
     align-items:stretch;
   }
