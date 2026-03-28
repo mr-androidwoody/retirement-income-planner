@@ -1930,24 +1930,35 @@ function attachPortfolioTableRowEvents() {
     
       if (!field) return;
     
+    input.addEventListener('change', () => {
+      const id = Number(input.dataset.id);
+      const field = input.dataset.field;
+      const rawValue = input.value.trim();
+      const previousValue = input.dataset.previousValue ?? '';
+
+      if (!field) return;
+
       if (field === 'name') {
         updatePortfolioAccount(id, field, rawValue);
         return;
       }
-    
+
       if (field === 'value') {
         const nextValue = rawValue === '' ? previousValue : rawValue;
         input.value = nextValue;
         updatePortfolioAccount(id, field, nextValue);
         return;
       }
-    
+
       if (field.startsWith('allocation.')) {
         const nextValue = rawValue === '' ? previousValue : rawValue;
         input.value = nextValue;
         updatePortfolioAccount(id, field, normalisePortfolioPercent(nextValue));
       }
     });
+  });
+
+  selects.forEach((select) => {
 
   selects.forEach((select) => {
     select.addEventListener('change', (e) => {
