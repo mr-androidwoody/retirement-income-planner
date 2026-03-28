@@ -616,7 +616,7 @@ textarea{
   flex-direction:column;
   align-items:stretch;
   gap:10px;
-  flex:0 0 calc((100% - 32px) / 3 - 20px);
+  flex:0 0 calc((100% - 32px) / 3 - 26px);
   min-width:0;
   margin-left:auto;
 }
