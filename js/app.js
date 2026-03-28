@@ -268,17 +268,6 @@ function initialise() {
   updateAllocationStatus();
   renderPortfolioPeopleFields();
   renderPortfolioTable();
-
-  const activeAccounts = getActivePortfolioAccounts();
-
-  if (activeAccounts.length) {
-    const totals = calculatePortfolioTotals(portfolioAccounts);
-    const mappedInputs = mapPortfolioToInputs(totals);
-    applyPortfolioInputsToAssumptions(mappedInputs);
-  } else {
-    clearPortfolioInputsFromAssumptions();
-  }
-
   applyPerson2PortfolioRules();
   document.body.classList.add('is-portfolio');
   tabs.setActiveTab('portfolio');
@@ -565,12 +554,23 @@ function attachEvents() {
 
       const totals = calculatePortfolioTotals(portfolioAccounts);
       const mappedInputs = mapPortfolioToInputs(totals);
+    
+      const currentInputs = {
+        ...DEFAULT_INPUTS,
+        ...gatherInputs()
+      };
+    
+      latestBaseInputs = {
+        ...currentInputs,
+        ...mappedInputs
+      };
+    
       applyPortfolioInputsToAssumptions(mappedInputs);
-
+    
       hideError();
-      runSimulation();
-    });
-  }
+        runSimulation();
+         });
+        }
 
   const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
@@ -653,10 +653,22 @@ function attachEvents() {
 
       const totals = calculatePortfolioTotals(portfolioAccounts);
       const mappedInputs = mapPortfolioToInputs(totals);
+    
+      const currentInputs = {
+        ...DEFAULT_INPUTS,
+        ...gatherInputs()
+      };
+    
+      latestBaseInputs = {
+        ...currentInputs,
+        ...mappedInputs
+      };
+    
       applyPortfolioInputsToAssumptions(mappedInputs);
-
+    
       hideError();
       runSimulation();
+        
     },
     onReset: () => {
       applyDefaults();
@@ -1864,10 +1876,12 @@ function attachPortfolioTableRowEvents() {
 
   inputs.forEach((input) => {
     input.addEventListener('focus', () => {
-      if (input.dataset.field === 'value') {
-        const numericValue = parseLooseNumber(input.value);
-        input.value = Number.isFinite(numericValue) ? String(Math.round(numericValue)) : '';
-      }
+      const field = input.dataset.field;
+
+      if (!field || field === 'name') return;
+
+      input.dataset.previousValue = input.value;
+      input.value = '';
     });
 
     input.addEventListener('input', () => {
@@ -1885,6 +1899,7 @@ function attachPortfolioTableRowEvents() {
       const id = Number(input.dataset.id);
       const field = input.dataset.field;
       const rawValue = input.value.trim();
+      const previousValue = input.dataset.previousValue ?? '';
 
       if (!field) return;
 
@@ -1894,12 +1909,16 @@ function attachPortfolioTableRowEvents() {
       }
 
       if (field === 'value') {
-        updatePortfolioAccount(id, field, rawValue);
+        const nextValue = rawValue === '' ? previousValue : rawValue;
+        input.value = nextValue;
+        updatePortfolioAccount(id, field, nextValue);
         return;
       }
 
       if (field.startsWith('allocation.')) {
-        updatePortfolioAccount(id, field, normalisePortfolioPercent(rawValue));
+        const nextValue = rawValue === '' ? previousValue : rawValue;
+        input.value = nextValue;
+        updatePortfolioAccount(id, field, normalisePortfolioPercent(nextValue));
       }
     });
 
@@ -1907,24 +1926,28 @@ function attachPortfolioTableRowEvents() {
       const id = Number(input.dataset.id);
       const field = input.dataset.field;
       const rawValue = input.value.trim();
-
+      const previousValue = input.dataset.previousValue ?? '';
+    
       if (!field) return;
-
+    
       if (field === 'name') {
         updatePortfolioAccount(id, field, rawValue);
         return;
       }
-
+    
       if (field === 'value') {
-        updatePortfolioAccount(id, field, rawValue);
+        const nextValue = rawValue === '' ? previousValue : rawValue;
+        input.value = nextValue;
+        updatePortfolioAccount(id, field, nextValue);
         return;
       }
-
+    
       if (field.startsWith('allocation.')) {
-        updatePortfolioAccount(id, field, normalisePortfolioPercent(rawValue));
+        const nextValue = rawValue === '' ? previousValue : rawValue;
+        input.value = nextValue;
+        updatePortfolioAccount(id, field, normalisePortfolioPercent(nextValue));
       }
     });
-  });
 
   selects.forEach((select) => {
     select.addEventListener('change', (e) => {
