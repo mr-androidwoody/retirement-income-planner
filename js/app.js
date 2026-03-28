@@ -501,40 +501,52 @@ function sanitiseInputs(rawInputs = {}) {
 }
 
 function prepareAndRunSimulation() {
+  console.log('prepareAndRunSimulation start');
+
   const activeAccounts = getActivePortfolioAccounts();
+  console.log('activeAccounts', activeAccounts);
 
   if (!activeAccounts.length) {
+    console.log('stopped: no active accounts');
     showError('Build your portfolio first - add at least one account to run a simulation.');
     tabs.setActiveTab('portfolio');
     return;
   }
 
   const validationState = getPortfolioValidationState();
+  console.log('validationState', validationState);
 
   if (!validationState.isReady) {
+    console.log('stopped: portfolio validation failed');
     showError('Fix the highlighted portfolio issues before running a simulation.');
     tabs.setActiveTab('portfolio');
     return;
   }
 
   const totals = calculatePortfolioTotals(portfolioAccounts);
+  console.log('totals', totals);
+
   const mappedInputs = mapPortfolioToInputs(totals);
+  console.log('mappedInputs', mappedInputs);
 
   const currentInputs = {
-      ...DEFAULT_INPUTS,
-      ...sanitiseInputs(gatherInputs())
-    };
+    ...DEFAULT_INPUTS,
+    ...sanitiseInputs(gatherInputs())
+  };
+  console.log('currentInputs', currentInputs);
 
-    latestBaseInputs = {
+  latestBaseInputs = {
     ...currentInputs,
     ...mappedInputs
-   };
+  };
+  console.log('latestBaseInputs', latestBaseInputs);
 
-    applyPortfolioInputsToAssumptions(latestBaseInputs);
-    hasMappedPortfolioToAssumptions = true;
+  applyPortfolioInputsToAssumptions(latestBaseInputs);
+  hasMappedPortfolioToAssumptions = true;
 
-    hideError();
-    runSimulation();
+  hideError();
+  console.log('calling runSimulation');
+  runSimulation();
 }
 
 function continueToAssumptions() {
