@@ -1111,37 +1111,45 @@ function normaliseAllocationInputsForSimulation(inputs) {
 }
 
 function runSimulation() {
-  const inputs = gatherInputs();
-  const mergedInputs = normaliseAllocationInputsForSimulation({
-  ...DEFAULT_INPUTS,
-  ...sanitiseInputs(latestBaseInputs || gatherInputs())
-});
-  const errors = validateInputs(mergedInputs);
-
-  if (errors.length > 0) {
-    showError(errors.join(' '));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  hideError();
-  latestBaseInputs = mergedInputs;
-  currentTableView = 'median';
-  currentTableMode = 'plan';
-  planForm.setBusy(true);
-
-  const effectiveInputs = getResultsOverrideInputs(mergedInputs);
-
-  if (worker) {
-    console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
-    worker.postMessage({ type: 'run', inputs: effectiveInputs });
-    console.log('posted to worker');
-    return;
-  }
-
-console.log('no worker, using main thread fallback');
+  console.log('runSimulation start');
 
   try {
+    const inputs = gatherInputs();
+    console.log('runSimulation gathered inputs', inputs);
+
+    const mergedInputs = normaliseAllocationInputsForSimulation({
+      ...DEFAULT_INPUTS,
+      ...sanitiseInputs(latestBaseInputs || gatherInputs())
+    });
+    console.log('runSimulation mergedInputs', mergedInputs);
+
+    const errors = validateInputs(mergedInputs);
+    console.log('runSimulation validation errors', errors);
+
+    if (errors.length > 0) {
+      showError(errors.join(' '));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    hideError();
+    latestBaseInputs = mergedInputs;
+    currentTableView = 'median';
+    currentTableMode = 'plan';
+    planForm.setBusy(true);
+
+    const effectiveInputs = getResultsOverrideInputs(mergedInputs);
+    console.log('runSimulation effectiveInputs', effectiveInputs);
+
+    if (worker) {
+      console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
+      worker.postMessage({ type: 'run', inputs: effectiveInputs });
+      console.log('posted to worker');
+      return;
+    }
+
+    console.log('no worker, using main thread fallback');
+
     Promise.resolve(
       runSimulationByMode({
         mode: effectiveInputs.simulationMode || 'monteCarlo',
@@ -1154,14 +1162,15 @@ console.log('no worker, using main thread fallback');
         showResults();
       })
       .catch((error) => {
+        console.error('runSimulation async error', error);
         planForm.setBusy(false);
         showError(error instanceof Error ? error.message : 'Simulation failed.');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
   } catch (error) {
+    console.error('runSimulation crashed', error);
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
