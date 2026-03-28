@@ -1598,10 +1598,44 @@ function applyPortfolioInputsToAssumptions(inputs) {
   planForm.applyDefaults(inputs);
   advancedForm.applyDefaults(inputs);
 
+  if (els.years) {
+    els.years.value = String(Number(inputs.years) || '');
+  }
+
   if (els.initialPortfolio) {
     els.initialPortfolio.value = formatInteger(
       Math.round(Number(inputs.initialPortfolio) || 0)
     );
+  }
+
+  if (els.initialWithdrawalRate) {
+    els.initialWithdrawalRate.value = Number.isFinite(Number(inputs.initialWithdrawalRate))
+      ? formatRate(Number(inputs.initialWithdrawalRate))
+      : '';
+  }
+
+  if (els.initialSpending) {
+    els.initialSpending.value = Number.isFinite(Number(inputs.initialSpending))
+      ? formatInteger(Math.round(Number(inputs.initialSpending)))
+      : '';
+  }
+
+  if (els.comfortSpending) {
+    els.comfortSpending.value = Number.isFinite(Number(inputs.comfortSpending))
+      ? formatInteger(Math.round(Number(inputs.comfortSpending)))
+      : '';
+  }
+
+  if (els.minimumSpending) {
+    els.minimumSpending.value = Number.isFinite(Number(inputs.minimumSpending))
+      ? formatInteger(Math.round(Number(inputs.minimumSpending)))
+      : '';
+  }
+
+  if (els.annualFeeRate) {
+    els.annualFeeRate.value = Number.isFinite(Number(inputs.annualFeeRate))
+      ? String(inputs.annualFeeRate)
+      : '';
   }
 
   if (els.equityAllocation) {
@@ -1620,6 +1654,38 @@ function applyPortfolioInputsToAssumptions(inputs) {
     els.cashAllocation.value = String(Math.round(Number(inputs.cashAllocation) || 0));
   }
 
+  if (els.rebalanceToTarget) {
+    els.rebalanceToTarget.checked = Boolean(inputs.rebalanceToTarget);
+  }
+
+  if (els.equityReturn) {
+    els.equityReturn.value = Number.isFinite(Number(inputs.equityReturn)) ? String(inputs.equityReturn) : '';
+  }
+
+  if (els.equityVolatility) {
+    els.equityVolatility.value = Number.isFinite(Number(inputs.equityVolatility)) ? String(inputs.equityVolatility) : '';
+  }
+
+  if (els.bondReturn) {
+    els.bondReturn.value = Number.isFinite(Number(inputs.bondReturn)) ? String(inputs.bondReturn) : '';
+  }
+
+  if (els.bondVolatility) {
+    els.bondVolatility.value = Number.isFinite(Number(inputs.bondVolatility)) ? String(inputs.bondVolatility) : '';
+  }
+
+  if (els.cashlikeReturn) {
+    els.cashlikeReturn.value = Number.isFinite(Number(inputs.cashlikeReturn)) ? String(inputs.cashlikeReturn) : '';
+  }
+
+  if (els.cashlikeVolatility) {
+    els.cashlikeVolatility.value = Number.isFinite(Number(inputs.cashlikeVolatility)) ? String(inputs.cashlikeVolatility) : '';
+  }
+
+  if (els.inflation) {
+    els.inflation.value = Number.isFinite(Number(inputs.inflation)) ? String(inputs.inflation) : '';
+  }
+
   if (els.person1Name) {
     els.person1Name.value = String(inputs.person1Name || '');
   }
@@ -1633,9 +1699,17 @@ function applyPortfolioInputsToAssumptions(inputs) {
     els.person1Age.readOnly = true;
   }
 
+  if (els.person1PensionAge) {
+    els.person1PensionAge.value = String(Number(inputs.person1PensionAge) || 67);
+  }
+
   if (els.person2Age) {
     els.person2Age.value = String(Number(inputs.person2Age) || 55);
     els.person2Age.readOnly = true;
+  }
+
+  if (els.person2PensionAge) {
+    els.person2PensionAge.value = String(Number(inputs.person2PensionAge) || 67);
   }
 
   if (els.includePerson2) {
@@ -1645,6 +1719,94 @@ function applyPortfolioInputsToAssumptions(inputs) {
 
   if (els.person2Panel) {
     els.person2Panel.style.display = inputs.includePerson2 ? '' : 'none';
+  }
+
+  if (els.statePensionToday) {
+    els.statePensionToday.value = Number.isFinite(Number(inputs.statePensionToday))
+      ? formatInteger(Math.round(Number(inputs.statePensionToday)))
+      : '';
+  }
+
+  if (els.person1GetsFullPension) {
+    els.person1GetsFullPension.checked = Boolean(inputs.person1GetsFullPension);
+  }
+
+  if (els.person1OtherIncomeToday) {
+    els.person1OtherIncomeToday.value = Number.isFinite(Number(inputs.person1OtherIncomeToday))
+      ? formatInteger(Math.round(Number(inputs.person1OtherIncomeToday)))
+      : '';
+  }
+
+  if (els.person1OtherIncomeYears) {
+    els.person1OtherIncomeYears.value = Number.isFinite(Number(inputs.person1OtherIncomeYears))
+      ? String(inputs.person1OtherIncomeYears)
+      : '';
+  }
+
+  if (els.person1WindfallAmount) {
+    els.person1WindfallAmount.value = Number.isFinite(Number(inputs.person1WindfallAmount))
+      ? formatInteger(Math.round(Number(inputs.person1WindfallAmount)))
+      : '';
+  }
+
+  if (els.person1WindfallYear) {
+    els.person1WindfallYear.value = Number.isFinite(Number(inputs.person1WindfallYear))
+      ? String(inputs.person1WindfallYear)
+      : '';
+  }
+
+  if (els.person2GetsFullPension) {
+    els.person2GetsFullPension.checked = Boolean(inputs.person2GetsFullPension);
+  }
+
+  if (els.person2OtherIncomeToday) {
+    els.person2OtherIncomeToday.value = Number.isFinite(Number(inputs.person2OtherIncomeToday))
+      ? formatInteger(Math.round(Number(inputs.person2OtherIncomeToday)))
+      : '';
+  }
+
+  if (els.person2OtherIncomeYears) {
+    els.person2OtherIncomeYears.value = Number.isFinite(Number(inputs.person2OtherIncomeYears))
+      ? String(inputs.person2OtherIncomeYears)
+      : '';
+  }
+
+  if (els.person2WindfallAmount) {
+    els.person2WindfallAmount.value = Number.isFinite(Number(inputs.person2WindfallAmount))
+      ? formatInteger(Math.round(Number(inputs.person2WindfallAmount)))
+      : '';
+  }
+
+  if (els.person2WindfallYear) {
+    els.person2WindfallYear.value = Number.isFinite(Number(inputs.person2WindfallYear))
+      ? String(inputs.person2WindfallYear)
+      : '';
+  }
+
+  if (els.upperGuardrail) {
+    els.upperGuardrail.value = Number.isFinite(Number(inputs.upperGuardrail)) ? String(inputs.upperGuardrail) : '';
+  }
+
+  if (els.lowerGuardrail) {
+    els.lowerGuardrail.value = Number.isFinite(Number(inputs.lowerGuardrail)) ? String(inputs.lowerGuardrail) : '';
+  }
+
+  if (els.adjustmentSize) {
+    els.adjustmentSize.value = Number.isFinite(Number(inputs.adjustmentSize)) ? String(inputs.adjustmentSize) : '';
+  }
+
+  if (els.simulationMode && inputs.simulationMode != null) {
+    els.simulationMode.value = String(inputs.simulationMode);
+  }
+
+  if (els.monteCarloRuns) {
+    els.monteCarloRuns.value = Number.isFinite(Number(inputs.monteCarloRuns))
+      ? String(inputs.monteCarloRuns)
+      : '';
+  }
+
+  if (els.skipInflationAfterNegative) {
+    els.skipInflationAfterNegative.checked = Boolean(inputs.skipInflationAfterNegative);
   }
 
   updateAllocationStatus();
@@ -1659,7 +1821,6 @@ function applyPortfolioInputsToAssumptions(inputs) {
     planForm.syncDefaultSpendingFloors();
   }
 }
-
 function clearPortfolioInputsFromAssumptions() {
   if (els.initialPortfolio) {
     els.initialPortfolio.value = '';
