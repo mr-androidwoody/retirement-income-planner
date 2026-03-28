@@ -536,7 +536,6 @@ function attachEvents() {
 
   if (els.runSimulationBtn) {
   els.runSimulationBtn.addEventListener('click', () => {
-
     if (!portfolioAccounts.length) {
       showError('Build your portfolio first - add at least one account to run a simulation.');
       tabs.setActiveTab('portfolio');
@@ -551,24 +550,11 @@ function attachEvents() {
       return;
     }
 
-    // Map portfolio → assumptions before running
     const totals = calculatePortfolioTotals(portfolioAccounts);
     const mappedInputs = mapPortfolioToInputs(totals);
     applyPortfolioInputsToAssumptions(mappedInputs);
 
     hideError();
-    runSimulation();
-  });
-}
-
-    const validationState = getPortfolioValidationState();
-
-    if (!validationState.isReady) {
-      showError('Fix the highlighted portfolio issues before running a simulation.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
-
     runSimulation();
   });
 }
