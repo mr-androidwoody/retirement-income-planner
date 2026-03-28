@@ -1401,12 +1401,30 @@ function updatePortfolioSummaryCards() {
     investmentValueEl.textContent = formatCurrency(totals.totalValue);
   }
 
-  if (allocationEl) {
+    if (allocationEl) {
+    const allocationTotal =
+      totals.allocations.equities +
+      totals.allocations.bonds +
+      totals.allocations.cashlike +
+      totals.allocations.cash;
+
+    const roundedAllocationTotal = Number(allocationTotal.toFixed(1));
+    const allocationState =
+      roundedAllocationTotal === 100
+        ? 'Balanced'
+        : roundedAllocationTotal < 100
+          ? `${(100 - roundedAllocationTotal).toFixed(1)}% under`
+          : `${(roundedAllocationTotal - 100).toFixed(1)}% over`;
+
     allocationEl.innerHTML = `
       <div><span>Equities</span><span class="value">${totals.allocations.equities.toFixed(1)}%</span></div>
       <div><span>Bonds</span><span class="value">${totals.allocations.bonds.toFixed(1)}%</span></div>
       <div><span>Cashlike</span><span class="value">${totals.allocations.cashlike.toFixed(1)}%</span></div>
       <div><span>Cash</span><span class="value">${totals.allocations.cash.toFixed(1)}%</span></div>
+      <div class="portfolio-summary-total-row">
+        <span>Total allocation</span>
+        <span class="value">${roundedAllocationTotal.toFixed(1)}% · ${allocationState}</span>
+      </div>
     `;
   }
 
