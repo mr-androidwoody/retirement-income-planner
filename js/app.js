@@ -406,6 +406,10 @@ function attachEvents() {
       savePortfolioConfigToStorage();
       savePortfolioPeopleToStorage();
 
+      if (els.includePerson2) {
+        els.includePerson2.checked = portfolioConfig.hasPerson2;
+      }
+
       applyPerson2PortfolioRules();
       renderPortfolioTable();
     });
@@ -442,12 +446,31 @@ function attachEvents() {
   }
 
   if (els.includePerson2) {
-    els.includePerson2.addEventListener('change', () => {
+    els.includePerson2.addEventListener('change', (e) => {
+      portfolioConfig.hasPerson2 = Boolean(e.target.checked);
+
       if (!portfolioConfig.hasPerson2) {
-        els.includePerson2.checked = false;
-       }
+        portfolioPeople.person2Name = '';
+        portfolioPeople.person2Age = 55;
+
+        if (els.portfolioPerson2Name) {
+          els.portfolioPerson2Name.value = '';
+        }
+
+        if (els.portfolioPerson2Age) {
+          els.portfolioPerson2Age.value = 55;
+        }
+      }
+
+      savePortfolioConfigToStorage();
+      savePortfolioPeopleToStorage();
+
+      if (els.portfolioHasPerson2) {
+        els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
+      }
 
       applyPerson2PortfolioRules();
+      renderPortfolioTable();
     });
   }
 
