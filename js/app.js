@@ -1164,6 +1164,14 @@ function normalisePortfolioPercent(value) {
   return clampNumber(Math.round(parsed), 0, 100);
 }
 
+function getActivePortfolioAccounts() {
+  if (portfolioConfig.hasPerson2) {
+    return portfolioAccounts;
+  }
+
+  return portfolioAccounts.filter((account) => account.owner !== 'Person 2');
+}
+
 function getPortfolioRowIssues(account) {
   const issues = [];
   const value = Number(account.value);
@@ -1809,28 +1817,24 @@ function renderPortfolioTable() {
 
 function applyPerson2PortfolioRules() {
   const hasPerson2 = portfolioConfig.hasPerson2;
-
   const portfolioPerson2Block = els.portfolioPerson2Name?.closest('.portfolio-person-block');
 
-  // Sync assumptions toggle
   if (els.includePerson2) {
     els.includePerson2.checked = hasPerson2;
     els.includePerson2.disabled = false;
   }
 
-  // Keep assumptions panel visible, but dull it when person 2 is excluded
   if (els.person2Panel) {
     els.person2Panel.classList.toggle('person-panel-disabled', !hasPerson2);
     els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
+    els.person2Panel.style.display = '';
   }
 
-  // Make portfolio person 2 block go dull too
   if (portfolioPerson2Block) {
     portfolioPerson2Block.classList.toggle('portfolio-person-block-disabled', !hasPerson2);
     portfolioPerson2Block.setAttribute('aria-disabled', String(!hasPerson2));
   }
 
-  // Lock / unlock person 2 assumption fields
   [
     els.person2Name,
     els.person2Age,
@@ -1845,7 +1849,6 @@ function applyPerson2PortfolioRules() {
     field.disabled = !hasPerson2;
   });
 
-  // Lock / unlock portfolio person 2 fields
   [
     els.portfolioPerson2Name,
     els.portfolioPerson2Age
@@ -1854,17 +1857,15 @@ function applyPerson2PortfolioRules() {
     field.disabled = !hasPerson2;
   });
 
-  // Clean invalid account owners
   if (!hasPerson2) {
     portfolioAccounts.forEach((account) => {
       if (account.owner === 'Person 2') {
         account.owner = 'Person 1';
       }
     });
-
-    savePortfolioToStorage();
-    renderPortfolioTable();
   }
+
+  updatePortfolioValidationUI();
 }
 
 function attachPortfolioTableRowEvents() {
