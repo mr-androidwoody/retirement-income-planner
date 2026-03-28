@@ -1124,7 +1124,7 @@ function runSimulation() {
     console.log('runSimulation mergedInputs', mergedInputs);
 
     const errors = validateInputs(mergedInputs);
-    console.log('runSimulation validation errors', errors);
+    console.log('runSimulation validation errors', errors, mergedInputs);
 
     if (errors.length > 0) {
       showError(errors.join(' '));
