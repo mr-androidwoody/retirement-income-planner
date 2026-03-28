@@ -253,8 +253,8 @@ textarea{
   appearance:none;
   display:inline-flex;
   align-items:center;
-  gap:10px;
-  min-width:148px;
+  gap:6px;
+  min-width:120px;
   padding:10px 18px;
   background:rgba(255,255,255,0.72);
   color:#1f2a40;
@@ -281,28 +281,6 @@ textarea{
   background:linear-gradient(180deg, #4774ff 0%, #315ce8 100%);
   color:#ffffff;
   box-shadow:0 8px 20px rgba(49, 92, 232, 0.25);
-}
-
-.tab-button__roundel{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:26px;
-  height:26px;
-  flex:0 0 26px;
-  border-radius:999px;
-  background:rgba(45, 91, 255, 0.10);
-  border:1px solid rgba(45, 91, 255, 0.20);
-  color:#2d5bff;
-  font-size:0.8rem;
-  font-weight:800;
-  line-height:1;
-}
-
-.tab-button.is-active .tab-button__roundel{
-  background:rgba(255,255,255,0.18);
-  border-color:rgba(255,255,255,0.28);
-  color:#ffffff;
 }
 
 .tab-button__label{
