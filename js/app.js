@@ -698,6 +698,7 @@ function attachEvents() {
 
   if (els.runSimulationBtn) {
       els.runSimulationBtn.addEventListener('click', () => {
+        console.log('Run simulation button clicked');
         prepareAndRunSimulation();
       });
     }
