@@ -1592,53 +1592,12 @@ function mapPortfolioToInputs(totals) {
   };
 }
 
-function applyPortfolioInputsToAssumptions(mappedInputs) {
-  if (!mappedInputs || typeof mappedInputs !== 'object') return;
-
-  if (els.initialPortfolio) {
-    els.initialPortfolio.value = formatInteger(
-      Math.round(Number(mappedInputs.initialPortfolio) || 0)
-    );
-  }
-
-  if (els.equityAllocation) {
-    els.equityAllocation.value = String(Math.round(Number(mappedInputs.equityAllocation) || 0));
-  }
-
-  if (els.bondAllocation) {
-    els.bondAllocation.value = String(Math.round(Number(mappedInputs.bondAllocation) || 0));
-  }
-
-  if (els.cashlikeAllocation) {
-    els.cashlikeAllocation.value = String(Math.round(Number(mappedInputs.cashlikeAllocation) || 0));
-  }
-
-  if (els.cashAllocation) {
-    els.cashAllocation.value = String(Math.round(Number(mappedInputs.cashAllocation) || 0));
-  }
-
-  if (els.person1Name) {
-    els.person1Name.value = String(mappedInputs.person1Name || '');
-  }
-
-  if (els.person2Name) {
-    els.person2Name.value = String(mappedInputs.person2Name || '');
-  }
-
-  if (els.person1Age) {
-    els.person1Age.value = String(Number(mappedInputs.person1Age) || 55);
-    els.person1Age.readOnly = true;
-  }
-
-  function applyPortfolioInputsToAssumptions(inputs) {
+function applyPortfolioInputsToAssumptions(inputs) {
   if (!inputs || typeof inputs !== 'object') return;
 
-  // Populate the full Assumptions UI from the merged object:
-  // DEFAULT_INPUTS + any current UI values + portfolio-mapped overrides
   planForm.applyDefaults(inputs);
   advancedForm.applyDefaults(inputs);
 
-  // Re-assert portfolio-controlled fields
   if (els.initialPortfolio) {
     els.initialPortfolio.value = formatInteger(
       Math.round(Number(inputs.initialPortfolio) || 0)
@@ -1690,7 +1649,6 @@ function applyPortfolioInputsToAssumptions(mappedInputs) {
 
   updateAllocationStatus();
 
-  // Re-run dependent sync after the full form has been populated
   if (withdrawalInputMode === 'rate') {
     syncInitialSpendingFromRate();
   } else {
