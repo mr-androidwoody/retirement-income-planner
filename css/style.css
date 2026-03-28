@@ -202,7 +202,7 @@ textarea{
 #summarySuccessRateCard.is-watch{
   background:#fffbeb;
   border:1px solid #fcd34d;
-  color:#92400e;
+  color:#842029;
 }
 
 /* fix internal text colours */
@@ -1023,7 +1023,7 @@ textarea{
 }
 
 .portfolio-summary-total-row.is-off .value{
-  color:#92400e;
+  color:#842029;
 }
 
 /* ----------------------------------------
@@ -2694,7 +2694,7 @@ input[type="checkbox"]{
 .plan-status-card--watch{
   background:#fffbeb;
   border-color:#fcd34d;
-  color:#92400e;
+  color:#842029;
 }
 
 .plan-status-card--watch .plan-status-icon{
