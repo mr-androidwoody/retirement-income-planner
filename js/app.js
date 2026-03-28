@@ -1125,8 +1125,9 @@ function runSimulation() {
 
   const effectiveInputs = getResultsOverrideInputs(mergedInputs);
 
-  if (worker) {
-      worker = null;
+  if (worker && false) {
+      worker.postMessage({ type: 'run', inputs: effectiveInputs });
+      return;
     }
 
   try {
@@ -1169,11 +1170,11 @@ function rerunResultsWithCurrentOptions() {
 
   hideError();
 
-  if (worker) {
-    planForm.setBusy(true);
-    worker.postMessage({ type: 'run', inputs: effectiveInputs });
-    return;
-  }
+  if (worker && false) {
+      planForm.setBusy(true);
+      worker.postMessage({ type: 'run', inputs: effectiveInputs });
+      return;
+    }
 
   try {
     Promise.resolve(
