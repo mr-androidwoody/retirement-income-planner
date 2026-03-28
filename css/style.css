@@ -756,8 +756,14 @@ textarea{
   padding-right:0;
 }
 
+.portfolio-table td:nth-child(10) .action-row{
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+
 .portfolio-table td:nth-child(10) .btn{
-  margin:0 auto;
+  margin:0;
 }
 
 /* ----------------------------------------
