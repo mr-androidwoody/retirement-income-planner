@@ -563,9 +563,44 @@ function attachEvents() {
 
   if (deletePortfolioBtn) {
     deletePortfolioBtn.addEventListener('click', () => {
-      const confirmed = window.confirm('Delete entire portfolio? This cannot be undone.');
-      if (!confirmed) return;
+      
+      const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
+      const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
+      const confirmDeleteBtn = document.getElementById('confirmDeletePortfolioBtn');
+      const cancelDeleteBtn = document.getElementById('cancelDeletePortfolioBtn');
 
+      if (deletePortfolioBtn && deleteConfirmEl) {
+       deletePortfolioBtn.addEventListener('click', () => {
+        deleteConfirmEl.classList.remove('hidden');
+      });
+      }
+
+if (cancelDeleteBtn && deleteConfirmEl) {
+  cancelDeleteBtn.addEventListener('click', () => {
+    deleteConfirmEl.classList.add('hidden');
+  });
+}
+
+if (confirmDeleteBtn) {
+  confirmDeleteBtn.addEventListener('click', () => {
+    portfolioAccounts.length = 0;
+    latestBaseInputs = null;
+
+    localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
+    localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
+    localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+
+    hideError();
+    renderPortfolioTable();
+
+    if (deleteConfirmEl) {
+      deleteConfirmEl.classList.add('hidden');
+    }
+  });
+}
+
+
+        
       portfolioAccounts.length = 0;
       latestBaseInputs = null;
 
