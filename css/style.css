@@ -716,20 +716,20 @@ textarea{
 }
 
 /* ----------------------------------------
-   Column widths
+   Column widths (balanced to 100%)
    ---------------------------------------- */
 
 .portfolio-table th:nth-child(1),
-.portfolio-table td:nth-child(1){ width:20%; }
+.portfolio-table td:nth-child(1){ width:18%; }
 
 .portfolio-table th:nth-child(2),
-.portfolio-table td:nth-child(2){ width:12%; }
+.portfolio-table td:nth-child(2){ width:11%; }
 
 .portfolio-table th:nth-child(3),
-.portfolio-table td:nth-child(3){ width:16%; }
+.portfolio-table td:nth-child(3){ width:14%; }
 
 .portfolio-table th:nth-child(4),
-.portfolio-table td:nth-child(4){ width:12%; }
+.portfolio-table td:nth-child(4){ width:11%; }
 
 .portfolio-table th:nth-child(5),
 .portfolio-table td:nth-child(5),
@@ -739,7 +739,7 @@ textarea{
 .portfolio-table td:nth-child(7),
 .portfolio-table th:nth-child(8),
 .portfolio-table td:nth-child(8){
-  width:8%;
+  width:7%;
 }
 
 .portfolio-table th:nth-child(9),
@@ -753,17 +753,14 @@ textarea{
 .portfolio-table td:nth-child(10){
   width:8%;
   text-align:center;
+  padding-left:0;
   padding-right:0;
 }
 
-.portfolio-table td:nth-child(10) .action-row{
-  display:flex;
-  justify-content:center;
-  width:100%;
-}
-
+/* Centre Remove button */
 .portfolio-table td:nth-child(10) .btn{
-  margin:0;
+  display:block;
+  margin:0 auto;
 }
 
 /* ----------------------------------------
