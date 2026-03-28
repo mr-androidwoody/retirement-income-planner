@@ -589,7 +589,7 @@ textarea{
 .portfolio-people-strip{
   display:grid;
   grid-template-columns:1fr;
-  gap:12px;
+  gap:20px;
   align-items:stretch;
 }
 
