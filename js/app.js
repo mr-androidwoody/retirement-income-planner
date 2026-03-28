@@ -1324,7 +1324,7 @@ function addPortfolioAccount() {
   portfolioAccounts.push({
     id: Date.now(),
     isPlaceholder: true,
-    name: 'New account',
+    name: '',
     wrapper: 'ISA',
     owner: 'Person 1',
     value: 0,
