@@ -1133,9 +1133,13 @@ function runSimulation() {
   const effectiveInputs = getResultsOverrideInputs(mergedInputs);
 
   if (worker) {
-      worker.postMessage({ type: 'run', inputs: effectiveInputs });
-      return;
-    }
+    console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
+    worker.postMessage({ type: 'run', inputs: effectiveInputs });
+    console.log('posted to worker');
+    return;
+  }
+
+console.log('no worker, using main thread fallback');
 
   try {
     Promise.resolve(
