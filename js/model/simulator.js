@@ -140,14 +140,21 @@ export function validateInputs(rawInputs = {}) {
     inputs.cashlikeAllocation +
     (inputs.cashAllocation ?? 0);
 
-  console.log('validateInputs rawInputs', rawInputs);
-  console.log('validateInputs normalised allocations', {
-    equityAllocation: inputs.equityAllocation,
-    bondAllocation: inputs.bondAllocation,
-    cashlikeAllocation: inputs.cashlikeAllocation,
-    cashAllocation: inputs.cashAllocation,
-    allocationTotal
-  });
+  console.log('validateInputs rawInputs JSON', JSON.stringify(rawInputs, null, 2));
+  console.log(
+    'validateInputs normalised allocations JSON',
+    JSON.stringify(
+      {
+        equityAllocation: inputs.equityAllocation,
+        bondAllocation: inputs.bondAllocation,
+        cashlikeAllocation: inputs.cashlikeAllocation,
+        cashAllocation: inputs.cashAllocation,
+        allocationTotal
+      },
+      null,
+      2
+    )
+  );
 
   if (Math.abs(allocationTotal - 1) > 0.001) {
     errors.push('Equity, bond, cashlike and cash allocations must total 100%.');
