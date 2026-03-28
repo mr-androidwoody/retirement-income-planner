@@ -1182,9 +1182,13 @@ function rerunResultsWithCurrentOptions() {
   hideError();
 
   if (worker) {
-      planForm.setBusy(true);
+      console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
       worker.postMessage({ type: 'run', inputs: effectiveInputs });
+      console.log('posted to worker');
       return;
+    }
+
+console.log('no worker, using main-thread fallback');
     }
 
   try {
