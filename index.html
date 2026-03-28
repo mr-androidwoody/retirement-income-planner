@@ -327,19 +327,48 @@
                 <div class="portfolio-table-wrap">
                   <table class="portfolio-table" id="portfolioTable">
                     <thead>
-                      <tr>
-                        <th>Account name</th>
-                        <th>Wrapper</th>
-                        <th>Owner</th>
-                        <th>Value (£)</th>
-                        <th>Equity %</th>
-                        <th>Bond %</th>
-                        <th>Cashlike %</th>
-                        <th>Cash %</th>
-                        <th>Total</th>
-                        <th></th>
-                      </tr>
-                    </thead>
+                     <tr>
+                      <th>Account name</th>
+                      <th>Wrapper</th>
+                      <th>Owner</th>
+                      <th>Value (£)</th>
+                    
+                      <th>
+                        <span
+                          class="metric-heading-with-tooltip"
+                          tabindex="0"
+                          data-tooltip="The percentage of this account invested in shares. Higher equity allocations typically increase expected long-term growth but also increase volatility."
+                        >Equity %</span>
+                      </th>
+                    
+                      <th>
+                        <span
+                          class="metric-heading-with-tooltip"
+                          tabindex="0"
+                          data-tooltip="The percentage of this account invested in bonds. Bonds generally provide steadier but lower returns and help reduce portfolio volatility."
+                        >Bond %</span>
+                      </th>
+                    
+                      <th>
+                        <span
+                          class="metric-heading-with-tooltip"
+                          tabindex="0"
+                          data-tooltip="Cashlike includes cash ISAs, money-market funds, and QMMF used as a drawdown buffer."
+                        >Cashlike %</span>
+                      </th>
+                    
+                      <th>
+                        <span
+                          class="metric-heading-with-tooltip"
+                          tabindex="0"
+                          data-tooltip="Cash represents actual liquid cash holdings, like current accounts, separate from cashlike instruments used as buffers."
+                        >Cash %</span>
+                      </th>
+                    
+                      <th>Total</th>
+                      <th></th>
+                    </tr>
+                                        </thead>
                     <tbody id="portfolioTableBody">
                       <tr class="portfolio-row-empty">
                         <td colspan="10">No accounts added yet.</td>
@@ -558,7 +587,7 @@
                           <span
                             class="metric-heading-with-tooltip"
                             tabindex="0"
-                            data-tooltip="Cashlike includes cash savings, money-market funds, and QMMF used as a drawdown buffer."
+                            data-tooltip="Cashlike includes cash ISAs, money-market funds, and QMMF used as a drawdown buffer."
                           >Cashlike %</span>
                         </span>
                         <input id="cashlikeAllocation" type="number" min="0" max="100" step="1" readonly />
@@ -569,7 +598,7 @@
                           <span
                             class="metric-heading-with-tooltip"
                             tabindex="0"
-                            data-tooltip="Cash represents actual liquid cash holdings, separate from cashlike instruments used as buffers."
+                            data-tooltip="Cash represents actual liquid cash holdings, like current accounts, separate from cashlike instruments used as buffers."
                           >Cash %</span>
                         </span>
                         <input id="cashAllocation" type="number" min="0" max="100" step="1" readonly />
