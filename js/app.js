@@ -542,7 +542,16 @@ function attachEvents() {
       savePortfolioPeopleToStorage();
 
       const originalLabel = savePortfolioBtn.textContent;
-      savePortfolioBtn.textContent = 'Saved';
+
+        savePortfolioBtn.textContent = 'Saved';
+        savePortfolioBtn.classList.remove('btn-secondary');
+        savePortfolioBtn.classList.add('btn-success');
+        
+        window.setTimeout(() => {
+          savePortfolioBtn.textContent = originalLabel;
+          savePortfolioBtn.classList.remove('btn-success');
+          savePortfolioBtn.classList.add('btn-secondary');
+        }, 1200);
 
       window.setTimeout(() => {
         savePortfolioBtn.textContent = originalLabel;
