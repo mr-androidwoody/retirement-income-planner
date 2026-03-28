@@ -621,7 +621,28 @@ if (confirmDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
   advancedForm.attachFormatting();
 
   planForm.bindActions({
-    onRun: runSimulation,
+    onRun: () => {
+      if (!portfolioAccounts.length) {
+        showError('Build your portfolio first - add at least one account to run a simulation.');
+        tabs.setActiveTab('portfolio');
+        return;
+      }
+
+      const validationState = getPortfolioValidationState();
+
+      if (!validationState.isReady) {
+        showError('Fix the highlighted portfolio issues before running a simulation.');
+        tabs.setActiveTab('portfolio');
+        return;
+      }
+
+      const totals = calculatePortfolioTotals(portfolioAccounts);
+      const mappedInputs = mapPortfolioToInputs(totals);
+      applyPortfolioInputsToAssumptions(mappedInputs);
+
+      hideError();
+      runSimulation();
+    },
     onReset: () => {
       applyDefaults();
       setResultsViewDefaults();
