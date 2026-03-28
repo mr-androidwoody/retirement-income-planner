@@ -1172,6 +1172,10 @@ function getActivePortfolioAccounts() {
   return portfolioAccounts.filter((account) => account.owner !== 'Person 2');
 }
 
+function getActivePortfolioAccounts() {
+  return portfolioAccounts.filter((account) => !account.isPlaceholder);
+}
+
 function getPortfolioRowIssues(account) {
   const issues = [];
   const value = Number(account.value);
@@ -1863,6 +1867,9 @@ function applyPerson2PortfolioRules() {
         account.owner = 'Person 1';
       }
     });
+
+    savePortfolioToStorage();
+    renderPortfolioTable();
   }
 
   updatePortfolioValidationUI();
