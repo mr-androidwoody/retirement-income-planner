@@ -1126,9 +1126,8 @@ function runSimulation() {
   const effectiveInputs = getResultsOverrideInputs(mergedInputs);
 
   if (worker) {
-    worker.postMessage({ type: 'run', inputs: effectiveInputs });
-    return;
-  }
+      worker = null;
+    }
 
   try {
     Promise.resolve(
