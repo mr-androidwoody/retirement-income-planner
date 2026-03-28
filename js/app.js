@@ -1925,15 +1925,6 @@ function attachPortfolioTableRowEvents() {
       }
     });
 
-    input.addEventListener('change', () => {
-      const id = Number(input.dataset.id);
-      const field = input.dataset.field;
-      const rawValue = input.value.trim();
-      const previousValue = input.dataset.previousValue ?? '';
-    
-      if (!field) return;
-    
-    input.addEventListener('change', () => {
       const id = Number(input.dataset.id);
       const field = input.dataset.field;
       const rawValue = input.value.trim();
@@ -1961,9 +1952,7 @@ function attachPortfolioTableRowEvents() {
     });
   });
 
-  selects.forEach((select) => {
-
-  selects.forEach((select) => {
+    selects.forEach((select) => {
     select.addEventListener('change', (e) => {
       const id = Number(e.target.dataset.id);
       const field = e.target.dataset.field;
