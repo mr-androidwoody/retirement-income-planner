@@ -143,9 +143,11 @@ const PORTFOLIO_PEOPLE_STORAGE_KEY = 'retirement_portfolio_people_v1';
 
 
 function savePortfolioToStorage() {
+  const activeAccounts = getActivePortfolioAccounts();
+
   localStorage.setItem(
     PORTFOLIO_STORAGE_KEY,
-    JSON.stringify(portfolioAccounts)
+    JSON.stringify(activeAccounts)
   );
 }
 
@@ -267,7 +269,9 @@ function initialise() {
   renderPortfolioPeopleFields();
   renderPortfolioTable();
 
-  if (portfolioAccounts.length) {
+  const activeAccounts = getActivePortfolioAccounts();
+
+  if (activeAccounts.length) {
     const totals = calculatePortfolioTotals(portfolioAccounts);
     const mappedInputs = mapPortfolioToInputs(totals);
     applyPortfolioInputsToAssumptions(mappedInputs);
@@ -485,9 +489,10 @@ function attachEvents() {
 
   if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
+      const activeAccounts = getActivePortfolioAccounts();
       const validationState = getPortfolioValidationState();
 
-      if (!portfolioAccounts.length) {
+      if (!activeAccounts.length) {
         showError('Add at least one account before continuing.');
         tabs.setActiveTab('portfolio');
         return;
@@ -511,9 +516,7 @@ function attachEvents() {
         return;
       }
 
-      const totals = portfolioTotals;
-      const mappedInputs = mapPortfolioToInputs(totals);
-
+      const mappedInputs = mapPortfolioToInputs(portfolioTotals);
       const currentInputs = {
         ...DEFAULT_INPUTS,
         ...gatherInputs()
@@ -533,104 +536,108 @@ function attachEvents() {
       });
     });
   }
-  
+
   const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
 
-    if (addPortfolioAccountBtn) {
-      addPortfolioAccountBtn.addEventListener('click', () => {
-        addPortfolioAccount();
-      });
-    }   
-    
-    if (els.runSimulationBtn) {
-      els.runSimulationBtn.addEventListener('click', () => {
-    if (!portfolioAccounts.length) {
-      showError('Build your portfolio first - add at least one account to run a simulation.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
+  if (addPortfolioAccountBtn) {
+    addPortfolioAccountBtn.addEventListener('click', () => {
+      addPortfolioAccount();
+    });
+  }
 
-    const validationState = getPortfolioValidationState();
+  if (els.runSimulationBtn) {
+    els.runSimulationBtn.addEventListener('click', () => {
+      const activeAccounts = getActivePortfolioAccounts();
 
-    if (!validationState.isReady) {
-      showError('Fix the highlighted portfolio issues before running a simulation.');
-      tabs.setActiveTab('portfolio');
-      return;
-    }
+      if (!activeAccounts.length) {
+        showError('Build your portfolio first - add at least one account to run a simulation.');
+        tabs.setActiveTab('portfolio');
+        return;
+      }
 
-    const totals = calculatePortfolioTotals(portfolioAccounts);
-    const mappedInputs = mapPortfolioToInputs(totals);
-    applyPortfolioInputsToAssumptions(mappedInputs);
+      const validationState = getPortfolioValidationState();
 
-    hideError();
-    runSimulation();
-  });
-}
+      if (!validationState.isReady) {
+        showError('Fix the highlighted portfolio issues before running a simulation.');
+        tabs.setActiveTab('portfolio');
+        return;
+      }
 
-    const savePortfolioBtn = document.getElementById('savePortfolioBtn');
+      const totals = calculatePortfolioTotals(portfolioAccounts);
+      const mappedInputs = mapPortfolioToInputs(totals);
+      applyPortfolioInputsToAssumptions(mappedInputs);
 
-if (savePortfolioBtn) {
-  savePortfolioBtn.addEventListener('click', () => {
-    savePortfolioToStorage();
-    savePortfolioConfigToStorage();
-    savePortfolioPeopleToStorage();
+      hideError();
+      runSimulation();
+    });
+  }
 
-    const originalLabel = savePortfolioBtn.textContent;
+  const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
-    savePortfolioBtn.textContent = 'Saved';
-    savePortfolioBtn.classList.remove('btn-secondary');
-    savePortfolioBtn.classList.add('btn-success');
+  if (savePortfolioBtn) {
+    savePortfolioBtn.addEventListener('click', () => {
+      savePortfolioToStorage();
+      savePortfolioConfigToStorage();
+      savePortfolioPeopleToStorage();
 
-    window.setTimeout(() => {
-      savePortfolioBtn.textContent = originalLabel;
-      savePortfolioBtn.classList.remove('btn-success');
-      savePortfolioBtn.classList.add('btn-secondary');
-    }, 1200);
-  });
-}
+      const originalLabel = savePortfolioBtn.textContent;
 
-const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
-const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
-const confirmDeleteBtn = document.getElementById('confirmDeletePortfolioBtn');
-const cancelDeleteBtn = document.getElementById('cancelDeletePortfolioBtn');
+      savePortfolioBtn.textContent = 'Saved';
+      savePortfolioBtn.classList.remove('btn-secondary');
+      savePortfolioBtn.classList.add('btn-success');
 
-if (deletePortfolioBtn && deleteConfirmEl) {
-  deletePortfolioBtn.addEventListener('click', () => {
-    deleteConfirmEl.classList.remove('hidden');
-    deletePortfolioBtn.classList.add('hidden');
-  });
-}
+      window.setTimeout(() => {
+        savePortfolioBtn.textContent = originalLabel;
+        savePortfolioBtn.classList.remove('btn-success');
+        savePortfolioBtn.classList.add('btn-secondary');
+      }, 1200);
+    });
+  }
 
-if (cancelDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
-  cancelDeleteBtn.addEventListener('click', () => {
-    deleteConfirmEl.classList.add('hidden');
-    deletePortfolioBtn.classList.remove('hidden');
-  });
-}
+  const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
+  const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
+  const confirmDeleteBtn = document.getElementById('confirmDeletePortfolioBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeletePortfolioBtn');
 
-if (confirmDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
-  confirmDeleteBtn.addEventListener('click', () => {
-    portfolioAccounts.length = 0;
-    latestBaseInputs = null;
+  if (deletePortfolioBtn && deleteConfirmEl) {
+    deletePortfolioBtn.addEventListener('click', () => {
+      deleteConfirmEl.classList.remove('hidden');
+      deletePortfolioBtn.classList.add('hidden');
+    });
+  }
 
-    localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
-    localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
-    localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+  if (cancelDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
+    cancelDeleteBtn.addEventListener('click', () => {
+      deleteConfirmEl.classList.add('hidden');
+      deletePortfolioBtn.classList.remove('hidden');
+    });
+  }
 
-    hideError();
-    renderPortfolioTable();
+  if (confirmDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
+    confirmDeleteBtn.addEventListener('click', () => {
+      portfolioAccounts.length = 0;
+      latestBaseInputs = null;
 
-    deleteConfirmEl.classList.add('hidden');
-    deletePortfolioBtn.classList.remove('hidden');
-  });
-}
+      localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
+      localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
+      localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
+
+      hideError();
+      renderPortfolioTable();
+
+      deleteConfirmEl.classList.add('hidden');
+      deletePortfolioBtn.classList.remove('hidden');
+    });
+  }
 
   planForm.attachFormatting();
   advancedForm.attachFormatting();
 
   planForm.bindActions({
     onRun: () => {
-      if (!portfolioAccounts.length) {
+      const activeAccounts = getActivePortfolioAccounts();
+
+      if (!activeAccounts.length) {
         showError('Build your portfolio first - add at least one account to run a simulation.');
         tabs.setActiveTab('portfolio');
         return;
@@ -1164,7 +1171,9 @@ function getPortfolioRowIssues(account) {
 }
 
 function getPortfolioValidationState() {
-  if (!portfolioAccounts.length) {
+  const activeAccounts = getActivePortfolioAccounts();
+
+  if (!activeAccounts.length) {
     return {
       isReady: false,
       issueCount: 1,
@@ -1174,7 +1183,7 @@ function getPortfolioValidationState() {
 
   let issueCount = 0;
 
-  portfolioAccounts.forEach((account) => {
+  activeAccounts.forEach((account) => {
     issueCount += getPortfolioRowIssues(account).length;
   });
 
@@ -1314,6 +1323,7 @@ function debounce(fn, delay) {
 function addPortfolioAccount() {
   portfolioAccounts.push({
     id: Date.now(),
+    isPlaceholder: true,
     name: 'New account',
     wrapper: 'ISA',
     owner: 'Person 1',
@@ -1326,13 +1336,14 @@ function addPortfolioAccount() {
     }
   });
 
-  savePortfolioToStorage();
   renderPortfolioTable();
 }
 
 function updatePortfolioAccount(id, field, value) {
   const account = portfolioAccounts.find((item) => item.id === id);
   if (!account) return;
+    
+  account.isPlaceholder = false;  
 
   if (field.startsWith('allocation.')) {
     const key = field.split('.')[1];
@@ -1353,6 +1364,10 @@ function removePortfolioAccount(id) {
   renderPortfolioTable();
 }
 
+function getActivePortfolioAccounts() {
+  return portfolioAccounts.filter((account) => !account.isPlaceholder);
+}
+
 function getPortfolioRowAllocationTotal(account) {
   return (
     (Number(account.allocation?.equities) || 0) +
@@ -1370,6 +1385,8 @@ function isPortfolioRowValid(account) {
 }
 
 function calculatePortfolioTotals(portfolioAccounts) {
+  const activeAccounts = portfolioAccounts.filter((account) => !account.isPlaceholder);
+
   const totals = {
     totalValue: 0,
     allocations: {
@@ -1392,7 +1409,7 @@ function calculatePortfolioTotals(portfolioAccounts) {
   let weightedCashlike = 0;
   let weightedCash = 0;
 
-  portfolioAccounts.forEach((account) => {
+  activeAccounts.forEach((account) => {
     const value = Number(account.value) || 0;
 
     totals.totalValue += value;
