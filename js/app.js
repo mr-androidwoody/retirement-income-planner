@@ -291,7 +291,6 @@ function renderPortfolioPeopleFields() {
 function initialise() {
   setupWorker();
   applyDefaults();
-  clearAssumptionsUi();
   loadPortfolioFromStorage();
   loadPortfolioConfigFromStorage();
   loadPortfolioPeopleFromStorage();
@@ -490,6 +489,17 @@ function setResultsViewDefaults() {
   if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
 
+function sanitiseInputs(rawInputs = {}) {
+  return Object.fromEntries(
+    Object.entries(rawInputs).filter(([, value]) => {
+      if (value === '' || value === null || value === undefined) return false;
+      if (typeof value === 'number' && !Number.isFinite(value)) return false;
+      if (typeof value === 'string' && value.trim() === '') return false;
+      return true;
+    })
+  );
+}
+
 function prepareAndRunSimulation() {
   const activeAccounts = getActivePortfolioAccounts();
 
@@ -511,9 +521,9 @@ function prepareAndRunSimulation() {
   const mappedInputs = mapPortfolioToInputs(totals);
 
   const currentInputs = {
-    ...DEFAULT_INPUTS,
-    ...gatherInputs()
-  };
+      ...DEFAULT_INPUTS,
+      ...sanitiseInputs(gatherInputs())
+    };
 
     latestBaseInputs = {
     ...currentInputs,
