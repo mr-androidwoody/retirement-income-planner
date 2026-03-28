@@ -708,13 +708,6 @@ function attachEvents() {
     });
   }
 
-  if (els.runSimulationBtn) {
-      els.runSimulationBtn.addEventListener('click', () => {
-        console.log('Run simulation button clicked');
-        prepareAndRunSimulation();
-      });
-    }
-
   const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
   if (savePortfolioBtn) {
