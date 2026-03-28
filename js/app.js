@@ -1469,6 +1469,67 @@ function mapPortfolioToInputs(totals) {
   };
 }
 
+function applyPortfolioInputsToAssumptions(mappedInputs) {
+  if (!mappedInputs || typeof mappedInputs !== 'object') return;
+
+  if (els.initialPortfolio) {
+    els.initialPortfolio.value = formatInteger(
+      Math.round(Number(mappedInputs.initialPortfolio) || 0)
+    );
+  }
+
+  if (els.equityAllocation) {
+    els.equityAllocation.value = String(Math.round(Number(mappedInputs.equityAllocation) || 0));
+  }
+
+  if (els.bondAllocation) {
+    els.bondAllocation.value = String(Math.round(Number(mappedInputs.bondAllocation) || 0));
+  }
+
+  if (els.cashlikeAllocation) {
+    els.cashlikeAllocation.value = String(Math.round(Number(mappedInputs.cashlikeAllocation) || 0));
+  }
+
+  if (els.cashAllocation) {
+    els.cashAllocation.value = String(Math.round(Number(mappedInputs.cashAllocation) || 0));
+  }
+
+  if (els.person1Name) {
+    els.person1Name.value = String(mappedInputs.person1Name || '');
+  }
+
+  if (els.person2Name) {
+    els.person2Name.value = String(mappedInputs.person2Name || '');
+  }
+
+  if (els.person1Age) {
+    els.person1Age.value = String(Number(mappedInputs.person1Age) || 55);
+    els.person1Age.readOnly = true;
+  }
+
+  if (els.person2Age) {
+    els.person2Age.value = String(Number(mappedInputs.person2Age) || 55);
+    els.person2Age.readOnly = true;
+  }
+
+  if (els.includePerson2) {
+    els.includePerson2.checked = Boolean(mappedInputs.includePerson2);
+    els.includePerson2.disabled = true;
+  }
+
+  if (els.person2Panel) {
+    els.person2Panel.style.display = mappedInputs.includePerson2 ? '' : 'none';
+  }
+
+  updateAllocationStatus();
+
+  if (withdrawalInputMode === 'rate') {
+    syncInitialSpendingFromRate();
+  } else {
+    syncInitialWithdrawalRateFromAmount();
+  }
+}
+
 function clearPortfolioInputsFromAssumptions() {
   if (els.initialPortfolio) {
     els.initialPortfolio.value = '';
