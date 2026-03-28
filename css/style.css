@@ -962,6 +962,18 @@ textarea{
   line-height:1.4;
 }
 
+.portfolio-summary-total-row{
+  border-style:solid;
+  border-width:1px;
+  border-color:#c6d4ea;
+  background:#eef4ff;
+}
+
+.portfolio-summary-total-row span:first-child,
+.portfolio-summary-total-row .value{
+  font-weight:800;
+}
+
 /* ----------------------------------------
    Total portfolio value display
    ---------------------------------------- */
