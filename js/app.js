@@ -520,7 +520,7 @@ function prepareAndRunSimulation() {
     ...mappedInputs
    };
 
-    applyPortfolioInputsToAssumptions(mappedInputs);
+    applyPortfolioInputsToAssumptions(latestBaseInputs);
     hasMappedPortfolioToAssumptions = true;
 
     hideError();
@@ -567,7 +567,7 @@ function continueToAssumptions() {
     ...mappedInputs
   };
 
-  applyPortfolioInputsToAssumptions(mappedInputs);
+  applyPortfolioInputsToAssumptions(latestBaseInputs);
   hasMappedPortfolioToAssumptions = true;
   tabs.setActiveTab('assumptions');
 
@@ -1630,26 +1630,75 @@ function applyPortfolioInputsToAssumptions(mappedInputs) {
     els.person1Age.readOnly = true;
   }
 
+  function applyPortfolioInputsToAssumptions(inputs) {
+  if (!inputs || typeof inputs !== 'object') return;
+
+  // Populate the full Assumptions UI from the merged object:
+  // DEFAULT_INPUTS + any current UI values + portfolio-mapped overrides
+  planForm.applyDefaults(inputs);
+  advancedForm.applyDefaults(inputs);
+
+  // Re-assert portfolio-controlled fields
+  if (els.initialPortfolio) {
+    els.initialPortfolio.value = formatInteger(
+      Math.round(Number(inputs.initialPortfolio) || 0)
+    );
+  }
+
+  if (els.equityAllocation) {
+    els.equityAllocation.value = String(Math.round(Number(inputs.equityAllocation) || 0));
+  }
+
+  if (els.bondAllocation) {
+    els.bondAllocation.value = String(Math.round(Number(inputs.bondAllocation) || 0));
+  }
+
+  if (els.cashlikeAllocation) {
+    els.cashlikeAllocation.value = String(Math.round(Number(inputs.cashlikeAllocation) || 0));
+  }
+
+  if (els.cashAllocation) {
+    els.cashAllocation.value = String(Math.round(Number(inputs.cashAllocation) || 0));
+  }
+
+  if (els.person1Name) {
+    els.person1Name.value = String(inputs.person1Name || '');
+  }
+
+  if (els.person2Name) {
+    els.person2Name.value = String(inputs.person2Name || '');
+  }
+
+  if (els.person1Age) {
+    els.person1Age.value = String(Number(inputs.person1Age) || 55);
+    els.person1Age.readOnly = true;
+  }
+
   if (els.person2Age) {
-    els.person2Age.value = String(Number(mappedInputs.person2Age) || 55);
+    els.person2Age.value = String(Number(inputs.person2Age) || 55);
     els.person2Age.readOnly = true;
   }
 
   if (els.includePerson2) {
-    els.includePerson2.checked = Boolean(mappedInputs.includePerson2);
+    els.includePerson2.checked = Boolean(inputs.includePerson2);
     els.includePerson2.disabled = true;
   }
 
   if (els.person2Panel) {
-    els.person2Panel.style.display = mappedInputs.includePerson2 ? '' : 'none';
+    els.person2Panel.style.display = inputs.includePerson2 ? '' : 'none';
   }
 
   updateAllocationStatus();
 
+  // Re-run dependent sync after the full form has been populated
   if (withdrawalInputMode === 'rate') {
     syncInitialSpendingFromRate();
   } else {
     syncInitialWithdrawalRateFromAmount();
+  }
+
+  if (typeof planForm.syncDefaultSpendingFloors === 'function') {
+    planForm.syncDefaultSpendingFloors();
   }
 }
 
