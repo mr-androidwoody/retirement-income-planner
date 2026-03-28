@@ -218,6 +218,26 @@ function savePortfolioPeopleToStorage() {
   );
 }
 
+function syncPortfolioPeopleFromFields() {
+  if (els.portfolioPerson1Name) {
+    portfolioPeople.person1Name = els.portfolioPerson1Name.value;
+  }
+
+  if (els.portfolioPerson2Name) {
+    portfolioPeople.person2Name = els.portfolioPerson2Name.value;
+  }
+
+  if (els.portfolioPerson1Age) {
+    const nextAge = Number.parseInt(els.portfolioPerson1Age.value, 10);
+    portfolioPeople.person1Age = Number.isFinite(nextAge) ? nextAge : 55;
+  }
+
+  if (els.portfolioPerson2Age) {
+    const nextAge = Number.parseInt(els.portfolioPerson2Age.value, 10);
+    portfolioPeople.person2Age = Number.isFinite(nextAge) ? nextAge : 55;
+  }
+}
+
 function loadPortfolioPeopleFromStorage() {
   const saved = localStorage.getItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
   if (!saved) return;
@@ -576,6 +596,7 @@ function attachEvents() {
 
   if (savePortfolioBtn) {
     savePortfolioBtn.addEventListener('click', () => {
+      syncPortfolioPeopleFromFields();
       savePortfolioToStorage();
       savePortfolioConfigToStorage();
       savePortfolioPeopleToStorage();
