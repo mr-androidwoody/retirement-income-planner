@@ -752,8 +752,8 @@ textarea{
 .portfolio-table th:nth-child(10),
 .portfolio-table td:nth-child(10){
   width:8%;
-  text-align:right;
-  padding-right:18px;
+  text-align:center;
+  padding-right:0;
 }
 
 /* ----------------------------------------
