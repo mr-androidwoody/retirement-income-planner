@@ -1616,6 +1616,14 @@ input[type="checkbox"]{
   accent-color:var(--accent);
 }
 
+.switch-control input[type="checkbox"]{
+  opacity:0;
+  width:0;
+  height:0;
+  margin:0;
+  align-self:auto;
+}
+
 .field-tooltip-trigger{
   appearance:none;
   padding:0;
