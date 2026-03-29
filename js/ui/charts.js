@@ -653,9 +653,7 @@ function drawLineChart(canvas, config) {
   }
 
   const hoverPayload = state.isHovering
-    ? (
-        getLegendHoverPayload(canvas, state) ||
-        getHoverPayload(config, state, {
+      ? getHoverPayload(config, state, {
           width: plotWidth,
           height: plotHeight,
           left: padding.left,
@@ -663,8 +661,7 @@ function drawLineChart(canvas, config) {
           minY,
           maxY
         })
-      )
-    : null;
+      : null;
 
   if (hoverPayload) {
     drawHoverOverlay(ctx, hoverPayload, width, height, padding);
@@ -738,7 +735,6 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  const hitboxes = [];
   let currentY = panelY + panelPaddingY;
 
   rows.forEach((row) => {
@@ -775,23 +771,12 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
       ctx.font = titleFont;
       ctx.fillStyle = '#334155';
       ctx.fillText(item.label, textX, currentY);
-
-      hitboxes.push({
-        x,
-        y: currentY - 4,
-        width: columnWidth,
-        height: rowHeight + 8,
-        title: item.label,
-        lines: item.description ? [item.description] : [],
-        swatchColor: item.fillColor || item.color,
-        swatchBorderColor: item.color
-      });
     });
 
     currentY += rowHeight + rowGap;
   });
 
-  canvas.__legendHitboxes = hitboxes;
+  canvas.__legendHitboxes = [];
   ctx.restore();
 }
 
@@ -961,15 +946,18 @@ function getHoverPayload(config, state, geom) {
     return null;
   }
 
-  // 1. stacked areas first (this is what you want)
+  const projectionLinePayload = getProjectionLineHoverPayload(config, state, geom);
+  if (projectionLinePayload) return projectionLinePayload;
+
+  const projectionBandPayload = getProjectionBandHoverPayload(config, state, geom);
+  if (projectionBandPayload) return projectionBandPayload;
+
   const areaPayload = getAreaHoverPayload(config, state, geom);
   if (areaPayload) return areaPayload;
 
-  // 2. shortfall band
   const gapPayload = getGapBandHoverPayload(config, state, geom);
   if (gapPayload) return gapPayload;
 
-  // 3. points
   const pointHighlights = config.pointHighlights || [];
   const hoverRadius = 10;
 
@@ -996,7 +984,6 @@ function getHoverPayload(config, state, geom) {
     }
   }
 
-  // 4. vertical markers
   const markers = config.verticalMarkers || [];
 
   for (const marker of markers) {
@@ -1008,6 +995,106 @@ function getHoverPayload(config, state, geom) {
         y: geom.top + 16,
         title: marker.label,
         lines: getMarkerDetailLines(marker.label)
+      };
+    }
+  }
+
+  return null;
+}
+
+function getProjectionLineHoverPayload(config, state, geom) {
+  const lines = config.lines || [];
+  if (!lines.length || !config.labels?.length) return null;
+
+  const hoverRadius = 8;
+  let bestMatch = null;
+
+  for (const line of lines) {
+    const values = line.values || [];
+    if (!values.length) continue;
+
+    for (let i = 0; i < values.length; i += 1) {
+      const value = values[i];
+      if (!Number.isFinite(value)) continue;
+
+      const x = geom.left + getX(i, values.length, geom.width);
+      const y = geom.top + getY(value, geom.minY, geom.maxY, geom.height);
+
+      const dx = state.hoverX - x;
+      const dy = state.hoverY - y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance <= hoverRadius) {
+        if (!bestMatch || distance < bestMatch.distance) {
+          bestMatch = {
+            distance,
+            x,
+            y,
+            title: line.label,
+            lines:
+              line.label === 'Base case'
+                ? ['Expected return path with no simulated randomness']
+                : line.label === 'Typical outcome'
+                  ? ['Middle outcome across the simulations']
+                  : []
+          };
+        }
+      }
+    }
+  }
+
+  if (!bestMatch) return null;
+
+  return {
+    x: bestMatch.x,
+    y: bestMatch.y,
+    title: bestMatch.title,
+    lines: bestMatch.lines
+  };
+}
+
+function getProjectionBandHoverPayload(config, state, geom) {
+  const bands = config.bands || [];
+  if (!bands.length || !config.labels?.length) return null;
+
+  const length = config.labels.length;
+  const rawIndex = ((state.hoverX - geom.left) / geom.width) * (length - 1);
+  const index = Math.max(0, Math.min(length - 1, Math.round(rawIndex)));
+
+  const orderedBands = [...bands].sort((a, b) => {
+    const aSpan = Math.abs((a.upper?.[index] || 0) - (a.lower?.[index] || 0));
+    const bSpan = Math.abs((b.upper?.[index] || 0) - (b.lower?.[index] || 0));
+    return aSpan - bSpan;
+  });
+
+  for (const band of orderedBands) {
+    const upperValue = band.upper?.[index];
+    const lowerValue = band.lower?.[index];
+
+    if (
+      !Number.isFinite(upperValue) ||
+      !Number.isFinite(lowerValue) ||
+      upperValue < lowerValue
+    ) {
+      continue;
+    }
+
+    const yTop = geom.top + getY(upperValue, geom.minY, geom.maxY, geom.height);
+    const yBottom = geom.top + getY(lowerValue, geom.minY, geom.maxY, geom.height);
+
+    if (state.hoverY >= yTop && state.hoverY <= yBottom) {
+      return {
+        x: geom.left + getX(index, length, geom.width),
+        y: yTop + (yBottom - yTop) / 2,
+        title: band.label || 'Range',
+        lines:
+          band.label === 'Likely range'
+            ? ['Where outcomes usually fall']
+            : band.label === 'Full range of outcomes'
+              ? ['Wider spread of typical outcomes']
+              : [],
+        swatchColor: band.fillStyle || 'rgba(45, 91, 255, 0.15)',
+        swatchBorderColor: band.color || '#2d5bff'
       };
     }
   }
