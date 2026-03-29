@@ -581,7 +581,7 @@ function continueToAssumptions() {
     return false;
   }
 
-  const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
+  const portfolioTotals = calculatePortfolioTotals(activeAccounts);
   const roundedPortfolioTotal =
     Math.round(portfolioTotals.allocations.equities) +
     Math.round(portfolioTotals.allocations.bonds) +
