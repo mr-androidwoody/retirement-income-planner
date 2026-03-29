@@ -1662,7 +1662,7 @@ function mapPortfolioToInputs(totals) {
     lowerGuardrail: 20,
     adjustmentSize: 10,
 
-    simulationMode: 'montecarlo',
+    simulationMode: 'monteCarlo',
     monteCarloRuns: 10000,
 
     skipInflationAfterNegative: false
