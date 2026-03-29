@@ -686,16 +686,16 @@ function attachEvents() {
     const assumptionsPerson2Toggle = els.includePerson2.closest('.person-toggle');
 
     if (assumptionsPerson2Toggle) {
-      assumptionsPerson2Toggle.addEventListener('click', (event) => {
-        console.log('assumptions person2 toggle click fired', {
-          target: event.target,
-          currentChecked: els.includePerson2?.checked
-        });
-          
-        const clickedInteractive = event.target.closest('input, label, button, a');
-        const nextChecked = clickedInteractive === els.includePerson2
-          ? els.includePerson2.checked
-          : !els.includePerson2.checked;
+    assumptionsPerson2Toggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    
+      console.log('assumptions person2 toggle click fired', {
+        target: event.target,
+        currentChecked: els.includePerson2?.checked
+      });
+    
+      const nextChecked = !Boolean(els.includePerson2?.checked);
 
         els.includePerson2.checked = nextChecked;
         portfolioConfig.hasPerson2 = nextChecked;
