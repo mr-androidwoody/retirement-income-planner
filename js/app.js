@@ -691,6 +691,11 @@ function attachEvents() {
         }
     
         applyPerson2PortfolioRules();
+    
+        if (typeof planForm.syncPerson2State === 'function') {
+          planForm.syncPerson2State();
+        }
+    
         savePortfolioConfigToStorage();
       });
     }
