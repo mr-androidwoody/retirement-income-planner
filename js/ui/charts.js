@@ -124,7 +124,7 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
         ]
       : [
           {
-            label: 'Median simulation',
+            label: 'Typical outcome',
             values: useReal
               ? result.monteCarlo.realPercentiles.p50
               : result.monteCarlo.nominalPercentiles.p50,
@@ -164,13 +164,13 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
         lower: p10Values,
         upper: p90Values,
         fillStyle: 'rgba(45, 91, 255, 0.12)',
-        label: 'P10–P90 range'
+        label: 'Full range of outcomes'
       },
       {
         lower: p25Values,
         upper: p75Values,
         fillStyle: 'rgba(45, 91, 255, 0.22)',
-        label: 'P25–P75 range'
+        label: 'Likely range'
       }
     ];
 
@@ -363,53 +363,84 @@ function drawLineChart(canvas, config) {
   ctx.font = '12px Inter, system-ui, sans-serif';
 
   const legendItems = [
+      // Lines (Base case + Typical outcome)
       ...(config.lines || []).map((l) => ({
         label: l.label,
         description:
-          l.label === 'Median simulation'
-            ? 'Typical outcome across simulations'
-            : l.label === 'Base case'
-              ? 'Single expected return path'
+          l.label === 'Base case'
+            ? 'Expected return path with no simulated randomness'
+            : l.label === 'Typical outcome'
+              ? 'Middle outcome across the simulations'
               : '',
         color: l.color,
         width: l.width || 2.5,
         dash: l.dash || [],
-        markerType: 'line'
+        markerType: 'line',
+        order:
+          l.label === 'Base case'
+            ? 1
+            : l.label === 'Typical outcome'
+              ? 2
+              : 50
       })),
+    
+      // Bands (fan chart)
       ...((config.bands && config.bands.length)
         ? config.bands.map((band) => ({
             label: band.label || 'Range',
+            description:
+              band.label === 'Likely range'
+                ? 'Where outcomes usually fall'
+                : band.label === 'Full range of outcomes'
+                  ? 'Wider spread of typical outcomes'
+                  : '',
             color: band.strokeStyle || '#2d5bff',
             fillColor: band.fillStyle || 'rgba(45, 91, 255, 0.15)',
             width: 1.5,
-            markerType: 'square'
+            markerType: 'square',
+            order:
+              band.label === 'Likely range'
+                ? 3
+                : band.label === 'Full range of outcomes'
+                  ? 4
+                  : 60
           }))
         : (config.band
             ? [{
                 label: config.band.label || 'Range',
+                description: '',
                 color: config.band.strokeStyle || '#2d5bff',
                 fillColor: config.band.fillStyle || 'rgba(45, 91, 255, 0.15)',
                 width: 1.5,
-                markerType: 'square'
+                markerType: 'square',
+                order: 60
               }]
             : [])),
+    
+      // Stacked areas (spending chart)
       ...(config.stackedAreas || []).map((a) => ({
         label: a.label,
         color: a.strokeColor || a.color,
         fillColor: a.color,
         width: 1.5,
-        markerType: 'square'
+        markerType: 'square',
+        order: 70
       })),
+    
+      // Gap band (shortfall)
       ...(config.gapBand
         ? [{
             label: config.gapBand.label || 'Spending shortfall',
+            description: '',
             color: config.gapBand.strokeStyle || '#dc2626',
             fillColor: config.gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
             width: 1.5,
-            markerType: 'square'
+            markerType: 'square',
+            order: 80
           }]
         : [])
-    ];
+    ]
+    .sort((a, b) => (a.order || 99) - (b.order || 99));
 
   const legendLayout = measureLegend(ctx, legendItems, width);
 
@@ -470,10 +501,24 @@ function drawLineChart(canvas, config) {
     allValues.push(...config.overlayLine.values.filter(Number.isFinite));
   }
 
-  const maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
-
   const minY = 0;
-  const maxY = niceMax(maxDataValue);
+
+    let maxDataValue;
+    
+    if (config.bands?.length) {
+      const outerBand = config.bands[0];
+      const outerUpperValues = (outerBand?.upper || []).filter(Number.isFinite);
+      const fallbackValues = allValues.filter(Number.isFinite);
+    
+      const outerBandMax = outerUpperValues.length ? Math.max(...outerUpperValues) : 0;
+      const fallbackMax = fallbackValues.length ? Math.max(...fallbackValues, 1) : 1;
+    
+      maxDataValue = Math.max(outerBandMax * 1.05, fallbackMax * 0.15, 1);
+    } else {
+      maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
+    }
+    
+    const maxY = niceMax(maxDataValue);
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
