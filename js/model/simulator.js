@@ -32,16 +32,16 @@ export const DEFAULT_INPUTS = {
   cashlikeReturn: 4,
   cashlikeVolatility: 1,
   annualFeeRate: 0.27,
-  inflation: 2.5,
+  inflation: 2.7,
 
   person1Name: 'Person 1',
-  person1Age: 55,
+  person1Age: 50,
   person1PensionAge: 67,
   statePensionToday: 12547,
   person1PensionToday: 12547,
 
   person2Name: 'Person 2',
-  person2Age: 55,
+  person2Age: 50,
   person2PensionAge: 67,
   person2PensionToday: 12547,
 
