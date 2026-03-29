@@ -23,10 +23,15 @@ export function runMonthlyEngine(inputs) {
     const yearIndex = Math.floor(monthIndex / 12);
     const monthInYear = monthIndex % 12;
 
+    const monthlyFeeFactor = Math.pow(1 + (inputs.annualFeeRate ?? 0), 1 / 12);
+
     const monthlyReturns = {
-      equities: Math.pow(1 + inputs.equityReturn, 1 / 12) - 1,
-      bonds: Math.pow(1 + inputs.bondReturn, 1 / 12) - 1,
-      cashlike: Math.pow(1 + inputs.cashlikeReturn, 1 / 12) - 1
+      equities:
+        Math.pow(1 + inputs.equityReturn, 1 / 12) / monthlyFeeFactor - 1,
+      bonds:
+        Math.pow(1 + inputs.bondReturn, 1 / 12) / monthlyFeeFactor - 1,
+      cashlike:
+        Math.pow(1 + inputs.cashlikeReturn, 1 / 12) - 1
     };
 
     const monthlyInflation = Math.pow(1 + inputs.inflation, 1 / 12) - 1;
