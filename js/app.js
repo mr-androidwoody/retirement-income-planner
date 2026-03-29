@@ -2034,7 +2034,9 @@ function renderPortfolioTable() {
   const tbody = document.getElementById('portfolioTableBody');
   if (!tbody) return;
 
-  if (portfolioAccounts.length === 0) {
+  const activeAccounts = getActivePortfolioAccounts();
+
+  if (activeAccounts.length === 0) {
     tbody.innerHTML = `
       <tr class="portfolio-row-empty">
         <td colspan="10">No accounts added yet.</td>
@@ -2047,7 +2049,7 @@ function renderPortfolioTable() {
 
   tbody.innerHTML = '';
 
-  portfolioAccounts.forEach((account) => {
+  activeAccounts.forEach((account) => {
     const row = document.createElement('tr');
     const allocationTotal = getPortfolioRowAllocationTotal(account);
     const rowIssues = getPortfolioRowIssues(account);
