@@ -786,6 +786,10 @@ textarea{
   min-height:40px;
 }
 
+.portfolio-section-actions #savePortfolioBtn{
+  border:1.5px solid #16a34a;
+}
+
 #deletePortfolioBtn{
   min-height:40px;
 }
