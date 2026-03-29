@@ -629,11 +629,13 @@ textarea{
 .portfolio-people-toggle{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  justify-content:flex-end;
+  gap:8px;
+  width:100%;
 }
 
 .portfolio-people-toggle__label{
+  flex:0 0 auto;
   color:#50627f;
   font-size:0.74rem;
   font-weight:700;
