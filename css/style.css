@@ -664,8 +664,7 @@ textarea{
 
 .portfolio-person-block-disabled input,
 .portfolio-person-block-disabled select,
-.portfolio-person-block-disabled textarea,
-.portfolio-person-block-disabled button{
+.portfolio-person-block-disabled textarea{
   cursor:not-allowed;
 }
 
