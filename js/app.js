@@ -468,7 +468,6 @@ function clearAssumptionsUi() {
 
   const checkboxFields = [
     els.rebalanceToTarget,
-    els.includePerson2,
     els.person1GetsFullPension,
     els.person2GetsFullPension,
     els.skipInflationAfterNegative
@@ -1603,30 +1602,6 @@ function calculatePortfolioTotals(portfolioAccounts) {
   return totals;
 }
 
-function mapPortfolioToInputs(totals) {
-  const hasPerson2 = Boolean(portfolioConfig.hasPerson2);
-
-  return {
-    initialPortfolio: totals.totalValue,
-    equityAllocation: totals.allocations.equities,
-    bondAllocation: totals.allocations.bonds,
-    cashlikeAllocation: totals.allocations.cashlike,
-    cashAllocation: totals.allocations.cash,
-    hasPerson2,
-    includePerson2: hasPerson2,
-    person1Name: String(portfolioPeople.person1Name || '').trim(),
-    person2Name: hasPerson2 ? String(portfolioPeople.person2Name || '').trim() : '',
-    person1Age: Number(portfolioPeople.person1Age) || 55,
-    person2Age: hasPerson2 ? (Number(portfolioPeople.person2Age) || 55) : 0,
-    person2PensionAge: hasPerson2 ? undefined : 0,
-    person2PensionToday: hasPerson2 ? undefined : 0,
-    person2OtherIncomeToday: hasPerson2 ? undefined : 0,
-    person2OtherIncomeYears: hasPerson2 ? undefined : 0,
-    person2WindfallAmount: hasPerson2 ? undefined : 0,
-    person2WindfallYear: hasPerson2 ? undefined : 0
-  };
-}
-
 function applyPortfolioInputsToAssumptions(inputs) {
   if (!inputs || typeof inputs !== 'object') return;
 
@@ -1698,31 +1673,45 @@ function applyPortfolioInputsToAssumptions(inputs) {
   }
 
   if (els.equityReturn) {
-    els.equityReturn.value = Number.isFinite(Number(inputs.equityReturn)) ? String(inputs.equityReturn) : '';
+    els.equityReturn.value = Number.isFinite(Number(inputs.equityReturn))
+      ? String(inputs.equityReturn)
+      : '';
   }
 
   if (els.equityVolatility) {
-    els.equityVolatility.value = Number.isFinite(Number(inputs.equityVolatility)) ? String(inputs.equityVolatility) : '';
+    els.equityVolatility.value = Number.isFinite(Number(inputs.equityVolatility))
+      ? String(inputs.equityVolatility)
+      : '';
   }
 
   if (els.bondReturn) {
-    els.bondReturn.value = Number.isFinite(Number(inputs.bondReturn)) ? String(inputs.bondReturn) : '';
+    els.bondReturn.value = Number.isFinite(Number(inputs.bondReturn))
+      ? String(inputs.bondReturn)
+      : '';
   }
 
   if (els.bondVolatility) {
-    els.bondVolatility.value = Number.isFinite(Number(inputs.bondVolatility)) ? String(inputs.bondVolatility) : '';
+    els.bondVolatility.value = Number.isFinite(Number(inputs.bondVolatility))
+      ? String(inputs.bondVolatility)
+      : '';
   }
 
   if (els.cashlikeReturn) {
-    els.cashlikeReturn.value = Number.isFinite(Number(inputs.cashlikeReturn)) ? String(inputs.cashlikeReturn) : '';
+    els.cashlikeReturn.value = Number.isFinite(Number(inputs.cashlikeReturn))
+      ? String(inputs.cashlikeReturn)
+      : '';
   }
 
   if (els.cashlikeVolatility) {
-    els.cashlikeVolatility.value = Number.isFinite(Number(inputs.cashlikeVolatility)) ? String(inputs.cashlikeVolatility) : '';
+    els.cashlikeVolatility.value = Number.isFinite(Number(inputs.cashlikeVolatility))
+      ? String(inputs.cashlikeVolatility)
+      : '';
   }
 
   if (els.inflation) {
-    els.inflation.value = Number.isFinite(Number(inputs.inflation)) ? String(inputs.inflation) : '';
+    els.inflation.value = Number.isFinite(Number(inputs.inflation))
+      ? String(inputs.inflation)
+      : '';
   }
 
   if (els.person1Name) {
@@ -1756,9 +1745,7 @@ function applyPortfolioInputsToAssumptions(inputs) {
     els.includePerson2.disabled = true;
   }
 
-  if (els.person2Panel) {
-    els.person2Panel.style.display = inputs.includePerson2 ? '' : 'none';
-  }
+  applyPerson2PortfolioRules();
 
   if (els.statePensionToday) {
     els.statePensionToday.value = Number.isFinite(Number(inputs.statePensionToday))
@@ -1823,15 +1810,21 @@ function applyPortfolioInputsToAssumptions(inputs) {
   }
 
   if (els.upperGuardrail) {
-    els.upperGuardrail.value = Number.isFinite(Number(inputs.upperGuardrail)) ? String(inputs.upperGuardrail) : '';
+    els.upperGuardrail.value = Number.isFinite(Number(inputs.upperGuardrail))
+      ? String(inputs.upperGuardrail)
+      : '';
   }
 
   if (els.lowerGuardrail) {
-    els.lowerGuardrail.value = Number.isFinite(Number(inputs.lowerGuardrail)) ? String(inputs.lowerGuardrail) : '';
+    els.lowerGuardrail.value = Number.isFinite(Number(inputs.lowerGuardrail))
+      ? String(inputs.lowerGuardrail)
+      : '';
   }
 
   if (els.adjustmentSize) {
-    els.adjustmentSize.value = Number.isFinite(Number(inputs.adjustmentSize)) ? String(inputs.adjustmentSize) : '';
+    els.adjustmentSize.value = Number.isFinite(Number(inputs.adjustmentSize))
+      ? String(inputs.adjustmentSize)
+      : '';
   }
 
   if (els.simulationMode && inputs.simulationMode != null) {
@@ -1860,6 +1853,7 @@ function applyPortfolioInputsToAssumptions(inputs) {
     planForm.syncDefaultSpendingFloors();
   }
 }
+    
 function clearPortfolioInputsFromAssumptions() {
   if (els.initialPortfolio) {
     els.initialPortfolio.value = '';
@@ -2216,22 +2210,21 @@ function renderPortfolioTable() {
 }
 
 function applyPerson2PortfolioRules() {
-  const hasPerson2 = portfolioConfig.hasPerson2;
-  const portfolioPerson2Block = els.portfolioPerson2Name?.closest('.portfolio-person-block');
+  const hasPerson2 = Boolean(portfolioConfig.hasPerson2);
+
+  if (els.portfolioHasPerson2) {
+    els.portfolioHasPerson2.checked = hasPerson2;
+  }
 
   if (els.includePerson2) {
     els.includePerson2.checked = hasPerson2;
-    els.includePerson2.disabled = false;
+    els.includePerson2.disabled = true;
   }
 
   if (els.person2Panel) {
-      els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
-      els.person2Panel.style.display = '';
-    }
-
-  if (portfolioPerson2Block) {
-    portfolioPerson2Block.classList.toggle('portfolio-person-block-disabled', !hasPerson2);
-    portfolioPerson2Block.setAttribute('aria-disabled', String(!hasPerson2));
+    els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
+    els.person2Panel.style.display = '';
+    els.person2Panel.style.opacity = hasPerson2 ? '1' : '0.5';
   }
 
   [
@@ -2256,7 +2249,7 @@ function applyPerson2PortfolioRules() {
     field.disabled = !hasPerson2;
   });
 
-  updatePortfolioValidationUI();
+  updatePortfolioValidationMessage();
 }
 
 function attachPortfolioTableRowEvents() {
