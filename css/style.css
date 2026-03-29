@@ -452,6 +452,7 @@ textarea{
   flex-direction:column;
   min-width:0;
   height:100%;
+  padding:18px 18px 10px;
 }
 
 .chart-card-header{
