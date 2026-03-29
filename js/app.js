@@ -1647,18 +1647,26 @@ function calculatePortfolioTotals(portfolioAccounts) {
 }
 
 function mapPortfolioToInputs(totals) {
+  const hasPerson2 = Boolean(portfolioConfig.hasPerson2);
+
   return {
     initialPortfolio: totals.totalValue,
     equityAllocation: totals.allocations.equities,
     bondAllocation: totals.allocations.bonds,
     cashlikeAllocation: totals.allocations.cashlike,
     cashAllocation: totals.allocations.cash,
-    hasPerson2: portfolioConfig.hasPerson2,
-    includePerson2: portfolioConfig.hasPerson2,
+    hasPerson2,
+    includePerson2: hasPerson2,
     person1Name: String(portfolioPeople.person1Name || '').trim(),
-    person2Name: String(portfolioPeople.person2Name || '').trim(),
+    person2Name: hasPerson2 ? String(portfolioPeople.person2Name || '').trim() : '',
     person1Age: Number(portfolioPeople.person1Age) || 55,
-    person2Age: Number(portfolioPeople.person2Age) || 55
+    person2Age: hasPerson2 ? (Number(portfolioPeople.person2Age) || 55) : 0,
+    person2PensionAge: hasPerson2 ? undefined : 0,
+    person2PensionToday: hasPerson2 ? undefined : 0,
+    person2OtherIncomeToday: hasPerson2 ? undefined : 0,
+    person2OtherIncomeYears: hasPerson2 ? undefined : 0,
+    person2WindfallAmount: hasPerson2 ? undefined : 0,
+    person2WindfallYear: hasPerson2 ? undefined : 0
   };
 }
 
