@@ -646,7 +646,6 @@ function attachEvents() {
       }
 
       applyPerson2PortfolioRules();
-    
       renderPortfolioTable();
     });
   }
@@ -684,39 +683,43 @@ function attachEvents() {
   }
 
   if (els.includePerson2) {
-      els.includePerson2.addEventListener('change', (e) => {
-        console.log('includePerson2 change fired', {
-          checked: e.target.checked,
-          portfolioHasPerson2: els.portfolioHasPerson2?.checked,
-          activeTabIsAssumptions: document.querySelector('[data-tab-panel="assumptions"]')?.classList.contains('is-active')
-        });
-    
-        portfolioConfig.hasPerson2 = Boolean(e.target.checked);
-    
+    const assumptionsPerson2Toggle = els.includePerson2.closest('.person-toggle');
+
+    if (assumptionsPerson2Toggle) {
+      assumptionsPerson2Toggle.addEventListener('click', (event) => {
+        const clickedInteractive = event.target.closest('input, label, button, a');
+        const nextChecked = clickedInteractive === els.includePerson2
+          ? els.includePerson2.checked
+          : !els.includePerson2.checked;
+
+        els.includePerson2.checked = nextChecked;
+        portfolioConfig.hasPerson2 = nextChecked;
+
         if (!portfolioConfig.hasPerson2) {
           portfolioPeople.person2Name = '';
           portfolioPeople.person2Age = 55;
-    
+
           if (els.portfolioPerson2Name) {
             els.portfolioPerson2Name.value = '';
           }
-    
+
           if (els.portfolioPerson2Age) {
             els.portfolioPerson2Age.value = 55;
           }
         }
-    
+
         savePortfolioConfigToStorage();
         savePortfolioPeopleToStorage();
-    
+
         if (els.portfolioHasPerson2) {
           els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
         }
-    
+
         applyPerson2PortfolioRules();
         renderPortfolioTable();
       });
     }
+  }
 
   if (els.continueToAssumptionsBtn) {
     els.continueToAssumptionsBtn.addEventListener('click', () => {
