@@ -686,7 +686,7 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
   const boxRadius = 12;
   const boxX = 24;
   const boxWidth = width - 48;
-  const boxBottomMargin = 4;
+  const boxBottomMargin = 0;
 
   const rowHeight = 30;
   const rowGap = 8;
@@ -1598,7 +1598,7 @@ function drawLegend(ctx, width, height, layout) {
   const boxX = 24;
   const boxWidth = width - 48;
   const boxHeight = layout.height + boxPaddingY * 2;
-  const boxBottomMargin = 4;
+  const boxBottomMargin = 0;
   const boxY = height - boxBottomMargin - boxHeight;
 
   ctx.save();
