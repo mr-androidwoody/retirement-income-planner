@@ -1625,13 +1625,13 @@ function mapPortfolioToInputs(totals) {
 
     rebalanceToTarget: true,
 
-    equityReturn: 5,
-    equityVolatility: 15,
-    bondReturn: 2,
-    bondVolatility: 5,
-    cashlikeReturn: 1,
-    cashlikeVolatility: 1,
-    inflation: 2.7,
+    equityReturn: DEFAULT_INPUTS.equityReturn,
+    equityVolatility: DEFAULT_INPUTS.equityVolatility,
+    bondReturn: DEFAULT_INPUTS.bondReturn,
+    bondVolatility: DEFAULT_INPUTS.bondVolatility,
+    cashlikeReturn: DEFAULT_INPUTS.cashlikeReturn,
+    cashlikeVolatility: DEFAULT_INPUTS.cashlikeVolatility,
+    inflation: DEFAULT_INPUTS.inflation,
 
     person1Name: String(portfolioPeople.person1Name || ''),
     person1Age: Number(portfolioPeople.person1Age) || 50,
