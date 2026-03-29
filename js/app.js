@@ -551,10 +551,7 @@ function prepareAndRunSimulation() {
   const mappedInputs = mapPortfolioToInputs(totals);
   console.log('mappedInputs', mappedInputs);
 
-  const currentInputs = {
-    ...DEFAULT_INPUTS,
-    ...sanitiseInputs(gatherInputs())
-  };
+  const currentInputs = sanitiseInputs(gatherInputs());
   console.log('currentInputs', currentInputs);
 
   latestBaseInputs = {
@@ -601,10 +598,7 @@ function continueToAssumptions() {
   }
 
   const mappedInputs = mapPortfolioToInputs(portfolioTotals);
-  const currentInputs = {
-    ...DEFAULT_INPUTS,
-    ...sanitiseInputs(gatherInputs())
-  };
+  const currentInputs = sanitiseInputs(gatherInputs());
 
   latestBaseInputs = {
     ...mappedInputs,
