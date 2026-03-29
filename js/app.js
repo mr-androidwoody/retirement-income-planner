@@ -1639,14 +1639,14 @@ function mapPortfolioToInputs(totals) {
     bondVolatility: 5,
     cashlikeReturn: 1,
     cashlikeVolatility: 1,
-    inflation: 2.5,
+    inflation: 2.7,
 
     person1Name: String(portfolioPeople.person1Name || ''),
-    person1Age: Number(portfolioPeople.person1Age) || 55,
+    person1Age: Number(portfolioPeople.person1Age) || 50,
     person1PensionAge: 67,
 
     person2Name: String(portfolioPeople.person2Name || ''),
-    person2Age: Number(portfolioPeople.person2Age) || 55,
+    person2Age: Number(portfolioPeople.person2Age) || 50,
     person2PensionAge: 67,
 
     includePerson2: hasPerson2,
@@ -1667,11 +1667,11 @@ function mapPortfolioToInputs(totals) {
     person2WindfallYear: 0,
 
     upperGuardrail: 20,
-    lowerGuardrail: -20,
+    lowerGuardrail: 20,
     adjustmentSize: 10,
 
     simulationMode: 'montecarlo',
-    monteCarloRuns: 1000,
+    monteCarloRuns: 10000,
 
     skipInflationAfterNegative: false
   };
