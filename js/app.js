@@ -1899,10 +1899,10 @@ function applyPortfolioInputsToAssumptions(inputs) {
   }
 
   if (els.monteCarloRuns) {
-    els.monteCarloRuns.value = Number.isFinite(Number(inputs.monteCarloRuns))
-      ? String(inputs.monteCarloRuns)
-      : '';
-  }
+      els.monteCarloRuns.value = Number.isFinite(Number(inputs.monteCarloRuns))
+        ? formatInteger(Math.round(Number(inputs.monteCarloRuns)))
+        : '';
+    }
 
   if (els.skipInflationAfterNegative) {
     els.skipInflationAfterNegative.checked = Boolean(inputs.skipInflationAfterNegative);
