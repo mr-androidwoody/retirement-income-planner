@@ -558,8 +558,8 @@ function prepareAndRunSimulation() {
   console.log('currentInputs', currentInputs);
 
   latestBaseInputs = {
-    ...currentInputs,
-    ...mappedInputs
+    ...mappedInputs,
+    ...currentInputs
   };
   console.log('latestBaseInputs', latestBaseInputs);
 
@@ -607,8 +607,8 @@ function continueToAssumptions() {
   };
 
   latestBaseInputs = {
-    ...currentInputs,
-    ...mappedInputs
+    ...mappedInputs,
+    ...currentInputs
   };
 
   applyPortfolioInputsToAssumptions(latestBaseInputs);
@@ -1624,7 +1624,7 @@ function mapPortfolioToInputs(totals) {
     comfortSpending: safeTotal * 0.04 * 0.9,
     minimumSpending: safeTotal * 0.04 * 0.75,
 
-    annualFeeRate: 0.3,
+    annualFeeRate: 0.27,
 
     equityAllocation: Number(totals?.allocations?.equities) || 0,
     bondAllocation: Number(totals?.allocations?.bonds) || 0,
