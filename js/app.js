@@ -684,19 +684,24 @@ function attachEvents() {
 
   if (els.includePerson2) {
       els.includePerson2.addEventListener('change', (e) => {
-        portfolioConfig.hasPerson2 = Boolean(e.target.checked);
+        const nextChecked = Boolean(e.target.checked);
     
-        if (els.portfolioHasPerson2) {
-          els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
+        if (!els.portfolioHasPerson2) {
+          portfolioConfig.hasPerson2 = nextChecked;
+          applyPerson2PortfolioRules();
+          savePortfolioConfigToStorage();
+          return;
         }
     
-        applyPerson2PortfolioRules();
-    
-        if (typeof planForm.syncPerson2State === 'function') {
-          planForm.syncPerson2State();
+        if (els.portfolioHasPerson2.checked === nextChecked) {
+          portfolioConfig.hasPerson2 = nextChecked;
+          applyPerson2PortfolioRules();
+          savePortfolioConfigToStorage();
+          return;
         }
     
-        savePortfolioConfigToStorage();
+        els.portfolioHasPerson2.checked = nextChecked;
+        els.portfolioHasPerson2.dispatchEvent(new Event('change', { bubbles: true }));
       });
     }
 
