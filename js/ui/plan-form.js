@@ -385,12 +385,6 @@ export function createPlanForm(
       });
     });
 
-    if (elements.includePerson2) {
-      elements.includePerson2.addEventListener('change', () => {
-        syncPerson2State();
-      });
-    }
-
     if (elements.simulationMode) {
       elements.simulationMode.addEventListener('change', () => {
         syncSimulationModeUI();
