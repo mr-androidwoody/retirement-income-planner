@@ -2,6 +2,10 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
   const advancedIntegerFieldIds = ['monteCarloRuns'];
 
   function applyDefaults(defaults) {
+    if (elements.simulationMode && defaults.simulationMode) {
+      elements.simulationMode.value = defaults.simulationMode;
+    }
+
     setFieldValue('equityReturn', defaults.equityReturn);
     setFieldValue('equityVolatility', defaults.equityVolatility);
     setFieldValue('bondReturn', defaults.bondReturn);
@@ -40,25 +44,27 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
   }
 
   function readValues() {
-  return {
-    equityReturn: parseLooseNumber(elements.equityReturn.value),
-    equityVolatility: parseLooseNumber(elements.equityVolatility.value),
-    bondReturn: parseLooseNumber(elements.bondReturn.value),
-    bondVolatility: parseLooseNumber(elements.bondVolatility.value),
-    cashlikeReturn: parseLooseNumber(elements.cashlikeReturn.value),
-    cashlikeVolatility: parseLooseNumber(elements.cashlikeVolatility.value),
-    inflation: parseLooseNumber(elements.inflation.value),
+    return {
+      simulationMode: elements.simulationMode?.value || '',
 
-    upperGuardrail: parseLooseNumber(elements.upperGuardrail.value),
-    lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value),
-    adjustmentSize: parseLooseNumber(elements.adjustmentSize.value),
+      equityReturn: parseLooseNumber(elements.equityReturn.value),
+      equityVolatility: parseLooseNumber(elements.equityVolatility.value),
+      bondReturn: parseLooseNumber(elements.bondReturn.value),
+      bondVolatility: parseLooseNumber(elements.bondVolatility.value),
+      cashlikeReturn: parseLooseNumber(elements.cashlikeReturn.value),
+      cashlikeVolatility: parseLooseNumber(elements.cashlikeVolatility.value),
+      inflation: parseLooseNumber(elements.inflation.value),
 
-    monteCarloRuns: parseLooseInteger(elements.monteCarloRuns.value),
+      upperGuardrail: parseLooseNumber(elements.upperGuardrail.value),
+      lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value),
+      adjustmentSize: parseLooseNumber(elements.adjustmentSize.value),
 
-    skipInflationAfterNegative: Boolean(elements.skipInflationAfterNegative?.checked),
-    showRealValues: Boolean(elements.showRealValues?.checked)
-  };
-}
+      monteCarloRuns: parseLooseInteger(elements.monteCarloRuns.value),
+
+      skipInflationAfterNegative: Boolean(elements.skipInflationAfterNegative?.checked),
+      showRealValues: Boolean(elements.showRealValues?.checked)
+    };
+  }
 
   function bindDisplayEvents({ onViewChange } = {}) {
     if (typeof onViewChange !== 'function') return;
