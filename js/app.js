@@ -1198,6 +1198,7 @@ function rerunResultsWithCurrentOptions() {
 }
 
 function showResults() {
+  setResultsViewDefaults();
   tabs.setActiveTab('results');
 
   requestAnimationFrame(() => {
