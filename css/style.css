@@ -558,6 +558,21 @@ textarea{
    Portfolio Screen
    ======================================== */
 
+.portfolio-people-divider{
+  margin:4px 0 2px;
+  padding-top:8px;
+  border-top:1px dashed #d3dbe8;
+}
+
+.portfolio-people-divider span{
+  display:block;
+  font-size:0.72rem;
+  font-weight:700;
+  color:#7a869c;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+
 /* ----------------------------------------
    Overall Portfolio tab layout
    ---------------------------------------- */
