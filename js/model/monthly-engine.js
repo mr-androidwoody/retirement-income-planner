@@ -41,13 +41,23 @@ export function runMonthlyEngine(inputs) {
       (p2Eligible ? inputs.person2PensionToday * inflationIndex : 0);
 
     const otherIncomeAnnual =
-      yearIndex < inputs.otherIncomeYears
-        ? inputs.otherIncomeToday * inflationIndex
-        : 0;
-
+      (yearIndex < inputs.person1OtherIncomeYears
+        ? inputs.person1OtherIncomeToday * inflationIndex
+        : 0) +
+      (yearIndex < inputs.person2OtherIncomeYears
+        ? inputs.person2OtherIncomeToday * inflationIndex
+        : 0);
+    
     const windfallAnnual =
-      monthInYear === 0 && inputs.windfallYear > 0 && yearIndex + 1 === inputs.windfallYear
-        ? inputs.windfallAmount
+      monthInYear === 0
+        ? (
+            (inputs.person1WindfallYear > 0 && yearIndex + 1 === inputs.person1WindfallYear
+              ? inputs.person1WindfallAmount
+              : 0) +
+            (inputs.person2WindfallYear > 0 && yearIndex + 1 === inputs.person2WindfallYear
+              ? inputs.person2WindfallAmount
+              : 0)
+          )
         : 0;
 
     const pensionMonthly = pensionAnnual / 12;
