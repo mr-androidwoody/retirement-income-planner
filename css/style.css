@@ -786,8 +786,8 @@ textarea{
   min-height:40px;
 }
 
-.portfolio-section-actions #savePortfolioBtn{
-  border:1.5px solid #16a34a;
+.portfolio-section-actions #savePortfolioBtn.btn-secondary{
+  border:2px solid #16a34a;
 }
 
 #deletePortfolioBtn{
