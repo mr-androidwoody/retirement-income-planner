@@ -1602,6 +1602,75 @@ function calculatePortfolioTotals(portfolioAccounts) {
   return totals;
 }
 
+function mapPortfolioToInputs(totals) {
+  const hasPerson2 = Boolean(portfolioConfig.hasPerson2);
+
+  const safeTotal = Number(totals?.totalValue) || 0;
+
+  return {
+    years: 30,
+
+    initialPortfolio: safeTotal,
+
+    initialWithdrawalRate: 4,
+
+    initialSpending: safeTotal * 0.04,
+    comfortSpending: safeTotal * 0.04 * 0.9,
+    minimumSpending: safeTotal * 0.04 * 0.75,
+
+    annualFeeRate: 0.3,
+
+    equityAllocation: Number(totals?.allocations?.equities) || 0,
+    bondAllocation: Number(totals?.allocations?.bonds) || 0,
+    cashlikeAllocation: Number(totals?.allocations?.cashlike) || 0,
+    cashAllocation: Number(totals?.allocations?.cash) || 0,
+
+    rebalanceToTarget: true,
+
+    equityReturn: 5,
+    equityVolatility: 15,
+    bondReturn: 2,
+    bondVolatility: 5,
+    cashlikeReturn: 1,
+    cashlikeVolatility: 1,
+    inflation: 2.5,
+
+    person1Name: String(portfolioPeople.person1Name || ''),
+    person1Age: Number(portfolioPeople.person1Age) || 55,
+    person1PensionAge: 67,
+
+    person2Name: String(portfolioPeople.person2Name || ''),
+    person2Age: Number(portfolioPeople.person2Age) || 55,
+    person2PensionAge: 67,
+
+    includePerson2: hasPerson2,
+
+    statePensionToday: 11500,
+
+    person1GetsFullPension: true,
+    person2GetsFullPension: true,
+
+    person1OtherIncomeToday: 0,
+    person1OtherIncomeYears: 0,
+    person1WindfallAmount: 0,
+    person1WindfallYear: 0,
+
+    person2OtherIncomeToday: 0,
+    person2OtherIncomeYears: 0,
+    person2WindfallAmount: 0,
+    person2WindfallYear: 0,
+
+    upperGuardrail: 20,
+    lowerGuardrail: -20,
+    adjustmentSize: 10,
+
+    simulationMode: 'montecarlo',
+    monteCarloRuns: 1000,
+
+    skipInflationAfterNegative: false
+  };
+}
+
 function applyPortfolioInputsToAssumptions(inputs) {
   if (!inputs || typeof inputs !== 'object') return;
 
@@ -2249,7 +2318,7 @@ function applyPerson2PortfolioRules() {
     field.disabled = !hasPerson2;
   });
 
-  updatePortfolioValidationMessage();
+  updatePortfolioValidationUI();
 }
 
 function attachPortfolioTableRowEvents() {
