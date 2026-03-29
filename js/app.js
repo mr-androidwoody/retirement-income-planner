@@ -624,27 +624,13 @@ function attachEvents() {
 
     els.portfolioHasPerson2.addEventListener('change', (e) => {
       portfolioConfig.hasPerson2 = Boolean(e.target.checked);
-
-      if (!portfolioConfig.hasPerson2) {
-        portfolioPeople.person2Name = '';
-        portfolioPeople.person2Age = 55;
-
-        if (els.portfolioPerson2Name) {
-          els.portfolioPerson2Name.value = '';
-        }
-
-        if (els.portfolioPerson2Age) {
-          els.portfolioPerson2Age.value = 55;
-        }
-      }
-
+    
       savePortfolioConfigToStorage();
-      savePortfolioPeopleToStorage();
-
+    
       if (els.includePerson2) {
         els.includePerson2.checked = portfolioConfig.hasPerson2;
       }
-
+    
       applyPerson2PortfolioRules();
       renderPortfolioTable();
     });
@@ -681,31 +667,6 @@ function attachEvents() {
       savePortfolioPeopleToStorage();
     });
   }
-
-if (els.includePerson2) {
-  const assumptionsPerson2Toggle = els.includePerson2.closest('.person-toggle');
-
-  if (assumptionsPerson2Toggle) {
-    assumptionsPerson2Toggle.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const nextChecked = !Boolean(els.includePerson2.checked);
-
-      els.includePerson2.checked = nextChecked;
-      portfolioConfig.hasPerson2 = nextChecked;
-
-      savePortfolioConfigToStorage();
-
-      if (els.portfolioHasPerson2) {
-        els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
-      }
-
-      applyPerson2PortfolioRules();
-      renderPortfolioTable();
-    });
-  }
-}
 
 if (els.continueToAssumptionsBtn) {
   els.continueToAssumptionsBtn.addEventListener('click', () => {
