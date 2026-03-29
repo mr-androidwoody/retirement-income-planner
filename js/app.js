@@ -685,6 +685,12 @@ function attachEvents() {
 
   if (els.includePerson2) {
       els.includePerson2.addEventListener('change', (e) => {
+        console.log('includePerson2 change fired', {
+          checked: e.target.checked,
+          portfolioHasPerson2: els.portfolioHasPerson2?.checked,
+          activeTabIsAssumptions: document.querySelector('[data-tab-panel="assumptions"]')?.classList.contains('is-active')
+        });
+    
         portfolioConfig.hasPerson2 = Boolean(e.target.checked);
     
         if (!portfolioConfig.hasPerson2) {
