@@ -2311,11 +2311,22 @@ function applyPerson2PortfolioRules() {
   });
 
   [
-    els.portfolioPerson2Name,
-    els.portfolioPerson2Age
+  els.portfolioPerson2Name,
+  els.portfolioPerson2Age
   ].forEach((field) => {
     if (!field) return;
     field.disabled = !hasPerson2;
+    field.style.opacity = hasPerson2 ? '1' : '0.5';
+  });
+
+  const portfolioPerson2Blocks = [
+    els.portfolioPerson2Name?.closest('.portfolio-person-block'),
+    els.portfolioPerson2Age?.closest('.portfolio-person-block')
+  ].filter(Boolean);
+
+  [...new Set(portfolioPerson2Blocks)].forEach((block) => {
+    block.style.opacity = hasPerson2 ? '1' : '0.5';
+    block.setAttribute('aria-disabled', String(!hasPerson2));
   });
 
   updatePortfolioValidationUI();
