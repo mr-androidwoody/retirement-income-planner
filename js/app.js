@@ -646,6 +646,7 @@ function attachEvents() {
       }
 
       applyPerson2PortfolioRules();
+    
       renderPortfolioTable();
     });
   }
@@ -689,6 +690,7 @@ function attachEvents() {
         if (!els.portfolioHasPerson2) {
           portfolioConfig.hasPerson2 = nextChecked;
           applyPerson2PortfolioRules();
+    
           savePortfolioConfigToStorage();
           return;
         }
@@ -696,6 +698,7 @@ function attachEvents() {
         if (els.portfolioHasPerson2.checked === nextChecked) {
           portfolioConfig.hasPerson2 = nextChecked;
           applyPerson2PortfolioRules();
+    
           savePortfolioConfigToStorage();
           return;
         }
