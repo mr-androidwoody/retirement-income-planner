@@ -488,15 +488,15 @@ export function simulatePath(inputs, annualReturns) {
     applyAssetReturns(buckets, {
       equities: eqReturn - annualFeeRate,
       bonds: bondReturn - annualFeeRate,
-      cashlike: cashReturn - annualFeeRate
+      cashlike: cashReturn
     });
-
+    
     const realisedReturn = weightedAverageReturn({
       allocations,
       returns: {
         equities: eqReturn - annualFeeRate,
         bonds: bondReturn - annualFeeRate,
-        cashlike: cashReturn - annualFeeRate
+        cashlike: cashReturn
       }
     });
 
