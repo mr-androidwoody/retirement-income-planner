@@ -689,8 +689,6 @@ function attachEvents() {
     assumptionsPerson2Toggle.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-    
-      console.log('assumptions person2 toggle click fired', {
         target: event.target,
         currentChecked: els.includePerson2?.checked
       });
@@ -699,19 +697,6 @@ function attachEvents() {
 
         els.includePerson2.checked = nextChecked;
         portfolioConfig.hasPerson2 = nextChecked;
-
-        if (!portfolioConfig.hasPerson2) {
-          portfolioPeople.person2Name = '';
-          portfolioPeople.person2Age = 55;
-
-          if (els.portfolioPerson2Name) {
-            els.portfolioPerson2Name.value = '';
-          }
-
-          if (els.portfolioPerson2Age) {
-            els.portfolioPerson2Age.value = 55;
-          }
-        }
 
         savePortfolioConfigToStorage();
         savePortfolioPeopleToStorage();
@@ -2314,17 +2299,6 @@ function applyPerson2PortfolioRules() {
     if (!field) return;
     field.disabled = !hasPerson2;
   });
-
-  if (!hasPerson2) {
-    portfolioAccounts.forEach((account) => {
-      if (account.owner === 'Person 2') {
-        account.owner = 'Person 1';
-      }
-    });
-
-    savePortfolioToStorage();
-    renderPortfolioTable();
-  }
 
   updatePortfolioValidationUI();
 }
