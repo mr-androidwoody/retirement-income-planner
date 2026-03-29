@@ -362,92 +362,97 @@ function drawLineChart(canvas, config) {
 
   ctx.font = '12px Inter, system-ui, sans-serif';
 
+  const isInvestmentProjectionLegend =
+    Array.isArray(config.lines) &&
+    config.lines.some((line) => line?.label === 'Base case') &&
+    config.lines.some((line) => line?.label === 'Typical outcome') &&
+    Array.isArray(config.bands) &&
+    config.bands.length >= 2;
+
   const legendItems = [
-      // Lines (Base case + Typical outcome)
-      ...(config.lines || []).map((l) => ({
-        label: l.label,
-        description:
-          l.label === 'Base case'
-            ? 'Expected return path with no simulated randomness'
-            : l.label === 'Typical outcome'
-              ? 'Middle outcome across the simulations'
-              : '',
-        color: l.color,
-        width: l.width || 2.5,
-        dash: l.dash || [],
-        markerType: 'line',
-        order:
-          l.label === 'Base case'
-            ? 1
-            : l.label === 'Typical outcome'
-              ? 2
-              : 50
-      })),
-    
-      // Bands (fan chart)
-      ...((config.bands && config.bands.length)
-        ? config.bands.map((band) => ({
-            label: band.label || 'Range',
-            description:
-              band.label === 'Likely range'
-                ? 'Where outcomes usually fall'
-                : band.label === 'Full range of outcomes'
-                  ? 'Wider spread of typical outcomes'
-                  : '',
-            color: band.strokeStyle || '#2d5bff',
-            fillColor: band.fillStyle || 'rgba(45, 91, 255, 0.15)',
-            width: 1.5,
-            markerType: 'square',
-            order:
-              band.label === 'Likely range'
-                ? 3
-                : band.label === 'Full range of outcomes'
-                  ? 4
-                  : 60
-          }))
-        : (config.band
-            ? [{
-                label: config.band.label || 'Range',
-                description: '',
-                color: config.band.strokeStyle || '#2d5bff',
-                fillColor: config.band.fillStyle || 'rgba(45, 91, 255, 0.15)',
-                width: 1.5,
-                markerType: 'square',
-                order: 60
-              }]
-            : [])),
-    
-      // Stacked areas (spending chart)
-      ...(config.stackedAreas || []).map((a) => ({
-        label: a.label,
-        color: a.strokeColor || a.color,
-        fillColor: a.color,
-        width: 1.5,
-        markerType: 'square',
-        order: 70
-      })),
-    
-      // Gap band (shortfall)
-      ...(config.gapBand
-        ? [{
-            label: config.gapBand.label || 'Spending shortfall',
-            description: '',
-            color: config.gapBand.strokeStyle || '#dc2626',
-            fillColor: config.gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
-            width: 1.5,
-            markerType: 'square',
-            order: 80
-          }]
-        : [])
-    ]
-    .sort((a, b) => (a.order || 99) - (b.order || 99));
+    ...(config.lines || []).map((l) => ({
+      label: l.label,
+      description:
+        l.label === 'Base case'
+          ? 'Expected return path with no simulated randomness'
+          : l.label === 'Typical outcome'
+            ? 'Middle outcome across the simulations'
+            : '',
+      color: l.color,
+      width: l.width || 2.5,
+      dash: l.dash || [],
+      markerType: 'line',
+      order:
+        l.label === 'Base case'
+          ? 1
+          : l.label === 'Typical outcome'
+            ? 2
+            : 50
+    })),
+
+    ...((config.bands && config.bands.length)
+      ? config.bands.map((band) => ({
+          label: band.label || 'Range',
+          description:
+            band.label === 'Likely range'
+              ? 'Where outcomes usually fall'
+              : band.label === 'Full range of outcomes'
+                ? 'Wider spread of typical outcomes'
+                : '',
+          color: band.strokeStyle || '#2d5bff',
+          fillColor: band.fillStyle || 'rgba(45, 91, 255, 0.15)',
+          width: 1.5,
+          markerType: 'square',
+          order:
+            band.label === 'Likely range'
+              ? 3
+              : band.label === 'Full range of outcomes'
+                ? 4
+                : 60
+        }))
+      : (config.band
+          ? [{
+              label: config.band.label || 'Range',
+              description: '',
+              color: config.band.strokeStyle || '#2d5bff',
+              fillColor: config.band.fillStyle || 'rgba(45, 91, 255, 0.15)',
+              width: 1.5,
+              markerType: 'square',
+              order: 60
+            }]
+          : [])),
+
+    ...(config.stackedAreas || []).map((a) => ({
+      label: a.label,
+      color: a.strokeColor || a.color,
+      fillColor: a.color,
+      width: 1.5,
+      markerType: 'square',
+      order: 70
+    })),
+
+    ...(config.gapBand
+      ? [{
+          label: config.gapBand.label || 'Spending shortfall',
+          description: '',
+          color: config.gapBand.strokeStyle || '#dc2626',
+          fillColor: config.gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
+          width: 1.5,
+          markerType: 'square',
+          order: 80
+        }]
+      : [])
+  ].sort((a, b) => (a.order || 99) - (b.order || 99));
 
   const legendLayout = measureLegend(ctx, legendItems, width);
+  const legendHeight = isInvestmentProjectionLegend
+    ? Math.max(legendLayout.height, 98)
+    : legendLayout.height;
 
   const padding = {
     top: 20,
     right: 20,
-    bottom: 86 + legendLayout.height,
+    bottom: 86 + legendHeight,
     left: 96
   };
 
@@ -467,20 +472,20 @@ function drawLineChart(canvas, config) {
 
   const allValues = [];
 
-    if (config.bands?.length) {
-      config.bands.forEach((band) => {
-        allValues.push(...band.lower.filter(Number.isFinite));
-        allValues.push(...band.upper.filter(Number.isFinite));
-      });
-    } else if (config.band) {
-      allValues.push(...config.band.lower.filter(Number.isFinite));
-      allValues.push(...config.band.upper.filter(Number.isFinite));
-    }
-    
-    if (config.gapBand) {
-      allValues.push(...config.gapBand.lower.filter(Number.isFinite));
-      allValues.push(...config.gapBand.upper.filter(Number.isFinite));
-    }
+  if (config.bands?.length) {
+    config.bands.forEach((band) => {
+      allValues.push(...band.lower.filter(Number.isFinite));
+      allValues.push(...band.upper.filter(Number.isFinite));
+    });
+  } else if (config.band) {
+    allValues.push(...config.band.lower.filter(Number.isFinite));
+    allValues.push(...config.band.upper.filter(Number.isFinite));
+  }
+
+  if (config.gapBand) {
+    allValues.push(...config.gapBand.lower.filter(Number.isFinite));
+    allValues.push(...config.gapBand.upper.filter(Number.isFinite));
+  }
 
   (config.stackedAreas || []).forEach((area) => {
     allValues.push(...area.values.filter(Number.isFinite));
@@ -493,7 +498,7 @@ function drawLineChart(canvas, config) {
     allValues.push(...totals);
   }
 
-   (config.lines || []).forEach((line) => {
+  (config.lines || []).forEach((line) => {
     allValues.push(...line.values.filter(Number.isFinite));
   });
 
@@ -503,22 +508,36 @@ function drawLineChart(canvas, config) {
 
   const minY = 0;
 
-    let maxDataValue;
-    
-    if (config.bands?.length) {
-      const outerBand = config.bands[0];
-      const outerUpperValues = (outerBand?.upper || []).filter(Number.isFinite);
-      const fallbackValues = allValues.filter(Number.isFinite);
-    
-      const outerBandMax = outerUpperValues.length ? Math.max(...outerUpperValues) : 0;
-      const fallbackMax = fallbackValues.length ? Math.max(...fallbackValues, 1) : 1;
-    
-      maxDataValue = Math.max(outerBandMax * 1.05, fallbackMax * 0.15, 1);
-    } else {
-      maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
-    }
-    
-    const maxY = niceMax(maxDataValue);
+  let maxDataValue;
+
+  if (config.bands?.length) {
+    const outerBand = config.bands[0];
+    const innerBand = config.bands[1];
+
+    const outerUpperValues = (outerBand?.upper || []).filter(Number.isFinite);
+    const innerUpperValues = (innerBand?.upper || []).filter(Number.isFinite);
+    const lineValues = (config.lines || [])
+      .flatMap((line) => line.values || [])
+      .filter(Number.isFinite);
+    const overlayValues = (config.overlayLine?.values || []).filter(Number.isFinite);
+
+    const outerBandMax = outerUpperValues.length ? Math.max(...outerUpperValues) : 0;
+    const innerBandMax = innerUpperValues.length ? Math.max(...innerUpperValues) : 0;
+    const lineMax = lineValues.length ? Math.max(...lineValues) : 0;
+    const overlayMax = overlayValues.length ? Math.max(...overlayValues) : 0;
+
+    const referenceMax = Math.max(innerBandMax, lineMax, overlayMax, 1);
+    const outerCap = outerBandMax > 0 ? outerBandMax * 1.03 : referenceMax * 1.1;
+
+    maxDataValue = Math.min(
+      Math.max(referenceMax * 1.12, 1),
+      Math.max(outerCap, 1)
+    );
+  } else {
+    maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
+  }
+
+  const maxY = niceMax(maxDataValue);
 
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
@@ -536,20 +555,20 @@ function drawLineChart(canvas, config) {
   }
 
   const bandsToDraw = config.bands?.length
-      ? config.bands
-      : (config.band ? [config.band] : []);
-    
-    bandsToDraw.forEach((band) => {
-      drawBand(ctx, band.lower, band.upper, {
-        width: plotWidth,
-        height: plotHeight,
-        left: padding.left,
-        top: padding.top,
-        minY,
-        maxY,
-        fill: band.fillStyle
-      });
+    ? config.bands
+    : (config.band ? [config.band] : []);
+
+  bandsToDraw.forEach((band) => {
+    drawBand(ctx, band.lower, band.upper, {
+      width: plotWidth,
+      height: plotHeight,
+      left: padding.left,
+      top: padding.top,
+      minY,
+      maxY,
+      fill: band.fillStyle
     });
+  });
 
   if (config.gapBand) {
     drawGapBand(ctx, config.gapBand.lower, config.gapBand.upper, {
@@ -575,7 +594,7 @@ function drawLineChart(canvas, config) {
     });
   }
 
-    (config.lines || []).forEach((line) => {
+  (config.lines || []).forEach((line) => {
     drawSeries(ctx, line.values, {
       width: plotWidth,
       height: plotHeight,
@@ -641,7 +660,187 @@ function drawLineChart(canvas, config) {
   }
 
   drawXAxis(ctx, config.labels, width, height, padding);
-  drawLegend(ctx, width, height, legendLayout);
+
+  if (isInvestmentProjectionLegend) {
+    drawInvestmentProjectionLegend(ctx, width, height, legendItems);
+  } else {
+    drawLegend(ctx, width, height, legendLayout);
+  }
+}
+
+function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
+  if (!Array.isArray(legendItems) || !legendItems.length) return;
+
+  const wantedOrder = [
+    'Base case',
+    'Typical outcome',
+    'Likely range',
+    'Full range of outcomes'
+  ];
+
+  const items = wantedOrder
+    .map((label) => legendItems.find((item) => item.label === label))
+    .filter(Boolean);
+
+  if (!items.length) return;
+
+  const panelPaddingX = 18;
+  const panelPaddingY = 16;
+  const columnGap = 28;
+  const rowGap = 16;
+  const markerSize = 12;
+  const markerTextGap = 10;
+  const descriptionGap = 4;
+
+  const panelWidth = Math.min(width - 48, 620);
+  const panelX = Math.round((width - panelWidth) / 2);
+
+  const columnWidth = Math.floor((panelWidth - panelPaddingX * 2 - columnGap) / 2);
+
+  const rows = [
+    [items.find((item) => item.label === 'Base case'), items.find((item) => item.label === 'Typical outcome')],
+    [items.find((item) => item.label === 'Likely range'), items.find((item) => item.label === 'Full range of outcomes')]
+  ].filter((row) => row.some(Boolean));
+
+  ctx.save();
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  const titleFont = '600 13px Inter, system-ui, sans-serif';
+  const bodyFont = '12px Inter, system-ui, sans-serif';
+
+  function wrapText(text, maxWidth, font) {
+    if (!text) return [];
+    ctx.font = font;
+
+    const words = String(text).split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+
+    words.forEach((word) => {
+      const test = current ? `${current} ${word}` : word;
+      const testWidth = ctx.measureText(test).width;
+
+      if (testWidth <= maxWidth || !current) {
+        current = test;
+      } else {
+        lines.push(current);
+        current = word;
+      }
+    });
+
+    if (current) lines.push(current);
+    return lines;
+  }
+
+  const preparedRows = rows.map((row) => {
+    const preparedCols = row.map((item) => {
+      if (!item) return null;
+
+      const textWidth = columnWidth - markerSize - markerTextGap;
+
+      const titleLines = wrapText(item.label, textWidth, titleFont);
+      const descLines = wrapText(item.description || '', textWidth, bodyFont);
+
+      const titleLineHeight = 16;
+      const descLineHeight = 15;
+
+      const contentHeight =
+        (titleLines.length * titleLineHeight) +
+        (descLines.length ? descriptionGap + descLines.length * descLineHeight : 0);
+
+      return {
+        item,
+        titleLines,
+        descLines,
+        titleLineHeight,
+        descLineHeight,
+        contentHeight
+      };
+    });
+
+    const rowHeight = Math.max(
+      ...preparedCols.map((col) => (col ? Math.max(col.contentHeight, markerSize) : 0)),
+      markerSize
+    );
+
+    return {
+      cols: preparedCols,
+      rowHeight
+    };
+  });
+
+  const contentHeight =
+    preparedRows.reduce((sum, row) => sum + row.rowHeight, 0) +
+    rowGap * Math.max(0, preparedRows.length - 1);
+
+  const panelHeight = panelPaddingY * 2 + contentHeight;
+  const panelY = height - panelHeight - 18;
+
+  roundRect(ctx, panelX, panelY, panelWidth, panelHeight, 12);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fill();
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  let currentY = panelY + panelPaddingY;
+
+  preparedRows.forEach((row) => {
+    row.cols.forEach((col, colIndex) => {
+      if (!col) return;
+
+      const x = panelX + panelPaddingX + (colIndex * (columnWidth + columnGap));
+      const markerX = x;
+      const markerY = currentY + 1;
+      const textX = x + markerSize + markerTextGap;
+
+      if (col.item.markerType === 'line') {
+        const lineY = markerY + markerSize / 2;
+
+        ctx.save();
+        ctx.strokeStyle = col.item.color;
+        ctx.lineWidth = col.item.width || 2.5;
+        ctx.setLineDash(col.item.dash || []);
+        ctx.beginPath();
+        ctx.moveTo(markerX, lineY);
+        ctx.lineTo(markerX + markerSize + 6, lineY);
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.fillStyle = col.item.fillColor || col.item.color || '#2d5bff';
+        ctx.fillRect(markerX, markerY, markerSize, markerSize);
+        ctx.strokeStyle = col.item.color || '#2d5bff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(markerX, markerY, markerSize, markerSize);
+        ctx.restore();
+      }
+
+      let textY = currentY;
+
+      ctx.font = titleFont;
+      ctx.fillStyle = '#334155';
+      col.titleLines.forEach((line) => {
+        ctx.fillText(line, textX, textY);
+        textY += col.titleLineHeight;
+      });
+
+      if (col.descLines.length) {
+        textY += descriptionGap;
+        ctx.font = bodyFont;
+        ctx.fillStyle = '#94a3b8';
+        col.descLines.forEach((line) => {
+          ctx.fillText(line, textX, textY);
+          textY += col.descLineHeight;
+        });
+      }
+    });
+
+    currentY += row.rowHeight + rowGap;
+  });
+
+  ctx.restore();
 }
 
 function drawOverlayLineLabel(ctx, line, geom) {
@@ -1492,9 +1691,17 @@ function niceMax(v) {
   const scaled = v / base;
 
   let rounded;
+
   if (scaled <= 1) rounded = 1;
+  else if (scaled <= 1.25) rounded = 1.25;
+  else if (scaled <= 1.5) rounded = 1.5;
   else if (scaled <= 2) rounded = 2;
+  else if (scaled <= 2.5) rounded = 2.5;
+  else if (scaled <= 3) rounded = 3;
+  else if (scaled <= 4) rounded = 4;
   else if (scaled <= 5) rounded = 5;
+  else if (scaled <= 6) rounded = 6;
+  else if (scaled <= 7.5) rounded = 7.5;
   else rounded = 10;
 
   return rounded * base;
