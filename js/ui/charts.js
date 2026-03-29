@@ -454,7 +454,7 @@ function drawLineChart(canvas, config) {
     left: 96
   };
 
- const height = padding.top + padding.bottom + 90;  // was 180 — this is your gap
+ const height = padding.top + padding.bottom + 180;  // the actual chart height (not the overall container)
     
   canvas.width = width * dpr;
   canvas.height = height * dpr;
