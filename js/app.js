@@ -682,71 +682,67 @@ function attachEvents() {
     });
   }
 
-  if (els.includePerson2) {
-    const assumptionsPerson2Toggle = els.includePerson2.closest('.person-toggle');
+if (els.includePerson2) {
+  const assumptionsPerson2Toggle = els.includePerson2.closest('.person-toggle');
 
-    if (assumptionsPerson2Toggle) {
+  if (assumptionsPerson2Toggle) {
     assumptionsPerson2Toggle.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-        target: event.target,
-        currentChecked: els.includePerson2?.checked
-      });
-    
-      const nextChecked = !Boolean(els.includePerson2?.checked);
 
-        els.includePerson2.checked = nextChecked;
-        portfolioConfig.hasPerson2 = nextChecked;
+      const nextChecked = !Boolean(els.includePerson2.checked);
 
-        savePortfolioConfigToStorage();
-        savePortfolioPeopleToStorage();
+      els.includePerson2.checked = nextChecked;
+      portfolioConfig.hasPerson2 = nextChecked;
 
-        if (els.portfolioHasPerson2) {
-          els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
-        }
-
-        applyPerson2PortfolioRules();
-        renderPortfolioTable();
-      });
-    }
-  }
-
-  if (els.continueToAssumptionsBtn) {
-    els.continueToAssumptionsBtn.addEventListener('click', () => {
-      continueToAssumptions();
-    });
-  }
-
-  const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
-
-  if (addPortfolioAccountBtn) {
-    addPortfolioAccountBtn.addEventListener('click', () => {
-      addPortfolioAccount();
-    });
-  }
-
-  const savePortfolioBtn = document.getElementById('savePortfolioBtn');
-
-  if (savePortfolioBtn) {
-    savePortfolioBtn.addEventListener('click', () => {
-      syncPortfolioPeopleFromFields();
-      savePortfolioToStorage();
       savePortfolioConfigToStorage();
-      savePortfolioPeopleToStorage();
 
-      const originalLabel = savePortfolioBtn.textContent;
+      if (els.portfolioHasPerson2) {
+        els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
+      }
 
-      savePortfolioBtn.textContent = 'Saved';
-      savePortfolioBtn.classList.remove('btn-secondary');
-      savePortfolioBtn.classList.add('btn-success');
-
-      window.setTimeout(() => {
-        savePortfolioBtn.textContent = originalLabel;
-        savePortfolioBtn.classList.remove('btn-success');
-        savePortfolioBtn.classList.add('btn-secondary');
-      }, 1200);
+      applyPerson2PortfolioRules();
+      renderPortfolioTable();
     });
   }
+}
+
+if (els.continueToAssumptionsBtn) {
+  els.continueToAssumptionsBtn.addEventListener('click', () => {
+    continueToAssumptions();
+  });
+}
+
+const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
+
+if (addPortfolioAccountBtn) {
+  addPortfolioAccountBtn.addEventListener('click', () => {
+    addPortfolioAccount();
+  });
+}
+
+const savePortfolioBtn = document.getElementById('savePortfolioBtn');
+
+if (savePortfolioBtn) {
+  savePortfolioBtn.addEventListener('click', () => {
+    syncPortfolioPeopleFromFields();
+    savePortfolioToStorage();
+    savePortfolioConfigToStorage();
+    savePortfolioPeopleToStorage();
+
+    const originalLabel = savePortfolioBtn.textContent;
+
+    savePortfolioBtn.textContent = 'Saved';
+    savePortfolioBtn.classList.remove('btn-secondary');
+    savePortfolioBtn.classList.add('btn-success');
+
+    window.setTimeout(() => {
+      savePortfolioBtn.textContent = originalLabel;
+      savePortfolioBtn.classList.remove('btn-success');
+      savePortfolioBtn.classList.add('btn-secondary');
+    }, 1200);
+  });
+}
 
   const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
   const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
