@@ -561,7 +561,7 @@ textarea{
 .portfolio-people-divider{
   margin:4px 0 2px;
   padding-top:8px;
-  border-top:1px dashed #d3dbe8;
+  border-top:none;
 }
 
 .portfolio-people-divider span{
