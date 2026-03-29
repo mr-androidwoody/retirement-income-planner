@@ -1651,7 +1651,7 @@ function mapPortfolioToInputs(totals) {
 
     includePerson2: hasPerson2,
 
-    statePensionToday: 12547.60,
+    statePensionToday: 12547,
 
     person1GetsFullPension: true,
     person2GetsFullPension: true,
