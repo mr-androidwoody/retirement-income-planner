@@ -685,26 +685,30 @@ function attachEvents() {
 
   if (els.includePerson2) {
       els.includePerson2.addEventListener('change', (e) => {
-        const nextChecked = Boolean(e.target.checked);
+        portfolioConfig.hasPerson2 = Boolean(e.target.checked);
     
-        if (!els.portfolioHasPerson2) {
-          portfolioConfig.hasPerson2 = nextChecked;
-          applyPerson2PortfolioRules();
+        if (!portfolioConfig.hasPerson2) {
+          portfolioPeople.person2Name = '';
+          portfolioPeople.person2Age = 55;
     
-          savePortfolioConfigToStorage();
-          return;
+          if (els.portfolioPerson2Name) {
+            els.portfolioPerson2Name.value = '';
+          }
+    
+          if (els.portfolioPerson2Age) {
+            els.portfolioPerson2Age.value = 55;
+          }
         }
     
-        if (els.portfolioHasPerson2.checked === nextChecked) {
-          portfolioConfig.hasPerson2 = nextChecked;
-          applyPerson2PortfolioRules();
+        savePortfolioConfigToStorage();
+        savePortfolioPeopleToStorage();
     
-          savePortfolioConfigToStorage();
-          return;
+        if (els.portfolioHasPerson2) {
+          els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
         }
     
-        els.portfolioHasPerson2.checked = nextChecked;
-        els.portfolioHasPerson2.dispatchEvent(new Event('change', { bubbles: true }));
+        applyPerson2PortfolioRules();
+        renderPortfolioTable();
       });
     }
 
