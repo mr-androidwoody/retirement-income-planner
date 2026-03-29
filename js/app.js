@@ -598,11 +598,9 @@ function continueToAssumptions() {
   }
 
   const mappedInputs = mapPortfolioToInputs(portfolioTotals);
-  const currentInputs = sanitiseInputs(gatherInputs());
 
   latestBaseInputs = {
-    ...mappedInputs,
-    ...currentInputs
+    ...mappedInputs
   };
 
   applyPortfolioInputsToAssumptions(latestBaseInputs);
