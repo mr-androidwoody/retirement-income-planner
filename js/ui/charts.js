@@ -359,7 +359,6 @@ function drawLineChart(canvas, config) {
 
   const width = Math.max(420, Math.floor(rect.width || canvas.clientWidth || 420));
   const baseHeight = Number(canvas.dataset.baseHeight || canvas.getAttribute('height')) || 320;
-  canvas.dataset.baseHeight = String(baseHeight);
 
   ctx.font = '12px Inter, system-ui, sans-serif';
 
@@ -455,7 +454,7 @@ function drawLineChart(canvas, config) {
     left: 96
   };
 
- const height = Math.max(baseHeight, padding.top + padding.bottom + 180);
+ const height = padding.top + padding.bottom + 180;
     
   canvas.width = width * dpr;
   canvas.height = height * dpr;
