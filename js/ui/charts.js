@@ -455,8 +455,8 @@ function drawLineChart(canvas, config) {
     left: 96
   };
 
-  const height = Math.max(baseHeight, 240 + padding.top + padding.bottom);
-
+ const height = Math.max(baseHeight, padding.top + padding.bottom + 180);
+    
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   canvas.style.height = `${height}px`;
