@@ -199,6 +199,12 @@ const advancedForm = createAdvancedForm(els, parsingHelpers);
 
 initialise();
 
+function formatOneDecimal(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '';
+  return num.toFixed(1);
+}
+
 function savePortfolioConfigToStorage() {
   localStorage.setItem(
     PORTFOLIO_CONFIG_STORAGE_KEY,
@@ -539,7 +545,7 @@ function prepareAndRunSimulation() {
     return;
   }
 
-  const totals = calculatePortfolioTotals(portfolioAccounts);
+  const totals = calculatePortfolioTotals(activeAccounts);
   console.log('totals', totals);
 
   const mappedInputs = mapPortfolioToInputs(totals);
@@ -1722,19 +1728,19 @@ function applyPortfolioInputsToAssumptions(inputs) {
   }
 
   if (els.equityAllocation) {
-    els.equityAllocation.value = String(Math.round(Number(inputs.equityAllocation) || 0));
+  els.equityAllocation.value = formatOneDecimal(inputs.equityAllocation);
   }
 
   if (els.bondAllocation) {
-    els.bondAllocation.value = String(Math.round(Number(inputs.bondAllocation) || 0));
+    els.bondAllocation.value = formatOneDecimal(inputs.bondAllocation);
   }
 
   if (els.cashlikeAllocation) {
-    els.cashlikeAllocation.value = String(Math.round(Number(inputs.cashlikeAllocation) || 0));
+    els.cashlikeAllocation.value = formatOneDecimal(inputs.cashlikeAllocation);
   }
 
   if (els.cashAllocation) {
-    els.cashAllocation.value = String(Math.round(Number(inputs.cashAllocation) || 0));
+    els.cashAllocation.value = formatOneDecimal(inputs.cashAllocation);
   }
 
   if (els.rebalanceToTarget) {
