@@ -446,9 +446,7 @@ function drawLineChart(canvas, config) {
   ].sort((a, b) => (a.order || 99) - (b.order || 99));
 
   const legendLayout = measureLegend(ctx, legendItems, width);
-  const legendHeight = isInvestmentProjectionLegend
-    ? 64
-    : legendLayout.height;
+  const legendHeight = legendLayout.height;
 
   const padding = {
     top: 20,
@@ -681,103 +679,119 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
     'Full range of outcomes'
   ];
 
-  const items = wantedOrder
-    .map((label) => legendItems.find((item) => item.label === label))
-    .filter(Boolean);
+  const itemMap = new Map(
+    legendItems.map((item) => [item.label, item])
+  );
 
-  if (!items.length) {
+  const row1 = [
+    itemMap.get('Base case'),
+    itemMap.get('Typical outcome')
+  ].filter(Boolean);
+
+  const row2 = [
+    itemMap.get('Likely range'),
+    itemMap.get('Full range of outcomes')
+  ].filter(Boolean);
+
+  const rows = [row1, row2].filter((row) => row.length);
+
+  if (!rows.length) {
     canvas.__legendHitboxes = [];
     return;
   }
 
-  const panelPaddingX = 18;
-  const panelPaddingY = 14;
-  const columnGap = 28;
-  const rowGap = 14;
-  const markerSize = 12;
-  const markerTextGap = 10;
+  // Match drawLegend() box geometry exactly
+  const boxPaddingY = 3;
+  const boxRadius = 12;
+  const boxX = 24;
+  const boxWidth = width - 48;
+  const boxBottomMargin = 12;
 
-  const panelWidth = Math.min(width - 48, 620);
-  const panelX = Math.round((width - panelWidth) / 2);
+  const rowHeight = 34;
+  const rowGap = 0;
+  const itemGap = 28;
+  const markerSize = 20;
+  const markerTextGap = 8;
 
-  const columnWidth = Math.floor((panelWidth - panelPaddingX * 2 - columnGap) / 2);
+  const layoutHeightRaw =
+    rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
 
-  const rows = [
-    [
-      items.find((item) => item.label === 'Base case'),
-      items.find((item) => item.label === 'Typical outcome')
-    ],
-    [
-      items.find((item) => item.label === 'Likely range'),
-      items.find((item) => item.label === 'Full range of outcomes')
-    ]
-  ].filter((row) => row.some(Boolean));
+  const MIN_LEGEND_HEIGHT = 75;
+  const layoutHeight = Math.max(layoutHeightRaw, MIN_LEGEND_HEIGHT);
+
+  const boxHeight = layoutHeight + boxPaddingY * 2;
+  const boxY = height - boxBottomMargin - boxHeight;
 
   ctx.save();
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
 
-  const titleFont = '600 13px Inter, system-ui, sans-serif';
-  const titleLineHeight = 16;
-
-  const rowHeight = Math.max(markerSize, titleLineHeight);
-  const contentHeight =
-    rows.length * rowHeight +
-    Math.max(0, rows.length - 1) * rowGap;
-
-  const panelHeight = panelPaddingY * 2 + contentHeight;
-  const panelY = height - panelHeight - 18;
-
-  roundRect(ctx, panelX, panelY, panelWidth, panelHeight, 12);
+  roundRect(ctx, boxX, boxY, boxWidth, boxHeight, boxRadius);
   ctx.fillStyle = '#f8fafc';
   ctx.fill();
-  ctx.strokeStyle = '#cbd5e1';
+
+  ctx.strokeStyle = '#d7deea';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  let currentY = panelY + panelPaddingY;
+  ctx.restore();
+
+  const contentHeight =
+    rows.length * rowHeight +
+    (rows.length - 1) * rowGap;
+
+  let y = boxY + (boxHeight - contentHeight) / 2 + rowHeight / 2;
 
   rows.forEach((row) => {
-    row.forEach((item, colIndex) => {
-      if (!item) return;
+    const rowWidth =
+      row.reduce((sum, item) => sum + (item.widthNeeded || 0), 0) +
+      (row.length - 1) * itemGap;
 
-      const x = panelX + panelPaddingX + (colIndex * (columnWidth + columnGap));
-      const markerX = x;
-      const markerY = currentY + 1;
-      const textX = x + markerSize + markerTextGap;
+    let x = (width - rowWidth) / 2;
 
-      if (item.markerType === 'line') {
-        const lineY = markerY + markerSize / 2;
+    row.forEach((item) => {
+      ctx.save();
 
-        ctx.save();
+      if (item.markerType === 'square') {
+        const squareSize = 12;
+        const squareX = x + (markerSize - squareSize) / 2;
+        const squareY = y - squareSize / 2;
+
+        ctx.beginPath();
+        ctx.rect(squareX, squareY, squareSize, squareSize);
+        ctx.fillStyle = item.fillColor || item.color;
+        ctx.fill();
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = item.width || 1.5;
+        ctx.setLineDash([]);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.setLineDash(item.dash || []);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + markerSize, y);
         ctx.strokeStyle = item.color;
         ctx.lineWidth = item.width || 2.5;
-        ctx.setLineDash(item.dash || []);
-        ctx.beginPath();
-        ctx.moveTo(markerX, lineY);
-        ctx.lineTo(markerX + markerSize + 6, lineY);
         ctx.stroke();
-        ctx.restore();
-      } else {
-        ctx.save();
-        ctx.fillStyle = item.fillColor || item.color || '#2d5bff';
-        ctx.fillRect(markerX, markerY, markerSize, markerSize);
-        ctx.strokeStyle = item.color || '#2d5bff';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(markerX, markerY, markerSize, markerSize);
-        ctx.restore();
       }
 
-      ctx.font = titleFont;
-      ctx.fillStyle = '#334155';
-      ctx.fillText(item.label, textX, currentY);
+      ctx.restore();
+
+      const textX = x + markerSize + markerTextGap;
+
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#475569';
+      ctx.font = '12px Inter, system-ui, sans-serif';
+      ctx.fillText(item.label, textX, y);
+      ctx.restore();
+
+      x += (item.widthNeeded || 0) + itemGap;
     });
 
-    currentY += rowHeight + rowGap;
+    y += rowHeight + rowGap;
   });
 
   canvas.__legendHitboxes = [];
-  ctx.restore();
 }
 
 function getLegendHoverPayload(canvas, state) {
