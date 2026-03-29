@@ -641,6 +641,14 @@ textarea{
   font-weight:700;
 }
 
+.portfolio-people-toggle .switch-slider{
+  background:#9fb2d3;
+}
+
+.portfolio-people-toggle .switch-control input:checked + .switch-slider{
+  background:var(--accent);
+}
+
 .portfolio-person-block-disabled{
   opacity:1;
   filter:none;
