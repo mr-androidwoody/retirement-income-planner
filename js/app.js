@@ -2264,10 +2264,9 @@ function applyPerson2PortfolioRules() {
   }
 
   if (els.person2Panel) {
-    els.person2Panel.classList.toggle('person-panel-disabled', !hasPerson2);
-    els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
-    els.person2Panel.style.display = '';
-  }
+      els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
+      els.person2Panel.style.display = '';
+    }
 
   if (portfolioPerson2Block) {
     portfolioPerson2Block.classList.toggle('portfolio-person-block-disabled', !hasPerson2);
