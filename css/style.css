@@ -569,7 +569,7 @@ textarea{
   font-size:0.72rem;
   font-weight:700;
   color:#7a869c;
-  text-transform:uppercase;
+  text-transform:none;
   letter-spacing:0.04em;
 }
 
