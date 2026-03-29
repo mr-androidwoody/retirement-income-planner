@@ -729,23 +729,27 @@ function getWindfallNominal(inputs, yearIndex) {
 
 function buildPercentileSeries(paths) {
   if (!paths.length) {
-    return { p10: [], p50: [], p90: [] };
+    return { p10: [], p25: [], p50: [], p75: [], p90: [] };
   }
 
   const length = paths[0].length;
   const p10 = [];
+  const p25 = [];
   const p50 = [];
+  const p75 = [];
   const p90 = [];
 
   for (let index = 0; index < length; index += 1) {
     const values = paths.map((path) => path[index]).sort((a, b) => a - b);
 
     p10.push(percentile(values, 0.10));
+    p25.push(percentile(values, 0.25));
     p50.push(percentile(values, 0.50));
+    p75.push(percentile(values, 0.75));
     p90.push(percentile(values, 0.90));
   }
 
-  return { p10, p50, p90 };
+  return { p10, p25, p50, p75, p90 };
 }
 
 function percentile(sortedValues, p) {
