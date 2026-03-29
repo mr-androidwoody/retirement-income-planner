@@ -1482,6 +1482,18 @@ select{
   box-sizing:border-box;
 }
 
+.tab-panel[data-tab-panel="assumptions"] input[readonly]{
+  background-color:#eef5ff;
+  border-color:#c9dafc;
+  color:#2c3e55;
+  cursor:default;
+}
+
+.tab-panel[data-tab-panel="assumptions"] input[readonly]:focus{
+  outline:none;
+  box-shadow:none;
+}
+
 select{
   appearance:none;
   -webkit-appearance:none;
