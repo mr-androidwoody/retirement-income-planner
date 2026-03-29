@@ -451,7 +451,7 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 52 + legendHeight,
+    bottom: 42 + legendHeight,
     left: 96
   };
 
@@ -660,13 +660,6 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
     return;
   }
 
-  const wantedOrder = [
-    'Base case',
-    'Typical outcome',
-    'Likely range',
-    'Full range of outcomes'
-  ];
-
   const itemMap = new Map(
     legendItems.map((item) => [item.label, item])
   );
@@ -695,11 +688,11 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
   const boxWidth = width - 48;
   const boxBottomMargin = 12;
 
-  const rowHeight = 32;
-  const rowGap = 10;
-  const itemGap = 28;
+  const rowHeight = 30;
+  const rowGap = 8;
+  const itemGap = 32;
   const markerSize = 20;
-  const markerTextGap = 8;
+  const markerTextGap = 10;
 
   const layoutHeightRaw =
     rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
@@ -726,8 +719,7 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
     rows.length * rowHeight +
     (rows.length - 1) * rowGap;
 
-  // Top-align slightly instead of tight vertical centering
-  let y = boxY + 18 + rowHeight / 2;
+  let y = boxY + (boxHeight - contentHeight) / 2 + rowHeight / 2;
 
   rows.forEach((row) => {
     const rowWidth =
@@ -1544,10 +1536,10 @@ function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
 
 function measureLegend(ctx, lines, width) {
   const markerSize = 20;
-  const markerTextGap = 8;
-  const itemGap = 36;
-  const rowGap = 0;    // tweak row gap in chart legend
-  const maxRowWidth = Math.max(200, width - 36);
+  const markerTextGap = 10;
+  const itemGap = 32;
+  const rowGap = 8;
+  const maxRowWidth = Math.max(200, width - 48);
 
   ctx.font = '13px Inter, system-ui, sans-serif';
 
@@ -1581,7 +1573,7 @@ function measureLegend(ctx, lines, width) {
 
   if (row.length) rows.push(row);
 
-  const rowHeight = 34;
+  const rowHeight = 30;
   const heightNeededRaw =
     rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
 
