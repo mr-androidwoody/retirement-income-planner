@@ -642,8 +642,24 @@ textarea{
 }
 
 .portfolio-person-block-disabled{
-  opacity:0.6;
-  filter:saturate(0.6);
+  opacity:1;
+  filter:none;
+}
+
+/* Only dull the actual inputs */
+.portfolio-person-block-disabled input,
+.portfolio-person-block-disabled select,
+.portfolio-person-block-disabled textarea{
+  background:#f1f4f9;
+  color:#8a94a6;
+  border-color:#d3dbe8;
+  cursor:not-allowed;
+}
+
+/* Disable steppers visually */
+.portfolio-person-block-disabled .stepper-btn{
+  opacity:0.4;
+  pointer-events:none;
 }
 
 .portfolio-person-block-disabled input,
