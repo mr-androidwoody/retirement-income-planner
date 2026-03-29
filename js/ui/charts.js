@@ -451,7 +451,7 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 86 + legendHeight,
+    bottom: 52 + legendHeight,
     left: 96
   };
 
@@ -509,31 +509,19 @@ function drawLineChart(canvas, config) {
   let maxDataValue;
 
   if (config.bands?.length) {
-    const outerBand = config.bands[0];
-    const innerBand = config.bands[1];
-
-    const outerUpperValues = (outerBand?.upper || []).filter(Number.isFinite);
-    const innerUpperValues = (innerBand?.upper || []).filter(Number.isFinite);
-    const lineValues = (config.lines || [])
-      .flatMap((line) => line.values || [])
-      .filter(Number.isFinite);
-    const overlayValues = (config.overlayLine?.values || []).filter(Number.isFinite);
-
-    const outerBandMax = outerUpperValues.length ? Math.max(...outerUpperValues) : 0;
-    const innerBandMax = innerUpperValues.length ? Math.max(...innerUpperValues) : 0;
-    const lineMax = lineValues.length ? Math.max(...lineValues) : 0;
-    const overlayMax = overlayValues.length ? Math.max(...overlayValues) : 0;
-
-    const referenceMax = Math.max(innerBandMax, lineMax, overlayMax, 1);
-    const outerCap = outerBandMax > 0 ? outerBandMax * 1.08 : referenceMax * 1.15;
-
-    maxDataValue = Math.min(
-      Math.max(referenceMax * 1.15, 1),
-      Math.max(outerCap, 1)
-    );
-  } else {
-    maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
-  }
+      const outerBand = config.bands[0];
+      const outerUpperValues = (outerBand?.upper || []).filter(Number.isFinite);
+    
+      const outerBandMax = outerUpperValues.length
+        ? Math.max(...outerUpperValues)
+        : 1;
+    
+      // Lock the Y-axis ceiling to the top of the outer percentile envelope only.
+      // This keeps the chart height stable when toggling downside / median / upside.
+      maxDataValue = Math.max(outerBandMax * 1.08, 1);
+    } else {
+      maxDataValue = allValues.length ? Math.max(...allValues, 1) : 1;
+    }
 
   const maxY = niceMax(maxDataValue);
 
@@ -707,8 +695,8 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
   const boxWidth = width - 48;
   const boxBottomMargin = 12;
 
-  const rowHeight = 34;
-  const rowGap = 0;
+  const rowHeight = 32;
+  const rowGap = 10;
   const itemGap = 28;
   const markerSize = 20;
   const markerTextGap = 8;
@@ -738,7 +726,8 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
     rows.length * rowHeight +
     (rows.length - 1) * rowGap;
 
-  let y = boxY + (boxHeight - contentHeight) / 2 + rowHeight / 2;
+  // Top-align slightly instead of tight vertical centering
+  let y = boxY + 18 + rowHeight / 2;
 
   rows.forEach((row) => {
     const rowWidth =
@@ -1556,7 +1545,7 @@ function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
 function measureLegend(ctx, lines, width) {
   const markerSize = 20;
   const markerTextGap = 8;
-  const itemGap = 28;
+  const itemGap = 36;
   const rowGap = 0;    // tweak row gap in chart legend
   const maxRowWidth = Math.max(200, width - 36);
 
