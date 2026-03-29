@@ -1965,7 +1965,8 @@ function clearPortfolioInputsFromAssumptions() {
 }
 
 function updatePortfolioSummaryCards() {
-  const totals = calculatePortfolioTotals(portfolioAccounts);
+  const activeAccounts = getActivePortfolioAccounts();
+  const totals = calculatePortfolioTotals(activeAccounts);
 
   const investmentValueEl = document.getElementById('portfolioTotalValue');
   const allocationEl = document.getElementById('portfolioAllocationTotals');
@@ -1975,37 +1976,37 @@ function updatePortfolioSummaryCards() {
     investmentValueEl.textContent = formatCurrency(totals.totalValue);
   }
 
-    if (allocationEl) {
-  const allocationTotal =
-    totals.allocations.equities +
-    totals.allocations.bonds +
-    totals.allocations.cashlike +
-    totals.allocations.cash;
+  if (allocationEl) {
+    const allocationTotal =
+      totals.allocations.equities +
+      totals.allocations.bonds +
+      totals.allocations.cashlike +
+      totals.allocations.cash;
 
-  const roundedAllocationTotal = Number(allocationTotal.toFixed(1));
-  const isBalanced = roundedAllocationTotal === 100;
+    const roundedAllocationTotal = Number(allocationTotal.toFixed(1));
+    const isBalanced = roundedAllocationTotal === 100;
 
-  const allocationState = isBalanced
-    ? 'Balanced'
-    : roundedAllocationTotal < 100
-      ? `${(100 - roundedAllocationTotal).toFixed(1)}% under`
-      : `${(roundedAllocationTotal - 100).toFixed(1)}% over`;
+    const allocationState = isBalanced
+      ? 'Balanced'
+      : roundedAllocationTotal < 100
+        ? `${(100 - roundedAllocationTotal).toFixed(1)}% under`
+        : `${(roundedAllocationTotal - 100).toFixed(1)}% over`;
 
-  const allocationStateClass = isBalanced
-    ? 'is-balanced'
-    : 'is-off';
+    const allocationStateClass = isBalanced
+      ? 'is-balanced'
+      : 'is-off';
 
-  allocationEl.innerHTML = `
-    <div><span>Equities</span><span class="value">${totals.allocations.equities.toFixed(1)}%</span></div>
-    <div><span>Bonds</span><span class="value">${totals.allocations.bonds.toFixed(1)}%</span></div>
-    <div><span>Cashlike</span><span class="value">${totals.allocations.cashlike.toFixed(1)}%</span></div>
-    <div><span>Cash</span><span class="value">${totals.allocations.cash.toFixed(1)}%</span></div>
-    <div class="portfolio-summary-total-row ${allocationStateClass}">
-      <span>Total allocation</span>
-      <span class="value">${roundedAllocationTotal.toFixed(1)}% ${allocationState}</span>
-    </div>
-  `;
-}
+    allocationEl.innerHTML = `
+      <div><span>Equities</span><span class="value">${totals.allocations.equities.toFixed(1)}%</span></div>
+      <div><span>Bonds</span><span class="value">${totals.allocations.bonds.toFixed(1)}%</span></div>
+      <div><span>Cashlike</span><span class="value">${totals.allocations.cashlike.toFixed(1)}%</span></div>
+      <div><span>Cash</span><span class="value">${totals.allocations.cash.toFixed(1)}%</span></div>
+      <div class="portfolio-summary-total-row ${allocationStateClass}">
+        <span>Total allocation</span>
+        <span class="value">${roundedAllocationTotal.toFixed(1)}% ${allocationState}</span>
+      </div>
+    `;
+  }
 
   if (wrappersEl) {
     wrappersEl.innerHTML = `
