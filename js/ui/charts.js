@@ -129,7 +129,7 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
               ? result.monteCarlo.realPercentiles.p50
               : result.monteCarlo.nominalPercentiles.p50,
             color: '#2d5bff',
-            width: 3
+            width: 2
           },
           {
             label: 'Base case',
@@ -151,11 +151,28 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
       ? result.monteCarlo.realPercentiles.p90
       : result.monteCarlo.nominalPercentiles.p90;
 
-    chartConfig.band = {
-      lower: p10Values,
-      upper: p90Values,
-      fillStyle: 'rgba(45, 91, 255, 0.15)'
-    };
+    const p25Values = useReal
+      ? result.monteCarlo.realPercentiles.p25
+      : result.monteCarlo.nominalPercentiles.p25;
+    
+    const p75Values = useReal
+      ? result.monteCarlo.realPercentiles.p75
+      : result.monteCarlo.nominalPercentiles.p75;
+    
+    chartConfig.bands = [
+      {
+        lower: p10Values,
+        upper: p90Values,
+        fillStyle: 'rgba(45, 91, 255, 0.12)',
+        label: 'P10–P90 range'
+      },
+      {
+        lower: p25Values,
+        upper: p75Values,
+        fillStyle: 'rgba(45, 91, 255, 0.22)',
+        label: 'P25–P75 range'
+      }
+    ];
 
     if (tableView === 'p90') {
       chartConfig.overlayLine = {
@@ -346,36 +363,53 @@ function drawLineChart(canvas, config) {
   ctx.font = '12px Inter, system-ui, sans-serif';
 
   const legendItems = [
-    ...(config.lines || []).map((l) => ({
-      label: l.label,
-      description:
-        l.label === 'Median simulation'
-          ? 'Typical outcome across simulations'
-          : l.label === 'Base case'
-            ? 'Single expected return path'
-            : '',
-      color: l.color,
-      width: l.width || 2.5,
-      dash: l.dash || [],
-      markerType: 'line'
-    })),
-    ...(config.stackedAreas || []).map((a) => ({
-      label: a.label,
-      color: a.strokeColor || a.color,
-      fillColor: a.color,
-      width: 1.5,
-      markerType: 'square'
-    })),
-    ...(config.gapBand
-      ? [{
-          label: config.gapBand.label || 'Spending shortfall',
-          color: config.gapBand.strokeStyle || '#dc2626',
-          fillColor: config.gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
-          width: 1.5,
-          markerType: 'square'
-        }]
-      : [])
-  ];
+      ...(config.lines || []).map((l) => ({
+        label: l.label,
+        description:
+          l.label === 'Median simulation'
+            ? 'Typical outcome across simulations'
+            : l.label === 'Base case'
+              ? 'Single expected return path'
+              : '',
+        color: l.color,
+        width: l.width || 2.5,
+        dash: l.dash || [],
+        markerType: 'line'
+      })),
+      ...((config.bands && config.bands.length)
+        ? config.bands.map((band) => ({
+            label: band.label || 'Range',
+            color: band.strokeStyle || '#2d5bff',
+            fillColor: band.fillStyle || 'rgba(45, 91, 255, 0.15)',
+            width: 1.5,
+            markerType: 'square'
+          }))
+        : (config.band
+            ? [{
+                label: config.band.label || 'Range',
+                color: config.band.strokeStyle || '#2d5bff',
+                fillColor: config.band.fillStyle || 'rgba(45, 91, 255, 0.15)',
+                width: 1.5,
+                markerType: 'square'
+              }]
+            : [])),
+      ...(config.stackedAreas || []).map((a) => ({
+        label: a.label,
+        color: a.strokeColor || a.color,
+        fillColor: a.color,
+        width: 1.5,
+        markerType: 'square'
+      })),
+      ...(config.gapBand
+        ? [{
+            label: config.gapBand.label || 'Spending shortfall',
+            color: config.gapBand.strokeStyle || '#dc2626',
+            fillColor: config.gapBand.fillStyle || 'rgba(220, 38, 38, 0.12)',
+            width: 1.5,
+            markerType: 'square'
+          }]
+        : [])
+    ];
 
   const legendLayout = measureLegend(ctx, legendItems, width);
 
@@ -402,14 +436,20 @@ function drawLineChart(canvas, config) {
 
   const allValues = [];
 
-  if (config.band) {
-    allValues.push(...config.band.lower, ...config.band.upper);
-  }
-
-  if (config.gapBand) {
-    allValues.push(...config.gapBand.lower.filter(Number.isFinite));
-    allValues.push(...config.gapBand.upper.filter(Number.isFinite));
-  }
+    if (config.bands?.length) {
+      config.bands.forEach((band) => {
+        allValues.push(...band.lower.filter(Number.isFinite));
+        allValues.push(...band.upper.filter(Number.isFinite));
+      });
+    } else if (config.band) {
+      allValues.push(...config.band.lower.filter(Number.isFinite));
+      allValues.push(...config.band.upper.filter(Number.isFinite));
+    }
+    
+    if (config.gapBand) {
+      allValues.push(...config.gapBand.lower.filter(Number.isFinite));
+      allValues.push(...config.gapBand.upper.filter(Number.isFinite));
+    }
 
   (config.stackedAreas || []).forEach((area) => {
     allValues.push(...area.values.filter(Number.isFinite));
@@ -450,17 +490,21 @@ function drawLineChart(canvas, config) {
     });
   }
 
-  if (config.band) {
-    drawBand(ctx, config.band.lower, config.band.upper, {
-      width: plotWidth,
-      height: plotHeight,
-      left: padding.left,
-      top: padding.top,
-      minY,
-      maxY,
-      fill: config.band.fillStyle
+  const bandsToDraw = config.bands?.length
+      ? config.bands
+      : (config.band ? [config.band] : []);
+    
+    bandsToDraw.forEach((band) => {
+      drawBand(ctx, band.lower, band.upper, {
+        width: plotWidth,
+        height: plotHeight,
+        left: padding.left,
+        top: padding.top,
+        minY,
+        maxY,
+        fill: band.fillStyle
+      });
     });
-  }
 
   if (config.gapBand) {
     drawGapBand(ctx, config.gapBand.lower, config.gapBand.upper, {
