@@ -687,11 +687,11 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
   const boxWidth = width - 48;
   const boxBottomMargin = 0;
 
-  const rowHeight = 30;
-  const rowGap = 8;
-  const itemGap = 32;
+  const rowHeight = 34;
+  const rowGap = 12;
+  const itemGap = 40;
   const markerSize = 20;
-  const markerTextGap = 10;
+  const markerTextGap = 14;
 
   const layoutHeightRaw =
     rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
@@ -1535,9 +1535,9 @@ function drawGrid(ctx, width, height, padding, minY, maxY, yFormatter) {
 
 function measureLegend(ctx, lines, width) {
   const markerSize = 20;
-  const markerTextGap = 10;
-  const itemGap = 32;
-  const rowGap = 8;
+  const markerTextGap = 14;
+  const itemGap = 40;
+  const rowGap = 12;
   const maxRowWidth = Math.max(200, width - 48);
 
   ctx.font = '13px Inter, system-ui, sans-serif';
@@ -1572,12 +1572,11 @@ function measureLegend(ctx, lines, width) {
 
   if (row.length) rows.push(row);
 
-  const rowHeight = 30;
+  const rowHeight = 34;
   const heightNeededRaw =
     rows.length * rowHeight + (rows.length - 1) * rowGap + 8;
 
   const MIN_LEGEND_HEIGHT = 75;
-
   const heightNeeded = Math.max(heightNeededRaw, MIN_LEGEND_HEIGHT);
 
   return {
