@@ -333,6 +333,7 @@ function drawLineChart(canvas, config) {
 
   canvas.__chartHoverState = state;
   canvas.__chartConfig = config;
+  canvas.__legendHitboxes = [];
 
   if (!state.listenersBound) {
     canvas.addEventListener('mousemove', (event) => {
@@ -446,7 +447,7 @@ function drawLineChart(canvas, config) {
 
   const legendLayout = measureLegend(ctx, legendItems, width);
   const legendHeight = isInvestmentProjectionLegend
-    ? Math.max(legendLayout.height, 98)
+    ? 64
     : legendLayout.height;
 
   const padding = {
@@ -507,7 +508,6 @@ function drawLineChart(canvas, config) {
   }
 
   const minY = 0;
-
   let maxDataValue;
 
   if (config.bands?.length) {
@@ -527,10 +527,10 @@ function drawLineChart(canvas, config) {
     const overlayMax = overlayValues.length ? Math.max(...overlayValues) : 0;
 
     const referenceMax = Math.max(innerBandMax, lineMax, overlayMax, 1);
-    const outerCap = outerBandMax > 0 ? outerBandMax * 1.03 : referenceMax * 1.1;
+    const outerCap = outerBandMax > 0 ? outerBandMax * 1.08 : referenceMax * 1.15;
 
     maxDataValue = Math.min(
-      Math.max(referenceMax * 1.12, 1),
+      Math.max(referenceMax * 1.15, 1),
       Math.max(outerCap, 1)
     );
   } else {
@@ -644,32 +644,38 @@ function drawLineChart(canvas, config) {
     });
   }
 
+  drawXAxis(ctx, config.labels, width, height, padding);
+
+  if (isInvestmentProjectionLegend) {
+    drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems);
+  } else {
+    drawLegend(ctx, width, height, legendLayout);
+  }
+
   const hoverPayload = state.isHovering
-    ? getHoverPayload(config, state, {
-        width: plotWidth,
-        height: plotHeight,
-        left: padding.left,
-        top: padding.top,
-        minY,
-        maxY
-      })
+    ? (
+        getLegendHoverPayload(canvas, state) ||
+        getHoverPayload(config, state, {
+          width: plotWidth,
+          height: plotHeight,
+          left: padding.left,
+          top: padding.top,
+          minY,
+          maxY
+        })
+      )
     : null;
 
   if (hoverPayload) {
     drawHoverOverlay(ctx, hoverPayload, width, height, padding);
   }
-
-  drawXAxis(ctx, config.labels, width, height, padding);
-
-  if (isInvestmentProjectionLegend) {
-    drawInvestmentProjectionLegend(ctx, width, height, legendItems);
-  } else {
-    drawLegend(ctx, width, height, legendLayout);
-  }
 }
 
-function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
-  if (!Array.isArray(legendItems) || !legendItems.length) return;
+function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems) {
+  if (!Array.isArray(legendItems) || !legendItems.length) {
+    canvas.__legendHitboxes = [];
+    return;
+  }
 
   const wantedOrder = [
     'Base case',
@@ -682,15 +688,17 @@ function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
     .map((label) => legendItems.find((item) => item.label === label))
     .filter(Boolean);
 
-  if (!items.length) return;
+  if (!items.length) {
+    canvas.__legendHitboxes = [];
+    return;
+  }
 
   const panelPaddingX = 18;
-  const panelPaddingY = 16;
+  const panelPaddingY = 14;
   const columnGap = 28;
-  const rowGap = 16;
+  const rowGap = 14;
   const markerSize = 12;
   const markerTextGap = 10;
-  const descriptionGap = 4;
 
   const panelWidth = Math.min(width - 48, 620);
   const panelX = Math.round((width - panelWidth) / 2);
@@ -698,8 +706,14 @@ function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
   const columnWidth = Math.floor((panelWidth - panelPaddingX * 2 - columnGap) / 2);
 
   const rows = [
-    [items.find((item) => item.label === 'Base case'), items.find((item) => item.label === 'Typical outcome')],
-    [items.find((item) => item.label === 'Likely range'), items.find((item) => item.label === 'Full range of outcomes')]
+    [
+      items.find((item) => item.label === 'Base case'),
+      items.find((item) => item.label === 'Typical outcome')
+    ],
+    [
+      items.find((item) => item.label === 'Likely range'),
+      items.find((item) => item.label === 'Full range of outcomes')
+    ]
   ].filter((row) => row.some(Boolean));
 
   ctx.save();
@@ -707,72 +721,12 @@ function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
   ctx.textBaseline = 'top';
 
   const titleFont = '600 13px Inter, system-ui, sans-serif';
-  const bodyFont = '12px Inter, system-ui, sans-serif';
+  const titleLineHeight = 16;
 
-  function wrapText(text, maxWidth, font) {
-    if (!text) return [];
-    ctx.font = font;
-
-    const words = String(text).split(/\s+/).filter(Boolean);
-    const lines = [];
-    let current = '';
-
-    words.forEach((word) => {
-      const test = current ? `${current} ${word}` : word;
-      const testWidth = ctx.measureText(test).width;
-
-      if (testWidth <= maxWidth || !current) {
-        current = test;
-      } else {
-        lines.push(current);
-        current = word;
-      }
-    });
-
-    if (current) lines.push(current);
-    return lines;
-  }
-
-  const preparedRows = rows.map((row) => {
-    const preparedCols = row.map((item) => {
-      if (!item) return null;
-
-      const textWidth = columnWidth - markerSize - markerTextGap;
-
-      const titleLines = wrapText(item.label, textWidth, titleFont);
-      const descLines = wrapText(item.description || '', textWidth, bodyFont);
-
-      const titleLineHeight = 16;
-      const descLineHeight = 15;
-
-      const contentHeight =
-        (titleLines.length * titleLineHeight) +
-        (descLines.length ? descriptionGap + descLines.length * descLineHeight : 0);
-
-      return {
-        item,
-        titleLines,
-        descLines,
-        titleLineHeight,
-        descLineHeight,
-        contentHeight
-      };
-    });
-
-    const rowHeight = Math.max(
-      ...preparedCols.map((col) => (col ? Math.max(col.contentHeight, markerSize) : 0)),
-      markerSize
-    );
-
-    return {
-      cols: preparedCols,
-      rowHeight
-    };
-  });
-
+  const rowHeight = Math.max(markerSize, titleLineHeight);
   const contentHeight =
-    preparedRows.reduce((sum, row) => sum + row.rowHeight, 0) +
-    rowGap * Math.max(0, preparedRows.length - 1);
+    rows.length * rowHeight +
+    Math.max(0, rows.length - 1) * rowGap;
 
   const panelHeight = panelPaddingY * 2 + contentHeight;
   const panelY = height - panelHeight - 18;
@@ -784,24 +738,25 @@ function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
   ctx.lineWidth = 1;
   ctx.stroke();
 
+  const hitboxes = [];
   let currentY = panelY + panelPaddingY;
 
-  preparedRows.forEach((row) => {
-    row.cols.forEach((col, colIndex) => {
-      if (!col) return;
+  rows.forEach((row) => {
+    row.forEach((item, colIndex) => {
+      if (!item) return;
 
       const x = panelX + panelPaddingX + (colIndex * (columnWidth + columnGap));
       const markerX = x;
       const markerY = currentY + 1;
       const textX = x + markerSize + markerTextGap;
 
-      if (col.item.markerType === 'line') {
+      if (item.markerType === 'line') {
         const lineY = markerY + markerSize / 2;
 
         ctx.save();
-        ctx.strokeStyle = col.item.color;
-        ctx.lineWidth = col.item.width || 2.5;
-        ctx.setLineDash(col.item.dash || []);
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = item.width || 2.5;
+        ctx.setLineDash(item.dash || []);
         ctx.beginPath();
         ctx.moveTo(markerX, lineY);
         ctx.lineTo(markerX + markerSize + 6, lineY);
@@ -809,38 +764,58 @@ function drawInvestmentProjectionLegend(ctx, width, height, legendItems) {
         ctx.restore();
       } else {
         ctx.save();
-        ctx.fillStyle = col.item.fillColor || col.item.color || '#2d5bff';
+        ctx.fillStyle = item.fillColor || item.color || '#2d5bff';
         ctx.fillRect(markerX, markerY, markerSize, markerSize);
-        ctx.strokeStyle = col.item.color || '#2d5bff';
+        ctx.strokeStyle = item.color || '#2d5bff';
         ctx.lineWidth = 1.5;
         ctx.strokeRect(markerX, markerY, markerSize, markerSize);
         ctx.restore();
       }
 
-      let textY = currentY;
-
       ctx.font = titleFont;
       ctx.fillStyle = '#334155';
-      col.titleLines.forEach((line) => {
-        ctx.fillText(line, textX, textY);
-        textY += col.titleLineHeight;
-      });
+      ctx.fillText(item.label, textX, currentY);
 
-      if (col.descLines.length) {
-        textY += descriptionGap;
-        ctx.font = bodyFont;
-        ctx.fillStyle = '#94a3b8';
-        col.descLines.forEach((line) => {
-          ctx.fillText(line, textX, textY);
-          textY += col.descLineHeight;
-        });
-      }
+      hitboxes.push({
+        x,
+        y: currentY - 4,
+        width: columnWidth,
+        height: rowHeight + 8,
+        title: item.label,
+        lines: item.description ? [item.description] : [],
+        swatchColor: item.fillColor || item.color,
+        swatchBorderColor: item.color
+      });
     });
 
-    currentY += row.rowHeight + rowGap;
+    currentY += rowHeight + rowGap;
   });
 
+  canvas.__legendHitboxes = hitboxes;
   ctx.restore();
+}
+
+function getLegendHoverPayload(canvas, state) {
+  const hitboxes = canvas.__legendHitboxes || [];
+  if (!hitboxes.length || state.hoverX == null || state.hoverY == null) return null;
+
+  const hit = hitboxes.find((box) =>
+    state.hoverX >= box.x &&
+    state.hoverX <= box.x + box.width &&
+    state.hoverY >= box.y &&
+    state.hoverY <= box.y + box.height
+  );
+
+  if (!hit) return null;
+
+  return {
+    x: hit.x + hit.width / 2,
+    y: hit.y,
+    title: hit.title,
+    lines: hit.lines || [],
+    swatchColor: hit.swatchColor,
+    swatchBorderColor: hit.swatchBorderColor
+  };
 }
 
 function drawOverlayLineLabel(ctx, line, geom) {
