@@ -450,11 +450,11 @@ function drawLineChart(canvas, config) {
   const padding = {
     top: 20,
     right: 20,
-    bottom: 12 + legendHeight,   // was 72 — this is your gap
+    bottom: 72 + legendHeight,   // was 72 — this is your gap
     left: 96
   };
 
- const height = padding.top + padding.bottom + 180;
+ const height = padding.top + padding.bottom + 90;  // was 180 — this is your gap
     
   canvas.width = width * dpr;
   canvas.height = height * dpr;
