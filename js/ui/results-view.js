@@ -617,9 +617,12 @@ function renderTopRowCardValues({
   // Panel 2: Expected outcome (median path)
   if (elements.summaryMedianEnd) {
     const expectedValue = Number(
-      medianProfile?.endValue ??
-      getSelectedPathEndValue(activePath, getPathRows(activePath), useReal)
-    );
+    getSelectedPathEndValue(
+      resolveBehaviourPath(result, 'median'),
+      getPathRows(resolveBehaviourPath(result, 'median')),
+      useReal
+    )
+  );
 
     setText(
       elements.summaryMedianEnd,
