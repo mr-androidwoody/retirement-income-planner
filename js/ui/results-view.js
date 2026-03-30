@@ -790,19 +790,10 @@ export function renderResultsView({
       downsideProfile: buildPathBehaviourProfile(result, downsidePath, true)
     };
 
-  if (tableMode !== 'performance') {
-    renderResultsContextAndPathSummary({
-      result,
-      elements,
-      tableView,
-      activePath,
-      useReal,
-      formatters,
-      profiles
-    });
-  } else if (elements.resultsContextBar) {
-    elements.resultsContextBar.innerHTML = '';
-  }
+    if (elements.resultsContextBar) {
+      elements.resultsContextBar.innerHTML = '';
+      elements.resultsContextBar.classList.add('hidden');
+    }
 
   renderTableModeSelector(elements, tableMode);
   renderResultsTableTitle(result);
