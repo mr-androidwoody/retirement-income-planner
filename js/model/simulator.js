@@ -300,9 +300,11 @@ function runMonteCarlo(inputs) {
         },
         correlations: DEFAULT_CORRELATIONS,
         inflationMean: inputs.inflation,
-        inflationVolatility: ?? 0.0175,
+        inflationVolatility:
+          inputs.inflationVolatility !== undefined
+            ? inputs.inflationVolatility
+            : 0.0175,
         minInflation: -0.02
-      });
 
       annualReturns.equities.push(sampled.equities);
       annualReturns.bonds.push(sampled.bonds);
