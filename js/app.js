@@ -315,7 +315,7 @@ function initialise() {
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
-    els.summarySuccessRateLabel.textContent = 'Plan success rate';
+    els.summarySuccessRateLabel.textContent = 'Success rate';
   }
 
   if (els.summarySuccessRate) {
@@ -324,11 +324,11 @@ function resetResultsHeader() {
 
   if (els.summarySuccessRateDesc) {
     els.summarySuccessRateDesc.textContent =
-      'Share of simulated paths that avoid depletion across the full plan.';
+      'How often the plan is sustained across simulated outcomes.';
   }
 
   if (els.summaryMedianEndLabel) {
-    els.summaryMedianEndLabel.textContent = 'Median end portfolio';
+    els.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
   }
 
   if (els.summaryMedianEnd) {
@@ -337,11 +337,11 @@ function resetResultsHeader() {
 
   if (els.summaryMedianEndDesc) {
     els.summaryMedianEndDesc.textContent =
-      'Middle simulated outcome at the end of the retirement horizon.';
+      'Representative ending portfolio value for the median path.';
   }
 
   if (els.summaryWorstStressLabel) {
-    els.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+    els.summaryWorstStressLabel.textContent = 'Worst observed outcome';
   }
 
   if (els.summaryWorstStress) {
@@ -350,11 +350,11 @@ function resetResultsHeader() {
 
   if (els.summaryWorstStressDesc) {
     els.summaryWorstStressDesc.textContent =
-      'Lowest ending portfolio across the deterministic stress paths.';
+      'Lowest ending portfolio across the observed stress scenarios.';
   }
 
   if (els.summaryCashRunwayLabel) {
-    els.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+    els.summaryCashRunwayLabel.textContent = 'First below comfort (median)';
   }
 
   if (els.summaryCashRunway) {
@@ -363,19 +363,19 @@ function resetResultsHeader() {
 
   if (els.summaryCashRunwayDesc) {
     els.summaryCashRunwayDesc.textContent =
-      'Years the opening cashlike bucket could fund net withdrawals before refill.';
+      'First year the median path falls below the comfort spending level.';
   }
 
   if (els.summarySuccessRateCard) {
-  els.summarySuccessRateCard.classList.remove(
-    'summary-card--green',
-    'summary-card--amber',
-    'summary-card--red',
-    'is-strong',
-    'is-weak',
-    'is-watch'
-  );
-}
+    els.summarySuccessRateCard.classList.remove(
+      'summary-card--green',
+      'summary-card--amber',
+      'summary-card--red',
+      'is-strong',
+      'is-weak',
+      'is-watch'
+    );
+  }
 }
 
 function setupWorker() {
