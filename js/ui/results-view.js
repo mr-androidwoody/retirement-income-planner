@@ -1378,120 +1378,6 @@ function getPlanWarningsData(result, useReal, formatters, activePath) {
   };
 }
 
-function resolvePlanOutlookPrimaryState(result, activePath) {
-  const mode = String(result?.mode ?? '').toLowerCase();
-  const isHistorical = mode === 'historical';
-
-  const depleted = Boolean(
-    result?.summary?.depleted ??
-    result?.depleted ??
-    activePath?.depleted
-  );
-
-  const depletionYearRaw =
-    result?.summary?.depletionYear ??
-    result?.depletedYear ??
-    activePath?.depletionYear ??
-    null;
-
-  const depletionYear = Number.isFinite(Number(depletionYearRaw))
-    ? Number(depletionYearRaw)
-    : null;
-
-  if (depleted) {
-    return {
-      ...PLAN_OUTLOOK_STATES.DEPLETED,
-      resolvedTitle: PLAN_OUTLOOK_STATES.DEPLETED.title(depletionYear),
-      resolvedBody: PLAN_OUTLOOK_STATES.DEPLETED.body,
-      depletionYear
-    };
-  }
-
-// HISTORICAL MODE — evaluate based on end value vs starting portfolio
-if (isHistorical) {
-  const startingPortfolio =
-    Number(result?.inputs?.startingPortfolio ??
-           result?.inputs?.initialPortfolio ?? 0);
-
-  const endValue = Number(
-    getSelectedPathEndValue(activePath, activePath?.yearlyRows || [], true)
-  );
-
-  if (startingPortfolio > 0 && Number.isFinite(endValue)) {
-    const ratio = endValue / startingPortfolio;
-    const retainedPct = Math.round(ratio * 100);
-
-    if (ratio < 0.5) {
-      return {
-        ...PLAN_OUTLOOK_STATES.WEAK,
-        resolvedTitle: 'Weak — capital materially eroded',
-        resolvedBody:
-          `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 50% threshold and under pressure.`
-      };
-    }
-
-    if (ratio < 0.75) {
-      return {
-        ...PLAN_OUTLOOK_STATES.WATCH,
-        resolvedTitle: 'Watch — capital cushion reduced',
-        resolvedBody:
-          `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, below the 75% threshold and leaving a reduced cushion.`
-      };
-    }
-
-    return {
-      ...PLAN_OUTLOOK_STATES.STRONG,
-      resolvedTitle: 'Strong — capital broadly preserved',
-      resolvedBody:
-        `The plan finishes with ${retainedPct}% of the starting portfolio in real terms, preserving a healthy cushion.`
-    };
-  }
-
-  return {
-    ...PLAN_OUTLOOK_STATES.STRONG,
-    resolvedTitle: 'Strong — capital broadly preserved',
-    resolvedBody:
-      'The plan finishes with at least 75% of the starting portfolio in real terms.'
-  };
-}
-    
-  const successRate = Number(result?.monteCarlo?.successRate ?? 0);
-  const successPct = Number.isFinite(successRate)
-    ? Math.round(successRate * 100)
-    : null;
-
-  if (successRate < 0.7) {
-    return {
-      ...PLAN_OUTLOOK_STATES.WEAK,
-      resolvedTitle: 'Weak — low success rate',
-      resolvedBody:
-        successPct === null
-          ? 'The plan fails too often across simulated outcomes.'
-          : `The plan succeeds in ${successPct}% of simulated outcomes, which is too low and leaves the plan under pressure.`
-    };
-  }
-
-  if (successRate < 0.9) {
-    return {
-      ...PLAN_OUTLOOK_STATES.WATCH,
-      resolvedTitle: 'Watch — moderate success rate',
-      resolvedBody:
-        successPct === null
-          ? 'The plan is sensitive to weaker simulated return paths.'
-          : `The plan succeeds in ${successPct}% of simulated outcomes, leaving it sensitive to weaker return paths.`
-    };
-  }
-
-  return {
-    ...PLAN_OUTLOOK_STATES.STRONG,
-    resolvedTitle: 'Strong — high success rate',
-    resolvedBody:
-      successPct === null
-        ? 'The plan lasts in most simulated outcomes.'
-        : `The plan succeeds in ${successPct}% of simulated outcomes, indicating a strong level of resilience.`
-  };
-}
-
 function resolvePlanOutlookContextNote(result) {
   const mode = String(result?.mode ?? '').toLowerCase();
 
@@ -1641,22 +1527,13 @@ function renderResultsContextAndPathSummary({
     activeProfile
   });
 
-  const warnings = getPlanWarningsData(result, useReal, formatters, activePath);
-  const warningGroups = [];
-
-  if (warnings.inputWarnings.length) {
-    warningGroups.push({
-      ...PLAN_OUTLOOK_WARNINGS.INPUT,
-      items: warnings.inputWarnings
-    });
-  }
-
-  if (warnings.modelWarnings.length) {
-    warningGroups.push({
-      ...PLAN_OUTLOOK_WARNINGS.MODEL,
-      items: warnings.modelWarnings
-    });
-  }
+  const warningGroups = resolvePlanOutlookWarningGroups({
+    result,
+    activePath,
+    useReal,
+    formatters,
+    suppressWarnings: false
+  });
 
   const contextNote = mode === 'historical'
     ? PLAN_OUTLOOK_CONTEXT.HISTORICAL_NOTE
