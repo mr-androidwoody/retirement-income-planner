@@ -716,26 +716,24 @@ function renderTopRowCardValues({
   }
 
   if (elements.summaryCashRunwayDesc) {
-  const firstBelowComfortYear = medianProfile?.firstBelowComfortYear;
+    const firstBelowComfortYear = medianProfile?.firstBelowComfortYear;
 
-  if (firstBelowComfortYear == null) {
-    // Strong
-    setText(
-      elements.summaryCashRunwayDesc,
-      'Comfort spending maintained throughout.'
-    );
-  } else if (firstBelowComfortYear <= 5) {
-    // Early pressure (optional severity layer)
-    setText(
-      elements.summaryCashRunwayDesc,
-      `Spending pressure begins early (Year ${firstBelowComfortYear}).`
-    );
-  } else {
-    // Normal pressure
-    setText(
-      elements.summaryCashRunwayDesc,
-      `Falls below comfort in Year ${firstBelowComfortYear}.`
-    );
+    if (firstBelowComfortYear == null) {
+      setText(
+        elements.summaryCashRunwayDesc,
+        'Comfort spending maintained throughout.'
+      );
+    } else if (firstBelowComfortYear <= 5) {
+      setText(
+        elements.summaryCashRunwayDesc,
+        `Spending pressure begins early (Year ${firstBelowComfortYear}).`
+      );
+    } else {
+      setText(
+        elements.summaryCashRunwayDesc,
+        `Falls below comfort in Year ${firstBelowComfortYear}.`
+      );
+    }
   }
 }
 
