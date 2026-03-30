@@ -298,12 +298,9 @@ function runMonteCarlo(inputs) {
           bonds: inputs.bondVolatility,
           cashlike: inputs.cashlikeVolatility
         },
-        correlations: DEFAULT_CORRELATIONS,
+      correlations: DEFAULT_CORRELATIONS,
         inflationMean: inputs.inflation,
-        inflationVolatility:
-          inputs.inflationVolatility !== undefined
-            ? inputs.inflationVolatility
-            : 0.0175,
+        inflationVolatility: 0,
         minInflation: -0.02
         });
 
