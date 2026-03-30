@@ -73,6 +73,8 @@ export async function runSimulationByMode({ mode, inputs }) {
           label: 'P10 (downside)',
           rows: mcPaths.p10.rows,
           yearlyRows: mcPaths.p10.rows,
+          pathNominal: mcPaths.p10.pathNominal,
+          pathReal: mcPaths.p10.pathReal,
           terminalNominal: mcPaths.p10.pathNominal.at(-1),
           terminalReal: mcPaths.p10.pathReal.at(-1)
         }
@@ -84,6 +86,8 @@ export async function runSimulationByMode({ mode, inputs }) {
           label: 'Median',
           rows: mcPaths.p50.rows,
           yearlyRows: mcPaths.p50.rows,
+          pathNominal: mcPaths.p50.pathNominal,
+          pathReal: mcPaths.p50.pathReal,
           terminalNominal: mcPaths.p50.pathNominal.at(-1),
           terminalReal: mcPaths.p50.pathReal.at(-1)
         }
@@ -95,6 +99,8 @@ export async function runSimulationByMode({ mode, inputs }) {
           label: 'P90 (upside)',
           rows: mcPaths.p90.rows,
           yearlyRows: mcPaths.p90.rows,
+          pathNominal: mcPaths.p90.pathNominal,
+          pathReal: mcPaths.p90.pathReal,
           terminalNominal: mcPaths.p90.pathNominal.at(-1),
           terminalReal: mcPaths.p90.pathReal.at(-1)
         }
