@@ -382,28 +382,33 @@ function buildPathBehaviourProfile(result, path, useReal = true) {
   rows.forEach((row, index) => {
     const planYear = getRowPlanYear(row, index);
     const inflationIndex = Number(row?.inflationIndex ?? 1);
-
-    const actualNominal = Number(row?.spendingNominal ?? 0);
     const cutPct = Number(row?.spendingCutPercent ?? 0);
 
-    const comfortFloorNominalForYear = comfortFloor * inflationIndex;
-    const minimumFloorNominalForYear = minimumFloor * inflationIndex;
+    const actualSpending = getRowActualSpending(row, useReal);
+
+    const comfortFloorForYear = useReal
+      ? comfortFloor
+      : comfortFloor * inflationIndex;
+
+    const minimumFloorForYear = useReal
+      ? minimumFloor
+      : minimumFloor * inflationIndex;
 
     if (cutPct > 0 && firstAdjustmentYear === null) {
       firstAdjustmentYear = planYear;
     }
 
     if (
-      comfortFloorNominalForYear > 0 &&
-      actualNominal < comfortFloorNominalForYear &&
+      comfortFloorForYear > 0 &&
+      actualSpending < comfortFloorForYear &&
       firstBelowComfortYear === null
     ) {
       firstBelowComfortYear = planYear;
     }
 
     if (
-      minimumFloorNominalForYear > 0 &&
-      actualNominal < minimumFloorNominalForYear
+      minimumFloorForYear > 0 &&
+      actualSpending < minimumFloorForYear
     ) {
       yearsBelowMinimum += 1;
 
@@ -411,10 +416,10 @@ function buildPathBehaviourProfile(result, path, useReal = true) {
         firstBelowMinimumYear = planYear;
       }
 
-      const gapNominal = minimumFloorNominalForYear - actualNominal;
+      const gap = minimumFloorForYear - actualSpending;
 
-      if (gapNominal > worstShortfallAmount) {
-        worstShortfallAmount = gapNominal;
+      if (gap > worstShortfallAmount) {
+        worstShortfallAmount = gap;
         worstShortfallYear = planYear;
       }
     }
