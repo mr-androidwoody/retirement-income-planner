@@ -360,7 +360,7 @@ function resetResultsHeader() {
   }
 
   if (els.summaryCashRunwayLabel) {
-    els.summaryCashRunwayLabel.textContent = 'First below comfort (median)';
+    els.summaryCashRunwayLabel.textContent = 'Spending shortfall risk';
   }
 
   if (els.summaryCashRunway) {
@@ -369,8 +369,8 @@ function resetResultsHeader() {
 
   if (els.summaryCashRunwayDesc) {
     els.summaryCashRunwayDesc.textContent =
-      'Comfort spending maintained throughout.';
-  }
+      'Shows whether weaker outcomes fall below the minimum spending level.';
+}
 
   if (els.summarySuccessRateCard) {
     els.summarySuccessRateCard.classList.remove(
