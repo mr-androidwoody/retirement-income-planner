@@ -300,7 +300,7 @@ function runMonteCarlo(inputs) {
         },
         correlations: DEFAULT_CORRELATIONS,
         inflationMean: inputs.inflation,
-        inflationVolatility: 0,
+        inflationVolatility: ?? 0.0175,
         minInflation: -0.02
       });
 
