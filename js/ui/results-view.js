@@ -620,6 +620,28 @@ function renderTopRowCardValues({
     );
   }
 
+  if (elements.summaryMedianEndDesc) {
+    const medianDepleted = Boolean(medianProfile?.depleted);
+    const endPctVsStart = Number(medianProfile?.endValuePctVsStart);
+
+    if (medianDepleted) {
+      setText(
+        elements.summaryMedianEndDesc,
+        'Funds spending until depletion.'
+      );
+    } else if (Number.isFinite(endPctVsStart) && endPctVsStart <= 0.1) {
+      setText(
+        elements.summaryMedianEndDesc,
+        'Funds spending, ending close to zero.'
+      );
+    } else {
+      setText(
+        elements.summaryMedianEndDesc,
+        'After funding your planned spending throughout.'
+      );
+    }
+  }
+
   // Panel 3: Worst observed outcome
   if (elements.summaryWorstStress) {
     if (isHistorical) {
@@ -649,25 +671,39 @@ function renderTopRowCardValues({
     }
   }
 
-  if (elements.summaryWorstStressDesc) {
-    if (isHistorical) {
-      const minimumWealth = Number(result?.summary?.minimumWealth);
-
-      setText(
-        elements.summaryWorstStressDesc,
-        `Lowest portfolio value reached during this historical scenario: ${
-          Number.isFinite(minimumWealth) ? formatCurrency(minimumWealth) : '—'
-        }.`
-      );
-    } else if (hasStressSummary) {
-      setText(
-        elements.summaryWorstStressDesc,
-        'Lowest ending portfolio across the observed stress scenarios.'
-      );
-    } else {
-      setText(elements.summaryWorstStressDesc, '');
+    if (elements.summaryWorstStressDesc) {
+      let worstValue = null;
+    
+      if (isHistorical) {
+        worstValue = Number(result?.summary?.minimumWealth);
+      } else if (hasStressSummary) {
+        worstValue = Number(
+          useReal
+            ? result?.summary?.worstStressTerminalReal
+            : result?.summary?.worstStressTerminalNominal
+        );
+      }
+    
+      if (Number.isFinite(worstValue) && worstValue <= 0) {
+        // Full depletion
+        setText(
+          elements.summaryWorstStressDesc,
+          'Portfolio fully depleted in worst cases.'
+        );
+      } else if (Number.isFinite(worstValue) && worstValue < (result?.inputs?.startingPortfolio || 0) * 0.5) {
+        // Significant loss (e.g. >50% drawdown)
+        setText(
+          elements.summaryWorstStressDesc,
+          'Large losses in worst cases.'
+        );
+      } else {
+        // No severe downside
+        setText(
+          elements.summaryWorstStressDesc,
+          'No severe downside observed.'
+        );
+      }
     }
-  }
 
   // Panel 4: First below comfort (median)
   if (elements.summaryCashRunway) {
@@ -680,11 +716,25 @@ function renderTopRowCardValues({
   }
 
   if (elements.summaryCashRunwayDesc) {
+  const firstBelowComfortYear = medianProfile?.firstBelowComfortYear;
+
+  if (firstBelowComfortYear == null) {
+    // Strong
     setText(
       elements.summaryCashRunwayDesc,
-      isHistorical
-        ? 'First year this historical path falls below the comfort spending level.'
-        : 'First year the median path falls below the comfort spending level.'
+      'Comfort spending maintained throughout.'
+    );
+  } else if (firstBelowComfortYear <= 5) {
+    // Early pressure (optional severity layer)
+    setText(
+      elements.summaryCashRunwayDesc,
+      `Spending pressure begins early (Year ${firstBelowComfortYear}).`
+    );
+  } else {
+    // Normal pressure
+    setText(
+      elements.summaryCashRunwayDesc,
+      `Falls below comfort in Year ${firstBelowComfortYear}.`
     );
   }
 }

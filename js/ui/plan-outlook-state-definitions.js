@@ -6,10 +6,9 @@ export const PLAN_OUTLOOK_STATES = {
     tone: 'red',
     style: 'critical',
     icon: 'alert-circle-filled',
-    title: (year) =>
-      `Portfolio depleted${year ? ` in Year ${year}` : ''}`,
-    body:
-      'After depletion, spending is limited to guaranteed income only.'
+    title: 'Plan reliability',
+    body: (year) =>
+      `Fails. Portfolio depleted${year ? ` in Year ${year}` : ''}.`
   },
 
   STRONG: {
@@ -17,8 +16,8 @@ export const PLAN_OUTLOOK_STATES = {
     tone: 'green',
     style: 'positive',
     icon: 'check',
-    title: 'Strong',
-    body: 'The plan is on track.'
+    title: 'Plan reliability',
+    body: 'Low failure risk. Spending maintained.'
   },
 
   WATCH: {
@@ -26,8 +25,8 @@ export const PLAN_OUTLOOK_STATES = {
     tone: 'amber',
     style: 'warning',
     icon: 'alert',
-    title: 'Watch',
-    body: 'The plan is sensitive to conditions.'
+    title: 'Plan reliability',
+    body: 'At risk in weaker outcomes.'
   },
 
   WEAK: {
@@ -35,8 +34,8 @@ export const PLAN_OUTLOOK_STATES = {
     tone: 'red',
     style: 'negative',
     icon: 'alert',
-    title: 'Weak',
-    body: 'The plan is under pressure.'
+    title: 'Plan reliability',
+    body: 'Fails frequently. Cuts or shortfalls likely.'
   }
 };
 
