@@ -1540,7 +1540,7 @@ function renderResultsContextAndPathSummary({
     : null;
 
   const detailMetricsHtml = `
-    <div class="results-context-metrics-grid">
+    <div class="results-context-metrics">
       <div class="results-context-metric">
         <div class="results-context-metric-label">
           ${renderMetricHeading(
