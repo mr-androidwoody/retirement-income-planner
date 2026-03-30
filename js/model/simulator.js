@@ -33,6 +33,7 @@ export const DEFAULT_INPUTS = {
   cashlikeVolatility: 1,
   annualFeeRate: 0.27,
   inflation: 2.7,
+  inflationVolatility: 1.75,
 
   person1Name: 'Person 1',
   person1Age: 50,
@@ -220,7 +221,8 @@ export function normaliseInputs(rawInputs = {}) {
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
     annualFeeRate: toNumber(merged.annualFeeRate) / 100,
     inflation: toRate(merged.inflation),
-
+    inflationVolatility: toRate(merged.inflationVolatility),
+      
     person1Name:
       String(merged.person1Name ?? DEFAULT_INPUTS.person1Name).trim() ||
       DEFAULT_INPUTS.person1Name,
@@ -300,7 +302,7 @@ function runMonteCarlo(inputs) {
         },
         correlations: DEFAULT_CORRELATIONS,
         inflationMean: inputs.inflation,
-        inflationVolatility: 0,
+        inflationVolatility: inputs.inflationVolatility,
         minInflation: -0.02
       });
 
@@ -520,6 +522,8 @@ export function simulatePath(inputs, annualReturns) {
       year,
       age1: inputs.person1Age + yearIndex,
       age2: inputs.person2Age + yearIndex,
+
+      inflationIndex: nextInflationIndex,
 
       startPortfolioNominal,
       startPortfolioReal,
