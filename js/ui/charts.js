@@ -111,7 +111,7 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
     });
   }
 
-   const showMedian = tableView !== 'base';
+   const showMedian = tableView !== 'median';
 
       const chartConfig = {
         labels,
