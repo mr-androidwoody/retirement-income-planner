@@ -490,7 +490,7 @@ export function simulatePath(inputs, annualReturns) {
       bonds: bondReturn - annualFeeRate,
       cashlike: cashReturn
     });
-    
+
     const realisedReturn = weightedAverageReturn({
       allocations,
       returns: {
@@ -504,10 +504,8 @@ export function simulatePath(inputs, annualReturns) {
       buckets = rebalanceBuckets(buckets, allocations);
     }
 
-    inflationIndex = nextInflationIndex;
-
     const endPortfolioNominal = totalPortfolio(buckets);
-    const endPortfolioReal = endPortfolioNominal / inflationIndex;
+    const endPortfolioReal = endPortfolioNominal / nextInflationIndex;
 
     const targetSpendingReal = targetSpendingNominal / inflationIndex;
     const actualSpendingReal = actualSpendingNominal / inflationIndex;
@@ -544,7 +542,7 @@ export function simulatePath(inputs, annualReturns) {
       windfallReal,
 
       requestedWithdrawalNominal,
-      requestedWithdrawalReal: requestedWithdrawalNominal / inflationIndex,
+      requestedWithdrawalReal: requestedWithdrawalNominal / nextInflationIndex,
 
       withdrawalNominal: actualWithdrawalNominal,
       withdrawalReal,
@@ -629,9 +627,10 @@ export function simulatePath(inputs, annualReturns) {
         }
       }
     }
+
     targetSpendingNominal = Math.max(0, nextTargetSpendingNominal);
     spendingNominal = Math.max(0, nextPlannedSpendingNominal);
-
+    inflationIndex = nextInflationIndex;
     previousMarketReturn = realisedReturn;
   }
 
