@@ -474,7 +474,6 @@ function resolvePlanOutlookPrimaryState(result, profiles) {
 
   const medianProfile = profiles?.medianProfile || null;
   const downsideProfile = profiles?.downsideProfile || medianProfile || null;
-  const activeProfile = profiles?.activeProfile || medianProfile || null;
   const activeProfile = profiles?.activeProfile || medianProfile || downsideProfile || null;
 
   if (activeProfile?.depleted) {
@@ -571,7 +570,8 @@ function renderTopRowCardValues({
   const hasStressSummary = Boolean(result?.summary?.worstStressName);
 
   const medianProfile = profiles?.medianProfile || null;
-  const activeProfile = profiles?.activeProfile || medianProfile || null;
+  const downsideProfile = profiles?.downsideProfile || medianProfile || null;
+  const activeProfile = profiles?.activeProfile || medianProfile || downsideProfile || null;
 
   const setText = (el, value) => {
     if (el) el.textContent = value;
@@ -678,70 +678,107 @@ function renderTopRowCardValues({
     }
   }
 
-    if (elements.summaryWorstStressDesc) {
-      let worstValue = null;
-    
-      if (isHistorical) {
-        worstValue = Number(result?.summary?.minimumWealth);
-      } else if (hasStressSummary) {
-        worstValue = Number(
-          useReal
-            ? result?.summary?.worstStressTerminalReal
-            : result?.summary?.worstStressTerminalNominal
-        );
-      }
-    
-      if (Number.isFinite(worstValue) && worstValue <= 0) {
-        // Full depletion
-        setText(
-          elements.summaryWorstStressDesc,
-          'Portfolio fully depleted in worst cases.'
-        );
-      } else if (Number.isFinite(worstValue) && worstValue < (result?.inputs?.startingPortfolio || 0) * 0.5) {
-        // Significant loss (e.g. >50% drawdown)
-        setText(
-          elements.summaryWorstStressDesc,
-          'Large losses in worst cases.'
-        );
-      } else {
-        // No severe downside
-        setText(
-          elements.summaryWorstStressDesc,
-          'No severe downside observed.'
-        );
-      }
-    }
+  if (elements.summaryWorstStressDesc) {
+    let worstValue = null;
 
- // Panel 4: Spending shortfall risk (downside path)
-    if (elements.summaryCashRunway) {
-      const yearsBelowMinimum = Number(downsideProfile?.yearsBelowMinimum ?? 0);
-    
-      setText(
-        elements.summaryCashRunway,
-        yearsBelowMinimum <= 0 ? 'None' : `${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}`
+    if (isHistorical) {
+      worstValue = Number(result?.summary?.minimumWealth);
+    } else if (hasStressSummary) {
+      worstValue = Number(
+        useReal
+          ? result?.summary?.worstStressTerminalReal
+          : result?.summary?.worstStressTerminalNominal
       );
     }
-    
-    if (elements.summaryCashRunwayDesc) {
+
+    if (Number.isFinite(worstValue) && worstValue <= 0) {
+      setText(
+        elements.summaryWorstStressDesc,
+        'Portfolio fully depleted in worst cases.'
+      );
+    } else if (
+      Number.isFinite(worstValue) &&
+      worstValue < (result?.inputs?.startingPortfolio || 0) * 0.5
+    ) {
+      setText(
+        elements.summaryWorstStressDesc,
+        'Large losses in worst cases.'
+      );
+    } else {
+      setText(
+        elements.summaryWorstStressDesc,
+        'No severe downside observed.'
+      );
+    }
+  }
+
+  // Panel 4: Spending shortfall risk
+  if (elements.summaryCashRunway) {
+    if (isHistorical) {
+      const yearsBelowMinimum = Number(activeProfile?.yearsBelowMinimum ?? 0);
+
+      setText(
+        elements.summaryCashRunway,
+        yearsBelowMinimum <= 0
+          ? 'None'
+          : `${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}`
+      );
+    } else {
+      const yearsBelowMinimum = Number(downsideProfile?.yearsBelowMinimum ?? 0);
+
+      setText(
+        elements.summaryCashRunway,
+        yearsBelowMinimum <= 0
+          ? 'None'
+          : `${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}`
+      );
+    }
+  }
+
+  if (elements.summaryCashRunwayDesc) {
+    if (isHistorical) {
+      const yearsBelowMinimum = Number(activeProfile?.yearsBelowMinimum ?? 0);
+      const worstShortfallAmount = Number(activeProfile?.worstShortfallAmount ?? 0);
+
+      if (yearsBelowMinimum <= 0) {
+        setText(
+          elements.summaryCashRunwayDesc,
+          'This historical path stays above the minimum spending level throughout.'
+        );
+      } else {
+        const shortfallText =
+          Number.isFinite(worstShortfallAmount) && worstShortfallAmount > 0
+            ? ` Worst shortfall: ${formatCurrency(worstShortfallAmount)}.`
+            : '';
+
+        setText(
+          elements.summaryCashRunwayDesc,
+          `This historical path falls below the minimum spending level in ${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}.${shortfallText}`
+        );
+      }
+    } else {
       const yearsBelowMinimum = Number(downsideProfile?.yearsBelowMinimum ?? 0);
       const worstShortfallAmount = Number(downsideProfile?.worstShortfallAmount ?? 0);
-    
+
       if (yearsBelowMinimum <= 0) {
         setText(
           elements.summaryCashRunwayDesc,
           'In weaker outcomes, spending stays above the minimum level throughout.'
         );
       } else {
-        const shortfallText = Number.isFinite(worstShortfallAmount) && worstShortfallAmount > 0
-          ? ` Worst shortfall: ${formatCurrency(worstShortfallAmount)}.`
-          : '';
-    
+        const shortfallText =
+          Number.isFinite(worstShortfallAmount) && worstShortfallAmount > 0
+            ? ` Worst shortfall: ${formatCurrency(worstShortfallAmount)}.`
+            : '';
+
         setText(
           elements.summaryCashRunwayDesc,
           `In weaker outcomes, spending falls below the minimum level in ${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}.${shortfallText}`
         );
       }
     }
+  }
+}
 
 export function renderResultsView({
   result,
@@ -1746,16 +1783,15 @@ function renderSummaryCardLabels(elements, result, tableView) {
     if (elements.summaryCashRunwayLabel) {
       elements.summaryCashRunwayLabel.textContent = 'Spending shortfall risk';
     }
-    
+
     if (elements.summaryCashRunwayDesc) {
       elements.summaryCashRunwayDesc.textContent =
-        'Shows whether weaker outcomes fall below the minimum spending level.';
+        'Shows whether this historical path falls below the minimum spending level.';
     }
 
     return;
   }
 
-  // --- UPDATED BLOCK (only change in this function) ---
   if (elements.summarySuccessRateLabel) {
     elements.summarySuccessRateLabel.textContent = 'Plan reliability';
   }
@@ -1773,7 +1809,6 @@ function renderSummaryCardLabels(elements, result, tableView) {
         'Shows how often the plan sustains spending across simulated outcomes.';
     }
   }
-  // --- END UPDATED BLOCK ---
 
   if (elements.summaryMedianEndLabel) {
     elements.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
@@ -1794,12 +1829,12 @@ function renderSummaryCardLabels(elements, result, tableView) {
   }
 
   if (elements.summaryCashRunwayLabel) {
-    elements.summaryCashRunwayLabel.textContent = 'First below comfort (median)';
+    elements.summaryCashRunwayLabel.textContent = 'Spending shortfall risk';
   }
 
   if (elements.summaryCashRunwayDesc) {
     elements.summaryCashRunwayDesc.textContent =
-      'First year the median path falls below the comfort spending level.';
+      'Shows whether weaker outcomes fall below the minimum spending level.';
   }
 }
 
