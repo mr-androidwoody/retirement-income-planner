@@ -1749,23 +1749,25 @@ function renderSummaryCardLabels(elements, result, tableView) {
     return;
   }
 
+  // --- UPDATED BLOCK (only change in this function) ---
   if (elements.summarySuccessRateLabel) {
-    elements.summarySuccessRateLabel.textContent = 'Success rate';
+    elements.summarySuccessRateLabel.textContent = 'Plan reliability';
   }
 
   if (elements.summarySuccessRateDesc) {
-    const runs =
-      Number(result?.scenarioCount) ||
-      Number(result?.monteCarlo?.scenarioCount) ||
-      Number(result?.monteCarlo?.runs) ||
-      Number(result?.inputs?.simulations) ||
-      0;
+    const successRate = Number(result?.monteCarlo?.successRate);
 
-    elements.summarySuccessRateDesc.textContent =
-      runs > 0
-        ? `How often the plan is sustained across ${runs.toLocaleString()} simulated outcomes.`
-        : 'How often the plan is sustained across simulated outcomes.';
+    if (Number.isFinite(successRate)) {
+      const failureRate = Math.max(0, 1 - successRate);
+
+      elements.summarySuccessRateDesc.textContent =
+        `${formatPercent(failureRate)} of simulated outcomes do not sustain spending.`;
+    } else {
+      elements.summarySuccessRateDesc.textContent =
+        'Shows how often the plan sustains spending across simulated outcomes.';
+    }
   }
+  // --- END UPDATED BLOCK ---
 
   if (elements.summaryMedianEndLabel) {
     elements.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
