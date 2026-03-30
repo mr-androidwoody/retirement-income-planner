@@ -321,7 +321,7 @@ function initialise() {
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
-    els.summarySuccessRateLabel.textContent = 'Success rate';
+    els.summarySuccessRateLabel.textContent = 'Plan reliability';
   }
 
   if (els.summarySuccessRate) {
@@ -330,7 +330,7 @@ function resetResultsHeader() {
 
   if (els.summarySuccessRateDesc) {
     els.summarySuccessRateDesc.textContent =
-      'How often the plan is sustained across simulated outcomes.';
+      'Shows how often the plan sustains spending across simulated outcomes.';
   }
 
   if (els.summaryMedianEndLabel) {
