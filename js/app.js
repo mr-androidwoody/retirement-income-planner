@@ -337,7 +337,7 @@ function resetResultsHeader() {
 
   if (els.summaryMedianEndDesc) {
     els.summaryMedianEndDesc.textContent =
-      'Representative ending portfolio value for the median path.';
+      'After funding your planned spending throughout.';
   }
 
   if (els.summaryWorstStressLabel) {
@@ -350,7 +350,7 @@ function resetResultsHeader() {
 
   if (els.summaryWorstStressDesc) {
     els.summaryWorstStressDesc.textContent =
-      'Lowest ending portfolio across the observed stress scenarios.';
+      'Portfolio fully depleted in worst cases.';
   }
 
   if (els.summaryCashRunwayLabel) {
@@ -363,7 +363,7 @@ function resetResultsHeader() {
 
   if (els.summaryCashRunwayDesc) {
     els.summaryCashRunwayDesc.textContent =
-      'First year the median path falls below the comfort spending level.';
+      'Comfort spending maintained throughout.';
   }
 
   if (els.summarySuccessRateCard) {
