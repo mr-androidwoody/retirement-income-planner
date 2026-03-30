@@ -80,7 +80,14 @@ export async function runSimulationByMode({ mode, inputs }) {
         }
       : null;
     
-    const median = mcPaths?.p50
+    const median = result?.monteCarlo?.realPercentiles
+      ? {
+          key: 'monte-carlo-median',
+          label: 'Median',
+          rows: buildMedianRows(result, 'p50'),
+          yearlyRows: buildMedianRows(result, 'p50')
+        }
+      : selectedPath;
       ? {
           key: 'monte-carlo-median',
           label: 'Median',
@@ -136,8 +143,20 @@ return {
       }
     : null,
 
-  selectedPath: median
+  selectedPath: selectedPath
 };
+}
+
+function buildMedianRows(result, percentile = 'p50') {
+  const series = result?.monteCarlo?.realPercentiles?.[percentile];
+  if (!series) return [];
+
+  return series.map((value, index) => ({
+    year: index + 1,
+    endPortfolioReal: value,
+    // You will need to extend this to include:
+    // spending, withdrawals, etc — or reuse base rows as a template
+  }));
 }
 
 function buildHistoricalLabel(scenario) {
