@@ -721,13 +721,28 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
   let y = boxY + (boxHeight - contentHeight) / 2 + rowHeight / 2;
 
   rows.forEach((row) => {
+    // Calculate width properly using text measurement
+    const measuredItems = row.map((item) => {
+      ctx.save();
+      ctx.font = '12px Inter, system-ui, sans-serif';
+      const textWidth = ctx.measureText(item.label).width;
+      ctx.restore();
+    
+      const totalWidth = markerSize + markerTextGap + textWidth;
+    
+      return {
+        ...item,
+        _measuredWidth: totalWidth
+      };
+    });
+    
     const rowWidth =
-      row.reduce((sum, item) => sum + (item.widthNeeded || 0), 0) +
-      (row.length - 1) * itemGap;
-
+      measuredItems.reduce((sum, item) => sum + item._measuredWidth, 0) +
+      (measuredItems.length - 1) * itemGap;
+    
     let x = (width - rowWidth) / 2;
-
-    row.forEach((item) => {
+    
+    measuredItems.forEach((item) => {
       ctx.save();
 
       if (item.markerType === 'square') {
@@ -765,7 +780,7 @@ function drawInvestmentProjectionLegend(ctx, canvas, width, height, legendItems)
       ctx.fillText(item.label, textX, y);
       ctx.restore();
 
-      x += (item.widthNeeded || 0) + itemGap;
+      x += item._measuredWidth + itemGap;
     });
 
     y += rowHeight + rowGap;
