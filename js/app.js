@@ -1216,7 +1216,7 @@ function renderAll() {
     renderResultsView({
       result: latestResult,
       elements: els,
-      useReal: Boolean(els.showRealValues?.checked),
+      useReal: els.chartModeReal?.checked !== false,
       showFullTable: Boolean(els.showFullTable?.checked),
       tableView: currentTableView,
       tableMode: currentTableMode,
