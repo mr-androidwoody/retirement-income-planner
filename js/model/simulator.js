@@ -305,6 +305,7 @@ function runMonteCarlo(inputs) {
             ? inputs.inflationVolatility
             : 0.0175,
         minInflation: -0.02
+        });
 
       annualReturns.equities.push(sampled.equities);
       annualReturns.bonds.push(sampled.bonds);
