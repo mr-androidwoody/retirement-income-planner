@@ -748,7 +748,7 @@ export function renderResultsView({
 
     const shortfall = getRowShortfall(
       row,
-      useReal,
+      true,
       result.inputs?.initialSpending || 0
     );
 
@@ -784,11 +784,11 @@ export function renderResultsView({
     resolveBehaviourPath(result, 'p10') ||
     activePath;
 
-  const profiles = {
-    activeProfile: buildPathBehaviourProfile(result, activePath, useReal),
-    medianProfile: buildPathBehaviourProfile(result, medianPath, useReal),
-    downsideProfile: buildPathBehaviourProfile(result, downsidePath, useReal)
-  };
+    const profiles = {
+      activeProfile: buildPathBehaviourProfile(result, activePath, true),
+      medianProfile: buildPathBehaviourProfile(result, medianPath, true),
+      downsideProfile: buildPathBehaviourProfile(result, downsidePath, true)
+    };
 
   if (tableMode !== 'performance') {
     renderResultsContextAndPathSummary({
