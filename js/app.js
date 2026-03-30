@@ -1373,7 +1373,7 @@ function getPortfolioValidationState() {
   return {
     isReady: false,
     issueCount,
-    message: `Fix ${issueCount} issue${issueCount === 1 ? '' : 's'}`
+    message: `Fix ${issueCount} issue in hightlighted row below${issueCount === 1 ? '' : 's'}`
   };
 }
 
