@@ -1250,21 +1250,15 @@ function getSelectedPathEndValue(activePath, rows, useReal) {
   if (!selectedPathSeries || selectedPathSeries.length <= 1) {
     selectedPathSeries = (rows || [])
       .map((row) => {
-        return useReal
-          ? firstFinite([
-              row.portfolioReal,
-              row.endPortfolioReal,
-              row.endingPortfolioReal,
-              row.endReal,
-              row.endPortfolio
-            ])
-          : firstFinite([
-              row.portfolioNominal,
-              row.endPortfolioNominal,
-              row.endingPortfolioNominal,
-              row.endPortfolio,
-              row.endNominal
-            ]);
+    return useReal
+      ? firstFinite([
+          row.endPortfolioReal,
+          row.startPortfolioReal
+        ])
+      : firstFinite([
+          row.endPortfolioNominal,
+          row.startPortfolioNominal
+        ]);
       })
       .filter((v) => v !== null);
   } else {
