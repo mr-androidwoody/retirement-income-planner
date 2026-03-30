@@ -111,40 +111,41 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
     });
   }
 
-   const showMedian = tableView !== 'median';
+  const showMedian = true;
+  const medianColor = tableView === 'median' ? '#0f766e' : '#6fb7ae';
 
-      const chartConfig = {
-        labels,
-        lines: isHistorical || !hasMonteCarlo
-          ? [
-              {
-                label: isHistorical ? 'Selected historical path' : 'Portfolio path',
-                values: basePath,
-                color: '#2d5bff',
-                width: 3
-              }
-            ]
-          : [
-              {
-                label: 'Base case',
-                values: basePath,
-                color: '#2d5bff',
-                width: 2.5
-              },
-              ...(showMedian
-                ? [{
-                    label: 'Typical outcome',
-                    values: useReal
-                      ? result.monteCarlo.realPercentiles.p50
-                      : result.monteCarlo.nominalPercentiles.p50,
-                    color: '#0f766e',
-                    width: 2
-                  }]
-                : [])
-            ],
-        verticalMarkers,
-        yFormatter: formatCurrency
-      };
+  const chartConfig = {
+    labels,
+    lines: isHistorical || !hasMonteCarlo
+      ? [
+          {
+            label: isHistorical ? 'Selected historical path' : 'Portfolio path',
+            values: basePath,
+            color: '#2d5bff',
+            width: 3
+          }
+        ]
+      : [
+          {
+            label: 'Base case',
+            values: basePath,
+            color: '#2d5bff',
+            width: 2.5
+          },
+          ...(showMedian
+            ? [{
+                label: 'Typical outcome',
+                values: useReal
+                  ? result.monteCarlo.realPercentiles.p50
+                  : result.monteCarlo.nominalPercentiles.p50,
+                color: medianColor,
+                width: 2
+              }]
+            : [])
+        ],
+    verticalMarkers,
+    yFormatter: formatCurrency
+  };
 
   if (!isHistorical && hasMonteCarlo) {
     const p10Values = useReal
