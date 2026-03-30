@@ -84,6 +84,8 @@ const els = {
   runSimulationBtn: document.getElementById('runSimulationBtn'),
   errorBox: document.getElementById('errorBox'),
 
+  summaryBand: document.getElementById('summaryBand'),
+    
   summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
   summarySuccessRate: document.getElementById('summarySuccessRate'),
   summarySuccessRateLabel: document.getElementById('summarySuccessRateLabel'),
@@ -185,6 +187,10 @@ const tabs = initialiseTabs({
   onChange: (tabName) => {
     document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
     updateRunSimulationButtonState(tabName);
+
+    if (els.summaryBand) {
+      els.summaryBand.classList.toggle('hidden', tabName !== 'results');
+    }
 
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
