@@ -30,32 +30,6 @@ function resolveActivePath(result, tableView) {
   return null;
 }
 
-function getStartingCashlikeBalance(result) {
-  const inputs = result?.inputs || {};
-
-  const initialPortfolio = Number(
-    inputs.startingPortfolio ?? inputs.initialPortfolio ?? 0
-  );
-
-  const cashlikeAllocationPct = Number(
-    inputs.cashlikeAllocation ?? inputs.cashAllocation ?? 0
-  );
-
-  if (!Number.isFinite(initialPortfolio) || initialPortfolio <= 0) {
-    return 0;
-  }
-
-  if (!Number.isFinite(cashlikeAllocationPct) || cashlikeAllocationPct <= 0) {
-    return 0;
-  }
-
-  return initialPortfolio * (
-  cashlikeAllocationPct > 1
-    ? cashlikeAllocationPct / 100   // 20 → 0.2
-    : cashlikeAllocationPct         // 0.2 → 0.2
-  );
-}
-
 function formatHistoricalScenarioRangeLabel(result) {
   const select = document.getElementById('historicalScenario');
 
@@ -363,6 +337,353 @@ function renderResultsTableNote(elements, result, activePath, tableMode) {
   note.classList.add('hidden');
 }
 
+function getPathRows(path) {
+  return path?.yearlyRows || path?.rows || [];
+}
+
+function resolveBehaviourPath(result, preferredView) {
+  if (!result) return null;
+
+  if (preferredView && result?.tableViews?.[preferredView]) {
+    return result.tableViews[preferredView];
+  }
+
+  if (preferredView === 'median') {
+    return resolveActivePath(result, 'median');
+  }
+
+  if (preferredView === 'p25') {
+    return result?.tableViews?.p25 || result?.tableViews?.p10 || resolveActivePath(result, 'p10');
+  }
+
+  return resolveActivePath(result, preferredView);
+}
+
+function buildPathBehaviourProfile(result, path, useReal = true) {
+  const rows = getPathRows(path);
+  const inputs = result?.inputs || {};
+  const { comfortFloor, minimumFloor } = getResolvedSpendingFloors(inputs);
+
+  const startingPortfolio = Number(
+    inputs.startingPortfolio ?? inputs.initialPortfolio ?? 0
+  );
+
+  const endValue = Number(
+    getSelectedPathEndValue(path, rows, useReal)
+  );
+
+  let firstAdjustmentYear = null;
+  let firstBelowComfortYear = null;
+  let firstBelowMinimumYear = null;
+  let yearsBelowMinimum = 0;
+  let worstShortfallAmount = 0;
+  let worstShortfallYear = null;
+
+  rows.forEach((row, index) => {
+    const planYear = getRowPlanYear(row, index);
+    const inflationIndex = Number(row?.inflationIndex ?? 1);
+
+    const actualNominal = Number(row?.spendingNominal ?? 0);
+    const cutPct = Number(row?.spendingCutPercent ?? 0);
+
+    const comfortFloorNominalForYear = comfortFloor * inflationIndex;
+    const minimumFloorNominalForYear = minimumFloor * inflationIndex;
+
+    if (cutPct > 0 && firstAdjustmentYear === null) {
+      firstAdjustmentYear = planYear;
+    }
+
+    if (
+      comfortFloorNominalForYear > 0 &&
+      actualNominal < comfortFloorNominalForYear &&
+      firstBelowComfortYear === null
+    ) {
+      firstBelowComfortYear = planYear;
+    }
+
+    if (
+      minimumFloorNominalForYear > 0 &&
+      actualNominal < minimumFloorNominalForYear
+    ) {
+      yearsBelowMinimum += 1;
+
+      if (firstBelowMinimumYear === null) {
+        firstBelowMinimumYear = planYear;
+      }
+
+      const gapNominal = minimumFloorNominalForYear - actualNominal;
+
+      if (gapNominal > worstShortfallAmount) {
+        worstShortfallAmount = gapNominal;
+        worstShortfallYear = planYear;
+      }
+    }
+  });
+
+  const depleted = Boolean(
+    result?.summary?.depleted ??
+    result?.depleted ??
+    path?.depleted
+  );
+
+  const depletionYearRaw =
+    result?.summary?.depletionYear ??
+    result?.depletedYear ??
+    path?.depletionYear ??
+    null;
+
+  const depletionYear = Number.isFinite(Number(depletionYearRaw))
+    ? Number(depletionYearRaw)
+    : null;
+
+  return {
+    rows,
+    depleted,
+    depletionYear,
+    endValue,
+    endValuePctVsStart:
+      startingPortfolio > 0 && Number.isFinite(endValue)
+        ? endValue / startingPortfolio
+        : null,
+    firstAdjustmentYear,
+    firstBelowComfortYear,
+    firstBelowMinimumYear,
+    yearsBelowMinimum,
+    worstShortfallAmount,
+    worstShortfallYear,
+    neverAdjusted: firstAdjustmentYear === null,
+    neverBelowComfort: firstBelowComfortYear === null,
+    neverBelowMinimum: yearsBelowMinimum === 0
+  };
+}
+
+function resolvePlanOutlookPrimaryState(result, profiles) {
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+
+  const medianProfile = profiles?.medianProfile || null;
+  const downsideProfile = profiles?.downsideProfile || medianProfile || null;
+  const activeProfile = profiles?.activeProfile || medianProfile || downsideProfile || null;
+
+  if (activeProfile?.depleted) {
+    return {
+      ...PLAN_OUTLOOK_STATES.DEPLETED,
+      resolvedTitle: PLAN_OUTLOOK_STATES.DEPLETED.title(activeProfile.depletionYear),
+      resolvedBody: PLAN_OUTLOOK_STATES.DEPLETED.body,
+      depletionYear: activeProfile.depletionYear
+    };
+  }
+
+  if (isHistorical) {
+    if (activeProfile?.yearsBelowMinimum > 0) {
+      return {
+        ...PLAN_OUTLOOK_STATES.WEAK,
+        resolvedTitle: 'Weak — spending falls below minimum',
+        resolvedBody:
+          activeProfile.yearsBelowMinimum === 1
+            ? 'The plan drops below the minimum spending level in 1 year.'
+            : `The plan drops below the minimum spending level in ${activeProfile.yearsBelowMinimum} years.`
+      };
+    }
+
+    if (activeProfile?.firstBelowComfortYear !== null) {
+      return {
+        ...PLAN_OUTLOOK_STATES.WATCH,
+        resolvedTitle: 'Watch — comfort level not maintained',
+        resolvedBody:
+          `The plan first falls below the comfort spending level in Year ${activeProfile.firstBelowComfortYear}.`
+      };
+    }
+
+    return {
+      ...PLAN_OUTLOOK_STATES.STRONG,
+      resolvedTitle: 'Strong — spending maintained',
+      resolvedBody:
+        'The historical path maintains the comfort spending level throughout the plan.'
+    };
+  }
+
+  const successRate = Number(result?.monteCarlo?.successRate ?? 0);
+  const successPct = Number.isFinite(successRate)
+    ? Math.round(successRate * 100)
+    : null;
+
+  if (
+    successRate < 0.7 ||
+    (downsideProfile?.yearsBelowMinimum ?? 0) > 0
+  ) {
+    return {
+      ...PLAN_OUTLOOK_STATES.WEAK,
+      resolvedTitle: 'Weak — downside pressure is material',
+      resolvedBody:
+        successPct === null
+          ? 'The plan is under pressure in weaker outcomes.'
+          : `The plan succeeds in ${successPct}% of simulated outcomes, and weaker outcomes fall below minimum spending.`
+    };
+  }
+
+  if (
+    successRate < 0.9 ||
+    downsideProfile?.firstBelowComfortYear !== null ||
+    medianProfile?.firstBelowComfortYear !== null
+  ) {
+    return {
+      ...PLAN_OUTLOOK_STATES.WATCH,
+      resolvedTitle: 'Watch — comfort may not be maintained',
+      resolvedBody:
+        downsideProfile?.firstBelowComfortYear !== null
+          ? `In weaker outcomes, spending first falls below comfort level in Year ${downsideProfile.firstBelowComfortYear}.`
+          : 'The plan is sensitive to weaker market conditions.'
+    };
+  }
+
+  return {
+    ...PLAN_OUTLOOK_STATES.STRONG,
+    resolvedTitle: 'Strong — comfort level maintained',
+    resolvedBody:
+      'The plan maintains the comfort spending level throughout the core projected paths.'
+  };
+}
+
+function renderTopRowCardValues({
+  result,
+  elements,
+  activePath,
+  profiles,
+  useReal,
+  formatters
+}) {
+  const { formatCurrency, formatPercent } = formatters;
+  const mode = String(result?.mode ?? '').toLowerCase();
+  const isHistorical = mode === 'historical';
+  const hasStressSummary = Boolean(result?.summary?.worstStressName);
+
+  const medianProfile = profiles?.medianProfile || null;
+  const activeProfile = profiles?.activeProfile || medianProfile || null;
+
+  const setText = (el, value) => {
+    if (el) el.textContent = value;
+  };
+
+  const successCard = document.getElementById('summarySuccessRateCard');
+
+  if (successCard) {
+    successCard.classList.remove('is-strong', 'is-weak', 'is-watch');
+  }
+
+  // Panel 1: Success / historical outcome
+  if (elements.summarySuccessRate) {
+    if (isHistorical) {
+      const depleted = Boolean(activeProfile?.depleted);
+
+      setText(elements.summarySuccessRate, depleted ? 'Depleted' : 'Sustained');
+
+      if (successCard) {
+        successCard.classList.add(depleted ? 'is-weak' : 'is-strong');
+      }
+    } else {
+      const rate = Number(result?.monteCarlo?.successRate);
+
+      if (Number.isFinite(rate)) {
+        setText(elements.summarySuccessRate, formatPercent(rate));
+
+        if (successCard) {
+          if (rate >= 0.9) {
+            successCard.classList.add('is-strong');
+          } else if (rate < 0.6) {
+            successCard.classList.add('is-weak');
+          } else {
+            successCard.classList.add('is-watch');
+          }
+        }
+      } else {
+        setText(elements.summarySuccessRate, '—');
+      }
+    }
+  }
+
+  // Panel 2: Expected outcome (median path)
+  if (elements.summaryMedianEnd) {
+    const expectedValue = Number(
+      medianProfile?.endValue ??
+      getSelectedPathEndValue(activePath, getPathRows(activePath), useReal)
+    );
+
+    setText(
+      elements.summaryMedianEnd,
+      Number.isFinite(expectedValue) ? formatCurrency(expectedValue) : '—'
+    );
+  }
+
+  // Panel 3: Worst observed outcome
+  if (elements.summaryWorstStress) {
+    if (isHistorical) {
+      const depletionYear = activeProfile?.depletionYear;
+
+      setText(
+        elements.summaryWorstStress,
+        activeProfile?.depleted
+          ? `Year ${depletionYear ?? '—'}`
+          : 'Not depleted'
+      );
+    } else if (hasStressSummary) {
+      const worstObservedValue = Number(
+        useReal
+          ? result?.summary?.worstStressTerminalReal
+          : result?.summary?.worstStressTerminalNominal
+      );
+
+      setText(
+        elements.summaryWorstStress,
+        Number.isFinite(worstObservedValue)
+          ? formatCurrency(worstObservedValue)
+          : '—'
+      );
+    } else {
+      setText(elements.summaryWorstStress, '—');
+    }
+  }
+
+  if (elements.summaryWorstStressDesc) {
+    if (isHistorical) {
+      const minimumWealth = Number(result?.summary?.minimumWealth);
+
+      setText(
+        elements.summaryWorstStressDesc,
+        `Lowest portfolio value reached during this historical scenario: ${
+          Number.isFinite(minimumWealth) ? formatCurrency(minimumWealth) : '—'
+        }.`
+      );
+    } else if (hasStressSummary) {
+      setText(
+        elements.summaryWorstStressDesc,
+        'Lowest ending portfolio across the observed stress scenarios.'
+      );
+    } else {
+      setText(elements.summaryWorstStressDesc, '');
+    }
+  }
+
+  // Panel 4: First below comfort (median)
+  if (elements.summaryCashRunway) {
+    const firstBelowComfortYear = medianProfile?.firstBelowComfortYear;
+
+    setText(
+      elements.summaryCashRunway,
+      firstBelowComfortYear == null ? 'Never' : `Year ${firstBelowComfortYear}`
+    );
+  }
+
+  if (elements.summaryCashRunwayDesc) {
+    setText(
+      elements.summaryCashRunwayDesc,
+      isHistorical
+        ? 'First year this historical path falls below the comfort spending level.'
+        : 'First year the median path falls below the comfort spending level.'
+    );
+  }
+}
+
 export function renderResultsView({
   result,
   elements,
@@ -374,7 +695,7 @@ export function renderResultsView({
 }) {
   if (!result) return;
 
-  const { formatCurrency, formatPercent, formatYears } = formatters;
+  const { formatCurrency, formatPercent } = formatters;
 
   const activePath = resolveActivePath(result, tableView);
   const rows = activePath?.yearlyRows || [];
@@ -385,7 +706,6 @@ export function renderResultsView({
     Boolean(result?.monteCarlo?.realPercentiles) &&
     Boolean(result?.monteCarlo?.nominalPercentiles);
 
-  const hasStressSummary = Boolean(result?.summary?.worstStressName);
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
 
@@ -451,6 +771,20 @@ export function renderResultsView({
     shortfallYears
   };
 
+  const medianPath =
+    resolveBehaviourPath(result, 'median') || activePath;
+
+  const downsidePath =
+    resolveBehaviourPath(result, 'p25') ||
+    resolveBehaviourPath(result, 'p10') ||
+    activePath;
+
+  const profiles = {
+    activeProfile: buildPathBehaviourProfile(result, activePath, useReal),
+    medianProfile: buildPathBehaviourProfile(result, medianPath, useReal),
+    downsideProfile: buildPathBehaviourProfile(result, downsidePath, useReal)
+  };
+
   if (tableMode !== 'performance') {
     renderResultsContextAndPathSummary({
       result,
@@ -458,10 +792,11 @@ export function renderResultsView({
       tableView,
       activePath,
       useReal,
-      formatters
+      formatters,
+      profiles
     });
   } else if (elements.resultsContextBar) {
-  elements.resultsContextBar.innerHTML = '';
+    elements.resultsContextBar.innerHTML = '';
   }
 
   renderTableModeSelector(elements, tableMode);
@@ -471,117 +806,31 @@ export function renderResultsView({
 
   const button = document.getElementById('openPerformanceSummary');
 
-   if (button) {
-     const summary = computePerformanceSummary(rows, result, useReal);
+  if (button) {
+    const summary = computePerformanceSummary(rows, result, useReal);
 
-     button.replaceWith(button.cloneNode(true));
-     const newButton = document.getElementById('openPerformanceSummary');
+    button.replaceWith(button.cloneNode(true));
+    const newButton = document.getElementById('openPerformanceSummary');
 
-     if (newButton) {
-         newButton.onclick = () => {
-         openPerformanceSummaryOverlay(summary, {
-         formatPercent,
-         formatCurrency
-         });
-       };
-     }
-   }
+    if (newButton) {
+      newButton.onclick = () => {
+        openPerformanceSummaryOverlay(summary, {
+          formatPercent,
+          formatCurrency
+        });
+      };
+    }
+  }
 
   renderSummaryCardLabels(elements, result, tableView);
-
-  if (elements.summarySuccessRate) {
-  const card = document.getElementById('summarySuccessRateCard');
-
-  if (card) {
-    card.classList.remove('is-strong', 'is-weak', 'is-watch');
-  }
-
-  if (isHistorical) {
-    elements.summarySuccessRate.textContent = result?.summary?.depleted
-      ? 'Depleted'
-      : 'Sustained';
-  } else {
-    const rate = result?.monteCarlo?.successRate;
-
-    if (Number.isFinite(rate)) {
-      elements.summarySuccessRate.textContent = formatPercent(rate);
-
-      if (card) {
-        if (rate >= 0.9) {
-          card.classList.add('is-strong');
-        } else if (rate < 0.6) {
-          card.classList.add('is-weak');
-        } else {
-          card.classList.add('is-watch');
-        }
-      }
-    } else {
-      elements.summarySuccessRate.textContent = '—';
-    }
-  }
-}
-
-  if (elements.summaryMedianEnd) {
-    const selectedPathValue = getSelectedPathEndValue(activePath, rows, useReal);
-    elements.summaryMedianEnd.textContent = formatCurrency(selectedPathValue);
-  }
-
-  if (isHistorical) {
-    if (elements.summaryWorstStress) {
-      elements.summaryWorstStress.textContent = result?.summary?.depleted
-        ? `Year ${result?.summary?.depletionYear ?? '—'}`
-        : 'Not depleted';
-    }
-
-    if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent =
-        `Lowest portfolio value reached during this historical scenario: ${formatCurrency(
-          result?.summary?.minimumWealth ?? 0
-        )}.`;
-    }
-  } else if (hasStressSummary) {
-    if (elements.summaryWorstStress) {
-      elements.summaryWorstStress.textContent = result.summary.worstStressName;
-    }
-
-    if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent =
-        `The lowest ending portfolio across all stress scenarios: ${formatCurrency(
-          useReal
-            ? result.summary.worstStressTerminalReal
-            : result.summary.worstStressTerminalNominal
-        )}.`;
-    }
-  } else {
-    if (elements.summaryWorstStress) {
-      elements.summaryWorstStress.textContent = 'Removed';
-    }
-
-    if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent =
-        'Deterministic stress scenarios are no longer shown in the UI.';
-    }
-  }
-
-  const runway = Number(result?.summary?.cashRunwayYears);
-
-    if (elements.summaryCashRunway) {
-    elements.summaryCashRunway.textContent =
-      runway === Number.POSITIVE_INFINITY
-        ? 'No draw'
-        : Number.isFinite(runway)
-          ? formatYears(runway)
-          : '—';
-  }
-
-  if (elements.summaryCashRunwayDesc) {
-    const startingCashlikeBalance = getStartingCashlikeBalance(result);
-
-    elements.summaryCashRunwayDesc.textContent =
-      `How long the starting cash-like balance (${formatCurrency(
-        startingCashlikeBalance
-      )}) can fund withdrawals before needing replenishment.`;
-  }
+  renderTopRowCardValues({
+    result,
+    elements,
+    activePath,
+    profiles,
+    useReal,
+    formatters
+  });
 
   if (isHistorical || hasMonteCarlo) {
     renderPortfolioChart(
@@ -613,7 +862,7 @@ export function renderResultsView({
       tableView,
       useReal
     });
-   } else {
+  } else {
     renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
       person1Name: result.inputs?.person1Name,
       person2Name: result.inputs?.person2Name,
@@ -1358,255 +1607,157 @@ function renderResultsContextAndPathSummary({
   tableView,
   activePath,
   useReal,
-  formatters
+  formatters,
+  profiles
 }) {
   const container = elements.resultsContextBar;
   if (!container) return;
 
   const { formatCurrency } = formatters;
-
   const mode = String(result?.mode ?? '').toLowerCase();
-  const isHistorical = mode === 'historical';
+  const isMonteCarlo = mode === 'montecarlo';
 
-  const rows = activePath?.rows || activePath?.yearlyRows || [];
+  const medianProfile = profiles?.medianProfile || buildPathBehaviourProfile(
+    result,
+    resolveBehaviourPath(result, 'median') || activePath,
+    useReal
+  );
 
-  const selectedEndValue = getSelectedPathEndValue(activePath, rows, useReal);
-  const startingPortfolio =
-    Number(result?.inputs?.startingPortfolio ?? result?.inputs?.initialPortfolio ?? 0);
+  const downsideProfile = profiles?.downsideProfile || buildPathBehaviourProfile(
+    result,
+    resolveBehaviourPath(result, 'p25') || resolveBehaviourPath(result, 'p10') || activePath,
+    useReal
+  );
 
-  let endValueChangeDisplay = '';
-  let endValueChangeClass = '';
-
-  if (startingPortfolio > 0 && Number.isFinite(selectedEndValue)) {
-    const endValueChangePct =
-      (selectedEndValue - startingPortfolio) / startingPortfolio;
-    const sign =
-      endValueChangePct > 0 ? '+' : endValueChangePct < 0 ? '−' : '';
-
-    endValueChangeDisplay =
-      `${sign}${Math.abs(endValueChangePct * 100).toFixed(1)}% from initial investments`;
-
-    endValueChangeClass =
-      endValueChangePct >= 0
-        ? 'results-context-metric-subvalue--green'
-        : 'results-context-metric-subvalue--red';
-  }
-
-  const { comfortFloor, minimumFloor } =
-    getResolvedSpendingFloors(result?.inputs || {});
-
-  let firstComfortBreachYear = null;
-  let firstCutAmount = 0;
-  let firstCutPct = 0;
-  let yearsBelowMinimumFloor = 0;
-  let worstFloorGapNominal = 0;
-  let worstFloorYear = null;
-  let floorHeadroomPct = null;
-
-  rows.forEach((row, index) => {
-    const planYear = getRowPlanYear(row, index);
-    const inflationIndex = Number(row.inflationIndex ?? 1);
-
-    const actualNominal = Number(row.spendingNominal ?? 0);
-    const actual = getRowActualSpending(row, useReal);
-
-    const target = getRowTargetSpending(
-      row,
-      useReal,
-      result?.inputs?.initialSpending || 0
-    );
-
-    const comfortFloorNominalForYear = comfortFloor * inflationIndex;
-    const minimumFloorNominalForYear = minimumFloor * inflationIndex;
-
-    if (
-      comfortFloorNominalForYear > 0 &&
-      actualNominal < comfortFloorNominalForYear &&
-      firstComfortBreachYear === null
-    ) {
-      firstComfortBreachYear = planYear;
-
-      if (target > 0 && actual < target) {
-        firstCutAmount = target - actual;
-        firstCutPct = firstCutAmount / target;
-      }
-    }
-
-    if (
-      minimumFloorNominalForYear > 0 &&
-      actualNominal < minimumFloorNominalForYear
-    ) {
-      yearsBelowMinimumFloor += 1;
-
-      const gapNominal = minimumFloorNominalForYear - actualNominal;
-
-      if (gapNominal > worstFloorGapNominal) {
-        worstFloorGapNominal = gapNominal;
-        worstFloorYear = planYear;
-
-        floorHeadroomPct =
-          (actualNominal - minimumFloorNominalForYear) /
-          minimumFloorNominalForYear;
-      }
-    }
-  });
-
-  const worstFloorGap =
-    useReal && worstFloorGapNominal > 0 && minimumFloor > 0
-      ? worstFloorGapNominal
-      : worstFloorGapNominal;
-
-  const totalYears = rows.length || 0;
-  const yearsBelowFloorPct =
-    totalYears > 0 ? (yearsBelowMinimumFloor / totalYears) * 100 : 0;
-
-  const firstCutDisplay =
-    firstCutAmount > 0
-      ? `↓ ${formatCurrency(firstCutAmount)} (−${(firstCutPct * 100).toFixed(1)}%)`
-      : '';
-
-  const firstCutClass =
-    firstCutAmount > 0 ? 'results-context-metric-subvalue--red' : '';
-
-  const floorHeadroomDisplay =
-    floorHeadroomPct === null
-      ? 'At or above minimum spending level'
-      : `${floorHeadroomPct >= 0 ? '+' : '−'}${Math.abs(
-          floorHeadroomPct * 100
-        ).toFixed(1)}% vs minimum spending level`;
-
-  const floorHeadroomClass =
-    floorHeadroomPct === null
-      ? 'results-context-metric-subvalue--green'
-      : floorHeadroomPct >= 0
-        ? 'results-context-metric-subvalue--green'
-        : 'results-context-metric-subvalue--red';
-
-  const floorBreachYearsDisplay =
-    yearsBelowMinimumFloor > 0
-      ? `${yearsBelowFloorPct.toFixed(1)}% of years below minimum level`
-      : '0% of years below minimum level';
-
-  const floorBreachYearsClass =
-    yearsBelowMinimumFloor > 0
-      ? 'results-context-metric-subvalue--red'
-      : 'results-context-metric-subvalue--green';
-
-  const primaryState = resolvePlanOutlookPrimaryState(result, activePath);
-  const contextNote = resolvePlanOutlookContextNote(result);
-
-  const warningGroups = resolvePlanOutlookWarningGroups({
+  const activeProfile = profiles?.activeProfile || buildPathBehaviourProfile(
     result,
     activePath,
-    useReal,
-    formatters,
-    suppressWarnings: primaryState.key === PLAN_OUTLOOK_STATES.DEPLETED.key
+    useReal
+  );
+
+  const primaryState = resolvePlanOutlookPrimaryState(result, {
+    medianProfile,
+    downsideProfile,
+    activeProfile
   });
 
-const detailMetricsHtml = `
-  <div class="results-context-metrics">
-    <div class="results-context-metric">
-      <div class="results-context-metric-label">
-        ${renderMetricHeading(
-          useReal ? 'Real end value' : 'Nominal end value',
-          'Portfolio value at the end of the selected path.'
-        )}
+  const warnings = getPlanWarningsData(result, useReal, formatters, activePath);
+  const warningGroups = [];
+
+  if (warnings.inputWarnings.length) {
+    warningGroups.push({
+      ...PLAN_OUTLOOK_WARNINGS.INPUT,
+      items: warnings.inputWarnings
+    });
+  }
+
+  if (warnings.modelWarnings.length) {
+    warningGroups.push({
+      ...PLAN_OUTLOOK_WARNINGS.MODEL,
+      items: warnings.modelWarnings
+    });
+  }
+
+  const contextNote = mode === 'historical'
+    ? PLAN_OUTLOOK_CONTEXT.HISTORICAL_NOTE
+    : null;
+
+  const detailMetricsHtml = `
+    <div class="results-context-metrics-grid">
+      <div class="results-context-metric">
+        <div class="results-context-metric-label">
+          ${renderMetricHeading(
+            'First spending adjustment (median)',
+            'First year the median path requires spending to be reduced versus target.'
+          )}
+        </div>
+        <div class="results-context-metric-body">
+          <div class="results-context-metric-value">
+            ${
+              medianProfile.firstAdjustmentYear === null
+                ? 'Spending maintained throughout'
+                : `Year ${medianProfile.firstAdjustmentYear}`
+            }
+          </div>
+        </div>
       </div>
-      <div class="results-context-metric-body">
-        <div class="results-context-metric-value">${formatCurrency(selectedEndValue ?? 0)}</div>
-        ${
-          endValueChangeDisplay
-            ? `<div class="results-context-metric-subvalue ${endValueChangeClass}">
-                 ${endValueChangeDisplay}
-               </div>`
-            : ''
-        }
+
+      <div class="results-context-metric">
+        <div class="results-context-metric-label">
+          ${renderMetricHeading(
+            'First below comfort (downside)',
+            'First year the downside path falls below the comfort spending level. Uses p25 if available, otherwise falls back to p10.'
+          )}
+        </div>
+        <div class="results-context-metric-body">
+          <div class="results-context-metric-value">
+            ${
+              downsideProfile.firstBelowComfortYear === null
+                ? 'Never below comfort level'
+                : `Year ${downsideProfile.firstBelowComfortYear}`
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="results-context-metric">
+        <div class="results-context-metric-label">
+          ${renderMetricHeading(
+            'Worst shortfall vs minimum',
+            'Largest gap in any year between actual spending and your minimum acceptable spending level.'
+          )}
+        </div>
+        <div class="results-context-metric-body">
+          <div class="results-context-metric-value">
+            ${
+              downsideProfile.worstShortfallAmount > 0
+                ? `${formatCurrency(downsideProfile.worstShortfallAmount)}${
+                    downsideProfile.worstShortfallYear
+                      ? ` (Year ${downsideProfile.worstShortfallYear})`
+                      : ''
+                  }`
+                : 'Minimum spending always met'
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="results-context-metric">
+        <div class="results-context-metric-label">
+          ${renderMetricHeading(
+            'Years below minimum',
+            'Number of years when actual spending falls below your minimum spending level.'
+          )}
+        </div>
+        <div class="results-context-metric-body">
+          <div class="results-context-metric-value">
+            ${downsideProfile.yearsBelowMinimum} years
+          </div>
+        </div>
       </div>
     </div>
+  `;
 
-    <div class="results-context-metric">
-      <div class="results-context-metric-label">
-        ${renderMetricHeading(
-          'First spending cut',
-          'The first year when actual spending falls below planned target spending.'
-        )}
-      </div>
-      <div class="results-context-metric-body">
-        <div class="results-context-metric-value">
-          ${firstComfortBreachYear ? `Year ${firstComfortBreachYear}` : 'No drop below comfort level'}
+  const headerControls = isMonteCarlo
+    ? `
+        <div class="plan-outlook-path-selector table-view-selector">
+          <div class="table-view-selector-group">
+            ${getTableViewSelectorHtml(tableView)}
+          </div>
         </div>
-        ${
-          firstCutDisplay
-            ? `<div class="results-context-metric-subvalue ${firstCutClass}">
-                 ${firstCutDisplay}
-               </div>`
-            : ''
-        }
-      </div>
-    </div>
+      `
+    : '';
 
-    <div class="results-context-metric">
-      <div class="results-context-metric-label">
-        ${renderMetricHeading(
-          'Worst shortfall vs minimum',
-          'The largest gap in any year between actual spending and your minimum acceptable spending level.'
-        )}
-      </div>
-      <div class="results-context-metric-body">
-        <div class="results-context-metric-value">
-          ${
-            worstFloorGap > 0
-              ? `${formatCurrency(worstFloorGap)}${
-                  worstFloorYear ? ` (Year ${worstFloorYear})` : ''
-                }`
-              : 'None'
-          }
-        </div>
-        <div class="results-context-metric-subvalue ${floorHeadroomClass}">
-          ${floorHeadroomDisplay}
-        </div>
-      </div>
-    </div>
-
-    <div class="results-context-metric">
-      <div class="results-context-metric-label">
-        ${renderMetricHeading(
-          'Years below minimum',
-          'Number of years when actual spending falls below your minimum spending level.'
-        )}
-      </div>
-      <div class="results-context-metric-body">
-        <div class="results-context-metric-value">${yearsBelowMinimumFloor}</div>
-        <div class="results-context-metric-subvalue ${floorBreachYearsClass}">
-          ${floorBreachYearsDisplay}
-        </div>
-      </div>
-    </div>
-  </div>
-`;
-
-const isMonteCarlo = String(result?.mode ?? '').toLowerCase() === 'montecarlo';
-
-const headerControls = isMonteCarlo
-  ? `
-      <div class="plan-outlook-path-selector table-view-selector">
-        <div class="table-view-selector-group">
-          ${getTableViewSelectorHtml(tableView)}
-        </div>
-      </div>
-    `
-  : '';
-
-const primaryCardClass = getPlanOutlookCardClass(primaryState);
-const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
-const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
+  const primaryCardClass = getPlanOutlookCardClass(primaryState);
+  const primaryIconHtml = getPlanOutlookIconTokenHtml(primaryState.icon);
+  const warningsHtml = renderPlanOutlookWarningGroups(warningGroups);
 
   container.innerHTML = `
-     <div class="results-context-card results-context-card--merged">
-       <div class="results-context-panel-header">
-         <div class="card-title-block">
+    <div class="results-context-card results-context-card--merged">
+      <div class="results-context-panel-header">
+        <div class="card-title-block">
           <h2>Plan outlook</h2>
-          <p>A combined view of plan resilience, key risks, and supporting outcome metrics.</p>
+          <p>A behavioural view of when spending first changes, when comfort level is first breached, and how severe downside pressure becomes.</p>
         </div>
 
         <div class="results-context-header-actions">
@@ -1650,32 +1801,34 @@ function renderSummaryCardLabels(elements, result, tableView) {
 
     if (elements.summarySuccessRateDesc) {
       elements.summarySuccessRateDesc.textContent =
-        'Shows if starting retirement at this point in history would sustain the plan.';
+        'Shows whether starting retirement at this point in history would sustain the plan.';
     }
 
     if (elements.summaryMedianEndLabel) {
-      elements.summaryMedianEndLabel.textContent = 'Selected path';
+      elements.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
     }
 
     if (elements.summaryMedianEndDesc) {
       elements.summaryMedianEndDesc.textContent =
-        'The median (50th percentile) ending portfolio value based on this historical sequence of returns.';
+        'Ending portfolio value for this historical return sequence.';
     }
 
     if (elements.summaryWorstStressLabel) {
-      elements.summaryWorstStressLabel.textContent = 'Depletion year';
+      elements.summaryWorstStressLabel.textContent = 'Worst observed outcome';
     }
 
     if (elements.summaryWorstStressDesc) {
-      elements.summaryWorstStressDesc.textContent = '';
+      elements.summaryWorstStressDesc.textContent =
+        'Shows whether this historical path depletes, with the lowest portfolio value shown below.';
     }
 
     if (elements.summaryCashRunwayLabel) {
-      elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+      elements.summaryCashRunwayLabel.textContent = 'First below comfort (median)';
     }
 
     if (elements.summaryCashRunwayDesc) {
-      elements.summaryCashRunwayDesc.textContent = '';
+      elements.summaryCashRunwayDesc.textContent =
+        'First year this historical path falls below the comfort spending level.';
     }
 
     return;
@@ -1687,58 +1840,43 @@ function renderSummaryCardLabels(elements, result, tableView) {
 
   if (elements.summarySuccessRateDesc) {
     const runs =
-      result?.scenarioCount ??
-      result?.monteCarlo?.scenarioCount ??
-      result?.monteCarlo?.runs ??
-      null;
+      Number(result?.scenarioCount) ||
+      Number(result?.monteCarlo?.scenarioCount) ||
+      Number(result?.monteCarlo?.runs) ||
+      Number(result?.inputs?.simulations) ||
+      0;
 
-    const baseText =
-      'How often your portfolio lasts the full retirement plan across all simulated outcomes.';
-
-    if (runs) {
-      elements.summarySuccessRateDesc.innerHTML = `
-        ${baseText}
-        Based on <strong>${runs.toLocaleString()}</strong> simulations.
-      `;
-    } else {
-      elements.summarySuccessRateDesc.textContent = baseText;
-    }
+    elements.summarySuccessRateDesc.textContent =
+      runs > 0
+        ? `How often the plan is sustained across ${runs.toLocaleString()} simulated outcomes.`
+        : 'How often the plan is sustained across simulated outcomes.';
   }
 
   if (elements.summaryMedianEndLabel) {
-    elements.summaryMedianEndLabel.textContent = 'Selected path';
+    elements.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
   }
 
   if (elements.summaryMedianEndDesc) {
-    if (tableView === 'median') {
-      elements.summaryMedianEndDesc.textContent =
-        'The median (50th percentile) ending portfolio value across all simulated outcomes';
-    } else if (tableView === 'p10') {
-      elements.summaryMedianEndDesc.textContent =
-        'A weaker simulated outcome, showing how the plan holds up under poorer return conditions.';
-    } else if (tableView === 'p90') {
-      elements.summaryMedianEndDesc.textContent =
-        'A stronger simulated outcome, showing how the plan performs under better return conditions.';
-    } else {
-      elements.summaryMedianEndDesc.textContent =
-        'The ending portfolio value if retirement began at the start of this historical period.';
-    }
+    elements.summaryMedianEndDesc.textContent =
+      'Representative ending portfolio value for the median path.';
   }
 
   if (elements.summaryWorstStressLabel) {
-    elements.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+    elements.summaryWorstStressLabel.textContent = 'Worst observed outcome';
   }
 
   if (elements.summaryWorstStressDesc) {
-    elements.summaryWorstStressDesc.textContent = '';
+    elements.summaryWorstStressDesc.textContent =
+      'Lowest ending portfolio across the observed stress scenarios.';
   }
 
   if (elements.summaryCashRunwayLabel) {
-    elements.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+    elements.summaryCashRunwayLabel.textContent = 'First below comfort (median)';
   }
 
   if (elements.summaryCashRunwayDesc) {
-    elements.summaryCashRunwayDesc.textContent = '';
+    elements.summaryCashRunwayDesc.textContent =
+      'First year the median path falls below the comfort spending level.';
   }
 }
 
