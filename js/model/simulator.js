@@ -435,9 +435,7 @@ export function simulatePath(inputs, annualReturns) {
     const startPortfolioReal = startPortfolioNominal / inflationIndex;
 
     const inflationRate = annualReturns.inflation[yearIndex] ?? inputs.inflation;
-    const currentTargetSpendingNominal =
-      targetSpendingNominal * (1 + inflationRate);
-      
+     
     const nextInflationIndex = inflationIndex * (1 + inflationRate);
 
     const pensionNominal = getStatePensionNominal(
@@ -512,7 +510,7 @@ export function simulatePath(inputs, annualReturns) {
     const endPortfolioNominal = totalPortfolio(buckets);
     const endPortfolioReal = endPortfolioNominal / nextInflationIndex;
 
-    const targetSpendingReal = currentTargetSpendingNominal / inflationIndex;
+    const targetSpendingReal = targetSpendingNominal / inflationIndex;
     const actualSpendingReal = actualSpendingNominal / inflationIndex;
     const pensionReal = pensionNominal / inflationIndex;
     const otherIncomeReal = otherIncomeNominal / inflationIndex;
@@ -531,7 +529,7 @@ export function simulatePath(inputs, annualReturns) {
       startPortfolioNominal,
       startPortfolioReal,
 
-      targetSpendingNominal: currentTargetSpendingNominal,
+      targetSpendingNominal,
       targetSpendingReal,
 
       actualSpendingNominal,
