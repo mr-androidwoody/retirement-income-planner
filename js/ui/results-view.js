@@ -7,6 +7,12 @@ import {
   PLAN_OUTLOOK_WARNINGS
 } from './plan-outlook-state-definitions.js';
 
+function formatPercent(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '—';
+  return `${Math.round(num * 100)}%`;
+}
+
 function resolveActivePath(result, tableView) {
   if (result?.tableViews && tableView && result.tableViews[tableView]) {
     return result.tableViews[tableView];
