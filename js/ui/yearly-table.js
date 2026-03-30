@@ -46,11 +46,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
 
     const target = Number(useReal ? row.targetSpendingReal : row.targetSpendingNominal) || 0;
     const actual = Number(useReal ? row.spendingReal : row.spendingNominal) || 0;
-    
-    // Shortfall should ONLY reflect failure to fund spending, not cuts
-    const shortfall = Number(row.spendingCutNominal ?? 0) === 0
-      ? Math.max(0, target - actual)
-      : 0;
+    const shortfall = Math.max(0, target - actual);
 
     const start = Number(useReal ? row.startPortfolioReal : row.startPortfolioNominal) || 0;
     const end = Number(useReal ? row.endPortfolioReal : row.endPortfolioNominal) || 0;
