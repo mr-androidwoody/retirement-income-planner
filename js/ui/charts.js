@@ -111,36 +111,40 @@ export function renderPortfolioChart(canvas, result, useReal, formatCurrency, ta
     });
   }
 
-    const chartConfig = {
-    labels,
-    lines: isHistorical || !hasMonteCarlo
-      ? [
-          {
-            label: isHistorical ? 'Selected historical path' : 'Portfolio path',
-            values: basePath,
-            color: '#2d5bff',
-            width: 3
-          }
-        ]
-      : [
-          {
-            label: 'Typical outcome',
-            values: useReal
-              ? result.monteCarlo.realPercentiles.p50
-              : result.monteCarlo.nominalPercentiles.p50,
-            color: '#2d5bff',
-            width: 2
-          },
-          {
-            label: 'Base case',
-            values: basePath,
-            color: '#0f766e',
-            width: 2.5
-          }
-        ],
-    verticalMarkers,
-    yFormatter: formatCurrency
-  };
+   const showMedian = tableView !== 'base';
+
+      const chartConfig = {
+        labels,
+        lines: isHistorical || !hasMonteCarlo
+          ? [
+              {
+                label: isHistorical ? 'Selected historical path' : 'Portfolio path',
+                values: basePath,
+                color: '#2d5bff',
+                width: 3
+              }
+            ]
+          : [
+              {
+                label: 'Base case',
+                values: basePath,
+                color: '#2d5bff',
+                width: 2.5
+              },
+              ...(showMedian
+                ? [{
+                    label: 'Typical outcome',
+                    values: useReal
+                      ? result.monteCarlo.realPercentiles.p50
+                      : result.monteCarlo.nominalPercentiles.p50,
+                    color: '#0f766e',
+                    width: 2
+                  }]
+                : [])
+            ],
+        verticalMarkers,
+        yFormatter: formatCurrency
+      };
 
   if (!isHistorical && hasMonteCarlo) {
     const p10Values = useReal
@@ -365,7 +369,6 @@ function drawLineChart(canvas, config) {
   const isInvestmentProjectionLegend =
     Array.isArray(config.lines) &&
     config.lines.some((line) => line?.label === 'Base case') &&
-    config.lines.some((line) => line?.label === 'Typical outcome') &&
     Array.isArray(config.bands) &&
     config.bands.length >= 2;
 

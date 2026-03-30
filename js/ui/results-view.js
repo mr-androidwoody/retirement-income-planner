@@ -317,6 +317,7 @@ function getTableViewSelectorHtml(tableView) {
     <button type="button" data-view="p10" class="${tableView === 'p10' ? 'active' : ''}">Downside</button>
     <button type="button" data-view="median" class="${tableView === 'median' ? 'active' : ''}">Median</button>
     <button type="button" data-view="p90" class="${tableView === 'p90' ? 'active' : ''}">Upside</button>
+    <button type="button" data-view="base" class="${tableView === 'base' ? 'active' : ''}">Base</button>
   `;
 }
 
