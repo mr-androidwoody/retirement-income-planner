@@ -136,7 +136,7 @@ return {
       }
     : null,
 
-  selectedPath: selectedPath
+  selectedPath: median
 };
 }
 
