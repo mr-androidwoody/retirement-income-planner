@@ -474,6 +474,7 @@ function resolvePlanOutlookPrimaryState(result, profiles) {
 
   const medianProfile = profiles?.medianProfile || null;
   const downsideProfile = profiles?.downsideProfile || medianProfile || null;
+  const activeProfile = profiles?.activeProfile || medianProfile || null;
   const activeProfile = profiles?.activeProfile || medianProfile || downsideProfile || null;
 
   if (activeProfile?.depleted) {
@@ -711,37 +712,36 @@ function renderTopRowCardValues({
       }
     }
 
-  // Panel 4: First below comfort (median)
-  if (elements.summaryCashRunway) {
-    const firstBelowComfortYear = medianProfile?.firstBelowComfortYear;
-
-    setText(
-      elements.summaryCashRunway,
-      firstBelowComfortYear == null ? 'Never' : `Year ${firstBelowComfortYear}`
-    );
-  }
-
-  if (elements.summaryCashRunwayDesc) {
-    const firstBelowComfortYear = medianProfile?.firstBelowComfortYear;
-
-    if (firstBelowComfortYear == null) {
+ // Panel 4: Spending shortfall risk (downside path)
+    if (elements.summaryCashRunway) {
+      const yearsBelowMinimum = Number(downsideProfile?.yearsBelowMinimum ?? 0);
+    
       setText(
-        elements.summaryCashRunwayDesc,
-        'Comfort spending maintained throughout.'
-      );
-    } else if (firstBelowComfortYear <= 5) {
-      setText(
-        elements.summaryCashRunwayDesc,
-        `Spending pressure begins early (Year ${firstBelowComfortYear}).`
-      );
-    } else {
-      setText(
-        elements.summaryCashRunwayDesc,
-        `Falls below comfort in Year ${firstBelowComfortYear}.`
+        elements.summaryCashRunway,
+        yearsBelowMinimum <= 0 ? 'None' : `${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}`
       );
     }
-  }
-}
+    
+    if (elements.summaryCashRunwayDesc) {
+      const yearsBelowMinimum = Number(downsideProfile?.yearsBelowMinimum ?? 0);
+      const worstShortfallAmount = Number(downsideProfile?.worstShortfallAmount ?? 0);
+    
+      if (yearsBelowMinimum <= 0) {
+        setText(
+          elements.summaryCashRunwayDesc,
+          'In weaker outcomes, spending stays above the minimum level throughout.'
+        );
+      } else {
+        const shortfallText = Number.isFinite(worstShortfallAmount) && worstShortfallAmount > 0
+          ? ` Worst shortfall: ${formatCurrency(worstShortfallAmount)}.`
+          : '';
+    
+        setText(
+          elements.summaryCashRunwayDesc,
+          `In weaker outcomes, spending falls below the minimum level in ${yearsBelowMinimum} year${yearsBelowMinimum === 1 ? '' : 's'}.${shortfallText}`
+        );
+      }
+    }
 
 export function renderResultsView({
   result,
@@ -1744,12 +1744,12 @@ function renderSummaryCardLabels(elements, result, tableView) {
     }
 
     if (elements.summaryCashRunwayLabel) {
-      elements.summaryCashRunwayLabel.textContent = 'First below comfort (median)';
+      elements.summaryCashRunwayLabel.textContent = 'Spending shortfall risk';
     }
-
+    
     if (elements.summaryCashRunwayDesc) {
       elements.summaryCashRunwayDesc.textContent =
-        'First year this historical path falls below the comfort spending level.';
+        'Shows whether weaker outcomes fall below the minimum spending level.';
     }
 
     return;
