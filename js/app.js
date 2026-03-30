@@ -507,8 +507,6 @@ function setResultsViewDefaults() {
   if (els.showRealValues) els.showRealValues.checked = true;
   if (els.showFullTable) els.showFullTable.checked = true;
   if (els.showPlanOutlook) els.showPlanOutlook.checked = true;
-  if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
-  if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
 }
 
 function sanitiseInputs(rawInputs = {}) {
