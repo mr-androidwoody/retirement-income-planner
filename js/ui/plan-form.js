@@ -132,6 +132,24 @@ export function createPlanForm(
     const field = elements[fieldId];
     if (!field) return;
 
+    // maxSpendingNominal special rules:
+    // − no-ops at 0 (no cap); + from 0 seeds to initialSpending; floor at £1,000
+    if (fieldId === 'maxSpendingNominal') {
+      const current = parseLooseNumber(field.value);
+      const safeVal = Number.isFinite(current) ? current : 0;
+      if (direction < 0 && safeVal === 0) return;
+      if (direction > 0 && safeVal === 0) {
+        const seedRaw = String(elements.initialSpending?.value ?? '').replace(/,/g, '');
+        const seed = parseLooseNumber(seedRaw);
+        field.value = formatInteger(Number.isFinite(seed) && seed > 0 ? seed : 60000);
+      } else {
+        field.value = formatInteger(Math.max(1000, safeVal + direction * stepSize));
+      }
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+
     const currentValue = parseLooseNumber(field.value);
     const safeCurrent = Number.isFinite(currentValue) ? currentValue : 0;
     let nextValue = Math.max(0, safeCurrent + direction * stepSize);
