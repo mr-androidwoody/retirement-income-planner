@@ -16,6 +16,7 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
     setFieldValue('upperGuardrail', defaults.upperGuardrail);
     setFieldValue('lowerGuardrail', defaults.lowerGuardrail);
     setFieldValue('adjustmentSize', defaults.adjustmentSize);
+    setFieldValue('maxSpendingNominal', defaults.maxSpendingNominal ?? 0);
     setFieldValue('monteCarloRuns', defaults.monteCarloRuns, true);
  
     if (elements.skipInflationAfterNegative) {
@@ -59,6 +60,7 @@ export function createAdvancedForm(elements, { formatInteger, parseLooseNumber, 
       upperGuardrail: parseLooseNumber(elements.upperGuardrail.value),
       lowerGuardrail: parseLooseNumber(elements.lowerGuardrail.value),
       adjustmentSize: parseLooseNumber(elements.adjustmentSize.value),
+      maxSpendingNominal: parseLooseNumber(elements.maxSpendingNominal?.value) || 0,
  
       monteCarloRuns: parseLooseInteger(elements.monteCarloRuns.value),
  
