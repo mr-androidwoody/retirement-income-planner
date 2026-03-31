@@ -13,7 +13,6 @@ const planIntegerFieldIds = [
   'person2OtherIncomeYears',
   'person2WindfallAmount',
   'person2WindfallYear',
-  'maxSpendingNominal'
 ];
 
 function unformatNumberString(value) {
