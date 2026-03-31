@@ -1622,7 +1622,7 @@ function mapPortfolioToInputs(totals) {
     comfortSpending: safeTotal * 0.04 * 0.9,
     minimumSpending: safeTotal * 0.04 * 0.75,
 
-    annualFeeRate: 0.27,
+    annualFeeRate: 0.27, // percentage points — must match DEFAULT_INPUTS convention; normaliseInputs converts to decimal
 
     equityAllocation: Number(totals?.allocations?.equities) || 0,
     bondAllocation: Number(totals?.allocations?.bonds) || 0,
