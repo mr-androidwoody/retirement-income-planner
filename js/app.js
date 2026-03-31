@@ -802,47 +802,6 @@ if (savePortfolioBtn) {
   }
 
   attachAllocationStatusEvents();
-
-  // Generic stepper buttons (event delegation — handles all .stepper-btn fields)
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.stepper-btn[data-step-target]');
-    if (!btn) return;
-    const targetId = btn.dataset.stepTarget;
-    const direction = Number(btn.dataset.stepDirection) || 1;
-    const stepSize = Number(btn.dataset.stepSize) || 1;
-    const input = document.getElementById(targetId);
-    if (!input) return;
-    const rawValue = String(input.value ?? '').replace(/,/g, '').trim();
-    const parsed = parseFloat(rawValue);
-
-    if (targetId === 'maxSpendingNominal') {
-      const currentVal = isNaN(parsed) ? 0 : parsed;
-      // − is a no-op at 0 (no cap state)
-      if (direction < 0 && currentVal === 0) return;
-      // + from 0 seeds to initialSpending value (fallback £60,000)
-      if (direction > 0 && currentVal === 0) {
-        const seedRaw = String(els.initialSpending?.value ?? '').replace(/,/g, '');
-        const seed = parseFloat(seedRaw) || 60000;
-        input.value = seed.toLocaleString('en-GB');
-      } else {
-        // Floor at £1,000; stepper cannot reach 0
-        const next = Math.max(1000, currentVal + direction * stepSize);
-        input.value = next.toLocaleString('en-GB');
-      }
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-      return;
-    }
-
-    const current = isNaN(parsed) ? 0 : parsed;
-    const min = input.hasAttribute('min') ? Number(input.min) : -Infinity;
-    const next = Math.max(min, current + direction * stepSize);
-    input.value = stepSize % 1 === 0
-      ? String(Math.round(next))
-      : String(parseFloat(next.toFixed(10)));
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-  });
 }
 
 function attachAllocationStatusEvents() {
