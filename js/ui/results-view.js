@@ -15,10 +15,7 @@ function formatPercent(value) {
 
 function resolveActivePath(result, tableView) {
   if (result?.tableViews && tableView && result.tableViews[tableView]) {
-    // TEMP DEBUG
-    const _tv = result.tableViews[tableView];
-    console.log('[DEBUG resolveActivePath] tableView='+tableView+' yearlyRows length='+(_tv?.yearlyRows?.length)+' row1 end='+(_tv?.yearlyRows?.[0]?.endPortfolioNominal));
-    return _tv;
+    return result.tableViews[tableView];
   }
 
   if (result?.selectedPath) {
@@ -953,7 +950,6 @@ export function renderResultsView({
       useReal
     });
   } else {
-    console.log('[DEBUG renderYearlyTable] rows[0].endPortfolioNominal='+rows[0]?.endPortfolioNominal+' useReal='+useReal);
     renderYearlyTable(elements.resultsTable, rows, useReal, formatCurrency, {
       person1Name: result.inputs?.person1Name,
       person2Name: result.inputs?.person2Name,
