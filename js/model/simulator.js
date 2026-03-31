@@ -555,12 +555,12 @@ export function simulatePath(inputs, annualReturns) {
     const endPortfolioNominal = totalPortfolio(buckets);
     const endPortfolioReal = endPortfolioNominal / nextInflationIndex;
 
-    const targetSpendingReal = targetSpendingNominal / nextInflationIndex;
-    const actualSpendingReal = actualSpendingNominal / nextInflationIndex;
-    const pensionReal = pensionNominal / nextInflationIndex;
-    const otherIncomeReal = otherIncomeNominal / nextInflationIndex;
-    const windfallReal = windfallNominal / nextInflationIndex;
-    const withdrawalReal = actualWithdrawalNominal / nextInflationIndex;
+    const targetSpendingReal = targetSpendingNominal / inflationIndex;
+    const actualSpendingReal = actualSpendingNominal / inflationIndex;
+    const pensionReal = pensionNominal / inflationIndex;
+    const otherIncomeReal = otherIncomeNominal / inflationIndex;
+    const windfallReal = windfallNominal / inflationIndex;
+    const withdrawalReal = actualWithdrawalNominal / inflationIndex;
 
     const depletedThisYear = endPortfolioNominal <= 0.01;
 
@@ -627,7 +627,7 @@ export function simulatePath(inputs, annualReturns) {
       previousMarketReturn < 0;
 
     const nextTargetSpendingNominal =
-      targetSpendingNominal * (1 + inputs.inflation);
+      targetSpendingNominal * (1 + inflationRate);
 
     let nextPlannedSpendingNominal = nextTargetSpendingNominal;
 
