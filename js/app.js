@@ -318,6 +318,15 @@ function initialise() {
   tabs.setActiveTab('portfolio');
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
+
+  const sentinel = document.getElementById('toolbarSentinel');
+  const header = document.querySelector('.top-header');
+  if (sentinel && header) {
+    new IntersectionObserver(
+      ([entry]) => header.classList.toggle('top-header--compact', !entry.isIntersecting),
+      { rootMargin: '-' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 164) + 'px 0px 0px 0px' }
+    ).observe(sentinel);
+  }
 }
 
 function resetResultsHeader() {
