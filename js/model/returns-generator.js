@@ -15,7 +15,7 @@
  * mean over many years is lower than the arithmetic mean, matching real
  * asset-return behaviour.
  */
-function toLogNormalParams(arithmeticMean, arithmeticVol) {
+export function toLogNormalParams(arithmeticMean, arithmeticVol) {
   if (arithmeticVol <= 0) {
     return { muLog: Math.log(1 + arithmeticMean), sigmaLog: 0 };
   }
@@ -42,7 +42,7 @@ function createCorrelationMatrix(correlations = {}) {
   ];
 }
 
-function cholesky3(matrix) {
+export function cholesky3(matrix) {
   const l11 = Math.sqrt(Math.max(matrix[0][0], 0));
   const l21 = l11 === 0 ? 0 : matrix[1][0] / l11;
   const l31 = l11 === 0 ? 0 : matrix[2][0] / l11;

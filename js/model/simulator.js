@@ -31,7 +31,7 @@ export const DEFAULT_INPUTS = {
   bondVolatility: 7,
   cashlikeReturn: 4,
   cashlikeVolatility: 1,
-  annualFeeRate: 0.27,
+  annualFeeRate: 0.27, // percentage points (e.g. 0.27 = 0.27%). Converted to decimal by normaliseInputs. Keep consistent with DOM field values returned by readValues().
   inflation: 2.7,
 
   person1Name: 'Person 1',
@@ -219,7 +219,7 @@ export function normaliseInputs(rawInputs = {}) {
     bondVolatility: toRate(merged.bondVolatility),
     cashlikeReturn: toRate(merged.cashlikeReturn),
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
-    annualFeeRate: toNumber(merged.annualFeeRate) / 100,
+    annualFeeRate: toNumber(merged.annualFeeRate) / 100, // SINGLE conversion boundary: raw layer (DEFAULT_INPUTS, DOM, mapPortfolioToInputs) uses percentage points; post-normalise everything is decimal. Do not divide elsewhere.
     inflation: toRate(merged.inflation),
     inflationVolatility: toRate(merged.inflationVolatility ?? 0.0175),
 
