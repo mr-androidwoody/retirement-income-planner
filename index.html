@@ -1585,44 +1585,25 @@
         <!-- Tax -->
         <section class="tab-panel" data-tab-panel="tax" hidden>
           <div class="tab-layout single-column">
-            <section class="panel results-meta-panel">
+
+            <!-- Info panel: balances, assumptions, state pensions, Real/Nominal toggle, summary stats -->
+            <!-- Rendered entirely by tax-form.js via renderTaxPanel() -->
+            <section class="panel input-shell-panel page-panel">
               <div class="panel-header results-meta-header">
                 <div>
                   <h2>Tax model</h2>
                   <p>
-                    Deterministic year-by-year UK income tax and CGT estimate across ISA, GIA, and pension wrappers.
-                    Pre-populated from your simulation inputs where available. Based on 2026/27 rates.
+                    Deterministic year-by-year UK income tax and CGT estimate across GIA, pension, and ISA wrappers.
+                    Pre-populated from your simulation inputs. Based on 2026/27 rates, thresholds frozen to 2031.
                   </p>
                 </div>
               </div>
-
-              <div class="tax-results-toolbar">
-                <div class="chart-mode-group" role="group" aria-label="Tax display mode">
-                  <div class="chart-mode-label">Values</div>
-                  <div class="mode-switch">
-                    <label class="mode-option">
-                      <input id="taxModeReal" type="radio" name="taxMode" checked />
-                      <span>Real</span>
-                    </label>
-                    <label class="mode-option">
-                      <input id="taxModeNominal" type="radio" name="taxMode" />
-                      <span>Nominal</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Form (rendered by tax-form.js) -->
-            <section class="panel input-shell-panel page-panel">
               <div id="taxFormContainer"></div>
             </section>
 
-            <!-- Results panel (hidden until first run) -->
+            <!-- Year-by-year table (hidden until first run) -->
             <section class="panel results-meta-panel" id="taxResultsPanel" hidden>
-              <div id="taxSummaryContainer" class="tax-summary-band"></div>
-
-              <div class="tax-table-wrapper" style="margin-top: 24px;">
+              <div class="tax-table-wrapper">
                 <table class="tax-table" id="taxYearTable">
                   <thead></thead>
                   <tbody></tbody>
