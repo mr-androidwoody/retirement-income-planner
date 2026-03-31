@@ -510,8 +510,8 @@ function clearAssumptionsUi() {
 
 function setResultsViewDefaults() {
   if (els.chartModeNominal) els.chartModeNominal.checked = false;
-  if (els.chartModeReal) els.chartModeReal.checked = false;
-  if (els.showRealValues) els.showRealValues.checked = false;
+  if (els.chartModeReal) els.chartModeReal.checked = true;
+  if (els.showRealValues) els.showRealValues.checked = true;
   if (els.showFullTable) els.showFullTable.checked = true;
   if (els.showPlanOutlook) els.showPlanOutlook.checked = true;
 }
