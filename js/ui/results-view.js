@@ -15,7 +15,10 @@ function formatPercent(value) {
 
 function resolveActivePath(result, tableView) {
   if (result?.tableViews && tableView && result.tableViews[tableView]) {
-    return result.tableViews[tableView];
+    // TEMP DEBUG
+    const _tv = result.tableViews[tableView];
+    console.log('[DEBUG resolveActivePath] tableView='+tableView+' yearlyRows length='+(_tv?.yearlyRows?.length)+' row1 end='+(_tv?.yearlyRows?.[0]?.endPortfolioNominal));
+    return _tv;
   }
 
   if (result?.selectedPath) {
