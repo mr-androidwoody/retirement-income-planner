@@ -4,7 +4,7 @@
 // on tab switch.
 //
 // Exports:
-//   renderTaxPanel(container, simInputs, portfolioAccounts, portfolioPeople)
+//   renderTaxPanel(container, simInputs, portfolioAccounts, portfolioPeople, taxResult, useReal, formatCurrency)
 //   buildTaxInputsFromApp(simInputs, portfolioAccounts, portfolioPeople)
 
 // ---------------------------------------------------------------------------
@@ -17,10 +17,6 @@
  * SIPP → pension
  * GIA + QMMF → gia  (cost basis = value, i.e. zero gain assumed)
  * Cash → ignored
- *
- * @param {object[]} accounts
- * @param {string}   ownerLabel  'Person 1' | 'Person 2'
- * @returns {{ isa, gia, pension, giaCostBasis }}
  */
 function sumWrappersForPerson(accounts, ownerLabel) {
   let isa     = 0;
@@ -38,7 +34,7 @@ function sumWrappersForPerson(accounts, ownerLabel) {
     // Cash: intentionally ignored
   }
 
-  return { isa, gia, pension, giaCostBasis: gia }; // cost = value → zero gain
+  return { isa, gia, pension, giaCostBasis: gia };
 }
 
 // ---------------------------------------------------------------------------
@@ -48,10 +44,9 @@ function sumWrappersForPerson(accounts, ownerLabel) {
 /**
  * Build the input object expected by runTaxEngine().
  *
- * @param {object}   simInputs        latestBaseInputs from app.js
- * @param {object[]} portfolioAccounts
- * @param {object}   portfolioPeople  { person1Name, person2Name, person1Age, person2Age }
- * @returns {object}
+ * NOTE: latestBaseInputs stores inflation as a percentage (e.g. 2.7),
+ * matching the HTML field convention (step="0.1"). Divide by 100 here
+ * before passing to the engine which expects a decimal.
  */
 export function buildTaxInputsFromApp(simInputs, portfolioAccounts, portfolioPeople) {
   const inp  = simInputs  || {};
@@ -61,27 +56,27 @@ export function buildTaxInputsFromApp(simInputs, portfolioAccounts, portfolioPeo
   const p1 = sumWrappersForPerson(accs, 'Person 1');
   const p2 = sumWrappersForPerson(accs, 'Person 2');
 
-  // Ages — prefer portfolioPeople (set from the Portfolio tab fields) then simInputs
   const p1Age = Number(ppl.person1Age) || Number(inp.person1Age) || 55;
   const p2Age = Number(ppl.person2Age) || Number(inp.person2Age) || 55;
 
-  // State pension ages — years from now until pension age
   const p1PensionAge = Number(inp.person1PensionAge) || 67;
   const p2PensionAge = Number(inp.person2PensionAge) || 67;
   const p1SpYear     = Math.max(1, p1PensionAge - p1Age);
   const p2SpYear     = Math.max(1, p2PensionAge - p2Age);
 
-  // State pension amounts — use per-person fields if set, fall back to shared
-  const fallbackSp   = Number(inp.statePensionToday) || 0;
-  const p1SpAmount   = Number(inp.person1PensionToday ?? fallbackSp);
-  const p2SpAmount   = Number(inp.person2PensionToday ?? fallbackSp);
+  const fallbackSp = Number(inp.statePensionToday) || 0;
+  const p1SpAmount = Number(inp.person1PensionToday ?? fallbackSp);
+  const p2SpAmount = Number(inp.person2PensionToday ?? fallbackSp);
+
+  // inp.inflation is a percentage (e.g. 2.7) — convert to decimal for the engine
+  const inflationDecimal = (Number(inp.inflation) || 2.7) / 100;
 
   return {
     years:           Number(inp.years)          || 30,
-    growthRate:      0.05,   // nominal 5% — sensible default; not in simInputs
-    inflation:       Number(inp.inflation)       || 0.027,
+    growthRate:      0.05,
+    inflation:       inflationDecimal,
     spendingTarget:  Number(inp.initialSpending) || 40000,
-    wrapperOrder:    ['ISA', 'GIA', 'Pension'],
+    wrapperOrder:    ['GIA', 'Pension', 'ISA'],
 
     p1IsaBalance:     p1.isa,
     p1GiaBalance:     p1.gia,
@@ -124,6 +119,15 @@ function fmtYears(n) {
   return n === 1 ? '1 year' : `${n} years`;
 }
 
+function fmtYear(year) {
+  return Number.isFinite(year) && year > 0 ? `Year ${year}` : 'Never';
+}
+
+function fmtPct(value) {
+  if (!Number.isFinite(value)) return '—';
+  return `${(value * 100).toFixed(1)}%`;
+}
+
 function row(label, value, note) {
   return `
     <tr>
@@ -133,24 +137,82 @@ function row(label, value, note) {
     </tr>`;
 }
 
+function escHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 // ---------------------------------------------------------------------------
-// Render read-only summary panel
+// Summary stats row (folded into info panel)
+// ---------------------------------------------------------------------------
+
+function renderSummaryStats(summary, formatCurrency) {
+  if (!summary || !formatCurrency) return '';
+
+  const fmt = (v) => Number.isFinite(v) ? formatCurrency(v) : '—';
+
+  const exhaustionBadges = [
+    `<span class="tax-wrapper-badge tax-wrapper-isa">ISA ${fmtYear(summary.isaExhaustedYear)}</span>`,
+    `<span class="tax-wrapper-badge tax-wrapper-gia">GIA ${fmtYear(summary.giaExhaustedYear)}</span>`,
+    `<span class="tax-wrapper-badge tax-wrapper-pension">Pension ${fmtYear(summary.pensionExhaustedYear)}</span>`,
+  ].join('');
+
+  return `
+    <div class="tax-stats-row">
+      <div class="tax-stat">
+        <div class="tax-stat-label">Lifetime tax</div>
+        <div class="tax-stat-value">${fmt(summary.lifetimeTax)}</div>
+        <div class="tax-stat-detail">Income ${fmt(summary.lifetimeIncomeTax)} / CGT ${fmt(summary.lifetimeCgt)}</div>
+      </div>
+      <div class="tax-stat">
+        <div class="tax-stat-label">Effective rate</div>
+        <div class="tax-stat-value">${fmtPct(summary.effectiveRate)}</div>
+        <div class="tax-stat-detail">Tax ÷ gross spending</div>
+      </div>
+      <div class="tax-stat">
+        <div class="tax-stat-label">Peak tax year</div>
+        <div class="tax-stat-value">${fmtYear(summary.peakTaxYear)}</div>
+        <div class="tax-stat-detail">${fmt(summary.peakTaxAmount)} that year</div>
+      </div>
+      <div class="tax-stat tax-stat--exhaustion">
+        <div class="tax-stat-label">Wrapper exhaustion</div>
+        <div class="tax-stat-badges">${exhaustionBadges}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Render combined info + stats panel
 // ---------------------------------------------------------------------------
 
 /**
- * Renders a read-only "inputs at a glance" panel into container.
- * Shows what the engine is using so the user can verify before reading results.
+ * Renders the unified info panel: wrapper balances, assumptions, state pensions,
+ * Real/Nominal toggle (inline), and summary stats row (if results available).
  *
  * @param {HTMLElement} container
  * @param {object}      simInputs
  * @param {object[]}    portfolioAccounts
  * @param {object}      portfolioPeople
+ * @param {object|null} taxResult         output of runTaxEngine(), or null if not yet run
+ * @param {boolean}     useReal
+ * @param {Function}    formatCurrency
  */
-export function renderTaxPanel(container, simInputs, portfolioAccounts, portfolioPeople) {
+export function renderTaxPanel(
+  container,
+  simInputs,
+  portfolioAccounts,
+  portfolioPeople,
+  taxResult,
+  useReal,
+  formatCurrency
+) {
   if (!container) return;
 
-  const inp = simInputs  || {};
-  const ppl = portfolioPeople || {};
+  const inp  = simInputs  || {};
+  const ppl  = portfolioPeople || {};
   const accs = portfolioAccounts || [];
 
   const p1Name = (ppl.person1Name || inp.person1Name || 'Person 1').trim() || 'Person 1';
@@ -169,15 +231,15 @@ export function renderTaxPanel(container, simInputs, portfolioAccounts, portfoli
   const fallbackSp   = Number(inp.statePensionToday) || 0;
   const p1SpAmount   = Number(inp.person1PensionToday ?? fallbackSp);
   const p2SpAmount   = Number(inp.person2PensionToday ?? fallbackSp);
+  const p1SpYear     = Math.max(1, p1PensionAge - p1Age);
+  const p2SpYear     = Math.max(1, p2PensionAge - p2Age);
 
-  const p1SpYear = Math.max(1, p1PensionAge - p1Age);
-  const p2SpYear = Math.max(1, p2PensionAge - p2Age);
-
-  const hasQmmf = accs.some(a => !a.isPlaceholder && a.wrapper === 'QMMF');
-  const hasCash = accs.some(a => !a.isPlaceholder && a.wrapper === 'Cash');
-
-  // Check if any portfolio data exists at all
+  const hasQmmf    = accs.some(a => !a.isPlaceholder && a.wrapper === 'QMMF');
+  const hasCash    = accs.some(a => !a.isPlaceholder && a.wrapper === 'Cash');
   const hasPortfolio = accs.some(a => !a.isPlaceholder);
+
+  // inp.inflation is a percentage value (e.g. 2.7) — display directly, no *100
+  const inflationPct = (Number(inp.inflation) || 2.7).toFixed(1);
 
   if (!hasPortfolio || !simInputs) {
     container.innerHTML = `
@@ -190,10 +252,32 @@ export function renderTaxPanel(container, simInputs, portfolioAccounts, portfoli
   const wrapperNotes = [];
   if (hasQmmf) wrapperNotes.push('QMMF treated as GIA');
   if (hasCash) wrapperNotes.push('Cash accounts excluded');
-  wrapperNotes.push('GIA cost basis = current value (zero gain assumed — CGT stays within annual exempt amount)');
+  wrapperNotes.push('GIA cost basis = current value (zero unrealised gain assumed)');
+
+  // Real/Nominal toggle — greyed out (pointer-events: none) until results exist
+  const toggleDisabled = !taxResult;
+  const toggleClass    = toggleDisabled ? 'tax-mode-switch tax-mode-switch--disabled' : 'tax-mode-switch';
+
+  const statsHtml = taxResult
+    ? renderSummaryStats(taxResult.summary, formatCurrency)
+    : '';
 
   container.innerHTML = `
     <div class="tax-info-panel">
+
+      <div class="tax-info-header">
+        <span class="tax-info-header-title">Tax model inputs</span>
+        <div class="${toggleClass}" role="group" aria-label="Tax display mode">
+          <label class="tax-mode-option">
+            <input id="taxModeReal" type="radio" name="taxMode" ${useReal ? 'checked' : ''} ${toggleDisabled ? 'disabled' : ''} />
+            <span>Real</span>
+          </label>
+          <label class="tax-mode-option">
+            <input id="taxModeNominal" type="radio" name="taxMode" ${!useReal ? 'checked' : ''} ${toggleDisabled ? 'disabled' : ''} />
+            <span>Nominal</span>
+          </label>
+        </div>
+      </div>
 
       <div class="tax-info-cols">
 
@@ -237,9 +321,9 @@ export function renderTaxPanel(container, simInputs, portfolioAccounts, portfoli
               ${row('Spending target', fmtGbp(inp.initialSpending), "today's £, inflation-linked")}
               ${row('Horizon', `${inp.years || 30} years`)}
               ${row('Nominal growth', '5.0%', 'fixed assumption')}
-              ${row('Inflation', `${((Number(inp.inflation) || 0.027) * 100).toFixed(1)}%`)}
+              ${row('Inflation', `${inflationPct}%`)}
               ${row('Tax thresholds', 'Frozen', '2026/27 rates to 2031')}
-              ${row('Withdrawal order', 'ISA → GIA → Pension')}
+              ${row('Withdrawal order', 'GIA → Pension → ISA')}
             </tbody>
           </table>
         </section>
@@ -272,17 +356,9 @@ export function renderTaxPanel(container, simInputs, portfolioAccounts, portfoli
         </section>` : ''}
 
       </div>
+
+      ${statsHtml}
+
     </div>
   `;
-}
-
-// ---------------------------------------------------------------------------
-// Escape helper
-// ---------------------------------------------------------------------------
-
-function escHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
 }
