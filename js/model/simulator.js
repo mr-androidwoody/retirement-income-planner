@@ -220,6 +220,7 @@ export function normaliseInputs(rawInputs = {}) {
     cashlikeVolatility: toRate(merged.cashlikeVolatility),
     annualFeeRate: toNumber(merged.annualFeeRate) / 100,
     inflation: toRate(merged.inflation),
+    inflationVolatility: toRate(merged.inflationVolatility ?? 0.0175),
 
     person1Name:
       String(merged.person1Name ?? DEFAULT_INPUTS.person1Name).trim() ||
@@ -300,7 +301,7 @@ function runMonteCarlo(inputs) {
         },
         correlations: DEFAULT_CORRELATIONS,
         inflationMean: inputs.inflation,
-        inflationVolatility: 0,
+        inflationVolatility: inputs.inflationVolatility,
         minInflation: -0.02
       });
 
@@ -485,17 +486,22 @@ export function simulatePath(inputs, annualReturns) {
     const cashReturn = annualReturns.cashlike[yearIndex] ?? inputs.cashlikeReturn;
     const annualFeeRate = inputs.annualFeeRate ?? 0;
 
+    // Fees deducted geometrically: (1 + grossReturn) / (1 + feeRate) - 1
+    // Cash/cashlike is excluded from platform fees (e.g. money market funds held outside platform)
+    const eqReturnNet = (1 + eqReturn) / (1 + annualFeeRate) - 1;
+    const bondReturnNet = (1 + bondReturn) / (1 + annualFeeRate) - 1;
+
     applyAssetReturns(buckets, {
-      equities: eqReturn - annualFeeRate,
-      bonds: bondReturn - annualFeeRate,
+      equities: eqReturnNet,
+      bonds: bondReturnNet,
       cashlike: cashReturn
     });
 
     const realisedReturn = weightedAverageReturn({
       allocations,
       returns: {
-        equities: eqReturn - annualFeeRate,
-        bonds: bondReturn - annualFeeRate,
+        equities: eqReturnNet,
+        bonds: bondReturnNet,
         cashlike: cashReturn
       }
     });

@@ -1,3 +1,30 @@
+/**
+ * Convert arithmetic mean and volatility to log-normal (μ_log, σ_log) parameters.
+ *
+ * For a log-normally distributed return R, if we want:
+ *   E[R]   = arithmeticMean  (arithmetic average of single-period returns)
+ *   Std[R] = arithmeticVol
+ *
+ * Then the underlying normal distribution of ln(1+R) has:
+ *   σ_log = sqrt( ln(1 + (vol / (1 + mean))^2 ) )
+ *   μ_log = ln(1 + mean) - σ_log^2 / 2
+ *
+ * Sampling: R = exp(μ_log + z * σ_log) - 1
+ *
+ * This correctly captures volatility drag so that the geometric (compound)
+ * mean over many years is lower than the arithmetic mean, matching real
+ * asset-return behaviour.
+ */
+function toLogNormalParams(arithmeticMean, arithmeticVol) {
+  if (arithmeticVol <= 0) {
+    return { muLog: Math.log(1 + arithmeticMean), sigmaLog: 0 };
+  }
+  const sigmaLog = Math.sqrt(Math.log(1 + Math.pow(arithmeticVol / (1 + arithmeticMean), 2)));
+  const muLog = Math.log(1 + arithmeticMean) - 0.5 * sigmaLog * sigmaLog;
+  return { muLog, sigmaLog };
+}
+
+
 function clampReturn(value, floor = -0.95, ceiling = 1.5) {
   if (!Number.isFinite(value)) return 0;
   return Math.min(ceiling, Math.max(floor, value));
@@ -83,20 +110,26 @@ export function sampleCorrelatedAnnualReturns({
 
   const correlatedZ = multiplyLowerTriangular3(lower, z);
 
+  // Convert arithmetic mean/vol inputs to log-normal parameters, then sample.
+  // This correctly models volatility drag over multi-year horizons.
+  const eqParams = toLogNormalParams(means.equities, equityVol);
+  const bondParams = toLogNormalParams(means.bonds, bondVol);
+  const cashParams = toLogNormalParams(means.cashlike, cashlikeVol);
+
   const equities = clampReturn(
-    means.equities + correlatedZ[0] * equityVol,
+    Math.exp(eqParams.muLog + correlatedZ[0] * eqParams.sigmaLog) - 1,
     -0.95,
     2.0
   );
 
   const bonds = clampReturn(
-    means.bonds + correlatedZ[1] * bondVol,
+    Math.exp(bondParams.muLog + correlatedZ[1] * bondParams.sigmaLog) - 1,
     -0.95,
     1.0
   );
 
   const cashlike = clampReturn(
-    means.cashlike + correlatedZ[2] * cashlikeVol,
+    Math.exp(cashParams.muLog + correlatedZ[2] * cashParams.sigmaLog) - 1,
     -0.50,
     0.50
   );
