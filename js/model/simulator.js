@@ -322,7 +322,9 @@ function runMonteCarlo(inputs) {
     }
   }
 
-  const sorted = scenarioPaths.length
+  // Sort once by terminal value — used for p10/p90 representative paths.
+  // Extreme paths are well-defined by destination, so terminal sort is appropriate.
+  const sortedByTerminal = scenarioPaths.length
     ? scenarioPaths
         .map((path) => ({
           path,
@@ -331,22 +333,60 @@ function runMonteCarlo(inputs) {
         .sort((a, b) => a.terminal - b.terminal)
     : [];
 
-  function pickPercentile(sortedPaths, p) {
+  function pickPercentileByTerminal(sortedPaths, p) {
     if (!sortedPaths.length) return null;
     const index = Math.floor((sortedPaths.length - 1) * p);
     return sortedPaths[index].path;
   }
 
-  const p10Path = pickPercentile(sorted, 0.10);
-  const p50Path = pickPercentile(sorted, 0.50);
-  const p90Path = pickPercentile(sorted, 0.90);
+  /**
+   * BUG-04 FIX: Select the p50 representative path by minimising L2 distance
+   * to the cross-sectional p50 percentile series (year-by-year median values).
+   *
+   * A path selected by terminal value alone can have had a catastrophic early
+   * sequence that happens to recover — not representative of a median experience.
+   * The path closest to the p50 fan line year-by-year gives a genuinely median
+   * journey and is visually coherent as an overlay on the percentile fan chart.
+   */
+  function pickP50ByL2Distance(paths, p50Series) {
+    if (!paths.length) return null;
+    if (!p50Series || !p50Series.length) return paths[Math.floor(paths.length / 2)];
+
+    let bestPath = null;
+    let bestDistance = Infinity;
+
+    for (const scenarioPath of paths) {
+      const series = scenarioPath.pathNominal;
+      let sumSquares = 0;
+
+      for (let i = 0; i < p50Series.length; i++) {
+        const diff = (series[i] ?? 0) - p50Series[i];
+        sumSquares += diff * diff;
+      }
+
+      if (sumSquares < bestDistance) {
+        bestDistance = sumSquares;
+        bestPath = scenarioPath;
+      }
+    }
+
+    return bestPath;
+  }
+
+  // Build percentile series — needed both for p50 path selection and the return value.
+  const nominalPercentiles = buildPercentileSeries(nominalPaths);
+  const realPercentiles = buildPercentileSeries(realPaths);
+
+  const p10Path = pickPercentileByTerminal(sortedByTerminal, 0.10);
+  const p50Path = pickP50ByL2Distance(scenarioPaths, nominalPercentiles.p50);
+  const p90Path = pickPercentileByTerminal(sortedByTerminal, 0.90);
 
   return {
     successRate: inputs.monteCarloRuns > 0 ? successCount / inputs.monteCarloRuns : 0,
     scenarioCount: inputs.monteCarloRuns,
 
-    nominalPercentiles: buildPercentileSeries(nominalPaths),
-    realPercentiles: buildPercentileSeries(realPaths),
+    nominalPercentiles,
+    realPercentiles,
 
     representativePaths: {
       p10: p10Path,
