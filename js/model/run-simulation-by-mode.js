@@ -53,6 +53,13 @@ export async function runSimulationByMode({ mode, inputs }) {
   }
 
   const result = runRetirementSimulation(inputs);
+  // TEMPORARY DEBUG — remove after diagnosis
+  const _dbgNom = result?.monteCarlo?.nominalPercentiles;
+  const _dbgP50 = result?.monteCarlo?.representativePaths?.p50;
+  console.log('[DEBUG] cross-sectional p50 Y0-Y5:', _dbgNom?.p50?.slice(0,6)?.map(Math.round));
+  console.log('[DEBUG] p50 path nominal Y0-Y5:', _dbgP50?.pathNominal?.slice(0,6)?.map(Math.round));
+  console.log('[DEBUG] p50 path row Y1 start/end:', _dbgP50?.rows?.[0]?.startPortfolioNominal, _dbgP50?.rows?.[0]?.endPortfolioNominal);
+  // END TEMPORARY DEBUG
   const baseRows = result?.baseCase?.rows || [];
   const baseYearlyRows = result?.baseCase?.yearlyRows || baseRows;
 
