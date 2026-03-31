@@ -2219,14 +2219,6 @@ input[type="checkbox"]{
   margin-top:2px;
 }
 
-.inflation-panel__label{
-  margin:0;
-  font-size:0.82rem;
-  font-weight:800;
-  color:#2f4061;
-  line-height:1.2;
-}
-
 .inflation-panel__row{
   display:grid;
   grid-template-columns:minmax(0, 1fr) minmax(0, 2.2fr);
