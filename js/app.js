@@ -63,6 +63,7 @@ const els = {
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
   adjustmentSize: document.getElementById('adjustmentSize'),
+  maxSpendingNominal: document.getElementById('maxSpendingNominal'),
   simulationMode: document.getElementById('simulationMode'),
   historicalScenario: document.getElementById('historicalScenario'),
   monteCarloRunsRow: document.getElementById('monteCarloRunsRow'),
@@ -1664,6 +1665,7 @@ function mapPortfolioToInputs(totals) {
     person2WindfallYear: 0,
 
     upperGuardrail: 20,
+    maxSpendingNominal: 0,
     lowerGuardrail: 20,
     adjustmentSize: 10,
 
@@ -1896,6 +1898,12 @@ function applyPortfolioInputsToAssumptions(inputs) {
   if (els.adjustmentSize) {
     els.adjustmentSize.value = Number.isFinite(Number(inputs.adjustmentSize))
       ? String(inputs.adjustmentSize)
+      : '';
+  }
+
+  if (els.maxSpendingNominal) {
+    els.maxSpendingNominal.value = Number.isFinite(Number(inputs.maxSpendingNominal)) && inputs.maxSpendingNominal > 0
+      ? formatInteger(Math.round(Number(inputs.maxSpendingNominal)))
       : '';
   }
 
