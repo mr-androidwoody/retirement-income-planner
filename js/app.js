@@ -820,9 +820,11 @@ if (savePortfolioBtn) {
       const currentVal = isNaN(parsed) ? 0 : parsed;
       // − is a no-op at 0 (no cap state)
       if (direction < 0 && currentVal === 0) return;
-      // + from 0 seeds to £60,000
+      // + from 0 seeds to initialSpending value (fallback £60,000)
       if (direction > 0 && currentVal === 0) {
-        input.value = '60,000';
+        const seedRaw = String(els.initialSpending?.value ?? '').replace(/,/g, '');
+        const seed = parseFloat(seedRaw) || 60000;
+        input.value = seed.toLocaleString('en-GB');
       } else {
         // Floor at £1,000; stepper cannot reach 0
         const next = Math.max(1000, currentVal + direction * stepSize);
