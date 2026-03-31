@@ -2255,6 +2255,27 @@ input[type="checkbox"]{
   border-top:1px solid var(--line);
 }
 
+.results-meta-panel{
+  position:sticky;
+  top:calc(var(--header-height) + 8px);
+  z-index:99;
+}
+
+/* Compact header — title/intro hidden, just controls remain */
+.top-header--compact{
+  --header-height:56px;
+  padding:10px 28px;
+}
+
+.top-header--compact .title-block{
+  display:none;
+}
+
+#toolbarSentinel{
+  height:0;
+  pointer-events:none;
+}
+
 .chart-mode-group{
   display:flex;
   flex-direction:column;
