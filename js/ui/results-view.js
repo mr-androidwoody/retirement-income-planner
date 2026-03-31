@@ -876,9 +876,9 @@ export function renderResultsView({
     activePath;
 
     const profiles = {
-      activeProfile: buildPathBehaviourProfile(result, activePath, true),
-      medianProfile: buildPathBehaviourProfile(result, medianPath, true),
-      downsideProfile: buildPathBehaviourProfile(result, downsidePath, true)
+      activeProfile: buildPathBehaviourProfile(result, activePath, useReal),
+      medianProfile: buildPathBehaviourProfile(result, medianPath, useReal),
+      downsideProfile: buildPathBehaviourProfile(result, downsidePath, useReal)
     };
 
     if (elements.resultsContextBar) {
