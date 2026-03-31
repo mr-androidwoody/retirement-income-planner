@@ -215,17 +215,21 @@ const tabs = initialiseTabs({
     }
 
     if (tabName === 'tax') {
+      if (latestBaseInputs) {
+        const taxInputs = buildTaxInputsFromApp(latestBaseInputs, portfolioAccounts, portfolioPeople);
+        latestTaxResult = runTaxEngine(taxInputs);
+      }
+      const useReal = document.getElementById('taxModeReal')?.checked !== false;
       renderTaxPanel(
         document.getElementById('taxFormContainer'),
         latestBaseInputs || null,
         portfolioAccounts,
-        portfolioPeople
+        portfolioPeople,
+        latestTaxResult,
+        useReal,
+        formatCurrency
       );
-      if (latestBaseInputs) {
-        const taxInputs = buildTaxInputsFromApp(latestBaseInputs, portfolioAccounts, portfolioPeople);
-        latestTaxResult = runTaxEngine(taxInputs);
-        renderTaxResults();
-      }
+      if (latestTaxResult) renderTaxResults();
     }
   }
 });
@@ -860,11 +864,21 @@ if (savePortfolioBtn) {
 // ---------------------------------------------------------------------------
 
 function attachTaxTabEvents() {
-  // Real/Nominal toggle
-  document.querySelectorAll('input[name="taxMode"]').forEach((radio) => {
-    radio.addEventListener('change', () => {
-      if (latestTaxResult) renderTaxResults();
-    });
+  // Use event delegation — radios are rendered dynamically by renderTaxPanel
+  document.addEventListener('change', (e) => {
+    if (e.target.name !== 'taxMode') return;
+    if (!latestTaxResult) return;
+    const useReal = document.getElementById('taxModeReal')?.checked !== false;
+    renderTaxPanel(
+      document.getElementById('taxFormContainer'),
+      latestBaseInputs || null,
+      portfolioAccounts,
+      portfolioPeople,
+      latestTaxResult,
+      useReal,
+      formatCurrency
+    );
+    renderTaxResults();
   });
 }
 
@@ -875,7 +889,6 @@ function renderTaxResults() {
   const useReal = document.getElementById('taxModeReal')?.checked !== false;
   renderTaxView({
     result: latestTaxResult,
-    summaryContainer: document.getElementById('taxSummaryContainer'),
     tableEl: document.getElementById('taxYearTable'),
     useReal,
     formatCurrency,
