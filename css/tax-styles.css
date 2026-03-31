@@ -198,3 +198,90 @@ body:not(.is-results) .tax-tab-button,
 body:not(.is-results) .tax-tab-separator {
   display: none;
 }
+
+/* ── Tax info panel (read-only summary) ───────────────────── */
+
+.tax-no-data {
+  padding: 24px;
+  color: #8898b0;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.tax-info-panel {
+  padding: 4px 0 8px;
+}
+
+.tax-info-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px 28px;
+}
+
+.tax-info-section {
+  min-width: 0;
+}
+
+.tax-info-heading {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent, #2563eb);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.tax-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.tax-info-table thead th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #8898b0;
+  text-align: right;
+  padding: 0 0 6px 10px;
+}
+
+.tax-info-table thead th:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+
+.tax-info-table tbody tr + tr td {
+  border-top: 1px solid var(--border, #e2e8f0);
+}
+
+.tax-info-label {
+  color: #50627f;
+  font-size: 0.78rem;
+  padding: 5px 8px 5px 0;
+  white-space: nowrap;
+}
+
+.tax-info-value {
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  text-align: right;
+  padding: 5px 0 5px 8px;
+  white-space: nowrap;
+}
+
+.tax-info-note {
+  font-size: 0.72rem;
+  color: #8898b0;
+  text-align: right;
+  padding: 5px 0 5px 10px;
+  white-space: nowrap;
+}
+
+.tax-info-aside {
+  font-size: 0.72rem;
+  color: #8898b0;
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
