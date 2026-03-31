@@ -803,6 +803,26 @@ if (savePortfolioBtn) {
   }
 
   attachAllocationStatusEvents();
+
+  // Generic stepper buttons (event delegation — handles all .stepper-btn fields)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.stepper-btn[data-step-target]');
+    if (!btn) return;
+    const targetId = btn.dataset.stepTarget;
+    const direction = Number(btn.dataset.stepDirection) || 1;
+    const stepSize = Number(btn.dataset.stepSize) || 1;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    const rawValue = String(input.value ?? '').replace(/,/g, '').trim();
+    const current = parseFloat(rawValue) || 0;
+    const min = input.hasAttribute('min') ? Number(input.min) : -Infinity;
+    const next = Math.max(min, current + direction * stepSize);
+    input.value = stepSize % 1 === 0
+      ? String(Math.round(next))
+      : String(parseFloat(next.toFixed(10)));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
 }
 
 function attachAllocationStatusEvents() {
@@ -1903,7 +1923,7 @@ function applyPortfolioInputsToAssumptions(inputs) {
 
   if (els.maxSpendingNominal) {
     els.maxSpendingNominal.value = Number.isFinite(Number(inputs.maxSpendingNominal)) && inputs.maxSpendingNominal > 0
-      ? formatInteger(Math.round(Number(inputs.maxSpendingNominal)))
+      ? String(Math.round(Number(inputs.maxSpendingNominal)))
       : '';
   }
 
