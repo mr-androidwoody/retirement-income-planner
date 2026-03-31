@@ -524,7 +524,7 @@ export function createPlanForm(
       years: parseLooseInteger(elements.years?.value),
       initialPortfolio: parseLooseNumber(elements.initialPortfolio?.value),
       initialSpending: parseLooseNumber(elements.initialSpending?.value),
-      annualFeeRate: parseLooseNumber(elements.annualFeeRate?.value),
+      annualFeeRate: parseLooseNumber(elements.annualFeeRate?.value), // percentage points — normaliseInputs divides by 100 at the model boundary
       comfortSpending: parseLooseNumber(elements.comfortSpending?.value),
       minimumSpending: parseLooseNumber(elements.minimumSpending?.value),
       equityAllocation: allocations.equityAllocation,
