@@ -814,9 +814,16 @@ if (savePortfolioBtn) {
     const input = document.getElementById(targetId);
     if (!input) return;
     const rawValue = String(input.value ?? '').replace(/,/g, '').trim();
-    const current = parseFloat(rawValue) || 0;
+    const parsed = parseFloat(rawValue);
+    // For maxSpendingNominal: first + click from blank/0 seeds to £60,000 rather than £1,000
+    const seedValue = (targetId === 'maxSpendingNominal' && (isNaN(parsed) || parsed === 0) && direction > 0)
+      ? 60000
+      : (isNaN(parsed) ? 0 : parsed);
+    const current = seedValue;
     const min = input.hasAttribute('min') ? Number(input.min) : -Infinity;
-    const next = Math.max(min, current + direction * stepSize);
+    const next = targetId === 'maxSpendingNominal' && current === 60000 && direction > 0
+      ? 60000
+      : Math.max(min, current + direction * stepSize);
     input.value = stepSize % 1 === 0
       ? String(Math.round(next))
       : String(parseFloat(next.toFixed(10)));
