@@ -4,7 +4,7 @@ import { initialiseTabs } from './ui/tabs.js';
 import { renderResultsView } from './ui/results-view.js';
 import { createPlanForm } from './ui/plan-form.js';
 import { createAdvancedForm } from './ui/advanced-form.js';
-import { renderTaxForm, buildTaxInputs } from './ui/tax-form.js';
+import { renderTaxPanel, buildTaxInputsFromApp } from './ui/tax-form.js';
 import { renderTaxView } from './ui/tax-view.js';
 import { runTaxEngine } from './model/tax-engine.js';
 
@@ -215,11 +215,15 @@ const tabs = initialiseTabs({
     }
 
     if (tabName === 'tax') {
-      renderTaxForm(
+      renderTaxPanel(
         document.getElementById('taxFormContainer'),
-        latestBaseInputs || null
+        latestBaseInputs || null,
+        portfolioAccounts,
+        portfolioPeople
       );
-      if (latestTaxResult) {
+      if (latestBaseInputs) {
+        const taxInputs = buildTaxInputsFromApp(latestBaseInputs, portfolioAccounts, portfolioPeople);
+        latestTaxResult = runTaxEngine(taxInputs);
         renderTaxResults();
       }
     }
@@ -856,15 +860,6 @@ if (savePortfolioBtn) {
 // ---------------------------------------------------------------------------
 
 function attachTaxTabEvents() {
-  // Run tax button (rendered dynamically by renderTaxForm — use delegation)
-  document.addEventListener('click', (e) => {
-    if (e.target && e.target.id === 'runTaxBtn') {
-      const inputs = buildTaxInputs();
-      latestTaxResult = runTaxEngine(inputs);
-      renderTaxResults();
-    }
-  });
-
   // Real/Nominal toggle
   document.querySelectorAll('input[name="taxMode"]').forEach((radio) => {
     radio.addEventListener('change', () => {
