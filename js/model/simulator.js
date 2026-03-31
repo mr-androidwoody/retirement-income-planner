@@ -62,6 +62,7 @@ export const DEFAULT_INPUTS = {
   monteCarloRuns: 1000,
   skipInflationAfterNegative: true,
   enableGuardrails: true,
+  maxSpendingNominal: 0,
   showRealValues: true,
   showFullTable: true
 };
@@ -254,6 +255,7 @@ export function normaliseInputs(rawInputs = {}) {
     monteCarloRuns: toInt(merged.monteCarloRuns),
     skipInflationAfterNegative: Boolean(merged.skipInflationAfterNegative),
     enableGuardrails: Boolean(merged.enableGuardrails),
+    maxSpendingNominal: toNumber(merged.maxSpendingNominal ?? 0),
     showRealValues: Boolean(merged.showRealValues),
     showFullTable: Boolean(merged.showFullTable)
   };
@@ -671,6 +673,16 @@ export function simulatePath(inputs, annualReturns) {
         } else if (nextWithdrawalRate < lowerLimit) {
           nextPlannedSpendingNominal *= 1 + inputs.adjustmentSize;
         }
+      }
+
+      // Cap spending at user-defined maximum (0 = no cap).
+      // Prevents guardrail boosts from pushing spending into tax-inefficient territory
+      // e.g. once state pensions arrive and withdrawal rate stays below lower limit.
+      if (inputs.maxSpendingNominal > 0) {
+        nextPlannedSpendingNominal = Math.min(
+          nextPlannedSpendingNominal,
+          inputs.maxSpendingNominal
+        );
       }
     }
 
