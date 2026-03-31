@@ -1,0 +1,200 @@
+/* ============================================================
+   TAX TAB — append to css/style.css
+   ============================================================ */
+
+/* ── Tax tab panel layout ─────────────────────────────────── */
+
+.tax-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .tax-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tax-form-section {
+  padding: 20px 22px;
+}
+
+.tax-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 32px;
+}
+
+/* ── Two-person column layout inside cards ────────────────── */
+
+.tax-person-cols {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tax-person-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tax-person-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent, #2563eb);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+/* ── Field note (helper text below input) ─────────────────── */
+
+.field-note {
+  font-size: 0.72rem;
+  color: #8898b0;
+  margin-top: 2px;
+}
+
+/* ── Tax results toolbar (Real/Nominal toggle) ────────────── */
+
+.tax-results-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ── Tax summary cards ────────────────────────────────────── */
+
+.tax-summary-band {
+  margin: 0 0 24px;
+  padding: 12px;
+  background: linear-gradient(180deg, #12264a 0%, #1a315b 100%);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.tax-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .tax-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .tax-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Wrapper exhaustion card — stacked badges */
+.tax-exhaustion-value {
+  margin: 12px 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tax-wrapper-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.tax-wrapper-isa     { background: rgba(99,  202, 147, 0.25); color: #a7f3d0; }
+.tax-wrapper-gia     { background: rgba(251, 191,  36, 0.20); color: #fde68a; }
+.tax-wrapper-pension { background: rgba(147, 197, 253, 0.20); color: #bfdbfe; }
+
+/* ── Year-by-year table ───────────────────────────────────── */
+
+.tax-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+.tax-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.tax-table thead th {
+  padding: 10px 12px;
+  background: var(--panel-soft, #f7f9fc);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #50627f;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.tax-table thead th.col-text {
+  text-align: left;
+}
+
+.tax-table tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  text-align: right;
+  color: var(--text, #1e293b);
+  white-space: nowrap;
+}
+
+.tax-table tbody td.col-text {
+  text-align: left;
+  font-weight: 600;
+}
+
+.tax-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tax-table tbody tr:hover {
+  background: var(--panel-soft, #f7f9fc);
+}
+
+/* Highlight rows where tax is paid */
+.tax-row--has-tax td.tax-cell--total-tax {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.tax-cell--income-tax { color: #7c3aed; }
+.tax-cell--cgt        { color: #b45309; }
+
+/* Shortfall rows */
+.tax-row--shortfall {
+  background: #fef2f2;
+}
+
+/* ── "Model tax →" handover button in Results tab ─────────── */
+
+.tax-handover-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, #e2e8f0);
+}
+
+.btn-tax-handover {
+  font-size: 0.82rem;
+}
+
+/* ── Hide Tax tab button unless on Results tab ────────────── */
+body:not(.is-results) .tax-tab-button,
+body:not(.is-results) .tax-tab-separator {
+  display: none;
+}
