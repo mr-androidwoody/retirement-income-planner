@@ -137,13 +137,19 @@ export function sampleCorrelatedAnnualReturns({
   let inflation = inflationMean;
 
   if (inflationVol > 0) {
-    const inflationShock =
-      0.35 * correlatedZ[1] -
-      0.20 * correlatedZ[0] +
-      0.15 * correlatedZ[2] +
-      sampleStandardNormal(rng) * inflationVol;
+    // Inflation correlates weakly with asset returns (bond=+0.35, equity=-0.20, cashlike=+0.15).
+    // Scale the correlated component by inflationVol so total inflation variance stays controlled.
+    // Residual weight sqrt(1 - 0.35^2 - 0.20^2 - 0.15^2) = sqrt(0.7350) ≈ 0.857 preserves
+    // unit variance in the combined shock before multiplying by inflationVol.
+    const correlatedComponent =
+      (0.35 * correlatedZ[1] -
+       0.20 * correlatedZ[0] +
+       0.15 * correlatedZ[2]) * inflationVol;
 
-    inflation = Math.max(minInflation, inflationMean + inflationShock);
+    const residualWeight = Math.sqrt(1 - 0.35 * 0.35 - 0.20 * 0.20 - 0.15 * 0.15);
+    const residualComponent = sampleStandardNormal(rng) * inflationVol * residualWeight;
+
+    inflation = Math.max(minInflation, inflationMean + correlatedComponent + residualComponent);
   }
 
   return {
