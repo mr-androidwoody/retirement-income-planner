@@ -63,7 +63,6 @@ const els = {
   upperGuardrail: document.getElementById('upperGuardrail'),
   lowerGuardrail: document.getElementById('lowerGuardrail'),
   adjustmentSize: document.getElementById('adjustmentSize'),
-  maxSpendingNominal: document.getElementById('maxSpendingNominal'),
   simulationMode: document.getElementById('simulationMode'),
   historicalScenario: document.getElementById('historicalScenario'),
   monteCarloRunsRow: document.getElementById('monteCarloRunsRow'),
