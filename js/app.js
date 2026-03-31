@@ -4,6 +4,9 @@ import { initialiseTabs } from './ui/tabs.js';
 import { renderResultsView } from './ui/results-view.js';
 import { createPlanForm } from './ui/plan-form.js';
 import { createAdvancedForm } from './ui/advanced-form.js';
+import { renderTaxForm, buildTaxInputs } from './ui/tax-form.js';
+import { renderTaxView } from './ui/tax-view.js';
+import { runTaxEngine } from './model/tax-engine.js';
 
 const els = {
   years: document.getElementById('years'),
@@ -120,11 +123,13 @@ const els = {
   resultsTableNote: document.getElementById('resultsTableNote'),
   resultsTableLegend: document.getElementById('resultsTableLegend'),
   assumptionsTabButton: document.querySelector('[data-tab-button="assumptions"]'),
-  resultsTabButton: document.querySelector('[data-tab-button="results"]')
+  resultsTabButton: document.querySelector('[data-tab-button="results"]'),
+  taxTabButton: document.querySelector('[data-tab-button="tax"]')
 };
 
 let latestResult = null;
 let latestBaseInputs = null;
+let latestTaxResult = null;
 let worker = null;
 let withdrawalInputMode = 'rate';
 let currentTableView = 'median';
@@ -188,12 +193,17 @@ const tabs = initialiseTabs({
   onChange: (tabName) => {
     document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
     document.body.classList.toggle('is-results', tabName === 'results');
-    if (tabName !== 'results') {
+    document.body.classList.toggle('is-tax', tabName === 'tax');
+
+    // Compact header only valid on results/tax — restore when leaving
+    if (tabName !== 'results' && tabName !== 'tax') {
       document.querySelector('.top-header')?.classList.remove('top-header--compact');
       document.documentElement.style.setProperty('--header-height', '164px');
     }
+
     updateRunSimulationButtonState(tabName);
 
+    // Summary band visible on results and tax
     if (els.summaryBand) {
       els.summaryBand.classList.toggle('hidden', tabName !== 'results');
     }
@@ -202,6 +212,16 @@ const tabs = initialiseTabs({
       requestAnimationFrame(() => {
         renderAll();
       });
+    }
+
+    if (tabName === 'tax') {
+      renderTaxForm(
+        document.getElementById('taxFormContainer'),
+        latestBaseInputs || null
+      );
+      if (latestTaxResult) {
+        renderTaxResults();
+      }
     }
   }
 });
@@ -324,18 +344,23 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  const sentinel = document.getElementById('toolbarSentinel');
+  // Compact header: observe the bottom edge of #summaryBand (above the tab panels).
+  // When the summary band scrolls out of view, collapse the header.
+  // This replaces the old toolbarSentinel which was inside the Results panel.
+  const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
-  if (sentinel && header) {
+  if (summaryBandEl && header) {
     new IntersectionObserver(
       ([entry]) => {
-        const onResults = document.body.classList.contains('is-results');
-        const compact = onResults && !entry.isIntersecting;
+        const onResultsOrTax =
+          document.body.classList.contains('is-results') ||
+          document.body.classList.contains('is-tax');
+        const compact = onResultsOrTax && !entry.isIntersecting;
         header.classList.toggle('top-header--compact', compact);
         document.documentElement.style.setProperty('--header-height', compact ? '56px' : '164px');
       },
-      { rootMargin: '-' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 164) + 'px 0px 0px 0px' }
-    ).observe(sentinel);
+      { threshold: 0 }
+    ).observe(summaryBandEl);
   }
 }
 
@@ -781,6 +806,7 @@ if (savePortfolioBtn) {
 
       latestResult = null;
       latestBaseInputs = null;
+      latestTaxResult = null;
       currentTableView = 'median';
       currentTableMode = 'plan';
 
@@ -805,6 +831,7 @@ if (savePortfolioBtn) {
   attachGuytonKlingerEvents();
   attachResultsTabGuard();
   attachAssumptionsTabGuard();
+  attachTaxTabEvents();
 
   window.addEventListener(
     'resize',
@@ -822,6 +849,42 @@ if (savePortfolioBtn) {
   }
 
   attachAllocationStatusEvents();
+}
+
+// ---------------------------------------------------------------------------
+// Tax tab events
+// ---------------------------------------------------------------------------
+
+function attachTaxTabEvents() {
+  // Run tax button (rendered dynamically by renderTaxForm — use delegation)
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'runTaxBtn') {
+      const inputs = buildTaxInputs();
+      latestTaxResult = runTaxEngine(inputs);
+      renderTaxResults();
+    }
+  });
+
+  // Real/Nominal toggle
+  document.querySelectorAll('input[name="taxMode"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      if (latestTaxResult) renderTaxResults();
+    });
+  });
+}
+
+function renderTaxResults() {
+  if (!latestTaxResult) return;
+  const panel = document.getElementById('taxResultsPanel');
+  if (panel) panel.removeAttribute('hidden');
+  const useReal = document.getElementById('taxModeReal')?.checked !== false;
+  renderTaxView({
+    result: latestTaxResult,
+    summaryContainer: document.getElementById('taxSummaryContainer'),
+    tableEl: document.getElementById('taxYearTable'),
+    useReal,
+    formatCurrency,
+  });
 }
 
 function attachAllocationStatusEvents() {
