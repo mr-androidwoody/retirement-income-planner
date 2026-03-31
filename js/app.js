@@ -818,15 +818,15 @@ if (savePortfolioBtn) {
 
     if (targetId === 'maxSpendingNominal') {
       const currentVal = isNaN(parsed) ? 0 : parsed;
-      // − is a no-op when already at 0 (no cap)
+      // − is a no-op at 0 (no cap state)
       if (direction < 0 && currentVal === 0) return;
-      // + from blank/0 seeds to £60,000
+      // + from 0 seeds to £60,000
       if (direction > 0 && currentVal === 0) {
-        input.value = '60000';
+        input.value = '60,000';
       } else {
-        // Floor at £1,000 — stepper cannot reach 0; clear field manually for no cap
+        // Floor at £1,000; stepper cannot reach 0
         const next = Math.max(1000, currentVal + direction * stepSize);
-        input.value = String(Math.round(next));
+        input.value = next.toLocaleString('en-GB');
       }
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1942,7 +1942,7 @@ function applyPortfolioInputsToAssumptions(inputs) {
 
   if (els.maxSpendingNominal) {
     els.maxSpendingNominal.value = Number.isFinite(Number(inputs.maxSpendingNominal)) && inputs.maxSpendingNominal > 0
-      ? String(Math.round(Number(inputs.maxSpendingNominal)))
+      ? Math.round(Number(inputs.maxSpendingNominal)).toLocaleString('en-GB')
       : '';
   }
 
