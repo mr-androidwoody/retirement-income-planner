@@ -1165,15 +1165,11 @@ function normalisePortfolioPercent(value) {
 }
 
 function getActivePortfolioAccounts() {
-  if (portfolioConfig.hasPerson2) {
-    return portfolioAccounts;
+  const accounts = portfolioAccounts.filter((account) => !account.isPlaceholder);
+  if (!portfolioConfig.hasPerson2) {
+    return accounts.filter((account) => account.owner !== 'Person 2');
   }
-
-  return portfolioAccounts.filter((account) => account.owner !== 'Person 2');
-}
-
-function getActivePortfolioAccounts() {
-  return portfolioAccounts.filter((account) => !account.isPlaceholder);
+  return accounts;
 }
 
 function getPortfolioRowIssues(account) {
@@ -1389,10 +1385,6 @@ function removePortfolioAccount(id) {
   portfolioAccounts = portfolioAccounts.filter((item) => item.id !== id);
   savePortfolioToStorage();
   renderPortfolioTable();
-}
-
-function getActivePortfolioAccounts() {
-  return portfolioAccounts.filter((account) => !account.isPlaceholder);
 }
 
 function getPortfolioRowAllocationTotal(account) {
