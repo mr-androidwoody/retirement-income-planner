@@ -7,8 +7,6 @@
 //   renderTaxPanel(container, simInputs, portfolioAccounts, portfolioPeople, taxResult, useReal, formatCurrency)
 //   buildTaxInputsFromApp(simInputs, portfolioAccounts, portfolioPeople)
 
-import { renderTaxView } from './tax-view.js';
-
 // ---------------------------------------------------------------------------
 // Portfolio → per-person wrapper balances
 // ---------------------------------------------------------------------------
@@ -175,12 +173,6 @@ function renderSummaryCards(summary, formatCurrency) {
 
   const fmt = (value) => Number.isFinite(value) ? formatCurrency(value) : '—';
 
-  const exhaustionBadges = [
-    `<span class="tax-wrapper-badge tax-wrapper-isa">ISA ${fmtYear(summary.isaExhaustedYear)}</span>`,
-    `<span class="tax-wrapper-badge tax-wrapper-gia">GIA ${fmtYear(summary.giaExhaustedYear)}</span>`,
-    `<span class="tax-wrapper-badge tax-wrapper-pension">Pension ${fmtYear(summary.pensionExhaustedYear)}</span>`,
-  ].join('');
-
   return `
     <section class="tax-overview" aria-label="Tax overview">
       <div class="tax-card-row">
@@ -207,13 +199,6 @@ function renderSummaryCards(summary, formatCurrency) {
           <div class="tax-card-label">Final portfolio</div>
           <div class="tax-card-sub">End of tax model horizon</div>
         </article>
-      </div>
-
-      <div class="tax-narrative">${escHtml(narrative(summary))}</div>
-
-      <div class="tax-exhaustion-strip">
-        <div class="tax-exhaustion-label">Wrapper exhaustion</div>
-        <div class="tax-exhaustion-badges">${exhaustionBadges}</div>
       </div>
     </section>
   `;
@@ -309,16 +294,17 @@ export function renderTaxPanel(
     : '';
 
   container.innerHTML = `
-    <div class="tax-info-panel">
-      <div class="tax-info-header">
-        <div class="tax-info-header-copy">
-          <div class="tax-info-header-title">Tax model</div>
-          <div class="tax-info-header-subtitle">
+    <section class="input-shell-panel page-panel tax-panel-shell">
+      <div class="panel-header panel-header-tight tax-panel-header">
+        <div class="tax-panel-header__copy">
+          <h2>Tax model</h2>
+          <p>
             Deterministic year-by-year UK income tax and CGT estimate across GIA, pension, and ISA wrappers.
-          </div>
+            Pre-populated from your simulation inputs and portfolio balances.
+          </p>
         </div>
 
-        <div class="${toggleClass}" role="group" aria-label="Tax display mode">
+        <div class="${toggleClass} tax-panel-toggle" role="group" aria-label="Tax display mode">
           <label class="tax-mode-option">
             <input
               id="taxModeReal"
@@ -345,13 +331,36 @@ export function renderTaxPanel(
 
       ${summaryHtml}
 
-      <section class="tax-inputs tax-inputs--secondary" aria-label="Tax model inputs">
-        <div class="tax-inputs-title">Model inputs</div>
+      ${
+        taxResult
+          ? `
+      <div class="plan-summary-note plan-summary-note--info tax-panel-note">
+        <strong>Interpretation</strong>
+        <span>${escHtml(narrative(taxResult.summary))}</span>
+      </div>
 
-        <div class="tax-info-cols">
-          <section class="tax-info-section">
-            <h4 class="tax-info-heading">Wrapper balances</h4>
-            <table class="tax-info-table">
+      <div class="tax-exhaustion-panel">
+        <div class="tax-exhaustion-panel__label">Wrapper exhaustion</div>
+        <div class="tax-exhaustion-badges">
+          <span class="tax-wrapper-badge tax-wrapper-isa">ISA ${fmtYear(taxResult.summary?.isaExhaustedYear)}</span>
+          <span class="tax-wrapper-badge tax-wrapper-gia">GIA ${fmtYear(taxResult.summary?.giaExhaustedYear)}</span>
+          <span class="tax-wrapper-badge tax-wrapper-pension">Pension ${fmtYear(taxResult.summary?.pensionExhaustedYear)}</span>
+        </div>
+      </div>
+      `
+          : ''
+      }
+
+      <section class="tax-inputs-panel" aria-label="Tax model inputs">
+        <div class="tax-inputs-panel__header">
+          <h3>Model inputs</h3>
+          <p>Reference inputs used by the tax model.</p>
+        </div>
+
+        <div class="tax-inputs-grid">
+          <section class="tax-input-card">
+            <div class="tax-input-card__title">Wrapper balances</div>
+            <table class="tax-info-table tax-info-table--balances">
               <thead>
                 <tr>
                   <th></th>
@@ -377,45 +386,45 @@ export function renderTaxPanel(
                 </tr>
               </tbody>
             </table>
-            ${wrapperNotes.map((note) => `<p class="tax-info-aside">${escHtml(note)}</p>`).join('')}
+
+            <div class="tax-input-card__notes">
+              ${wrapperNotes.map((note) => `<div class="tax-input-card__note">${escHtml(note)}</div>`).join('')}
+            </div>
           </section>
 
-          <section class="tax-info-section">
-            <h4 class="tax-info-heading">Spending &amp; growth</h4>
+          <section class="tax-input-card">
+            <div class="tax-input-card__title">Spending &amp; growth</div>
             <table class="tax-info-table">
               <tbody>
                 ${infoRow('Spending target', fmtGbp(Number(inp.initialSpending) || 0), "today's £, inflation-linked")}
-                ${infoRow('Horizon', `${Number(inp.years) || 30} years`, '')}
+                ${infoRow('Horizon', `${Number(inp.years) || 30} years`)}
                 ${infoRow('Nominal growth', '5.0%', 'fixed assumption')}
-                ${infoRow('Inflation', `${inflationPct}%`, '')}
+                ${infoRow('Inflation', `${inflationPct}%`)}
                 ${infoRow('Tax thresholds', 'Frozen', '2026/27 rates to 2031')}
-                ${infoRow('Withdrawal order', 'GIA → Pension → ISA', '')}
+                ${infoRow('Withdrawal order', 'GIA → Pension → ISA')}
               </tbody>
             </table>
           </section>
 
-          <section class="tax-info-section">
-            <h4 class="tax-info-heading">State pensions</h4>
+          <section class="tax-input-card">
+            <div class="tax-input-card__title">State pensions</div>
             <table class="tax-info-table">
               <tbody>
                 ${infoRow(escHtml(p1Name), `${fmtGbp(p1SpAmount)}/yr`, `starts year ${p1SpYear} (age ${p1PensionAge})`)}
                 ${includePerson2 ? infoRow(escHtml(p2Name), `${fmtGbp(p2SpAmount)}/yr`, `starts year ${p2SpYear} (age ${p2PensionAge})`) : ''}
-                ${infoRow('Other income', fmtYears((Number(inp.person1OtherIncomeYears) || 0) + (includePerson2 ? Number(inp.person2OtherIncomeYears) || 0 : 0)), 'temporary income streams')}
+                ${infoRow(
+                  'Other income',
+                  fmtYears(
+                    (Number(inp.person1OtherIncomeYears) || 0) +
+                    (includePerson2 ? Number(inp.person2OtherIncomeYears) || 0 : 0)
+                  ),
+                  'temporary income streams'
+                )}
               </tbody>
             </table>
           </section>
         </div>
       </section>
-
-    </div>
+    </section>
   `;
-
-  if (taxResult) {
-    renderTaxView({
-      result: taxResult,
-      tableEl: container.querySelector('#taxYearTableInline'),
-      useReal,
-      formatCurrency,
-    });
-  }
 }
