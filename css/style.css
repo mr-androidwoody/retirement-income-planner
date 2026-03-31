@@ -2256,8 +2256,6 @@ input[type="checkbox"]{
 }
 
 .results-meta-panel{
-  position:sticky;
-  top:calc(var(--header-height) + 8px);
   z-index:99;
 }
 
