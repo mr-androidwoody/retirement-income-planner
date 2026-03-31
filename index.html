@@ -1183,6 +1183,34 @@
                       </label>
                     </div>
         
+                    <div class="field-row guardrails-row">
+                      <label class="field">
+                        <span class="field-label">Maximum spending cap (£)</span>
+                        <span class="field-hint">Guardrail boosts will not push spending above this amount. Set to 0 for no cap.</span>
+                        <div class="stepper-input">
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-action="step"
+                            data-step-target="maxSpendingNominal"
+                            data-step-direction="-1"
+                            data-step-size="1000"
+                            aria-label="Decrease maximum spending by £1,000"
+                          >−</button>
+                          <input id="maxSpendingNominal" type="number" min="0" step="1000" placeholder="0 = no cap" />
+                          <button
+                            type="button"
+                            class="stepper-btn"
+                            data-action="step"
+                            data-step-target="maxSpendingNominal"
+                            data-step-direction="1"
+                            data-step-size="1000"
+                            aria-label="Increase maximum spending by £1,000"
+                          >+</button>
+                        </div>
+                      </label>
+                    </div>
+
                     <div class="spending-toggle-row">
                       <label class="field field-inline field-inline-wide inline-switch spending-toggle-field">
                         <span class="field-label field-label-inline">
