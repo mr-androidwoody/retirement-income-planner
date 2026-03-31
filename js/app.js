@@ -82,9 +82,10 @@ const els = {
   continueToAssumptionsBtn: document.getElementById('continueToAssumptionsBtn'),
   portfolioValidationStatus: document.getElementById('portfolioValidationStatus'),
   runSimulationBtn: document.getElementById('runSimulationBtn'),
-  resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
   errorBox: document.getElementById('errorBox'),
 
+  summaryBand: document.getElementById('summaryBand'),
+    
   summarySuccessRateCard: document.getElementById('summarySuccessRateCard'),
   summarySuccessRate: document.getElementById('summarySuccessRate'),
   summarySuccessRateLabel: document.getElementById('summarySuccessRateLabel'),
@@ -117,13 +118,14 @@ const els = {
   resultsTable: document.getElementById('resultsTable'),
   resultsTableNote: document.getElementById('resultsTableNote'),
   resultsTableLegend: document.getElementById('resultsTableLegend'),
+  assumptionsTabButton: document.querySelector('[data-tab-button="assumptions"]'),
   resultsTabButton: document.querySelector('[data-tab-button="results"]')
 };
 
 let latestResult = null;
 let latestBaseInputs = null;
 let worker = null;
-let withdrawalInputMode = 'amount';
+let withdrawalInputMode = 'rate';
 let currentTableView = 'median';
 let currentTableMode = 'plan';
 let portfolioAccounts = [];
@@ -136,11 +138,23 @@ let portfolioPeople = {
   person1Age: 55,
   person2Age: 55
 };
+let hasMappedPortfolioToAssumptions = false;
 
 const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
 const PORTFOLIO_CONFIG_STORAGE_KEY = 'retirement_portfolio_config_v1';
 const PORTFOLIO_PEOPLE_STORAGE_KEY = 'retirement_portfolio_people_v1';
 
+function updateRunSimulationButtonState(activeTab) {
+  if (!els.runSimulationBtn) return;
+
+  const isAssumptionsTab = activeTab === 'assumptions';
+
+  els.runSimulationBtn.classList.toggle('btn-primary', isAssumptionsTab);
+  els.runSimulationBtn.classList.toggle('btn-secondary', !isAssumptionsTab);
+  els.runSimulationBtn.classList.toggle('btn-run-simulation--active', isAssumptionsTab);
+  els.runSimulationBtn.classList.toggle('btn-run-simulation--inactive', !isAssumptionsTab);
+  els.runSimulationBtn.setAttribute('aria-disabled', String(!isAssumptionsTab));
+}
 
 function savePortfolioToStorage() {
   const activeAccounts = getActivePortfolioAccounts();
@@ -171,8 +185,12 @@ const parsingHelpers = { formatInteger, parseLooseNumber, parseLooseInteger };
 const tabs = initialiseTabs({
   defaultTab: 'portfolio',
   onChange: (tabName) => {
-
     document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
+    updateRunSimulationButtonState(tabName);
+
+    if (els.summaryBand) {
+      els.summaryBand.classList.toggle('hidden', tabName !== 'results');
+    }
 
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
@@ -186,6 +204,12 @@ const planForm = createPlanForm(els, parsingHelpers);
 const advancedForm = createAdvancedForm(els, parsingHelpers);
 
 initialise();
+
+function formatOneDecimal(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '';
+  return num.toFixed(1);
+}
 
 function savePortfolioConfigToStorage() {
   localStorage.setItem(
@@ -216,6 +240,26 @@ function savePortfolioPeopleToStorage() {
     PORTFOLIO_PEOPLE_STORAGE_KEY,
     JSON.stringify(portfolioPeople)
   );
+}
+
+function syncPortfolioPeopleFromFields() {
+  if (els.portfolioPerson1Name) {
+    portfolioPeople.person1Name = els.portfolioPerson1Name.value;
+  }
+
+  if (els.portfolioPerson2Name) {
+    portfolioPeople.person2Name = els.portfolioPerson2Name.value;
+  }
+
+  if (els.portfolioPerson1Age) {
+    const nextAge = Number.parseInt(els.portfolioPerson1Age.value, 10);
+    portfolioPeople.person1Age = Number.isFinite(nextAge) ? nextAge : 55;
+  }
+
+  if (els.portfolioPerson2Age) {
+    const nextAge = Number.parseInt(els.portfolioPerson2Age.value, 10);
+    portfolioPeople.person2Age = Number.isFinite(nextAge) ? nextAge : 55;
+  }
 }
 
 function loadPortfolioPeopleFromStorage() {
@@ -264,18 +308,20 @@ function initialise() {
   loadPortfolioPeopleFromStorage();
   attachEvents();
   setResultsViewDefaults();
-  syncInitialWithdrawalRateFromAmount();
+  syncInitialSpendingFromRate();
   updateAllocationStatus();
   renderPortfolioPeopleFields();
   renderPortfolioTable();
   applyPerson2PortfolioRules();
   document.body.classList.add('is-portfolio');
   tabs.setActiveTab('portfolio');
+  updateRunSimulationButtonState('portfolio');
+  hasMappedPortfolioToAssumptions = false;
 }
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
-    els.summarySuccessRateLabel.textContent = 'Plan success rate';
+    els.summarySuccessRateLabel.textContent = 'Plan reliability';
   }
 
   if (els.summarySuccessRate) {
@@ -284,11 +330,11 @@ function resetResultsHeader() {
 
   if (els.summarySuccessRateDesc) {
     els.summarySuccessRateDesc.textContent =
-      'Share of simulated paths that avoid depletion across the full plan.';
+      'Shows how often the plan sustains spending across simulated outcomes.';
   }
 
   if (els.summaryMedianEndLabel) {
-    els.summaryMedianEndLabel.textContent = 'Median end portfolio';
+    els.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
   }
 
   if (els.summaryMedianEnd) {
@@ -297,11 +343,11 @@ function resetResultsHeader() {
 
   if (els.summaryMedianEndDesc) {
     els.summaryMedianEndDesc.textContent =
-      'Middle simulated outcome at the end of the retirement horizon.';
+      'After funding your planned spending throughout.';
   }
 
   if (els.summaryWorstStressLabel) {
-    els.summaryWorstStressLabel.textContent = 'Worst stress scenario';
+    els.summaryWorstStressLabel.textContent = 'Worst observed outcome';
   }
 
   if (els.summaryWorstStress) {
@@ -310,11 +356,11 @@ function resetResultsHeader() {
 
   if (els.summaryWorstStressDesc) {
     els.summaryWorstStressDesc.textContent =
-      'Lowest ending portfolio across the deterministic stress paths.';
+      'Portfolio fully depleted in worst cases.';
   }
 
   if (els.summaryCashRunwayLabel) {
-    els.summaryCashRunwayLabel.textContent = 'Cash runway at start';
+    els.summaryCashRunwayLabel.textContent = 'Spending shortfall risk';
   }
 
   if (els.summaryCashRunway) {
@@ -323,19 +369,19 @@ function resetResultsHeader() {
 
   if (els.summaryCashRunwayDesc) {
     els.summaryCashRunwayDesc.textContent =
-      'Years the opening cashlike bucket could fund net withdrawals before refill.';
-  }
+      'Shows whether weaker outcomes fall below the minimum spending level.';
+}
 
   if (els.summarySuccessRateCard) {
-  els.summarySuccessRateCard.classList.remove(
-    'summary-card--green',
-    'summary-card--amber',
-    'summary-card--red',
-    'is-strong',
-    'is-weak',
-    'is-watch'
-  );
-}
+    els.summarySuccessRateCard.classList.remove(
+      'summary-card--green',
+      'summary-card--amber',
+      'summary-card--red',
+      'is-strong',
+      'is-weak',
+      'is-watch'
+    );
+  }
 }
 
 function setupWorker() {
@@ -343,24 +389,31 @@ function setupWorker() {
     worker = new Worker(new URL('./worker/worker.js', import.meta.url), { type: 'module' });
 
     worker.onmessage = (event) => {
+      console.log('worker response', event.data);
+
       planForm.setBusy(false);
 
       if (!event.data?.ok) {
+        console.error('worker error', event.data);
         showError(event.data?.error || 'Simulation failed.');
         return;
       }
 
       latestResult = event.data.result;
+      console.log('latestResult set', latestResult);
+
       hideError();
       showResults();
     };
 
-    worker.onerror = () => {
+    worker.onerror = (error) => {
+      console.error('worker.onerror', error);
       worker = null;
       planForm.setBusy(false);
       showError('Web Worker failed to load. Falling back to main-thread simulation.');
     };
-  } catch {
+  } catch (error) {
+    console.error('setupWorker failed', error);
     worker = null;
   }
 }
@@ -369,20 +422,201 @@ function applyDefaults() {
   planForm.applyDefaults(DEFAULT_INPUTS);
   advancedForm.applyDefaults(DEFAULT_INPUTS);
   latestBaseInputs = null;
-  withdrawalInputMode = 'amount';
+  withdrawalInputMode = 'rate';
   currentTableView = 'median';
   currentTableMode = 'plan';
-  syncInitialWithdrawalRateFromAmount();
+
+  if (els.initialWithdrawalRate && !String(els.initialWithdrawalRate.value || '').trim()) {
+    els.initialWithdrawalRate.value = '4';
+  }
+
+  syncInitialSpendingFromRate();
 }
+
+function clearAssumptionsUi() {
+  const textLikeFields = [
+    els.years,
+    els.initialPortfolio,
+    els.initialWithdrawalRate,
+    els.initialSpending,
+    els.comfortSpending,
+    els.minimumSpending,
+    els.annualFeeRate,
+    els.equityAllocation,
+    els.bondAllocation,
+    els.cashlikeAllocation,
+    els.cashAllocation,
+    els.equityReturn,
+    els.equityVolatility,
+    els.bondReturn,
+    els.bondVolatility,
+    els.cashlikeReturn,
+    els.cashlikeVolatility,
+    els.inflation,
+    els.person1Name,
+    els.person1Age,
+    els.person1PensionAge,
+    els.person2Name,
+    els.person2Age,
+    els.person2PensionAge,
+    els.statePensionToday,
+    els.person1OtherIncomeToday,
+    els.person1OtherIncomeYears,
+    els.person1WindfallAmount,
+    els.person1WindfallYear,
+    els.person2OtherIncomeToday,
+    els.person2OtherIncomeYears,
+    els.person2WindfallAmount,
+    els.person2WindfallYear,
+    els.upperGuardrail,
+    els.lowerGuardrail,
+    els.adjustmentSize,
+    els.monteCarloRuns
+  ].filter(Boolean);
+
+  textLikeFields.forEach((field) => {
+    field.value = '';
+  });
+
+  const checkboxFields = [
+    els.rebalanceToTarget,
+    els.person1GetsFullPension,
+    els.person2GetsFullPension,
+    els.skipInflationAfterNegative
+  ].filter(Boolean);
+
+  checkboxFields.forEach((field) => {
+    field.checked = false;
+  });
+
+  if (els.simulationMode) {
+    els.simulationMode.selectedIndex = 0;
+  }
+
+  if (els.historicalScenario) {
+    els.historicalScenario.selectedIndex = 0;
+  }
+
+  latestBaseInputs = null;
+  withdrawalInputMode = 'rate';
+
+  if (els.initialWithdrawalRate && !String(els.initialWithdrawalRate.value || '').trim()) {
+    els.initialWithdrawalRate.value = '4';
+  }
+
+  updateAllocationStatus();
+  }
 
 function setResultsViewDefaults() {
   if (els.chartModeNominal) els.chartModeNominal.checked = false;
   if (els.chartModeReal) els.chartModeReal.checked = false;
-  if (els.showRealValues) els.showRealValues.checked = false; // default to nominal view
+  if (els.showRealValues) els.showRealValues.checked = false;
   if (els.showFullTable) els.showFullTable.checked = true;
   if (els.showPlanOutlook) els.showPlanOutlook.checked = true;
-  if (els.guytonKlingerOn) els.guytonKlingerOn.checked = true;
-  if (els.guytonKlingerOff) els.guytonKlingerOff.checked = false;
+}
+
+function sanitiseInputs(rawInputs = {}) {
+  return Object.fromEntries(
+    Object.entries(rawInputs).filter(([, value]) => {
+      if (value === '' || value === null || value === undefined) return false;
+      if (typeof value === 'number' && !Number.isFinite(value)) return false;
+      if (typeof value === 'string' && value.trim() === '') return false;
+      return true;
+    })
+  );
+}
+
+function prepareAndRunSimulation() {
+  console.log('prepareAndRunSimulation start');
+
+  const activeAccounts = getActivePortfolioAccounts();
+  console.log('activeAccounts', activeAccounts);
+
+  if (!activeAccounts.length) {
+    console.log('stopped: no active accounts');
+    showError('Build your portfolio first - add at least one account to run a simulation.');
+    tabs.setActiveTab('portfolio');
+    return;
+  }
+
+  const validationState = getPortfolioValidationState();
+  console.log('validationState', validationState);
+
+  if (!validationState.isReady) {
+    console.log('stopped: portfolio validation failed');
+    showError('Fix the highlighted portfolio issues before running a simulation.');
+    tabs.setActiveTab('portfolio');
+    return;
+  }
+
+  const totals = calculatePortfolioTotals(activeAccounts);
+  console.log('totals', totals);
+
+  const mappedInputs = mapPortfolioToInputs(totals);
+  console.log('mappedInputs', mappedInputs);
+
+  const currentInputs = sanitiseInputs(gatherInputs());
+  console.log('currentInputs', currentInputs);
+
+  latestBaseInputs = {
+    ...mappedInputs,
+    ...currentInputs
+  };
+  console.log('latestBaseInputs', latestBaseInputs);
+
+  applyPortfolioInputsToAssumptions(latestBaseInputs);
+  hasMappedPortfolioToAssumptions = true;
+
+  hideError();
+  console.log('calling runSimulation');
+  runSimulation();
+}
+
+function continueToAssumptions() {
+  const activeAccounts = getActivePortfolioAccounts();
+  const validationState = getPortfolioValidationState();
+
+  if (!activeAccounts.length) {
+    showError('Add at least one account before continuing.');
+    tabs.setActiveTab('portfolio');
+    return false;
+  }
+
+  if (!validationState.isReady) {
+    showError('Fix the highlighted portfolio issues before continuing.');
+    tabs.setActiveTab('portfolio');
+    return false;
+  }
+
+  const portfolioTotals = calculatePortfolioTotals(activeAccounts);
+  const roundedPortfolioTotal =
+    Math.round(portfolioTotals.allocations.equities) +
+    Math.round(portfolioTotals.allocations.bonds) +
+    Math.round(portfolioTotals.allocations.cashlike) +
+    Math.round(portfolioTotals.allocations.cash);
+
+  if (roundedPortfolioTotal < 99 || roundedPortfolioTotal > 101) {
+    showError('Portfolio totals could not be mapped cleanly to Assumptions. Check your account allocations.');
+    tabs.setActiveTab('portfolio');
+    return false;
+  }
+
+  const mappedInputs = mapPortfolioToInputs(portfolioTotals);
+
+  latestBaseInputs = {
+    ...mappedInputs
+  };
+
+  applyPortfolioInputsToAssumptions(latestBaseInputs);
+  hasMappedPortfolioToAssumptions = true;
+  tabs.setActiveTab('assumptions');
+
+  requestAnimationFrame(() => {
+    hideError();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  return true;
 }
 
 function attachEvents() {
@@ -391,27 +625,13 @@ function attachEvents() {
 
     els.portfolioHasPerson2.addEventListener('change', (e) => {
       portfolioConfig.hasPerson2 = Boolean(e.target.checked);
-
-      if (!portfolioConfig.hasPerson2) {
-        portfolioPeople.person2Name = '';
-        portfolioPeople.person2Age = 55;
-
-        if (els.portfolioPerson2Name) {
-          els.portfolioPerson2Name.value = '';
-        }
-
-        if (els.portfolioPerson2Age) {
-          els.portfolioPerson2Age.value = 55;
-        }
-      }
-
+    
       savePortfolioConfigToStorage();
-      savePortfolioPeopleToStorage();
-
+    
       if (els.includePerson2) {
         els.includePerson2.checked = portfolioConfig.hasPerson2;
       }
-
+    
       applyPerson2PortfolioRules();
       renderPortfolioTable();
     });
@@ -421,6 +641,7 @@ function attachEvents() {
     els.portfolioPerson1Name.addEventListener('input', (e) => {
       portfolioPeople.person1Name = e.target.value;
       savePortfolioPeopleToStorage();
+      renderPortfolioTable();
     });
   }
 
@@ -428,6 +649,7 @@ function attachEvents() {
     els.portfolioPerson2Name.addEventListener('input', (e) => {
       portfolioPeople.person2Name = e.target.value;
       savePortfolioPeopleToStorage();
+      renderPortfolioTable();
     });
   }
 
@@ -447,152 +669,42 @@ function attachEvents() {
     });
   }
 
-  if (els.includePerson2) {
-    els.includePerson2.addEventListener('change', (e) => {
-      portfolioConfig.hasPerson2 = Boolean(e.target.checked);
+if (els.continueToAssumptionsBtn) {
+  els.continueToAssumptionsBtn.addEventListener('click', () => {
+    continueToAssumptions();
+  });
+}
 
-      if (!portfolioConfig.hasPerson2) {
-        portfolioPeople.person2Name = '';
-        portfolioPeople.person2Age = 55;
+const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
 
-        if (els.portfolioPerson2Name) {
-          els.portfolioPerson2Name.value = '';
-        }
+if (addPortfolioAccountBtn) {
+  addPortfolioAccountBtn.addEventListener('click', () => {
+    addPortfolioAccount();
+  });
+}
 
-        if (els.portfolioPerson2Age) {
-          els.portfolioPerson2Age.value = 55;
-        }
-      }
+const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
-      savePortfolioConfigToStorage();
-      savePortfolioPeopleToStorage();
+if (savePortfolioBtn) {
+  savePortfolioBtn.addEventListener('click', () => {
+    syncPortfolioPeopleFromFields();
+    savePortfolioToStorage();
+    savePortfolioConfigToStorage();
+    savePortfolioPeopleToStorage();
 
-      if (els.portfolioHasPerson2) {
-        els.portfolioHasPerson2.checked = portfolioConfig.hasPerson2;
-      }
+    const originalLabel = savePortfolioBtn.textContent;
 
-      applyPerson2PortfolioRules();
-      renderPortfolioTable();
-    });
-  }
+    savePortfolioBtn.textContent = 'Saved';
+    savePortfolioBtn.classList.remove('btn-secondary');
+    savePortfolioBtn.classList.add('btn-success');
 
-  if (els.continueToAssumptionsBtn) {
-    els.continueToAssumptionsBtn.addEventListener('click', () => {
-      const activeAccounts = getActivePortfolioAccounts();
-      const validationState = getPortfolioValidationState();
-
-      if (!activeAccounts.length) {
-        showError('Add at least one account before continuing.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      if (!validationState.isReady) {
-        showError('Fix the highlighted portfolio issues before continuing.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const portfolioTotals = calculatePortfolioTotals(portfolioAccounts);
-      const roundedPortfolioTotal =
-        Math.round(portfolioTotals.allocations.equities) +
-        Math.round(portfolioTotals.allocations.bonds) +
-        Math.round(portfolioTotals.allocations.cashlike) +
-        Math.round(portfolioTotals.allocations.cash);
-
-      if (roundedPortfolioTotal < 99 || roundedPortfolioTotal > 101) {
-        showError('Portfolio totals could not be mapped cleanly to Assumptions. Check your account allocations.');
-        return;
-      }
-
-      const mappedInputs = mapPortfolioToInputs(portfolioTotals);
-      const currentInputs = {
-        ...DEFAULT_INPUTS,
-        ...gatherInputs()
-      };
-
-      latestBaseInputs = {
-        ...currentInputs,
-        ...mappedInputs
-      };
-
-      applyPortfolioInputsToAssumptions(mappedInputs);
-      tabs.setActiveTab('assumptions');
-
-      requestAnimationFrame(() => {
-        hideError();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-  }
-
-  const addPortfolioAccountBtn = document.getElementById('addPortfolioAccountBtn');
-
-  if (addPortfolioAccountBtn) {
-    addPortfolioAccountBtn.addEventListener('click', () => {
-      addPortfolioAccount();
-    });
-  }
-
-  if (els.runSimulationBtn) {
-      els.runSimulationBtn.addEventListener('click', () => {
-        const activeAccounts = getActivePortfolioAccounts();
-    
-        if (!activeAccounts.length) {
-          showError('Build your portfolio first - add at least one account to run a simulation.');
-          tabs.setActiveTab('portfolio');
-          return;
-        }
-    
-        const validationState = getPortfolioValidationState();
-    
-        if (!validationState.isReady) {
-          showError('Fix the highlighted portfolio issues before running a simulation.');
-          tabs.setActiveTab('portfolio');
-          return;
-        }
-    
-        const totals = calculatePortfolioTotals(portfolioAccounts);
-        const mappedInputs = mapPortfolioToInputs(totals);
-    
-        const currentInputs = {
-          ...DEFAULT_INPUTS,
-          ...gatherInputs()
-        };
-    
-        latestBaseInputs = {
-          ...currentInputs,
-          ...mappedInputs
-        };
-    
-        applyPortfolioInputsToAssumptions(mappedInputs);
-    
-        hideError();
-        runSimulation();
-      });
-    }
-
-  const savePortfolioBtn = document.getElementById('savePortfolioBtn');
-
-  if (savePortfolioBtn) {
-    savePortfolioBtn.addEventListener('click', () => {
-      savePortfolioToStorage();
-      savePortfolioConfigToStorage();
-      savePortfolioPeopleToStorage();
-
-      const originalLabel = savePortfolioBtn.textContent;
-
-      savePortfolioBtn.textContent = 'Saved';
-      savePortfolioBtn.classList.remove('btn-secondary');
-      savePortfolioBtn.classList.add('btn-success');
-
-      window.setTimeout(() => {
-        savePortfolioBtn.textContent = originalLabel;
-        savePortfolioBtn.classList.remove('btn-success');
-        savePortfolioBtn.classList.add('btn-secondary');
-      }, 1200);
-    });
-  }
+    window.setTimeout(() => {
+      savePortfolioBtn.textContent = originalLabel;
+      savePortfolioBtn.classList.remove('btn-success');
+      savePortfolioBtn.classList.add('btn-secondary');
+    }, 1200);
+  });
+}
 
   const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
   const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
@@ -617,6 +729,7 @@ function attachEvents() {
     confirmDeleteBtn.addEventListener('click', () => {
       portfolioAccounts.length = 0;
       latestBaseInputs = null;
+      hasMappedPortfolioToAssumptions = false;
 
       localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
       localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
@@ -635,47 +748,16 @@ function attachEvents() {
 
   planForm.bindActions({
     onRun: () => {
-      const activeAccounts = getActivePortfolioAccounts();
-
-      if (!activeAccounts.length) {
-        showError('Build your portfolio first - add at least one account to run a simulation.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const validationState = getPortfolioValidationState();
-
-      if (!validationState.isReady) {
-        showError('Fix the highlighted portfolio issues before running a simulation.');
-        tabs.setActiveTab('portfolio');
-        return;
-      }
-
-      const totals = calculatePortfolioTotals(portfolioAccounts);
-      const mappedInputs = mapPortfolioToInputs(totals);
-    
-      const currentInputs = {
-        ...DEFAULT_INPUTS,
-        ...gatherInputs()
-      };
-    
-      latestBaseInputs = {
-        ...currentInputs,
-        ...mappedInputs
-      };
-    
-      applyPortfolioInputsToAssumptions(mappedInputs);
-    
-      hideError();
-      runSimulation();
-        
+      prepareAndRunSimulation();
     },
     onReset: () => {
       applyDefaults();
+      clearAssumptionsUi();
       setResultsViewDefaults();
       updateAllocationStatus();
       applyPerson2PortfolioRules();
       renderPortfolioPeopleFields();
+      hasMappedPortfolioToAssumptions = false;
 
       latestResult = null;
       latestBaseInputs = null;
@@ -692,7 +774,9 @@ function attachEvents() {
 
   advancedForm.bindDisplayEvents({
     onViewChange: () => {
-      if (latestResult) renderAll();
+      if (latestResult) {
+        renderAll();
+      }
     }
   });
 
@@ -700,11 +784,14 @@ function attachEvents() {
   attachChartModeEvents();
   attachGuytonKlingerEvents();
   attachResultsTabGuard();
+  attachAssumptionsTabGuard();
 
   window.addEventListener(
     'resize',
     debounce(() => {
-      if (latestResult) renderAll();
+      if (latestResult) {
+        renderAll();
+      }
     }, 100)
   );
 
@@ -892,6 +979,26 @@ function attachResultsTabGuard() {
   );
 }
 
+function attachAssumptionsTabGuard() {
+  if (!els.assumptionsTabButton) return;
+
+  els.assumptionsTabButton.addEventListener(
+    'click',
+    (event) => {
+      if (hasMappedPortfolioToAssumptions) {
+        hideError();
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      continueToAssumptions();
+    },
+    true
+  );
+}
+
 function syncInitialWithdrawalRateFromAmount() {
   if (!els.initialWithdrawalRate || !els.initialPortfolio || !els.initialSpending) return;
 
@@ -972,33 +1079,58 @@ function normaliseAllocationInputsForSimulation(inputs) {
 }
 
 function runSimulation() {
-  const inputs = gatherInputs();
-  const mergedInputs = normaliseAllocationInputsForSimulation({
-    ...DEFAULT_INPUTS,
-    ...inputs
-  });
-  const errors = validateInputs(mergedInputs);
-
-  if (errors.length > 0) {
-    showError(errors.join(' '));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  hideError();
-  latestBaseInputs = mergedInputs;
-  currentTableView = 'median';
-  currentTableMode = 'plan';
-  planForm.setBusy(true);
-
-  const effectiveInputs = getResultsOverrideInputs(mergedInputs);
-
-  if (worker) {
-    worker.postMessage({ type: 'run', inputs: effectiveInputs });
-    return;
-  }
+  console.log('runSimulation start');
 
   try {
+    const inputs = gatherInputs();
+    console.log('runSimulation gathered inputs', inputs);
+
+    const mergedInputs = normaliseAllocationInputsForSimulation({
+      ...DEFAULT_INPUTS,
+      ...sanitiseInputs(latestBaseInputs || gatherInputs())
+    });
+    console.log('runSimulation mergedInputs', mergedInputs);
+
+    const errors = validateInputs(mergedInputs);
+    console.log('runSimulation validation errors JSON', JSON.stringify(errors, null, 2));
+    console.log('runSimulation mergedInputs JSON', JSON.stringify(mergedInputs, null, 2));
+    
+    if (errors.length > 0) {
+      console.error('Validation failed');
+      errors.forEach((error, index) => {
+        console.error(`Error ${index + 1}:`, error);
+      });
+      console.log('Merged inputs snapshot:', mergedInputs);
+    
+      showError(errors.join(' '));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (errors.length > 0) {
+      showError(errors.join(' '));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    hideError();
+    latestBaseInputs = mergedInputs;
+    currentTableView = 'median';
+    currentTableMode = 'plan';
+    planForm.setBusy(true);
+
+    const effectiveInputs = getResultsOverrideInputs(mergedInputs);
+    console.log('runSimulation effectiveInputs', effectiveInputs);
+
+    if (worker) {
+      console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
+      worker.postMessage({ type: 'run', inputs: effectiveInputs });
+      console.log('posted to worker');
+      return;
+    }
+
+    console.log('no worker, using main thread fallback');
+
     Promise.resolve(
       runSimulationByMode({
         mode: effectiveInputs.simulationMode || 'monteCarlo',
@@ -1011,14 +1143,15 @@ function runSimulation() {
         showResults();
       })
       .catch((error) => {
+        console.error('runSimulation async error', error);
         planForm.setBusy(false);
         showError(error instanceof Error ? error.message : 'Simulation failed.');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
   } catch (error) {
+    console.error('runSimulation crashed', error);
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
@@ -1039,10 +1172,13 @@ function rerunResultsWithCurrentOptions() {
   hideError();
 
   if (worker) {
-    planForm.setBusy(true);
+    console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
     worker.postMessage({ type: 'run', inputs: effectiveInputs });
+    console.log('posted to worker');
     return;
   }
+
+  console.log('no worker, using main-thread fallback');
 
   try {
     Promise.resolve(
@@ -1066,6 +1202,7 @@ function rerunResultsWithCurrentOptions() {
 }
 
 function showResults() {
+  setResultsViewDefaults();
   tabs.setActiveTab('results');
 
   requestAnimationFrame(() => {
@@ -1077,26 +1214,41 @@ function showResults() {
 function renderAll() {
   if (!latestResult) return;
 
-  renderResultsView({
-    result: latestResult,
-    elements: els,
-    useReal: Boolean(els.showRealValues?.checked),
-    showFullTable: Boolean(els.showFullTable?.checked),
-    tableView: currentTableView,
-    tableMode: currentTableMode,
-    formatters: {
-      formatCurrency,
-      formatPercent,
-      formatYears
-    }
-  });
+  try {
+    console.log('renderAll start', latestResult);
 
-  applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+    renderResultsView({
+      result: latestResult,
+      elements: els,
+      useReal: els.chartModeReal?.checked !== false,
+      showFullTable: Boolean(els.showFullTable?.checked),
+      tableView: currentTableView,
+      tableMode: currentTableMode,
+      formatters: {
+        formatCurrency,
+        formatPercent,
+        formatYears
+      }
+    });
+    console.log('renderResultsView done');
 
-  attachTableModeSelector();
-  attachTableViewSelector();
-  togglePlanOutlook();
+    applySuccessRateTone(latestResult.monteCarlo?.successRate ?? null);
+    console.log('applySuccessRateTone done');
+
+    attachTableModeSelector();
+    console.log('attachTableModeSelector done');
+
+    attachTableViewSelector();
+    console.log('attachTableViewSelector done');
+
+    togglePlanOutlook();
+    console.log('togglePlanOutlook done');
+  } catch (error) {
+    console.error('renderAll failed', error);
+    showError(error instanceof Error ? error.message : 'Results rendering failed.');
+  }
 }
+
 
 function applySuccessRateTone(successRate) {
   if (!els.summarySuccessRateCard) return;
@@ -1165,11 +1317,11 @@ function normalisePortfolioPercent(value) {
 }
 
 function getActivePortfolioAccounts() {
-  const accounts = portfolioAccounts.filter((account) => !account.isPlaceholder);
-  if (!portfolioConfig.hasPerson2) {
-    return accounts.filter((account) => account.owner !== 'Person 2');
+  if (portfolioConfig.hasPerson2) {
+    return portfolioAccounts;
   }
-  return accounts;
+
+  return portfolioAccounts.filter((account) => account.owner !== 'Person 2');
 }
 
 function getPortfolioRowIssues(account) {
@@ -1454,21 +1606,326 @@ function calculatePortfolioTotals(portfolioAccounts) {
 }
 
 function mapPortfolioToInputs(totals) {
+  const hasPerson2 = Boolean(portfolioConfig.hasPerson2);
+
+  const safeTotal = Number(totals?.totalValue) || 0;
+
   return {
-    initialPortfolio: totals.totalValue,
-    equityAllocation: totals.allocations.equities,
-    bondAllocation: totals.allocations.bonds,
-    cashlikeAllocation: totals.allocations.cashlike,
-    cashAllocation: totals.allocations.cash,
-    hasPerson2: portfolioConfig.hasPerson2,
-    includePerson2: portfolioConfig.hasPerson2,
-    person1Name: String(portfolioPeople.person1Name || '').trim(),
-    person2Name: String(portfolioPeople.person2Name || '').trim(),
-    person1Age: Number(portfolioPeople.person1Age) || 55,
-    person2Age: Number(portfolioPeople.person2Age) || 55
+    years: 30,
+
+    initialPortfolio: safeTotal,
+
+    initialWithdrawalRate: 4,
+
+    initialSpending: safeTotal * 0.04,
+    comfortSpending: safeTotal * 0.04 * 0.9,
+    minimumSpending: safeTotal * 0.04 * 0.75,
+
+    annualFeeRate: 0.27,
+
+    equityAllocation: Number(totals?.allocations?.equities) || 0,
+    bondAllocation: Number(totals?.allocations?.bonds) || 0,
+    cashlikeAllocation: Number(totals?.allocations?.cashlike) || 0,
+    cashAllocation: Number(totals?.allocations?.cash) || 0,
+
+    rebalanceToTarget: true,
+
+    equityReturn: DEFAULT_INPUTS.equityReturn,
+    equityVolatility: DEFAULT_INPUTS.equityVolatility,
+    bondReturn: DEFAULT_INPUTS.bondReturn,
+    bondVolatility: DEFAULT_INPUTS.bondVolatility,
+    cashlikeReturn: DEFAULT_INPUTS.cashlikeReturn,
+    cashlikeVolatility: DEFAULT_INPUTS.cashlikeVolatility,
+    inflation: DEFAULT_INPUTS.inflation,
+
+    person1Name: String(portfolioPeople.person1Name || ''),
+    person1Age: Number(portfolioPeople.person1Age) || 50,
+    person1PensionAge: 67,
+
+    person2Name: String(portfolioPeople.person2Name || ''),
+    person2Age: Number(portfolioPeople.person2Age) || 50,
+    person2PensionAge: 67,
+
+    includePerson2: hasPerson2,
+
+    statePensionToday: 12547,
+
+    person1GetsFullPension: true,
+    person2GetsFullPension: true,
+
+    person1OtherIncomeToday: 0,
+    person1OtherIncomeYears: 0,
+    person1WindfallAmount: 0,
+    person1WindfallYear: 0,
+
+    person2OtherIncomeToday: 0,
+    person2OtherIncomeYears: 0,
+    person2WindfallAmount: 0,
+    person2WindfallYear: 0,
+
+    upperGuardrail: 20,
+    lowerGuardrail: 20,
+    adjustmentSize: 10,
+
+    simulationMode: 'monteCarlo',
+    monteCarloRuns: 10000,
+
+    skipInflationAfterNegative: false
   };
 }
 
+function applyPortfolioInputsToAssumptions(inputs) {
+  if (!inputs || typeof inputs !== 'object') return;
+
+  planForm.applyDefaults(inputs);
+  advancedForm.applyDefaults(inputs);
+
+  if (els.years) {
+    els.years.value = String(Number(inputs.years) || '');
+  }
+
+  if (els.initialPortfolio) {
+    els.initialPortfolio.value = formatInteger(
+      Math.round(Number(inputs.initialPortfolio) || 0)
+    );
+  }
+
+  if (els.initialWithdrawalRate) {
+    const nextRate = Number(inputs.initialWithdrawalRate);
+
+    if (Number.isFinite(nextRate)) {
+      els.initialWithdrawalRate.value = formatRate(nextRate);
+    } else if (!String(els.initialWithdrawalRate.value || '').trim()) {
+      els.initialWithdrawalRate.value = '4';
+    }
+  }
+
+  if (els.initialSpending) {
+    els.initialSpending.value = Number.isFinite(Number(inputs.initialSpending))
+      ? formatInteger(Math.round(Number(inputs.initialSpending)))
+      : '';
+  }
+
+  if (els.comfortSpending) {
+    els.comfortSpending.value = Number.isFinite(Number(inputs.comfortSpending))
+      ? formatInteger(Math.round(Number(inputs.comfortSpending)))
+      : '';
+  }
+
+  if (els.minimumSpending) {
+    els.minimumSpending.value = Number.isFinite(Number(inputs.minimumSpending))
+      ? formatInteger(Math.round(Number(inputs.minimumSpending)))
+      : '';
+  }
+
+  if (els.annualFeeRate) {
+    els.annualFeeRate.value = Number.isFinite(Number(inputs.annualFeeRate))
+      ? String(inputs.annualFeeRate)
+      : '';
+  }
+
+  if (els.equityAllocation) {
+  els.equityAllocation.value = formatOneDecimal(inputs.equityAllocation);
+  }
+
+  if (els.bondAllocation) {
+    els.bondAllocation.value = formatOneDecimal(inputs.bondAllocation);
+  }
+
+  if (els.cashlikeAllocation) {
+    els.cashlikeAllocation.value = formatOneDecimal(inputs.cashlikeAllocation);
+  }
+
+  if (els.cashAllocation) {
+    els.cashAllocation.value = formatOneDecimal(inputs.cashAllocation);
+  }
+
+  if (els.rebalanceToTarget) {
+    els.rebalanceToTarget.checked = Boolean(inputs.rebalanceToTarget);
+  }
+
+  if (els.equityReturn) {
+    els.equityReturn.value = Number.isFinite(Number(inputs.equityReturn))
+      ? String(inputs.equityReturn)
+      : '';
+  }
+
+  if (els.equityVolatility) {
+    els.equityVolatility.value = Number.isFinite(Number(inputs.equityVolatility))
+      ? String(inputs.equityVolatility)
+      : '';
+  }
+
+  if (els.bondReturn) {
+    els.bondReturn.value = Number.isFinite(Number(inputs.bondReturn))
+      ? String(inputs.bondReturn)
+      : '';
+  }
+
+  if (els.bondVolatility) {
+    els.bondVolatility.value = Number.isFinite(Number(inputs.bondVolatility))
+      ? String(inputs.bondVolatility)
+      : '';
+  }
+
+  if (els.cashlikeReturn) {
+    els.cashlikeReturn.value = Number.isFinite(Number(inputs.cashlikeReturn))
+      ? String(inputs.cashlikeReturn)
+      : '';
+  }
+
+  if (els.cashlikeVolatility) {
+    els.cashlikeVolatility.value = Number.isFinite(Number(inputs.cashlikeVolatility))
+      ? String(inputs.cashlikeVolatility)
+      : '';
+  }
+
+  if (els.inflation) {
+    els.inflation.value = Number.isFinite(Number(inputs.inflation))
+      ? String(inputs.inflation)
+      : '';
+  }
+
+  if (els.person1Name) {
+    els.person1Name.value = String(inputs.person1Name || '');
+  }
+
+  if (els.person2Name) {
+    els.person2Name.value = String(inputs.person2Name || '');
+  }
+
+  if (els.person1Age) {
+    els.person1Age.value = String(Number(inputs.person1Age) || 55);
+    els.person1Age.readOnly = true;
+  }
+
+  if (els.person1PensionAge) {
+    els.person1PensionAge.value = String(Number(inputs.person1PensionAge) || 67);
+  }
+
+  if (els.person2Age) {
+    els.person2Age.value = String(Number(inputs.person2Age) || 55);
+    els.person2Age.readOnly = true;
+  }
+
+  if (els.person2PensionAge) {
+    els.person2PensionAge.value = String(Number(inputs.person2PensionAge) || 67);
+  }
+
+  if (els.includePerson2) {
+    els.includePerson2.checked = Boolean(inputs.includePerson2);
+    els.includePerson2.disabled = true;
+  }
+
+  applyPerson2PortfolioRules();
+
+  if (els.statePensionToday) {
+    els.statePensionToday.value = Number.isFinite(Number(inputs.statePensionToday))
+      ? formatInteger(Math.round(Number(inputs.statePensionToday)))
+      : '';
+  }
+
+  if (els.person1GetsFullPension) {
+    els.person1GetsFullPension.checked = Boolean(inputs.person1GetsFullPension);
+  }
+
+  if (els.person1OtherIncomeToday) {
+    els.person1OtherIncomeToday.value = Number.isFinite(Number(inputs.person1OtherIncomeToday))
+      ? formatInteger(Math.round(Number(inputs.person1OtherIncomeToday)))
+      : '';
+  }
+
+  if (els.person1OtherIncomeYears) {
+    els.person1OtherIncomeYears.value = Number.isFinite(Number(inputs.person1OtherIncomeYears))
+      ? String(inputs.person1OtherIncomeYears)
+      : '';
+  }
+
+  if (els.person1WindfallAmount) {
+    els.person1WindfallAmount.value = Number.isFinite(Number(inputs.person1WindfallAmount))
+      ? formatInteger(Math.round(Number(inputs.person1WindfallAmount)))
+      : '';
+  }
+
+  if (els.person1WindfallYear) {
+    els.person1WindfallYear.value = Number.isFinite(Number(inputs.person1WindfallYear))
+      ? String(inputs.person1WindfallYear)
+      : '';
+  }
+
+  if (els.person2GetsFullPension) {
+    els.person2GetsFullPension.checked = Boolean(inputs.person2GetsFullPension);
+  }
+
+  if (els.person2OtherIncomeToday) {
+    els.person2OtherIncomeToday.value = Number.isFinite(Number(inputs.person2OtherIncomeToday))
+      ? formatInteger(Math.round(Number(inputs.person2OtherIncomeToday)))
+      : '';
+  }
+
+  if (els.person2OtherIncomeYears) {
+    els.person2OtherIncomeYears.value = Number.isFinite(Number(inputs.person2OtherIncomeYears))
+      ? String(inputs.person2OtherIncomeYears)
+      : '';
+  }
+
+  if (els.person2WindfallAmount) {
+    els.person2WindfallAmount.value = Number.isFinite(Number(inputs.person2WindfallAmount))
+      ? formatInteger(Math.round(Number(inputs.person2WindfallAmount)))
+      : '';
+  }
+
+  if (els.person2WindfallYear) {
+    els.person2WindfallYear.value = Number.isFinite(Number(inputs.person2WindfallYear))
+      ? String(inputs.person2WindfallYear)
+      : '';
+  }
+
+  if (els.upperGuardrail) {
+    els.upperGuardrail.value = Number.isFinite(Number(inputs.upperGuardrail))
+      ? String(inputs.upperGuardrail)
+      : '';
+  }
+
+  if (els.lowerGuardrail) {
+    els.lowerGuardrail.value = Number.isFinite(Number(inputs.lowerGuardrail))
+      ? String(inputs.lowerGuardrail)
+      : '';
+  }
+
+  if (els.adjustmentSize) {
+    els.adjustmentSize.value = Number.isFinite(Number(inputs.adjustmentSize))
+      ? String(inputs.adjustmentSize)
+      : '';
+  }
+
+  if (els.simulationMode && inputs.simulationMode != null) {
+    els.simulationMode.value = String(inputs.simulationMode);
+  }
+
+  if (els.monteCarloRuns) {
+      els.monteCarloRuns.value = Number.isFinite(Number(inputs.monteCarloRuns))
+        ? formatInteger(Math.round(Number(inputs.monteCarloRuns)))
+        : '';
+    }
+
+  if (els.skipInflationAfterNegative) {
+    els.skipInflationAfterNegative.checked = Boolean(inputs.skipInflationAfterNegative);
+  }
+
+  updateAllocationStatus();
+
+  if (withdrawalInputMode === 'rate') {
+    syncInitialSpendingFromRate();
+  } else {
+    syncInitialWithdrawalRateFromAmount();
+  }
+
+  if (typeof planForm.syncDefaultSpendingFloors === 'function') {
+    planForm.syncDefaultSpendingFloors();
+  }
+}
+    
 function clearPortfolioInputsFromAssumptions() {
   if (els.initialPortfolio) {
     els.initialPortfolio.value = '';
@@ -1511,7 +1968,8 @@ function clearPortfolioInputsFromAssumptions() {
 }
 
 function updatePortfolioSummaryCards() {
-  const totals = calculatePortfolioTotals(portfolioAccounts);
+  const activeAccounts = getActivePortfolioAccounts();
+  const totals = calculatePortfolioTotals(activeAccounts);
 
   const investmentValueEl = document.getElementById('portfolioTotalValue');
   const allocationEl = document.getElementById('portfolioAllocationTotals');
@@ -1521,37 +1979,37 @@ function updatePortfolioSummaryCards() {
     investmentValueEl.textContent = formatCurrency(totals.totalValue);
   }
 
-    if (allocationEl) {
-  const allocationTotal =
-    totals.allocations.equities +
-    totals.allocations.bonds +
-    totals.allocations.cashlike +
-    totals.allocations.cash;
+  if (allocationEl) {
+    const allocationTotal =
+      totals.allocations.equities +
+      totals.allocations.bonds +
+      totals.allocations.cashlike +
+      totals.allocations.cash;
 
-  const roundedAllocationTotal = Number(allocationTotal.toFixed(1));
-  const isBalanced = roundedAllocationTotal === 100;
+    const roundedAllocationTotal = Number(allocationTotal.toFixed(1));
+    const isBalanced = roundedAllocationTotal === 100;
 
-  const allocationState = isBalanced
-    ? 'Balanced'
-    : roundedAllocationTotal < 100
-      ? `${(100 - roundedAllocationTotal).toFixed(1)}% under`
-      : `${(roundedAllocationTotal - 100).toFixed(1)}% over`;
+    const allocationState = isBalanced
+      ? 'Balanced'
+      : roundedAllocationTotal < 100
+        ? `${(100 - roundedAllocationTotal).toFixed(1)}% under`
+        : `${(roundedAllocationTotal - 100).toFixed(1)}% over`;
 
-  const allocationStateClass = isBalanced
-    ? 'is-balanced'
-    : 'is-off';
+    const allocationStateClass = isBalanced
+      ? 'is-balanced'
+      : 'is-off';
 
-  allocationEl.innerHTML = `
-    <div><span>Equities</span><span class="value">${totals.allocations.equities.toFixed(1)}%</span></div>
-    <div><span>Bonds</span><span class="value">${totals.allocations.bonds.toFixed(1)}%</span></div>
-    <div><span>Cashlike</span><span class="value">${totals.allocations.cashlike.toFixed(1)}%</span></div>
-    <div><span>Cash</span><span class="value">${totals.allocations.cash.toFixed(1)}%</span></div>
-    <div class="portfolio-summary-total-row ${allocationStateClass}">
-      <span>Total allocation</span>
-      <span class="value">${roundedAllocationTotal.toFixed(1)}% ${allocationState}</span>
-    </div>
-  `;
-}
+    allocationEl.innerHTML = `
+      <div><span>Equities</span><span class="value">${totals.allocations.equities.toFixed(1)}%</span></div>
+      <div><span>Bonds</span><span class="value">${totals.allocations.bonds.toFixed(1)}%</span></div>
+      <div><span>Cashlike</span><span class="value">${totals.allocations.cashlike.toFixed(1)}%</span></div>
+      <div><span>Cash</span><span class="value">${totals.allocations.cash.toFixed(1)}%</span></div>
+      <div class="portfolio-summary-total-row ${allocationStateClass}">
+        <span>Total allocation</span>
+        <span class="value">${roundedAllocationTotal.toFixed(1)}% ${allocationState}</span>
+      </div>
+    `;
+  }
 
   if (wrappersEl) {
     wrappersEl.innerHTML = `
@@ -1564,11 +2022,25 @@ function updatePortfolioSummaryCards() {
   }
 }
 
+function getPortfolioOwnerLabel(owner) {
+  if (owner === 'Person 1') {
+    return (portfolioPeople.person1Name || '').trim() || 'Person 1';
+  }
+
+  if (owner === 'Person 2') {
+    return (portfolioPeople.person2Name || '').trim() || 'Person 2';
+  }
+
+  return owner;
+}
+
 function renderPortfolioTable() {
   const tbody = document.getElementById('portfolioTableBody');
   if (!tbody) return;
 
-  if (portfolioAccounts.length === 0) {
+  const activeAccounts = getActivePortfolioAccounts();
+
+  if (activeAccounts.length === 0) {
     tbody.innerHTML = `
       <tr class="portfolio-row-empty">
         <td colspan="10">No accounts added yet.</td>
@@ -1581,7 +2053,7 @@ function renderPortfolioTable() {
 
   tbody.innerHTML = '';
 
-  portfolioAccounts.forEach((account) => {
+  activeAccounts.forEach((account) => {
     const row = document.createElement('tr');
     const allocationTotal = getPortfolioRowAllocationTotal(account);
     const rowIssues = getPortfolioRowIssues(account);
@@ -1612,9 +2084,9 @@ function renderPortfolioTable() {
 
       <td>
         <select data-id="${account.id}" data-field="owner">
-          <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>Person 1</option>
+          <option value="Person 1" ${account.owner === 'Person 1' ? 'selected' : ''}>${getPortfolioOwnerLabel('Person 1')}</option>
           ${portfolioConfig.hasPerson2 ? `
-            <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>Person 2</option>
+            <option value="Person 2" ${account.owner === 'Person 2' ? 'selected' : ''}>${getPortfolioOwnerLabel('Person 2')}</option>
           ` : ''}
           <option value="Joint" ${account.owner === 'Joint' ? 'selected' : ''}>Joint</option>
         </select>
@@ -1813,23 +2285,21 @@ function renderPortfolioTable() {
 }
 
 function applyPerson2PortfolioRules() {
-  const hasPerson2 = portfolioConfig.hasPerson2;
-  const portfolioPerson2Block = els.portfolioPerson2Name?.closest('.portfolio-person-block');
+  const hasPerson2 = Boolean(portfolioConfig.hasPerson2);
+
+  if (els.portfolioHasPerson2) {
+    els.portfolioHasPerson2.checked = hasPerson2;
+  }
 
   if (els.includePerson2) {
     els.includePerson2.checked = hasPerson2;
-    els.includePerson2.disabled = false;
+    els.includePerson2.disabled = true;
   }
 
   if (els.person2Panel) {
-    els.person2Panel.classList.toggle('person-panel-disabled', !hasPerson2);
     els.person2Panel.setAttribute('aria-disabled', String(!hasPerson2));
     els.person2Panel.style.display = '';
-  }
-
-  if (portfolioPerson2Block) {
-    portfolioPerson2Block.classList.toggle('portfolio-person-block-disabled', !hasPerson2);
-    portfolioPerson2Block.setAttribute('aria-disabled', String(!hasPerson2));
+    els.person2Panel.style.opacity = hasPerson2 ? '1' : '0.5';
   }
 
   [
@@ -1847,23 +2317,23 @@ function applyPerson2PortfolioRules() {
   });
 
   [
-    els.portfolioPerson2Name,
-    els.portfolioPerson2Age
+  els.portfolioPerson2Name,
+  els.portfolioPerson2Age
   ].forEach((field) => {
     if (!field) return;
     field.disabled = !hasPerson2;
+    field.style.opacity = hasPerson2 ? '1' : '0.5';
   });
 
-  if (!hasPerson2) {
-    portfolioAccounts.forEach((account) => {
-      if (account.owner === 'Person 2') {
-        account.owner = 'Person 1';
-      }
-    });
+  const portfolioPerson2Blocks = [
+    els.portfolioPerson2Name?.closest('.portfolio-person-block'),
+    els.portfolioPerson2Age?.closest('.portfolio-person-block')
+  ].filter(Boolean);
 
-    savePortfolioToStorage();
-    renderPortfolioTable();
-  }
+  [...new Set(portfolioPerson2Blocks)].forEach((block) => {
+    block.style.opacity = hasPerson2 ? '1' : '0.5';
+    block.setAttribute('aria-disabled', String(!hasPerson2));
+  });
 
   updatePortfolioValidationUI();
 }
@@ -1888,14 +2358,8 @@ function attachPortfolioTableRowEvents() {
     });
 
     input.addEventListener('input', () => {
-      const id = Number(input.dataset.id);
       const field = input.dataset.field;
       if (!field) return;
-
-      if (field.startsWith('allocation.')) {
-        const clamped = normalisePortfolioPercent(input.value);
-        updatePortfolioAccount(id, field, clamped);
-      }
     });
 
     input.addEventListener('blur', () => {
@@ -1930,14 +2394,6 @@ function attachPortfolioTableRowEvents() {
       const field = input.dataset.field;
       const rawValue = input.value.trim();
       const previousValue = input.dataset.previousValue ?? '';
-    
-      if (!field) return;
-    
-    input.addEventListener('change', () => {
-      const id = Number(input.dataset.id);
-      const field = input.dataset.field;
-      const rawValue = input.value.trim();
-      const previousValue = input.dataset.previousValue ?? '';
 
       if (!field) return;
 
@@ -1960,8 +2416,6 @@ function attachPortfolioTableRowEvents() {
       }
     });
   });
-
-  selects.forEach((select) => {
 
   selects.forEach((select) => {
     select.addEventListener('change', (e) => {
