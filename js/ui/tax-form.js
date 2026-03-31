@@ -407,21 +407,6 @@ export function renderTaxPanel(
         </div>
       </section>
 
-      <section class="tax-results-embedded" aria-label="Year-by-year tax results">
-        <div class="tax-results-embedded__header">
-          <h3 class="tax-results-embedded__title">Year-by-year tax view</h3>
-          <p class="tax-results-embedded__intro">
-            Annual view of spending, income, withdrawals, tax, and remaining wrapper balances.
-          </p>
-        </div>
-
-        <div class="tax-table-wrap">
-          <table id="taxYearTableInline" class="tax-year-table">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
     </div>
   `;
 
