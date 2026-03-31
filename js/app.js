@@ -187,6 +187,11 @@ const tabs = initialiseTabs({
   defaultTab: 'portfolio',
   onChange: (tabName) => {
     document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
+    document.body.classList.toggle('is-results', tabName === 'results');
+    if (tabName !== 'results') {
+      document.querySelector('.top-header')?.classList.remove('top-header--compact');
+      document.documentElement.style.setProperty('--header-height', '164px');
+    }
     updateRunSimulationButtonState(tabName);
 
     if (els.summaryBand) {
@@ -323,7 +328,12 @@ function initialise() {
   const header = document.querySelector('.top-header');
   if (sentinel && header) {
     new IntersectionObserver(
-      ([entry]) => header.classList.toggle('top-header--compact', !entry.isIntersecting),
+      ([entry]) => {
+        const onResults = document.body.classList.contains('is-results');
+        const compact = onResults && !entry.isIntersecting;
+        header.classList.toggle('top-header--compact', compact);
+        document.documentElement.style.setProperty('--header-height', compact ? '56px' : '164px');
+      },
       { rootMargin: '-' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 164) + 'px 0px 0px 0px' }
     ).observe(sentinel);
   }
