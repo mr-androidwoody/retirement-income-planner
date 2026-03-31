@@ -815,15 +815,27 @@ if (savePortfolioBtn) {
     if (!input) return;
     const rawValue = String(input.value ?? '').replace(/,/g, '').trim();
     const parsed = parseFloat(rawValue);
-    // For maxSpendingNominal: first + click from blank/0 seeds to £60,000 rather than £1,000
-    const seedValue = (targetId === 'maxSpendingNominal' && (isNaN(parsed) || parsed === 0) && direction > 0)
-      ? 60000
-      : (isNaN(parsed) ? 0 : parsed);
-    const current = seedValue;
+
+    if (targetId === 'maxSpendingNominal') {
+      const currentVal = isNaN(parsed) ? 0 : parsed;
+      // − is a no-op when already at 0 (no cap)
+      if (direction < 0 && currentVal === 0) return;
+      // + from blank/0 seeds to £60,000
+      if (direction > 0 && currentVal === 0) {
+        input.value = '60000';
+      } else {
+        // Floor at £1,000 — stepper cannot reach 0; clear field manually for no cap
+        const next = Math.max(1000, currentVal + direction * stepSize);
+        input.value = String(Math.round(next));
+      }
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+
+    const current = isNaN(parsed) ? 0 : parsed;
     const min = input.hasAttribute('min') ? Number(input.min) : -Infinity;
-    const next = targetId === 'maxSpendingNominal' && current === 60000 && direction > 0
-      ? 60000
-      : Math.max(min, current + direction * stepSize);
+    const next = Math.max(min, current + direction * stepSize);
     input.value = stepSize % 1 === 0
       ? String(Math.round(next))
       : String(parseFloat(next.toFixed(10)));
