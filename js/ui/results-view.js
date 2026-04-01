@@ -779,7 +779,6 @@ function renderTopRowCardValues({
       }
     }
   }
-}
 
 export function renderResultsView({
   result,
