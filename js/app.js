@@ -198,9 +198,12 @@ const tabs = initialiseTabs({
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
         renderAll();
-        window.dispatchEvent(new Event('resize'));
+        document.dispatchEvent(new Event('results:layout-updated'));
       });
+      return;
     }
+
+    document.dispatchEvent(new Event('results:layout-updated'));
   }
 });
 
@@ -322,9 +325,9 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  // Compact header: compact state must be driven by actual scroll position.
-  // Results re-renders must not move the trigger or expand the header unless
-  // the user really scrolls back above the trigger point.
+  // Compact header: compact/full state must be controlled by scroll position
+  // against a stable trigger. Results rerenders may refresh layout, but they
+  // must not move the trigger or expand the header.
 
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
@@ -336,6 +339,10 @@ function initialise() {
     let compactTriggerY = Number.POSITIVE_INFINITY;
     let wasResultsVisible = false;
     let lastViewportKey = `${window.innerWidth}x${window.innerHeight}`;
+
+    const isResultsActive = () =>
+      document.body.classList.contains('is-results') &&
+      !summaryBandEl.classList.contains('hidden');
 
     const applyCompactHeaderState = (compact) => {
       header.classList.toggle('top-header--compact', compact);
@@ -356,11 +363,7 @@ function initialise() {
     };
 
     const updateCompactHeaderFromScroll = () => {
-      const onResults =
-        document.body.classList.contains('is-results') &&
-        !summaryBandEl.classList.contains('hidden');
-
-      if (!onResults) {
+      if (!isResultsActive()) {
         applyCompactHeaderState(false);
         return;
       }
@@ -369,9 +372,7 @@ function initialise() {
     };
 
     const syncCompactHeader = ({ forceRecalculate = false } = {}) => {
-      const onResults =
-        document.body.classList.contains('is-results') &&
-        !summaryBandEl.classList.contains('hidden');
+      const onResults = isResultsActive();
 
       if (!onResults) {
         compactTriggerY = Number.POSITIVE_INFINITY;
@@ -404,20 +405,18 @@ function initialise() {
       const nextViewportKey = `${window.innerWidth}x${window.innerHeight}`;
       const viewportChanged = nextViewportKey !== lastViewportKey;
 
-      const onResults =
-        document.body.classList.contains('is-results') &&
-        !summaryBandEl.classList.contains('hidden');
-
-      const enteringResults = onResults && !wasResultsVisible;
-
       lastViewportKey = nextViewportKey;
 
-      if (viewportChanged || enteringResults) {
+      if (viewportChanged) {
         syncCompactHeader({ forceRecalculate: true });
         return;
       }
 
       updateCompactHeaderFromScroll();
+    });
+
+    document.addEventListener('results:layout-updated', () => {
+      syncCompactHeader({ forceRecalculate: false });
     });
   }
 }
@@ -926,6 +925,7 @@ if (addPortfolioAccountBtn) {
     debounce(() => {
       if (latestResult) {
         renderAll();
+        document.dispatchEvent(new Event('results:layout-updated'));
       }
     }, 100)
   );
@@ -1065,6 +1065,7 @@ function attachChartModeEvents() {
 
     if (latestResult) {
       renderAll();
+      document.dispatchEvent(new Event('results:layout-updated'));
     }
   };
 
@@ -1321,6 +1322,7 @@ function rerunResultsWithCurrentOptions() {
       .then((result) => {
         latestResult = result;
         renderAll();
+        document.dispatchEvent(new Event('results:layout-updated'));
       })
       .catch((error) => {
         showError(error instanceof Error ? error.message : 'Simulation failed.');
