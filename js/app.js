@@ -198,6 +198,7 @@ const tabs = initialiseTabs({
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
         renderAll();
+        window.dispatchEvent(new Event('resize'));
       });
     }
   }
