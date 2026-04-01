@@ -721,7 +721,6 @@ function prepareAndRunSimulation() {
   };
   console.log('latestBaseInputs', latestBaseInputs);
 
-  applyPortfolioInputsToAssumptions(latestBaseInputs);
   hasMappedPortfolioToAssumptions = true;
 
   hideError();
