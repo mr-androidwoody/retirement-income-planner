@@ -338,7 +338,6 @@ function renderPortfolioPeopleFields() {
 function initialise() {
   setupWorker();
   applyDefaults();
-  loadAssumptionsFromStorage();
   loadPortfolioFromStorage();
   loadPortfolioConfigFromStorage();
   loadPortfolioPeopleFromStorage();
@@ -346,6 +345,7 @@ function initialise() {
   setResultsViewDefaults();
   syncInitialSpendingFromRate();
   updateAllocationStatus();
+  loadAssumptionsFromStorage();
   renderPortfolioPeopleFields();
   renderPortfolioTable();
   applyPerson2PortfolioRules();
