@@ -723,7 +723,12 @@ function attachEvents() {
   }
 
 if (els.continueToAssumptionsBtn) {
+  els.continueToAssumptionsBtn.disabled = true;
+  els.continueToAssumptionsBtn.classList.remove('is-enabled');
+  els.continueToAssumptionsBtn.classList.add('is-disabled');
+
   els.continueToAssumptionsBtn.addEventListener('click', () => {
+    if (els.continueToAssumptionsBtn.disabled) return;
     continueToAssumptions();
   });
 }
@@ -748,14 +753,16 @@ if (savePortfolioBtn) {
     const originalLabel = savePortfolioBtn.textContent;
 
     savePortfolioBtn.textContent = 'Saved';
-    savePortfolioBtn.classList.remove('btn-secondary');
-    savePortfolioBtn.classList.add('btn-success');
 
     window.setTimeout(() => {
       savePortfolioBtn.textContent = originalLabel;
-      savePortfolioBtn.classList.remove('btn-success');
-      savePortfolioBtn.classList.add('btn-secondary');
     }, 1200);
+
+    if (els.continueToAssumptionsBtn) {
+      els.continueToAssumptionsBtn.disabled = false;
+      els.continueToAssumptionsBtn.classList.remove('is-disabled');
+      els.continueToAssumptionsBtn.classList.add('is-enabled');
+    }
   });
 }
 
@@ -771,7 +778,7 @@ if (savePortfolioBtn) {
     });
   }
 
-  if (cancelDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
+   if (cancelDeleteBtn && deleteConfirmEl && deletePortfolioBtn) {
     cancelDeleteBtn.addEventListener('click', () => {
       deleteConfirmEl.classList.add('hidden');
       deletePortfolioBtn.classList.remove('hidden');
@@ -784,12 +791,24 @@ if (savePortfolioBtn) {
       latestBaseInputs = null;
       hasMappedPortfolioToAssumptions = false;
 
+      latestResult = null;
+      latestTaxResult = null;
+      currentTableView = 'median';
+      currentTableMode = 'plan';
+
       localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
       localStorage.removeItem(PORTFOLIO_CONFIG_STORAGE_KEY);
       localStorage.removeItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
 
       hideError();
+      resetResultsHeader();
       renderPortfolioTable();
+
+      if (els.continueToAssumptionsBtn) {
+        els.continueToAssumptionsBtn.disabled = true;
+        els.continueToAssumptionsBtn.classList.remove('is-enabled');
+        els.continueToAssumptionsBtn.classList.add('is-disabled');
+      }
 
       deleteConfirmEl.classList.add('hidden');
       deletePortfolioBtn.classList.remove('hidden');
@@ -819,6 +838,12 @@ if (savePortfolioBtn) {
       currentTableMode = 'plan';
 
       resetResultsHeader();
+
+      if (els.continueToAssumptionsBtn) {
+        els.continueToAssumptionsBtn.disabled = true;
+        els.continueToAssumptionsBtn.classList.remove('is-enabled');
+        els.continueToAssumptionsBtn.classList.add('is-disabled');
+      }
 
       hideError();
       tabs.setActiveTab('portfolio');
