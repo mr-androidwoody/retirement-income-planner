@@ -287,6 +287,7 @@ function loadAssumptionsFromStorage() {
     if (parsed && typeof parsed === 'object') {
       planForm.applyDefaults(parsed);
       advancedForm.applyDefaults(parsed);
+      hasMappedPortfolioToAssumptions = true;
     }
   } catch (error) {
     console.warn('Failed to load assumptions from storage', error);
