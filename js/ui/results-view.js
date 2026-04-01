@@ -710,7 +710,6 @@ function renderTopRowCardValues({
         'Worst case outcomes avoid severe losses.'
       );
     }
-    }
   }
 
   // Panel 4: Spending shortfall risk
@@ -779,6 +778,7 @@ function renderTopRowCardValues({
       }
     }
   }
+}
 
 export function renderResultsView({
   result,
