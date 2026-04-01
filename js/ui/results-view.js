@@ -710,7 +710,6 @@ function renderTopRowCardValues({
         'Worst case outcomes avoid severe losses.'
       );
     }
-      );
     }
   }
 
