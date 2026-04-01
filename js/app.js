@@ -742,26 +742,33 @@ if (addPortfolioAccountBtn) {
 }
 
     const savePortfolioBtn = document.getElementById('savePortfolioBtn');
-
+    const continueBtn = document.getElementById('continueToAssumptionsBtn');
+    
     if (savePortfolioBtn) {
       savePortfolioBtn.addEventListener('click', () => {
         savePortfolioToStorage();
         savePortfolioConfigToStorage();
         savePortfolioPeopleToStorage();
     
-        const originalLabel = savePortfolioBtn.textContent;
+        const originalLabel = 'Save portfolio';
     
-        // Saving... (green)
+        // SAVE BUTTON — Saving (green)
         savePortfolioBtn.textContent = 'Saving...';
-        savePortfolioBtn.classList.remove('btn-secondary', 'btn-primary');
+        savePortfolioBtn.classList.remove('btn-primary', 'btn-secondary');
         savePortfolioBtn.classList.add('btn-success');
     
-        // Back to default (blue)
+        // CONTINUE BUTTON — turn blue after save
+        if (continueBtn) {
+          continueBtn.classList.remove('btn-secondary');
+          continueBtn.classList.add('btn-primary');
+        }
+    
+        // Reset SAVE button → light blue with original label
         window.setTimeout(() => {
           savePortfolioBtn.textContent = originalLabel;
-          savePortfolioBtn.classList.remove('btn-success', 'btn-secondary');
-          savePortfolioBtn.classList.add('btn-primary');
-        }, 1000);
+          savePortfolioBtn.classList.remove('btn-success', 'btn-primary');
+          savePortfolioBtn.classList.add('btn-secondary');
+        }, 800);
       });
     }
     
