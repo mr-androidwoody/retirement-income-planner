@@ -789,7 +789,14 @@ textarea{
 }
 
 .portfolio-section-actions #savePortfolioBtn.btn-secondary{
-  border:2px solid #16a34a;
+  background:#e6f2ff;
+  color:#1f4e8c;
+  border:1px solid #c7defc;
+}
+
+.portfolio-section-actions #savePortfolioBtn.btn-secondary:hover{
+  background:#d6e9ff;
+  border-color:#a9ccfa;
 }
 
 #deletePortfolioBtn{
