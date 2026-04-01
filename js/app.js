@@ -353,6 +353,7 @@ function initialise() {
     window.addEventListener('scroll', updateCompactHeader, { passive: true });
     window.addEventListener('resize', updateCompactHeader);
   }
+}
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
