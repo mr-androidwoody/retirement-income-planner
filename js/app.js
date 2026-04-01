@@ -366,8 +366,9 @@ function initialise() {
     };
 
     const updateCompactHeaderFromScroll = () => {
-      // Ignore scroll events fired as a side-effect of renderAll() changing
-      // page height (browser may clamp scrollY, emitting a spurious scroll).
+      // Suppress spurious scroll events fired when renderAll() collapses or
+      // expands DOM blocks (e.g. resultsContextBar toggling display:none),
+      // which changes page height and causes the browser to clamp scrollY.
       if (renderInProgress) return;
 
       if (!isResultsActive()) {
