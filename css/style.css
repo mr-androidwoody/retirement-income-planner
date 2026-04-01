@@ -1359,7 +1359,7 @@ textarea{
   display:block;
   margin-bottom:2px;
   color:#4f607a;
-  font-weight:500;
+  font-weight:600;
 }
 
 .core-assumptions-intro__item{
@@ -1769,7 +1769,7 @@ input[type="checkbox"]{
   background:#111827;
   color:#ffffff;
   font-size:12px;
-  font-weight:500;
+  font-weight:600;
   line-height:1.45;
   letter-spacing:0;
   text-transform:none;
@@ -1854,7 +1854,7 @@ input[type="checkbox"]{
   background:#111827;
   color:#ffffff;
   font-size:12px;
-  font-weight:500;
+  font-weight:600;
   line-height:1.45;
   letter-spacing:0;
   text-transform:none;
@@ -2682,6 +2682,11 @@ input[type="checkbox"]{
 
 #resultsTable tbody td:nth-child(2){
   font-weight:700;
+}
+
+.at-peak {
+  color: #2f6df6;
+  font-weight: 600;
 }
 
 /* ========================================
