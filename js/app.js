@@ -125,6 +125,7 @@ const els = {
 
 let latestResult = null;
 let latestBaseInputs = null;
+let renderInProgress = false;
 let worker = null;
 let withdrawalInputMode = 'rate';
 let currentTableView = 'median';
@@ -197,7 +198,9 @@ const tabs = initialiseTabs({
 
     if (tabName === 'results' && latestResult) {
       requestAnimationFrame(() => {
+        renderInProgress = true;
         renderAll();
+        requestAnimationFrame(() => { renderInProgress = false; });
         document.dispatchEvent(new Event('results:layout-updated'));
       });
       return;
@@ -363,6 +366,10 @@ function initialise() {
     };
 
     const updateCompactHeaderFromScroll = () => {
+      // Ignore scroll events fired as a side-effect of renderAll() changing
+      // page height (browser may clamp scrollY, emitting a spurious scroll).
+      if (renderInProgress) return;
+
       if (!isResultsActive()) {
         applyCompactHeaderState(false);
         return;
@@ -935,7 +942,9 @@ if (addPortfolioAccountBtn) {
     'resize',
     debounce(() => {
       if (latestResult) {
+        renderInProgress = true;
         renderAll();
+        requestAnimationFrame(() => { renderInProgress = false; });
         document.dispatchEvent(new Event('results:layout-updated'));
       }
     }, 100)
@@ -1075,7 +1084,9 @@ function attachChartModeEvents() {
     els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
 
     if (latestResult) {
+      renderInProgress = true;
       renderAll();
+      requestAnimationFrame(() => { renderInProgress = false; });
       document.dispatchEvent(new Event('results:layout-updated'));
     }
   };
@@ -1332,7 +1343,9 @@ function rerunResultsWithCurrentOptions() {
     )
       .then((result) => {
         latestResult = result;
+        renderInProgress = true;
         renderAll();
+        requestAnimationFrame(() => { renderInProgress = false; });
         document.dispatchEvent(new Event('results:layout-updated'));
       })
       .catch((error) => {
