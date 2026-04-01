@@ -744,34 +744,33 @@ if (addPortfolioAccountBtn) {
 const savePortfolioBtn = document.getElementById('savePortfolioBtn');
 
 if (savePortfolioBtn) {
-  savePortfolioBtn.addEventListener('click', () => {
-    syncPortfolioPeopleFromFields();
-    savePortfolioToStorage();
-    savePortfolioConfigToStorage();
-    savePortfolioPeopleToStorage();
-
-    const originalLabel = savePortfolioBtn.textContent;
-
-    // 🔵 switch to green "Saved"
-    savePortfolioBtn.textContent = 'Saving...';
-    savePortfolioBtn.classList.remove('btn-primary');
-    savePortfolioBtn.classList.add('btn-success');
-
-    window.setTimeout(() => {
-      // 🔵 change back to light blue
-      savePortfolioBtn.textContent = originalLabel;
-      savePortfolioBtn.classList.remove('btn-success', 'btn-primary');
-      savePortfolioBtn.classList.add('btn-secondary');
-    }, 1200);
-
-    // 🔵 enable Continue button
-    if (els.continueToAssumptionsBtn) {
-      els.continueToAssumptionsBtn.disabled = false;
-      els.continueToAssumptionsBtn.classList.remove('is-disabled');
-      els.continueToAssumptionsBtn.classList.add('is-enabled');
-    }
-  });
-}
+    savePortfolioBtn.addEventListener('click', () => {
+      savePortfolioToStorage();
+      savePortfolioConfigToStorage();
+      savePortfolioPeopleToStorage();
+    
+      const originalLabel = savePortfolioBtn.textContent;
+    
+      // STEP 1 — Saving (green)
+      savePortfolioBtn.textContent = 'Saving...';
+      savePortfolioBtn.classList.remove('btn-secondary', 'btn-primary');
+      savePortfolioBtn.classList.add('btn-success');
+    
+      // STEP 2 — Saved (light blue)
+      window.setTimeout(() => {
+        savePortfolioBtn.textContent = 'Saved';
+        savePortfolioBtn.classList.remove('btn-success');
+        savePortfolioBtn.classList.add('btn-secondary');
+    
+        // STEP 3 — Reset to default (blue)
+        window.setTimeout(() => {
+          savePortfolioBtn.textContent = originalLabel;
+          savePortfolioBtn.classList.remove('btn-secondary');
+          savePortfolioBtn.classList.add('btn-primary');
+        }, 1000);
+    
+      }, 600);
+    });
 
   const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
   const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
