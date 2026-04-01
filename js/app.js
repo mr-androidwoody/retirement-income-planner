@@ -752,12 +752,19 @@ if (savePortfolioBtn) {
 
     const originalLabel = savePortfolioBtn.textContent;
 
+    // 🔵 switch to green "Saved"
     savePortfolioBtn.textContent = 'Saved';
+    savePortfolioBtn.classList.remove('btn-primary');
+    savePortfolioBtn.classList.add('btn-success');
 
     window.setTimeout(() => {
+      // 🔵 revert back to normal blue
       savePortfolioBtn.textContent = originalLabel;
+      savePortfolioBtn.classList.remove('btn-success');
+      savePortfolioBtn.classList.add('btn-primary');
     }, 1200);
 
+    // 🔵 enable Continue button
     if (els.continueToAssumptionsBtn) {
       els.continueToAssumptionsBtn.disabled = false;
       els.continueToAssumptionsBtn.classList.remove('is-disabled');
