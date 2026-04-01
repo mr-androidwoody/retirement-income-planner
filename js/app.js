@@ -126,6 +126,7 @@ const els = {
 let latestResult = null;
 let latestBaseInputs = null;
 let renderInProgress = false;
+let isRerunningResults = false;
 let worker = null;
 let withdrawalInputMode = 'rate';
 let currentTableView = 'median';
@@ -424,13 +425,16 @@ function initialise() {
     });
 
     document.addEventListener('results:layout-updated', () => {
-      // Only measure compactTriggerY if it has never been set.
-      // Never call applyCompactHeaderState or updateCompactHeaderFromScroll
-      // here — header state is owned solely by the scroll handler.
+      // Results re-renders (chart mode, guardrails, etc.) must never change the
+      // header's compact/full state — that is owned solely by the scroll
+      // handler.  The only job here is to ensure compactTriggerY has been
+      // measured at least once after the Results tab becomes visible.  If it is
+      // already set (finite), do nothing at all.
       if (!isResultsActive()) return;
       if (!Number.isFinite(compactTriggerY)) {
         requestAnimationFrame(() => {
           recalculateCompactTrigger();
+          updateCompactHeaderFromScroll();
         });
       }
     });
@@ -521,7 +525,16 @@ function setupWorker() {
       console.log('latestResult set', latestResult);
 
       hideError();
-      showResults();
+
+      if (isRerunningResults) {
+        isRerunningResults = false;
+        renderInProgress = true;
+        renderAll();
+        requestAnimationFrame(() => { renderInProgress = false; });
+        document.dispatchEvent(new Event('results:layout-updated'));
+      } else {
+        showResults();
+      }
     };
 
     worker.onerror = (error) => {
@@ -1324,6 +1337,7 @@ function rerunResultsWithCurrentOptions() {
   hideError();
 
   if (worker) {
+    isRerunningResults = true;
     console.log('posting to worker', { type: 'run', inputs: effectiveInputs });
     worker.postMessage({ type: 'run', inputs: effectiveInputs });
     console.log('posted to worker');
