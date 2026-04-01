@@ -404,9 +404,15 @@ function initialise() {
       const nextViewportKey = `${window.innerWidth}x${window.innerHeight}`;
       const viewportChanged = nextViewportKey !== lastViewportKey;
 
+      const onResults =
+        document.body.classList.contains('is-results') &&
+        !summaryBandEl.classList.contains('hidden');
+
+      const enteringResults = onResults && !wasResultsVisible;
+
       lastViewportKey = nextViewportKey;
 
-      if (viewportChanged) {
+      if (viewportChanged || enteringResults) {
         syncCompactHeader({ forceRecalculate: true });
         return;
       }
