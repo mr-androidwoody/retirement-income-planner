@@ -753,7 +753,7 @@ if (savePortfolioBtn) {
     const originalLabel = savePortfolioBtn.textContent;
 
     // 🔵 switch to green "Saved"
-    savePortfolioBtn.textContent = 'Saved';
+    savePortfolioBtn.textContent = 'Saving...';
     savePortfolioBtn.classList.remove('btn-primary');
     savePortfolioBtn.classList.add('btn-success');
 
