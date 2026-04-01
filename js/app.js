@@ -321,10 +321,10 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  // Compact header: trigger when the TOP of #summaryBand reaches the top of the viewport.
-  // This ensures the header collapses exactly as the summary band scrolls past the top edge,
-  // rather than waiting for the entire band to leave view (IntersectionObserver behaviour).
-  // Replaces the old toolbarSentinel approach.
+  // Compact header: collapse when the top of #summaryBand reaches the bottom edge
+  // of the fixed header. This makes the switch happen from the summary band itself,
+  // rather than only after the whole band has moved underneath the header.
+  // Replaces the earlier IntersectionObserver-based behaviour.
 
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
@@ -333,11 +333,10 @@ function initialise() {
     const updateCompactHeader = () => {
       const onResults = document.body.classList.contains('is-results');
 
-      // Get distance from top of viewport
       const summaryBandTop = summaryBandEl.getBoundingClientRect().top;
+      const headerBottom = header.getBoundingClientRect().bottom;
 
-      // Collapse header as soon as the top of the band hits or passes the top of viewport
-      const compact = onResults && summaryBandTop <= 0;
+      const compact = onResults && summaryBandTop <= headerBottom;
 
       header.classList.toggle('top-header--compact', compact);
       document.documentElement.style.setProperty(
@@ -346,10 +345,8 @@ function initialise() {
       );
     };
 
-    // Initial check (important on direct load into Results)
     updateCompactHeader();
 
-    // Update on scroll + resize
     window.addEventListener('scroll', updateCompactHeader, { passive: true });
     window.addEventListener('resize', updateCompactHeader);
   }
