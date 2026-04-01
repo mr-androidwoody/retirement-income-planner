@@ -2680,10 +2680,6 @@ input[type="checkbox"]{
   font-variant-numeric:tabular-nums;
 }
 
-#resultsTable tbody td:nth-child(2){
-  font-weight:700;
-}
-
 .at-peak {
   color: #2f6df6;
   font-weight: 600;
