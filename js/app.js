@@ -936,7 +936,7 @@ if (addPortfolioAccountBtn) {
     saveAssumptionsBtn.addEventListener('click', () => {
       saveAssumptionsToStorage();
       const originalLabel = saveAssumptionsBtn.textContent;
-      saveAssumptionsBtn.textContent = 'Saved';
+      saveAssumptionsBtn.textContent = 'Saving...';
       saveAssumptionsBtn.classList.remove('btn-primary', 'btn-secondary');
       saveAssumptionsBtn.classList.add('btn-success');
       window.setTimeout(() => {
