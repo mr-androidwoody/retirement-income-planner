@@ -742,7 +742,7 @@ if (addPortfolioAccountBtn) {
 }
 
     const savePortfolioBtn = document.getElementById('savePortfolioBtn');
-    
+
     if (savePortfolioBtn) {
       savePortfolioBtn.addEventListener('click', () => {
         savePortfolioToStorage();
@@ -751,27 +751,19 @@ if (addPortfolioAccountBtn) {
     
         const originalLabel = savePortfolioBtn.textContent;
     
-        // STEP 1 — Saving (green)
+        // Saving... (green)
         savePortfolioBtn.textContent = 'Saving...';
         savePortfolioBtn.classList.remove('btn-secondary', 'btn-primary');
         savePortfolioBtn.classList.add('btn-success');
     
-        // STEP 2 — Saved (light blue)
+        // Back to default (blue)
         window.setTimeout(() => {
-          savePortfolioBtn.textContent = 'Saved';
-          savePortfolioBtn.classList.remove('btn-success');
-          savePortfolioBtn.classList.add('btn-secondary');
-    
-          // STEP 3 — Reset to default (blue)
-          window.setTimeout(() => {
-            savePortfolioBtn.textContent = originalLabel;
-            savePortfolioBtn.classList.remove('btn-secondary');
-            savePortfolioBtn.classList.add('btn-primary');
-          }, 1000);
-    
-        }, 600);
+          savePortfolioBtn.textContent = originalLabel;
+          savePortfolioBtn.classList.remove('btn-success', 'btn-secondary');
+          savePortfolioBtn.classList.add('btn-primary');
+        }, 1000);
       });
-    } // ← THIS WAS MISSING
+    }
     
     const deletePortfolioBtn = document.getElementById('deletePortfolioBtn');
     const deleteConfirmEl = document.getElementById('deletePortfolioConfirm');
