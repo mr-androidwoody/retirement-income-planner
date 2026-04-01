@@ -759,8 +759,10 @@ if (addPortfolioAccountBtn) {
     
         // CONTINUE BUTTON — turn blue after save
         if (continueBtn) {
-          continueBtn.classList.remove('btn-secondary');
-          continueBtn.classList.add('btn-primary');
+          window.setTimeout(() => {
+            continueBtn.classList.remove('btn-secondary');
+            continueBtn.classList.add('btn-primary');
+          }, 800); // adjust timing here
         }
     
         // Reset SAVE button → light blue with original label
