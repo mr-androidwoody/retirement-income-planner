@@ -758,7 +758,7 @@ if (savePortfolioBtn) {
     savePortfolioBtn.classList.add('btn-success');
 
     window.setTimeout(() => {
-      // 🔵 revert back to normal blue
+      // 🔵 change back to light blue
       savePortfolioBtn.textContent = originalLabel;
       savePortfolioBtn.classList.remove('btn-success');
       savePortfolioBtn.classList.add('btn-primary');
