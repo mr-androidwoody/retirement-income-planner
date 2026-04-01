@@ -416,7 +416,14 @@ function initialise() {
     });
 
     document.addEventListener('results:layout-updated', () => {
-      syncCompactHeader({ forceRecalculate: false });
+      // Defer geometry read until after the browser has painted the updated
+      // layout.  Without this, getBoundingClientRect() inside
+      // recalculateCompactTrigger() reflects the in-progress (pre-paint) DOM
+      // state produced by renderAll(), causing compactTriggerY to be set to a
+      // stale value and the header to incorrectly re-expand.
+      requestAnimationFrame(() => {
+        syncCompactHeader({ forceRecalculate: false });
+      });
     });
   }
 }
@@ -924,8 +931,10 @@ if (addPortfolioAccountBtn) {
     'resize',
     debounce(() => {
       if (latestResult) {
-        renderAll();
-        document.dispatchEvent(new Event('results:layout-updated'));
+        requestAnimationFrame(() => {
+          renderAll();
+          document.dispatchEvent(new Event('results:layout-updated'));
+        });
       }
     }, 100)
   );
@@ -1064,8 +1073,10 @@ function attachChartModeEvents() {
     els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
 
     if (latestResult) {
-      renderAll();
-      document.dispatchEvent(new Event('results:layout-updated'));
+      requestAnimationFrame(() => {
+        renderAll();
+        document.dispatchEvent(new Event('results:layout-updated'));
+      });
     }
   };
 
@@ -1321,8 +1332,10 @@ function rerunResultsWithCurrentOptions() {
     )
       .then((result) => {
         latestResult = result;
-        renderAll();
-        document.dispatchEvent(new Event('results:layout-updated'));
+        requestAnimationFrame(() => {
+          renderAll();
+          document.dispatchEvent(new Event('results:layout-updated'));
+        });
       })
       .catch((error) => {
         showError(error instanceof Error ? error.message : 'Simulation failed.');
