@@ -109,7 +109,7 @@ export function renderPerformanceTable(table, rows, formatCurrency, options = {}
       <th class="col-number table-divider-right">
         ${renderHeaderLabel(
           'Drawdown',
-          'The fall from the prior end-of-year peak.'
+          'How far the portfolio end value is below its previous end-of-year high.'
         )}
       </th>
       <th class="col-number">
