@@ -416,14 +416,18 @@ function initialise() {
     });
 
     document.addEventListener('results:layout-updated', () => {
-      // Defer geometry read until after the browser has painted the updated
-      // layout.  Without this, getBoundingClientRect() inside
-      // recalculateCompactTrigger() reflects the in-progress (pre-paint) DOM
-      // state produced by renderAll(), causing compactTriggerY to be set to a
-      // stale value and the header to incorrectly re-expand.
-      requestAnimationFrame(() => {
-        syncCompactHeader({ forceRecalculate: false });
-      });
+      // Results re-renders (chart mode, guardrails, etc.) must never change the
+      // header's compact/full state — that is owned solely by the scroll
+      // handler.  The only job here is to ensure compactTriggerY has been
+      // measured at least once after the Results tab becomes visible.  If it is
+      // already set (finite), do nothing at all.
+      if (!isResultsActive()) return;
+      if (!Number.isFinite(compactTriggerY)) {
+        requestAnimationFrame(() => {
+          recalculateCompactTrigger();
+          updateCompactHeaderFromScroll();
+        });
+      }
     });
   }
 }
@@ -931,10 +935,8 @@ if (addPortfolioAccountBtn) {
     'resize',
     debounce(() => {
       if (latestResult) {
-        requestAnimationFrame(() => {
-          renderAll();
-          document.dispatchEvent(new Event('results:layout-updated'));
-        });
+        renderAll();
+        document.dispatchEvent(new Event('results:layout-updated'));
       }
     }, 100)
   );
@@ -1073,10 +1075,8 @@ function attachChartModeEvents() {
     els.showRealValues.checked = Boolean(els.chartModeReal?.checked);
 
     if (latestResult) {
-      requestAnimationFrame(() => {
-        renderAll();
-        document.dispatchEvent(new Event('results:layout-updated'));
-      });
+      renderAll();
+      document.dispatchEvent(new Event('results:layout-updated'));
     }
   };
 
@@ -1332,10 +1332,8 @@ function rerunResultsWithCurrentOptions() {
     )
       .then((result) => {
         latestResult = result;
-        requestAnimationFrame(() => {
-          renderAll();
-          document.dispatchEvent(new Event('results:layout-updated'));
-        });
+        renderAll();
+        document.dispatchEvent(new Event('results:layout-updated'));
       })
       .catch((error) => {
         showError(error instanceof Error ? error.message : 'Simulation failed.');
