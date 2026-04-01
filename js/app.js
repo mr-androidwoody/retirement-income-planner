@@ -760,8 +760,8 @@ if (savePortfolioBtn) {
     window.setTimeout(() => {
       // 🔵 change back to light blue
       savePortfolioBtn.textContent = originalLabel;
-      savePortfolioBtn.classList.remove('btn-success');
-      savePortfolioBtn.classList.add('btn-primary');
+      savePortfolioBtn.classList.remove('btn-success', 'btn-primary');
+      savePortfolioBtn.classList.add('btn-secondary');
     }, 1200);
 
     // 🔵 enable Continue button
