@@ -184,6 +184,9 @@ export function createPlanForm(
     if (fieldId === 'monteCarloRuns') {
       syncMonteCarloRunsPreset();
     }
+
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   function syncPerson2State() {
