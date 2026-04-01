@@ -534,20 +534,44 @@ textarea{
   box-shadow:none;
 }
 
-#savePortfolioBtn.btn-secondary{
+#savePortfolioBtn.btn-primary{
+  background:linear-gradient(180deg, #4a78ff 0%, #3460e8 100%);
+  color:#ffffff;
+  border-color:transparent;
+  box-shadow:0 10px 22px rgba(52, 96, 232, 0.22);
+}
+
+#continueToAssumptionsBtn.btn-secondary{
   background:#e6f2ff;
   color:#1f4e8c;
   border:1px solid #c7defc;
+  box-shadow:none;
 }
 
-#savePortfolioBtn.btn-secondary:hover{
+#continueToAssumptionsBtn.btn-secondary:hover{
   background:#d6e9ff;
   border-color:#a9ccfa;
 }
 
-#savePortfolioBtn.btn-secondary:active{
-  background:#c4ddff;
-  border-color:#a9ccfa;
+#continueToAssumptionsBtn.btn-secondary.is-disabled,
+#continueToAssumptionsBtn.btn-secondary:disabled{
+  background:#e6f2ff;
+  color:#1f4e8c;
+  border:1px solid #c7defc;
+  opacity:1;
+  cursor:not-allowed;
+  transform:none;
+}
+
+#continueToAssumptionsBtn.btn-secondary.is-enabled{
+  background:linear-gradient(180deg, #4a78ff 0%, #3460e8 100%);
+  color:#ffffff;
+  border-color:transparent;
+  box-shadow:0 10px 22px rgba(52, 96, 232, 0.22);
+}
+
+#continueToAssumptionsBtn.btn-secondary.is-enabled:hover{
+  background:linear-gradient(180deg, #5a84ff 0%, #3f6af0 100%);
 }
 
 .btn-run-simulation{
@@ -802,11 +826,6 @@ textarea{
 .portfolio-section-actions #continueToAssumptionsBtn,
 .portfolio-section-actions #savePortfolioBtn{
   min-height:40px;
-}
-
-.portfolio-section-actions #savePortfolioBtn.btn-secondary:hover{
-  background:#d6e9ff;
-  border-color:#a9ccfa;
 }
 
 #deletePortfolioBtn{
@@ -1231,11 +1250,11 @@ textarea{
     align-items:stretch;
   }
 
-  .portfolio-section-actions #continueToAssumptionsBtn,
-  .portfolio-section-actions #savePortfolioBtn,
-  .portfolio-table-actions #addPortfolioAccountBtn,
-  .portfolio-table-footer-actions #deletePortfolioBtn{
-    width:100%;
+.portfolio-table-actions--right #continueToAssumptionsBtn,
+.portfolio-table-actions--right #savePortfolioBtn,
+.portfolio-table-actions #addPortfolioAccountBtn,
+.portfolio-table-footer-actions #deletePortfolioBtn{
+  width:100%;
 }
     
 }
