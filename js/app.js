@@ -704,6 +704,7 @@ function prepareAndRunSimulation() {
 }
 
 function continueToAssumptions() {
+  syncPortfolioPeopleFromFields();
   const activeAccounts = getActivePortfolioAccounts();
   const validationState = getPortfolioValidationState();
 
