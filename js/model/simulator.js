@@ -557,8 +557,8 @@ export function simulatePath(inputs, annualReturns) {
 
     const targetSpendingReal = targetSpendingNominal / inflationIndex;
     const actualSpendingReal = actualSpendingNominal / inflationIndex;
-    const pensionReal = pensionNominal / inflationIndex;
-    const otherIncomeReal = otherIncomeNominal / inflationIndex;
+    const pensionReal = pensionNominal / nextInflationIndex;
+    const otherIncomeReal = otherIncomeNominal / nextInflationIndex;
     const windfallReal = windfallNominal / inflationIndex;
     const withdrawalReal = actualWithdrawalNominal / inflationIndex;
 
