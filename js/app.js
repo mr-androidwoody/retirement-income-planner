@@ -321,29 +321,38 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  // Compact header: observe the bottom edge of #summaryBand (above the tab panels).
-  // When the summary band scrolls out of view, collapse the header.
-  // This replaces the old toolbarSentinel which was inside the Results panel.
+  // Compact header: trigger when the TOP of #summaryBand reaches the top of the viewport.
+  // This ensures the header collapses exactly as the summary band scrolls past the top edge,
+  // rather than waiting for the entire band to leave view (IntersectionObserver behaviour).
+  // Replaces the old toolbarSentinel approach.
+
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
 
   if (summaryBandEl && header) {
-    new IntersectionObserver(
-      ([entry]) => {
-        const onResults = document.body.classList.contains('is-results');
+    const updateCompactHeader = () => {
+      const onResults = document.body.classList.contains('is-results');
 
-        const compact = onResults && !entry.isIntersecting;
+      // Get distance from top of viewport
+      const summaryBandTop = summaryBandEl.getBoundingClientRect().top;
 
-        header.classList.toggle('top-header--compact', compact);
-        document.documentElement.style.setProperty(
-          '--header-height',
-          compact ? '56px' : '164px'
-        );
-      },
-      { threshold: 0 }
-    ).observe(summaryBandEl);
+      // Collapse header as soon as the top of the band hits or passes the top of viewport
+      const compact = onResults && summaryBandTop <= 0;
+
+      header.classList.toggle('top-header--compact', compact);
+      document.documentElement.style.setProperty(
+        '--header-height',
+        compact ? '56px' : '164px'
+      );
+    };
+
+    // Initial check (important on direct load into Results)
+    updateCompactHeader();
+
+    // Update on scroll + resize
+    window.addEventListener('scroll', updateCompactHeader, { passive: true });
+    window.addEventListener('resize', updateCompactHeader);
   }
-}
 
 function resetResultsHeader() {
   if (els.summarySuccessRateLabel) {
