@@ -942,7 +942,7 @@ if (addPortfolioAccountBtn) {
       window.setTimeout(() => {
         saveAssumptionsBtn.textContent = originalLabel;
         saveAssumptionsBtn.classList.remove('btn-success');
-        saveAssumptionsBtn.classList.add('btn-secondary');
+        saveAssumptionsBtn.classList.add('btn-primary');
       }, 1200);
     });
   }
