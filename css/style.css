@@ -534,6 +534,22 @@ textarea{
   box-shadow:none;
 }
 
+#savePortfolioBtn.btn-secondary{
+  background:#e6f2ff;
+  color:#1f4e8c;
+  border:1px solid #c7defc;
+}
+
+#savePortfolioBtn.btn-secondary:hover{
+  background:#d6e9ff;
+  border-color:#a9ccfa;
+}
+
+#savePortfolioBtn.btn-secondary:active{
+  background:#c4ddff;
+  border-color:#a9ccfa;
+}
+
 .btn-run-simulation{
   min-width:160px;
 }
@@ -786,12 +802,6 @@ textarea{
 .portfolio-section-actions #continueToAssumptionsBtn,
 .portfolio-section-actions #savePortfolioBtn{
   min-height:40px;
-}
-
-.portfolio-section-actions #savePortfolioBtn.btn-secondary{
-  background:#e6f2ff;
-  color:#1f4e8c;
-  border:1px solid #c7defc;
 }
 
 .portfolio-section-actions #savePortfolioBtn.btn-secondary:hover{
