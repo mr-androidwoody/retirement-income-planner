@@ -287,7 +287,6 @@ function loadAssumptionsFromStorage() {
     if (parsed && typeof parsed === 'object') {
       planForm.applyDefaults(parsed);
       advancedForm.applyDefaults(parsed);
-      hasMappedPortfolioToAssumptions = true;
     }
   } catch (error) {
     console.warn('Failed to load assumptions from storage', error);
@@ -339,7 +338,6 @@ function renderPortfolioPeopleFields() {
 function initialise() {
   setupWorker();
   applyDefaults();
-  loadAssumptionsFromStorage();
   loadPortfolioFromStorage();
   loadPortfolioConfigFromStorage();
   loadPortfolioPeopleFromStorage();
@@ -354,6 +352,7 @@ function initialise() {
   tabs.setActiveTab('portfolio');
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
+  loadAssumptionsFromStorage();
 
   // Compact header: compact/full state must be controlled by scroll position
   // against a stable trigger. Results rerenders may refresh layout, but they
