@@ -322,10 +322,9 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  // Compact header: switch to compact once the user scrolls past the point
-  // where the top of #summaryBand reaches the underside of the expanded header.
-  // After that, keep the header compact until the user actually scrolls back
-  // above that trigger point. UI re-renders inside Results must not expand it.
+  // Compact header: compact state must be driven by actual scroll position.
+  // Results re-renders must not move the trigger or expand the header unless
+  // the user really scrolls back above the trigger point.
 
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
@@ -335,6 +334,16 @@ function initialise() {
     const COMPACT_HEADER_HEIGHT = 56;
 
     let compactTriggerY = Number.POSITIVE_INFINITY;
+    let wasResultsVisible = false;
+    let lastViewportKey = `${window.innerWidth}x${window.innerHeight}`;
+
+    const applyCompactHeaderState = (compact) => {
+      header.classList.toggle('top-header--compact', compact);
+      document.documentElement.style.setProperty(
+        '--header-height',
+        compact ? `${COMPACT_HEADER_HEIGHT}px` : `${EXPANDED_HEADER_HEIGHT}px`
+      );
+    };
 
     const recalculateCompactTrigger = () => {
       const summaryBandDocumentTop =
@@ -346,16 +355,10 @@ function initialise() {
       );
     };
 
-    const applyCompactHeaderState = (compact) => {
-      header.classList.toggle('top-header--compact', compact);
-      document.documentElement.style.setProperty(
-        '--header-height',
-        compact ? `${COMPACT_HEADER_HEIGHT}px` : `${EXPANDED_HEADER_HEIGHT}px`
-      );
-    };
-
     const updateCompactHeaderFromScroll = () => {
-      const onResults = document.body.classList.contains('is-results');
+      const onResults =
+        document.body.classList.contains('is-results') &&
+        !summaryBandEl.classList.contains('hidden');
 
       if (!onResults) {
         applyCompactHeaderState(false);
@@ -365,26 +368,51 @@ function initialise() {
       applyCompactHeaderState(window.scrollY > compactTriggerY);
     };
 
-    const syncCompactHeader = () => {
-      const onResults = document.body.classList.contains('is-results');
+    const syncCompactHeader = ({ forceRecalculate = false } = {}) => {
+      const onResults =
+        document.body.classList.contains('is-results') &&
+        !summaryBandEl.classList.contains('hidden');
 
-      if (!onResults || els.summaryBand?.classList.contains('hidden')) {
+      if (!onResults) {
         compactTriggerY = Number.POSITIVE_INFINITY;
+        wasResultsVisible = false;
         applyCompactHeaderState(false);
         return;
       }
 
-      recalculateCompactTrigger();
+      const justEnteredResults = !wasResultsVisible;
+
+      if (
+        forceRecalculate ||
+        justEnteredResults ||
+        !Number.isFinite(compactTriggerY)
+      ) {
+        recalculateCompactTrigger();
+      }
+
+      wasResultsVisible = true;
       updateCompactHeaderFromScroll();
     };
 
-    syncCompactHeader();
+    syncCompactHeader({ forceRecalculate: true });
 
     window.addEventListener('scroll', updateCompactHeaderFromScroll, {
       passive: true
     });
 
-    window.addEventListener('resize', syncCompactHeader);
+    window.addEventListener('resize', () => {
+      const nextViewportKey = `${window.innerWidth}x${window.innerHeight}`;
+      const viewportChanged = nextViewportKey !== lastViewportKey;
+
+      lastViewportKey = nextViewportKey;
+
+      if (viewportChanged) {
+        syncCompactHeader({ forceRecalculate: true });
+        return;
+      }
+
+      updateCompactHeaderFromScroll();
+    });
   }
 }
 
