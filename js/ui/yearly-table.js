@@ -98,7 +98,7 @@ export function renderYearlyTable(table, rows, useReal, formatCurrency, options 
         ${
           drawdown < 0
             ? `↓ ${Math.abs(drawdown * 100).toFixed(0)}% from peak`
-            : 'At peak'
+            : '<span class="at-peak">At peak</span>'
         }
       </div>
     `;
