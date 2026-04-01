@@ -2672,6 +2672,13 @@ input[type="checkbox"]{
   width:100%;
 }
 
+.status-cell{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+}
+
 #resultsTable .status-value{
   min-width:0;
   overflow:hidden;
