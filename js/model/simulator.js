@@ -675,9 +675,8 @@ export function simulatePath(inputs, annualReturns) {
         }
       }
 
-      // Cap spending at user-defined maximum (0 = no cap).
-      // Prevents guardrail boosts from pushing spending into tax-inefficient territory
-      // e.g. once state pensions arrive and withdrawal rate stays below lower limit.
+      // Cap spending at the user-defined maximum (0 = no cap).
+      // Prevents guardrail increases from lifting planned spending above the chosen ceiling.
       if (inputs.maxSpendingNominal > 0) {
         nextPlannedSpendingNominal = Math.min(
           nextPlannedSpendingNominal,
