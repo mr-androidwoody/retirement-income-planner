@@ -424,16 +424,13 @@ function initialise() {
     });
 
     document.addEventListener('results:layout-updated', () => {
-      // Results re-renders (chart mode, guardrails, etc.) must never change the
-      // header's compact/full state — that is owned solely by the scroll
-      // handler.  The only job here is to ensure compactTriggerY has been
-      // measured at least once after the Results tab becomes visible.  If it is
-      // already set (finite), do nothing at all.
+      // Only measure compactTriggerY if it has never been set.
+      // Never call applyCompactHeaderState or updateCompactHeaderFromScroll
+      // here — header state is owned solely by the scroll handler.
       if (!isResultsActive()) return;
       if (!Number.isFinite(compactTriggerY)) {
         requestAnimationFrame(() => {
           recalculateCompactTrigger();
-          updateCompactHeaderFromScroll();
         });
       }
     });
