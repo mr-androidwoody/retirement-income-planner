@@ -694,7 +694,7 @@ function renderTopRowCardValues({
     if (Number.isFinite(worstValue) && worstValue <= 0) {
       setText(
         elements.summaryWorstStressDesc,
-        'Portfolio fully depleted in worst cases.'
+        'Your portfolio runs out in the worst case scenarios.'
       );
     } else if (
       Number.isFinite(worstValue) &&
@@ -702,12 +702,14 @@ function renderTopRowCardValues({
     ) {
       setText(
         elements.summaryWorstStressDesc,
-        'Large losses in worst cases.'
+        'Portfolio falls sharply in the worst case scenarios.'
       );
     } else {
       setText(
         elements.summaryWorstStressDesc,
-        'No severe downside observed.'
+        'Worst case outcomes avoid severe losses.'
+      );
+    }
       );
     }
   }
