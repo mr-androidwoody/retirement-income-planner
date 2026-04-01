@@ -4,9 +4,6 @@ import { initialiseTabs } from './ui/tabs.js';
 import { renderResultsView } from './ui/results-view.js';
 import { createPlanForm } from './ui/plan-form.js';
 import { createAdvancedForm } from './ui/advanced-form.js';
-import { renderTaxPanel, buildTaxInputsFromApp } from './ui/tax-form.js';
-import { renderTaxView } from './ui/tax-view.js';
-import { runTaxEngine } from './model/tax-engine.js';
 
 const els = {
   years: document.getElementById('years'),
@@ -124,12 +121,10 @@ const els = {
   resultsTableLegend: document.getElementById('resultsTableLegend'),
   assumptionsTabButton: document.querySelector('[data-tab-button="assumptions"]'),
   resultsTabButton: document.querySelector('[data-tab-button="results"]'),
-  taxTabButton: document.querySelector('[data-tab-button="tax"]')
 };
 
 let latestResult = null;
 let latestBaseInputs = null;
-let latestTaxResult = null;
 let worker = null;
 let withdrawalInputMode = 'rate';
 let currentTableView = 'median';
@@ -193,17 +188,9 @@ const tabs = initialiseTabs({
   onChange: (tabName) => {
     document.body.classList.toggle('is-portfolio', tabName === 'portfolio');
     document.body.classList.toggle('is-results', tabName === 'results');
-    document.body.classList.toggle('is-tax', tabName === 'tax');
-
-    // Compact header only valid on results/tax — restore when leaving
-    if (tabName !== 'results' && tabName !== 'tax') {
-      document.querySelector('.top-header')?.classList.remove('top-header--compact');
-      document.documentElement.style.setProperty('--header-height', '164px');
-    }
 
     updateRunSimulationButtonState(tabName);
 
-    // Summary band visible on results and tax
     if (els.summaryBand) {
       els.summaryBand.classList.toggle('hidden', tabName !== 'results');
     }
@@ -212,24 +199,6 @@ const tabs = initialiseTabs({
       requestAnimationFrame(() => {
         renderAll();
       });
-    }
-
-    if (tabName === 'tax') {
-      if (latestBaseInputs) {
-        const taxInputs = buildTaxInputsFromApp(latestBaseInputs, portfolioAccounts, portfolioPeople);
-        latestTaxResult = runTaxEngine(taxInputs);
-      }
-      const useReal = document.getElementById('taxModeReal')?.checked !== false;
-      renderTaxPanel(
-        document.getElementById('taxFormContainer'),
-        latestBaseInputs || null,
-        portfolioAccounts,
-        portfolioPeople,
-        latestTaxResult,
-        useReal,
-        formatCurrency
-      );
-      if (latestTaxResult) renderTaxResults();
     }
   }
 });
@@ -357,15 +326,19 @@ function initialise() {
   // This replaces the old toolbarSentinel which was inside the Results panel.
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
+
   if (summaryBandEl && header) {
     new IntersectionObserver(
       ([entry]) => {
-        const onResultsOrTax =
-          document.body.classList.contains('is-results') ||
-          document.body.classList.contains('is-tax');
-        const compact = onResultsOrTax && !entry.isIntersecting;
+        const onResults = document.body.classList.contains('is-results');
+
+        const compact = onResults && !entry.isIntersecting;
+
         header.classList.toggle('top-header--compact', compact);
-        document.documentElement.style.setProperty('--header-height', compact ? '56px' : '164px');
+        document.documentElement.style.setProperty(
+          '--header-height',
+          compact ? '56px' : '164px'
+        );
       },
       { threshold: 0 }
     ).observe(summaryBandEl);
@@ -800,7 +773,6 @@ if (addPortfolioAccountBtn) {
       hasMappedPortfolioToAssumptions = false;
 
       latestResult = null;
-      latestTaxResult = null;
       currentTableView = 'median';
       currentTableMode = 'plan';
 
@@ -841,7 +813,6 @@ if (addPortfolioAccountBtn) {
 
       latestResult = null;
       latestBaseInputs = null;
-      latestTaxResult = null;
       currentTableView = 'median';
       currentTableMode = 'plan';
 
@@ -872,7 +843,6 @@ if (addPortfolioAccountBtn) {
   attachGuytonKlingerEvents();
   attachResultsTabGuard();
   attachAssumptionsTabGuard();
-  attachTaxTabEvents();
 
   window.addEventListener(
     'resize',
@@ -890,42 +860,6 @@ if (addPortfolioAccountBtn) {
   }
 
   attachAllocationStatusEvents();
-}
-
-// ---------------------------------------------------------------------------
-// Tax tab events
-// ---------------------------------------------------------------------------
-
-function attachTaxTabEvents() {
-  // Use event delegation — radios are rendered dynamically by renderTaxPanel
-  document.addEventListener('change', (e) => {
-    if (e.target.name !== 'taxMode') return;
-    if (!latestTaxResult) return;
-    const useReal = document.getElementById('taxModeReal')?.checked !== false;
-    renderTaxPanel(
-      document.getElementById('taxFormContainer'),
-      latestBaseInputs || null,
-      portfolioAccounts,
-      portfolioPeople,
-      latestTaxResult,
-      useReal,
-      formatCurrency
-    );
-    renderTaxResults();
-  });
-}
-
-function renderTaxResults() {
-  if (!latestTaxResult) return;
-  const panel = document.getElementById('taxResultsPanel');
-  if (panel) panel.removeAttribute('hidden');
-  const useReal = document.getElementById('taxModeReal')?.checked !== false;
-  renderTaxView({
-    result: latestTaxResult,
-    tableEl: document.getElementById('taxYearTable'),
-    useReal,
-    formatCurrency,
-  });
 }
 
 function attachAllocationStatusEvents() {
@@ -1211,27 +1145,22 @@ function runSimulation() {
 
     const mergedInputs = normaliseAllocationInputsForSimulation({
       ...DEFAULT_INPUTS,
-      ...sanitiseInputs(latestBaseInputs || gatherInputs())
+      ...sanitiseInputs(latestBaseInputs || inputs)
     });
     console.log('runSimulation mergedInputs', mergedInputs);
 
     const errors = validateInputs(mergedInputs);
     console.log('runSimulation validation errors JSON', JSON.stringify(errors, null, 2));
     console.log('runSimulation mergedInputs JSON', JSON.stringify(mergedInputs, null, 2));
-    
+
     if (errors.length > 0) {
       console.error('Validation failed');
       errors.forEach((error, index) => {
         console.error(`Error ${index + 1}:`, error);
       });
       console.log('Merged inputs snapshot:', mergedInputs);
-    
-      showError(errors.join(' '));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
 
-    if (errors.length > 0) {
+      planForm.setBusy(false);
       showError(errors.join(' '));
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -1276,6 +1205,7 @@ function runSimulation() {
     console.error('runSimulation crashed', error);
     planForm.setBusy(false);
     showError(error instanceof Error ? error.message : 'Simulation failed.');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
