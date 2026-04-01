@@ -2680,11 +2680,17 @@ input[type="checkbox"]{
 }
 
 #resultsTable .status-value{
+  display:inline-block;
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
   font-variant-numeric:tabular-nums;
+  order:2;
+}
+
+#resultsTable .status-dot{
+  order:1;
 }
 
 .at-peak {
