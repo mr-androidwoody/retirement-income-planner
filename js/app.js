@@ -146,6 +146,7 @@ let hasMappedPortfolioToAssumptions = false;
 const PORTFOLIO_STORAGE_KEY = 'retirement_portfolio_accounts_v1';
 const PORTFOLIO_CONFIG_STORAGE_KEY = 'retirement_portfolio_config_v1';
 const PORTFOLIO_PEOPLE_STORAGE_KEY = 'retirement_portfolio_people_v1';
+const ASSUMPTIONS_STORAGE_KEY = 'retirement_assumptions_v1';
 
 function updateRunSimulationButtonState(activeTab) {
   if (!els.runSimulationBtn) return;
@@ -273,6 +274,29 @@ function syncPortfolioPeopleFromFields() {
   }
 }
 
+function saveAssumptionsToStorage() {
+  const inputs = gatherInputs();
+  localStorage.setItem(ASSUMPTIONS_STORAGE_KEY, JSON.stringify(inputs));
+}
+
+function loadAssumptionsFromStorage() {
+  const saved = localStorage.getItem(ASSUMPTIONS_STORAGE_KEY);
+  if (!saved) return;
+  try {
+    const parsed = JSON.parse(saved);
+    if (parsed && typeof parsed === 'object') {
+      planForm.applyDefaults(parsed);
+      advancedForm.applyDefaults(parsed);
+    }
+  } catch (error) {
+    console.warn('Failed to load assumptions from storage', error);
+  }
+}
+
+function deleteAssumptionsFromStorage() {
+  localStorage.removeItem(ASSUMPTIONS_STORAGE_KEY);
+}
+
 function loadPortfolioPeopleFromStorage() {
   const saved = localStorage.getItem(PORTFOLIO_PEOPLE_STORAGE_KEY);
   if (!saved) return;
@@ -314,6 +338,7 @@ function renderPortfolioPeopleFields() {
 function initialise() {
   setupWorker();
   applyDefaults();
+  loadAssumptionsFromStorage();
   loadPortfolioFromStorage();
   loadPortfolioConfigFromStorage();
   loadPortfolioPeopleFromStorage();
@@ -704,7 +729,6 @@ function prepareAndRunSimulation() {
 }
 
 function continueToAssumptions() {
-  syncPortfolioPeopleFromFields();
   const activeAccounts = getActivePortfolioAccounts();
   const validationState = getPortfolioValidationState();
 
@@ -898,6 +922,51 @@ if (addPortfolioAccountBtn) {
 
       deleteConfirmEl.classList.add('hidden');
       deletePortfolioBtn.classList.remove('hidden');
+    });
+  }
+
+  // Assumptions save/delete buttons
+  const saveAssumptionsBtn = document.getElementById('saveAssumptionsBtn');
+  const deleteAssumptionsBtn = document.getElementById('deleteAssumptionsBtn');
+  const deleteAssumptionsConfirm = document.getElementById('deleteAssumptionsConfirm');
+  const confirmDeleteAssumptionsBtn = document.getElementById('confirmDeleteAssumptionsBtn');
+  const cancelDeleteAssumptionsBtn = document.getElementById('cancelDeleteAssumptionsBtn');
+
+  if (saveAssumptionsBtn) {
+    saveAssumptionsBtn.addEventListener('click', () => {
+      saveAssumptionsToStorage();
+      const originalLabel = saveAssumptionsBtn.textContent;
+      saveAssumptionsBtn.textContent = 'Saved';
+      saveAssumptionsBtn.classList.remove('btn-primary', 'btn-secondary');
+      saveAssumptionsBtn.classList.add('btn-success');
+      window.setTimeout(() => {
+        saveAssumptionsBtn.textContent = originalLabel;
+        saveAssumptionsBtn.classList.remove('btn-success');
+        saveAssumptionsBtn.classList.add('btn-secondary');
+      }, 1200);
+    });
+  }
+
+  if (deleteAssumptionsBtn && deleteAssumptionsConfirm) {
+    deleteAssumptionsBtn.addEventListener('click', () => {
+      deleteAssumptionsConfirm.classList.remove('hidden');
+      deleteAssumptionsBtn.classList.add('hidden');
+    });
+  }
+
+  if (cancelDeleteAssumptionsBtn && deleteAssumptionsConfirm && deleteAssumptionsBtn) {
+    cancelDeleteAssumptionsBtn.addEventListener('click', () => {
+      deleteAssumptionsConfirm.classList.add('hidden');
+      deleteAssumptionsBtn.classList.remove('hidden');
+    });
+  }
+
+  if (confirmDeleteAssumptionsBtn && deleteAssumptionsConfirm && deleteAssumptionsBtn) {
+    confirmDeleteAssumptionsBtn.addEventListener('click', () => {
+      deleteAssumptionsFromStorage();
+      applyDefaults();
+      deleteAssumptionsConfirm.classList.add('hidden');
+      deleteAssumptionsBtn.classList.remove('hidden');
     });
   }
 
