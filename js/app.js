@@ -321,11 +321,10 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  // Compact header: collapse once the page has scrolled far enough that the top
-  // of #summaryBand reaches the underside of the expanded header.
-  // After that, keep the header compact until the user scrolls back above
-  // the trigger point. This avoids layout changes inside Results causing the
-  // header to expand unexpectedly.
+  // Compact header: collapse once the page scroll passes the trigger point
+  // where the top of #summaryBand reaches the underside of the expanded header.
+  // Keep it compact while below that point, and expand again when the user
+  // scrolls back above it.
 
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
@@ -334,9 +333,16 @@ function initialise() {
     const EXPANDED_HEADER_HEIGHT = 164;
     const COMPACT_HEADER_HEIGHT = 56;
 
-    let compactTriggerY = 0;
+    let compactTriggerY = Number.POSITIVE_INFINITY;
 
     const recalculateCompactTrigger = () => {
+      const isVisible = !summaryBandEl.classList.contains('hidden');
+
+      if (!isVisible) {
+        compactTriggerY = Number.POSITIVE_INFINITY;
+        return;
+      }
+
       const summaryBandDocumentTop =
         window.scrollY + summaryBandEl.getBoundingClientRect().top;
 
@@ -348,7 +354,7 @@ function initialise() {
 
     const updateCompactHeader = () => {
       const onResults = document.body.classList.contains('is-results');
-      const compact = onResults && window.scrollY >= compactTriggerY;
+      const compact = onResults && window.scrollY > compactTriggerY;
 
       header.classList.toggle('top-header--compact', compact);
       document.documentElement.style.setProperty(
@@ -362,18 +368,12 @@ function initialise() {
       updateCompactHeader();
     };
 
-    // Initial sync
     syncCompactHeader();
 
-    // Keep threshold accurate if layout changes or viewport size changes
     window.addEventListener('resize', syncCompactHeader);
+    window.addEventListener('scroll', updateCompactHeader, { passive: true });
 
-    // Only scroll position should toggle compact mode during scrolling
-    window.addEventListener(
-      'scroll',
-      updateCompactHeader,
-      { passive: true }
-    );
+    requestAnimationFrame(syncCompactHeader);
   }
 }
 
