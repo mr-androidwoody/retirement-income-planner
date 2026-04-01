@@ -2666,7 +2666,7 @@ input[type="checkbox"]{
 #resultsTable .status-cell{
   display:flex;
   align-items:center;
-  justify-content:flex-start;
+  justify-content:flex-end;
   gap:6px;
   min-width:0;
   width:100%;
