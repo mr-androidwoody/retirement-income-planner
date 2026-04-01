@@ -322,10 +322,10 @@ function initialise() {
   updateRunSimulationButtonState('portfolio');
   hasMappedPortfolioToAssumptions = false;
 
-  // Compact header: collapse once the page scroll passes the trigger point
+  // Compact header: switch to compact once the user scrolls past the point
   // where the top of #summaryBand reaches the underside of the expanded header.
-  // Keep it compact while below that point, and expand again when the user
-  // scrolls back above it.
+  // After that, keep the header compact until the user actually scrolls back
+  // above that trigger point. UI re-renders inside Results must not expand it.
 
   const summaryBandEl = document.getElementById('summaryBand');
   const header = document.querySelector('.top-header');
@@ -337,13 +337,6 @@ function initialise() {
     let compactTriggerY = Number.POSITIVE_INFINITY;
 
     const recalculateCompactTrigger = () => {
-      const isVisible = !summaryBandEl.classList.contains('hidden');
-
-      if (!isVisible) {
-        compactTriggerY = Number.POSITIVE_INFINITY;
-        return;
-      }
-
       const summaryBandDocumentTop =
         window.scrollY + summaryBandEl.getBoundingClientRect().top;
 
@@ -353,10 +346,7 @@ function initialise() {
       );
     };
 
-    const updateCompactHeader = () => {
-      const onResults = document.body.classList.contains('is-results');
-      const compact = onResults && window.scrollY > compactTriggerY;
-
+    const applyCompactHeaderState = (compact) => {
       header.classList.toggle('top-header--compact', compact);
       document.documentElement.style.setProperty(
         '--header-height',
@@ -364,17 +354,37 @@ function initialise() {
       );
     };
 
+    const updateCompactHeaderFromScroll = () => {
+      const onResults = document.body.classList.contains('is-results');
+
+      if (!onResults) {
+        applyCompactHeaderState(false);
+        return;
+      }
+
+      applyCompactHeaderState(window.scrollY > compactTriggerY);
+    };
+
     const syncCompactHeader = () => {
+      const onResults = document.body.classList.contains('is-results');
+
+      if (!onResults || els.summaryBand?.classList.contains('hidden')) {
+        compactTriggerY = Number.POSITIVE_INFINITY;
+        applyCompactHeaderState(false);
+        return;
+      }
+
       recalculateCompactTrigger();
-      updateCompactHeader();
+      updateCompactHeaderFromScroll();
     };
 
     syncCompactHeader();
 
-    window.addEventListener('resize', syncCompactHeader);
-    window.addEventListener('scroll', updateCompactHeader, { passive: true });
+    window.addEventListener('scroll', updateCompactHeaderFromScroll, {
+      passive: true
+    });
 
-    requestAnimationFrame(syncCompactHeader);
+    window.addEventListener('resize', syncCompactHeader);
   }
 }
 
