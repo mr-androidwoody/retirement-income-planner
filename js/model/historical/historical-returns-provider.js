@@ -53,21 +53,10 @@ export function generateRollingHistoricalWindows(series, windowLength) {
     );
   }
 
-  // Exclude windows containing hyperinflationary years (e.g. 1923 Weimar).
-  // A threshold of 10.0 (1000% annual inflation) is safely above any plausible
-  // normal value while catching genuine hyperinflation entries in the dataset.
-  const HYPERINFLATION_THRESHOLD = 10.0;
-
   const windows = [];
 
   for (let startIndex = 0; startIndex <= series.length - windowLength; startIndex += 1) {
     const rows = series.slice(startIndex, startIndex + windowLength);
-
-    const containsHyperinflation = rows.some(
-      (row) => Math.abs(Number(row.inflation)) > HYPERINFLATION_THRESHOLD
-    );
-
-    if (containsHyperinflation) continue;
 
     windows.push({
       startIndex,

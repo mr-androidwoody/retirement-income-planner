@@ -11,6 +11,11 @@ export function toDecimal(value) {
   return Math.abs(value) > 1 ? value / 100 : value;
 }
 
+// Cap annual inflation at 100% to prevent hyperinflationary years (e.g. 1923 Weimar)
+// from producing astronomical nominal values. Real returns are unaffected — the
+// portfolio still experiences the genuine asset-price impact of those years.
+const HYPERINFLATION_CAP = 1.0;
+
 export async function runHistoricalScenario(inputs) {
   const normalisedInputs = normaliseInputs(inputs);
   const years = Number(normalisedInputs.years || 0);
@@ -35,7 +40,7 @@ export async function runHistoricalScenario(inputs) {
       toDecimal(Number(row.returns?.cashlike ?? 0))
     ),
     inflation: window.rows.map((row) =>
-      toDecimal(Number(row.inflation ?? 0))
+      Math.min(toDecimal(Number(row.inflation ?? 0)), HYPERINFLATION_CAP)
     )
   };
 
