@@ -1634,7 +1634,7 @@ function getPortfolioValidationState() {
   return {
     isReady: false,
     issueCount,
-    message: `Fix ${issueCount} issue${issueCount === 1 ? '' : 's'}`
+    message: `Balance ${issueCount} account value${issueCount === 1 ? '' : 's'} below so they equal exactly 100%`
   };
 }
 
