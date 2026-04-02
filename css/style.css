@@ -534,36 +534,17 @@ textarea{
   box-shadow:none;
 }
 
-#savePortfolioBtn.btn-secondary{
-  background:#dcfce7;
-  color:#166534;
-  border:1px solid #bbf7d0;
-  box-shadow:none;
-}
-
-#savePortfolioBtn.btn-secondary:hover{
-  background:#d1fae5;
-  border-color:#86efac;
-}
-
-#savePortfolioBtn.btn-secondary:active{
-  background:#bbf7d0;
-  border-color:#86efac;
-}
-
+#savePortfolioBtn.btn-secondary,
 #savePortfolioBtn.btn-primary{
-  background:#dcfce7;
-  color:#166534;
-  border:1px solid #bbf7d0;
-  box-shadow:none;
+  background:linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color:#ffffff;
+  border-color:transparent;
+  box-shadow:0 10px 22px rgba(34, 197, 94, 0.22);
 }
 
-/* Saving... state — white background, green text */
-#savePortfolioBtn.btn-success{
-  background:#ffffff;
-  color:#16a34a;
-  border:1px solid #86efac;
-  box-shadow:none;
+#savePortfolioBtn.btn-secondary:hover,
+#savePortfolioBtn.btn-primary:hover{
+  background:linear-gradient(180deg, #34d46e 0%, #1db554 100%);
 }
 
 #continueToAssumptionsBtn.btn-secondary{
@@ -4684,7 +4665,19 @@ body.is-portfolio .summary-band {
   border-color:#a9ccfa;
 }
 
-/* Saving... / Saved state — white background, green text */
+/* Save assumptions — solid green (same as btn-success) */
+#saveAssumptionsBtn.btn-primary{
+  background:linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color:#ffffff;
+  border-color:transparent;
+  box-shadow:0 10px 22px rgba(34, 197, 94, 0.22);
+}
+
+#saveAssumptionsBtn.btn-primary:hover{
+  background:linear-gradient(180deg, #34d46e 0%, #1db554 100%);
+}
+
+/* Saving... state — white background, green text */
 #savePortfolioBtn.btn-success,
 #saveAssumptionsBtn.btn-success{
   background:#ffffff;
