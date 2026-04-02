@@ -1939,6 +1939,11 @@ function mapPortfolioToInputs(totals) {
 function applyPortfolioInputsToAssumptions(inputs) {
   if (!inputs || typeof inputs !== 'object') return;
 
+  // Set mode to 'amount' before writing fields so that the initialPortfolio
+  // change event does not trigger syncInitialSpendingFromRate() and overwrite
+  // the spending value we are about to apply.
+  withdrawalInputMode = 'amount';
+
   planForm.applyDefaults(inputs);
   advancedForm.applyDefaults(inputs);
 
