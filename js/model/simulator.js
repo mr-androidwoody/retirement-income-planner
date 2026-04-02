@@ -611,7 +611,9 @@ export function simulatePath(inputs, annualReturns) {
       depleted: depletedThisYear,
 
       endPortfolioNominal,
-      endPortfolioReal
+      endPortfolioReal,
+
+      inflationIndex: nextInflationIndex
     });
 
     pathNominal.push(endPortfolioNominal);
