@@ -535,27 +535,35 @@ textarea{
 }
 
 #savePortfolioBtn.btn-secondary{
-  background:#e6f2ff;
-  color:#1f4e8c;
-  border:1px solid #c7defc;
+  background:#dcfce7;
+  color:#166534;
+  border:1px solid #bbf7d0;
   box-shadow:none;
 }
 
 #savePortfolioBtn.btn-secondary:hover{
-  background:#d6e9ff;
-  border-color:#a9ccfa;
+  background:#d1fae5;
+  border-color:#86efac;
 }
 
 #savePortfolioBtn.btn-secondary:active{
-  background:#c4ddff;
-  border-color:#a9ccfa;
+  background:#bbf7d0;
+  border-color:#86efac;
 }
 
 #savePortfolioBtn.btn-primary{
-  background:linear-gradient(180deg, #4a78ff 0%, #3460e8 100%);
-  color:#ffffff;
-  border-color:transparent;
-  box-shadow:0 10px 22px rgba(52, 96, 232, 0.22);
+  background:#dcfce7;
+  color:#166534;
+  border:1px solid #bbf7d0;
+  box-shadow:none;
+}
+
+/* Saving... state — white background, green text */
+#savePortfolioBtn.btn-success{
+  background:#ffffff;
+  color:#16a34a;
+  border:1px solid #86efac;
+  box-shadow:none;
 }
 
 #continueToAssumptionsBtn.btn-secondary{
@@ -4656,4 +4664,31 @@ body.is-portfolio .page-panel {
 
 body.is-portfolio .summary-band {
   display: none;
+}
+/* ----------------------------------------
+   Second-row button colour overrides
+   ---------------------------------------- */
+
+/* Delete buttons — pale blue */
+#deletePortfolioBtn.btn-secondary,
+#deleteAssumptionsBtn.btn-secondary{
+  background:#e6f2ff;
+  color:#1f4e8c;
+  border:1px solid #c7defc;
+  box-shadow:none;
+}
+
+#deletePortfolioBtn.btn-secondary:hover,
+#deleteAssumptionsBtn.btn-secondary:hover{
+  background:#d6e9ff;
+  border-color:#a9ccfa;
+}
+
+/* Saving... / Saved state — white background, green text */
+#savePortfolioBtn.btn-success,
+#saveAssumptionsBtn.btn-success{
+  background:#ffffff;
+  color:#16a34a;
+  border:1px solid #86efac;
+  box-shadow:none;
 }
