@@ -2055,10 +2055,12 @@ function applyPortfolioInputsToAssumptions(inputs) {
 
   if (els.person1Name) {
     els.person1Name.value = String(inputs.person1Name || '');
+    els.person1Name.readOnly = true;
   }
 
   if (els.person2Name) {
     els.person2Name.value = String(inputs.person2Name || '');
+    els.person2Name.readOnly = true;
   }
 
   if (els.person1Age) {
