@@ -759,8 +759,30 @@ function continueToAssumptions() {
 
   const mappedInputs = mapPortfolioToInputs(portfolioTotals);
 
+  // Overlay saved assumptions on top of portfolio-derived values,
+  // excluding portfolio-owned fields (value, allocations, names, ages)
+  const savedAssumptions = (() => {
+    try {
+      const raw = localStorage.getItem(ASSUMPTIONS_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  })();
+
+  const PORTFOLIO_OWNED_KEYS = new Set([
+    'initialPortfolio', 'equityAllocation', 'bondAllocation',
+    'cashlikeAllocation', 'cashAllocation',
+    'person1Name', 'person1Age', 'person2Name', 'person2Age', 'includePerson2'
+  ]);
+
+  const savedOverrides = savedAssumptions
+    ? Object.fromEntries(
+        Object.entries(savedAssumptions).filter(([k]) => !PORTFOLIO_OWNED_KEYS.has(k))
+      )
+    : {};
+
   latestBaseInputs = {
-    ...mappedInputs
+    ...mappedInputs,
+    ...savedOverrides
   };
 
   applyPortfolioInputsToAssumptions(latestBaseInputs);
@@ -936,13 +958,13 @@ if (addPortfolioAccountBtn) {
     saveAssumptionsBtn.addEventListener('click', () => {
       saveAssumptionsToStorage();
       const originalLabel = saveAssumptionsBtn.textContent;
-      saveAssumptionsBtn.textContent = 'Saving...';
+      saveAssumptionsBtn.textContent = 'Saved';
       saveAssumptionsBtn.classList.remove('btn-primary', 'btn-secondary');
       saveAssumptionsBtn.classList.add('btn-success');
       window.setTimeout(() => {
         saveAssumptionsBtn.textContent = originalLabel;
         saveAssumptionsBtn.classList.remove('btn-success');
-        saveAssumptionsBtn.classList.add('btn-primary');
+        saveAssumptionsBtn.classList.add('btn-secondary');
       }, 1200);
     });
   }
