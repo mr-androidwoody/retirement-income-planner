@@ -33,6 +33,18 @@ function resolveActivePath(result, tableView) {
     };
   }
 
+  // Handle historical result shape (top-level rows/pathNominal, no baseCase wrapper)
+  if (result?.pathNominal || result?.rows || result?.yearlyRows) {
+    return {
+      rows: result.yearlyRows || result.rows || [],
+      yearlyRows: result.yearlyRows || result.rows || [],
+      terminalNominal: result.terminalNominal,
+      terminalReal: result.terminalReal,
+      pathNominal: result.pathNominal || [],
+      pathReal: result.pathReal || []
+    };
+  }
+
   return null;
 }
 
