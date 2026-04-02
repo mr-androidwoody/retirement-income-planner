@@ -11,10 +11,12 @@ export function toDecimal(value) {
   return Math.abs(value) > 1 ? value / 100 : value;
 }
 
-// Cap annual inflation at 100% to prevent hyperinflationary years (e.g. 1923 Weimar)
-// from producing astronomical nominal values. Real returns are unaffected — the
-// portfolio still experiences the genuine asset-price impact of those years.
-const HYPERINFLATION_CAP = 1.0;
+// For years where nominal inflation exceeds this threshold (after toDecimal),
+// the raw nominal asset returns are price-level multiples rather than usable
+// return figures (e.g. 1923 Weimar: inflation stored as 44530422).
+// In those years we fall back to realReturns and set inflation to 0,
+// since real returns already net out the price-level effect.
+const HYPERINFLATION_THRESHOLD = 5.0; // 500%
 
 export async function runHistoricalScenario(inputs) {
   const normalisedInputs = normaliseInputs(inputs);
@@ -30,18 +32,35 @@ export async function runHistoricalScenario(inputs) {
   }
 
   const annualReturns = {
-    equities: window.rows.map((row) =>
-      toDecimal(Number(row.returns?.equities ?? 0))
-    ),
-    bonds: window.rows.map((row) =>
-      toDecimal(Number(row.returns?.bonds ?? 0))
-    ),
-    cashlike: window.rows.map((row) =>
-      toDecimal(Number(row.returns?.cashlike ?? 0))
-    ),
-    inflation: window.rows.map((row) =>
-      Math.min(toDecimal(Number(row.inflation ?? 0)), HYPERINFLATION_CAP)
-    )
+    equities: window.rows.map((row) => {
+      const inf = toDecimal(Number(row.inflation ?? 0));
+      if (Math.abs(inf) > HYPERINFLATION_THRESHOLD) {
+        console.warn(`historical-runner: hyperinflationary year ${row.year} (inflation ${inf.toFixed(0)}×) — using real returns`);
+        return toDecimal(Number(row.realReturns?.equities ?? 0));
+      }
+      return toDecimal(Number(row.returns?.equities ?? 0));
+    }),
+    bonds: window.rows.map((row) => {
+      const inf = toDecimal(Number(row.inflation ?? 0));
+      if (Math.abs(inf) > HYPERINFLATION_THRESHOLD) {
+        return toDecimal(Number(row.realReturns?.bonds ?? 0));
+      }
+      return toDecimal(Number(row.returns?.bonds ?? 0));
+    }),
+    cashlike: window.rows.map((row) => {
+      const inf = toDecimal(Number(row.inflation ?? 0));
+      if (Math.abs(inf) > HYPERINFLATION_THRESHOLD) {
+        return toDecimal(Number(row.realReturns?.cashlike ?? 0));
+      }
+      return toDecimal(Number(row.returns?.cashlike ?? 0));
+    }),
+    inflation: window.rows.map((row) => {
+      const inf = toDecimal(Number(row.inflation ?? 0));
+      if (Math.abs(inf) > HYPERINFLATION_THRESHOLD) {
+        return 0; // real returns already net out inflation for this year
+      }
+      return inf;
+    })
   };
 
   const scenario = simulatePath(normalisedInputs, annualReturns);
