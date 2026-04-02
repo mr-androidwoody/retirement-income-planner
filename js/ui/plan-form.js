@@ -282,7 +282,9 @@ export function createPlanForm(
     );
 
     setFieldValue(elements, 'person1Name', defaults.person1Name ?? '');
+    if (elements.person1Name) elements.person1Name.readOnly = true;
     setFieldValue(elements, 'person1Age', defaults.person1Age);
+    if (elements.person1Age) elements.person1Age.readOnly = true;
     setFieldValue(elements, 'person1PensionAge', defaults.person1PensionAge);
 
     if (elements.person1GetsFullPension) {
@@ -323,7 +325,9 @@ export function createPlanForm(
     }
 
     setFieldValue(elements, 'person2Name', defaults.person2Name ?? '');
+    if (elements.person2Name) elements.person2Name.readOnly = true;
     setFieldValue(elements, 'person2Age', defaults.person2Age);
+    if (elements.person2Age) elements.person2Age.readOnly = true;
     setFieldValue(elements, 'person2PensionAge', defaults.person2PensionAge);
 
     if (elements.person2GetsFullPension) {
