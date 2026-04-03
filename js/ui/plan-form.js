@@ -253,7 +253,7 @@ export function createPlanForm(
     setFieldValue(
       elements,
       'initialWithdrawalRate',
-      defaults.initialWithdrawalRate ?? ''
+      defaults.initialWithdrawalRate ?? 4
     );
 
     setFieldValue(elements, 'equityAllocation', defaults.equityAllocation);
