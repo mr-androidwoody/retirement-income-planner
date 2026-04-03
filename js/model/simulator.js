@@ -25,6 +25,8 @@ export const DEFAULT_INPUTS = {
   cashAllocation: 0,
   rebalanceToTarget: true,
 
+  initialWithdrawalRate: 4,
+
   equityReturn: 7,
   equityVolatility: 16,
   bondReturn: 3.5,
