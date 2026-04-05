@@ -1003,31 +1003,37 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
     ? [
         {
           label: 'Portfolio value at start',
+          tooltip: 'Portfolio value at the beginning of the selected historical scenario.',
           description: 'Starting portfolio value for this scenario',
           value: valueWithClass(summary.startValue, { currency: true })
         },
         {
           label: 'Portfolio value at end',
+          tooltip: 'Portfolio value at the end of the selected historical scenario after returns, income flows, and withdrawals.',
           description: 'Ending portfolio value for this scenario',
           value: valueWithClass(summary.endValue, { currency: true })
         },
         {
           label: 'Portfolio value CAGR',
+          tooltip: 'Annualised growth rate of your portfolio value across this historical path, after market returns and any withdrawals.',
           description: 'Annualised growth of your portfolio value',
           value: valueWithClass(summary.portfolioValueCagr)
         },
         {
           label: 'Max drawdown',
+          tooltip: 'Largest peak-to-trough fall in portfolio value during this historical path.',
           description: 'Largest peak-to-trough portfolio fall',
           value: valueWithClass(summary.maxDrawdown)
         },
         {
           label: 'Worst rolling 5-year return',
+          tooltip: 'Worst annualised return earned over any consecutive 5-year period in this historical path.',
           description: 'Worst annualised return over any 5-year period',
           value: valueWithClass(summary.worstRollingFiveYearReturn)
         },
         {
           label: 'Best rolling 5-year return',
+          tooltip: 'Best annualised return earned over any consecutive 5-year period in this historical path.',
           description: 'Best annualised return over any 5-year period',
           value: valueWithClass(summary.bestRollingFiveYearReturn)
         }
@@ -1035,41 +1041,49 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
     : [
         {
           label: 'Portfolio value CAGR',
+          tooltip: 'Annualised growth rate of your portfolio value after market returns, withdrawals, income flows, and spending adjustments.',
           description: 'Annualised growth of your portfolio value',
           value: valueWithClass(summary.portfolioValueCagr)
         },
         {
           label: 'Market CAGR',
+          tooltip: 'Annualised return of the underlying invested portfolio before withdrawals and spending effects.',
           description: 'Annualised return of the underlying market',
           value: valueWithClass(summary.marketCagr)
         },
         {
           label: 'Return gap',
+          tooltip: 'Difference between market return and portfolio value growth, mainly caused by withdrawals, timing of returns, and cash drag.',
           description: 'Difference between your returns and the market',
           value: valueWithClass(summary.returnGap, { signed: true })
         },
         {
           label: 'Max drawdown',
+          tooltip: 'Largest peak-to-trough fall in portfolio value during the scenario.',
           description: 'Largest peak-to-trough portfolio fall',
           value: valueWithClass(summary.maxDrawdown)
         },
         {
           label: 'Worst year return',
+          tooltip: 'Biggest one-year percentage loss in the portfolio during the scenario.',
           description: 'Largest loss in a single year',
           value: valueWithClass(summary.worstYearReturn)
         },
         {
           label: 'Worst rolling 5-year return',
+          tooltip: 'Worst annualised return earned over any consecutive 5-year period.',
           description: 'Worst annualised return over any 5-year period',
           value: valueWithClass(summary.worstRollingFiveYearReturn)
         },
         {
           label: 'Best rolling 5-year return',
+          tooltip: 'Best annualised return earned over any consecutive 5-year period.',
           description: 'Best annualised return over any 5-year period',
           value: valueWithClass(summary.bestRollingFiveYearReturn)
         },
         {
           label: 'End portfolio growth',
+          tooltip: 'Percentage difference between the ending portfolio value and the starting portfolio value over the full scenario.',
           description: 'Percentage change in ending portfolio versus starting value',
           value: valueWithClass(summary.endPortfolioGrowth, { signed: true })
         }
@@ -1079,9 +1093,11 @@ function renderPerformanceSummaryOverlayBody(summary, formatters) {
     <div class="performance-summary-grid">
       ${items
         .map(
-          ({ label, description, value }) => `
+          ({ label, tooltip, description, value }) => `
             <div class="performance-summary-metric">
-              <div class="performance-summary-metric__label">${label}</div>
+              <div class="performance-summary-metric__label">
+                ${renderMetricHeading(label, tooltip || description)}
+              </div>
               <div class="performance-summary-metric__description">${description}</div>
               <div class="performance-summary-metric__value ${value.className}">
                 ${value.text}
