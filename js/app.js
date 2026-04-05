@@ -2289,7 +2289,7 @@ function updatePortfolioSummaryCards() {
   if (wrappersEl) {
     wrappersEl.innerHTML = `
       <div><span>ISA</span><span class="value">${formatCurrency(totals.wrappers.ISA)}</span></div>
-      <div><span>SIPP</span><span class="value">${formatCurrency(totals.wrappers.SIPP)}</span></div>
+      <div><span>SIPP / WPP</span><span class="value">${formatCurrency(totals.wrappers.SIPP)}</span></div>
       <div><span>GIA</span><span class="value">${formatCurrency(totals.wrappers.GIA)}</span></div>
       <div><span>Cash</span><span class="value">${formatCurrency(totals.wrappers.Cash)}</span></div>
       <div><span>QMMF</span><span class="value">${formatCurrency(totals.wrappers.QMMF)}</span></div>
@@ -2350,7 +2350,7 @@ function renderPortfolioTable() {
       <td>
         <select data-id="${account.id}" data-field="wrapper">
           <option value="ISA" ${account.wrapper === 'ISA' ? 'selected' : ''}>ISA</option>
-          <option value="SIPP" ${account.wrapper === 'SIPP' ? 'selected' : ''}>SIPP</option>
+          <option value="SIPP" ${account.wrapper === 'SIPP' ? 'selected' : ''}>SIPP / WPP</option>
           <option value="GIA" ${account.wrapper === 'GIA' ? 'selected' : ''}>GIA</option>
           <option value="Cash" ${account.wrapper === 'Cash' ? 'selected' : ''}>Cash</option>
           <option value="QMMF" ${account.wrapper === 'QMMF' ? 'selected' : ''}>QMMF</option>
