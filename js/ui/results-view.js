@@ -574,12 +574,14 @@ function renderTopRowCardValues({
   activePath,
   profiles,
   useReal,
-  formatters
+  formatters,
+  tableView
 }) {
   const { formatCurrency, formatPercent } = formatters;
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
   const hasStressSummary = Boolean(result?.summary?.worstStressName);
+  const selectedPathMeta = getSelectedPathMeta(tableView);
 
   const medianProfile = profiles?.medianProfile || null;
   const downsideProfile = profiles?.downsideProfile || medianProfile || null;
@@ -626,10 +628,10 @@ function renderTopRowCardValues({
     }
   }
 
-  // Panel 2: Expected outcome (median path)
+  // Panel 2: Expected outcome (selected path)
   if (elements.summaryMedianEnd) {
     const expectedValue = Number(
-      medianProfile?.endValue ??
+      activeProfile?.endValue ??
       getSelectedPathEndValue(activePath, getPathRows(activePath), useReal)
     );
 
@@ -640,23 +642,23 @@ function renderTopRowCardValues({
   }
 
   if (elements.summaryMedianEndDesc) {
-    const medianDepleted = Boolean(medianProfile?.depleted);
-    const endPctVsStart = Number(medianProfile?.endValuePctVsStart);
+    const selectedDepleted = Boolean(activeProfile?.depleted);
+    const endPctVsStart = Number(activeProfile?.endValuePctVsStart);
 
-    if (medianDepleted) {
+    if (selectedDepleted) {
       setText(
         elements.summaryMedianEndDesc,
-        'Funds spending until depletion.'
+        `Funds spending until depletion on the selected ${selectedPathMeta.label} path.`
       );
     } else if (Number.isFinite(endPctVsStart) && endPctVsStart <= 0.1) {
       setText(
         elements.summaryMedianEndDesc,
-        'Funds spending, ending close to zero.'
+        `Funds spending on the selected ${selectedPathMeta.label} path, ending close to zero.`
       );
     } else {
       setText(
         elements.summaryMedianEndDesc,
-        'After funding your planned spending throughout.'
+        `After funding your planned spending throughout the selected ${selectedPathMeta.label} path.`
       );
     }
   }
@@ -928,7 +930,8 @@ export function renderResultsView({
     activePath,
     profiles,
     useReal,
-    formatters
+    formatters,
+    tableView
   });
 
   if (isHistorical || hasMonteCarlo) {
@@ -1596,6 +1599,35 @@ function renderPlanOutlookWarningGroups(warningGroups) {
   `;
 }
 
+function getSelectedPathMeta(tableView) {
+  switch (tableView) {
+    case 'p10':
+      return {
+        key: 'p10',
+        label: 'downside',
+        title: 'Expected outcome (downside path)',
+        description: 'Ending portfolio value for the selected downside path.'
+      };
+
+    case 'p90':
+      return {
+        key: 'p90',
+        label: 'upside',
+        title: 'Expected outcome (upside path)',
+        description: 'Ending portfolio value for the selected upside path.'
+      };
+
+    case 'median':
+    default:
+      return {
+        key: 'median',
+        label: 'median',
+        title: 'Expected outcome (median path)',
+        description: 'Representative ending portfolio value for the median path.'
+      };
+  }
+}
+
 function renderResultsContextAndPathSummary({
   result,
   elements,
@@ -1779,6 +1811,7 @@ function renderResultsContextAndPathSummary({
 function renderSummaryCardLabels(elements, result, tableView) {
   const mode = String(result?.mode ?? '').toLowerCase();
   const isHistorical = mode === 'historical';
+  const selectedPathMeta = getSelectedPathMeta(tableView);
 
   if (isHistorical) {
     if (elements.summarySuccessRateLabel) {
@@ -1791,7 +1824,7 @@ function renderSummaryCardLabels(elements, result, tableView) {
     }
 
     if (elements.summaryMedianEndLabel) {
-      elements.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
+      elements.summaryMedianEndLabel.textContent = 'Expected outcome';
     }
 
     if (elements.summaryMedianEndDesc) {
@@ -1839,12 +1872,11 @@ function renderSummaryCardLabels(elements, result, tableView) {
   }
 
   if (elements.summaryMedianEndLabel) {
-    elements.summaryMedianEndLabel.textContent = 'Expected outcome (median path)';
+    elements.summaryMedianEndLabel.textContent = selectedPathMeta.title;
   }
 
   if (elements.summaryMedianEndDesc) {
-    elements.summaryMedianEndDesc.textContent =
-      'Representative ending portfolio value for the median path.';
+    elements.summaryMedianEndDesc.textContent = selectedPathMeta.description;
   }
 
   if (elements.summaryWorstStressLabel) {
